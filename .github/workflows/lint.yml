@@ -2,9 +2,9 @@ name: Code Linting
 
 on:
   push:
-    branches: [ master, main, develop ]
+    branches: [ master, dev ]
   pull_request:
-    branches: [ master, main, develop ]
+    branches: [ master, dev ]
 
 jobs:
   lint:
