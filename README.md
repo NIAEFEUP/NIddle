@@ -57,6 +57,16 @@ $ npm run test:e2e
 $ npm run test:cov
 ```
 
+## Documentation
+
+Documentation is available at:
+
+```
+http://127.0.0.1:3000/docs/
+```
+
+This documentation includes detailed information about all available endpoints, request parameters, and response formats.
+
 ## Deployment
 
 When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
