@@ -59,7 +59,9 @@ $ npm run test:cov
 
 ## Documentation
 
-Documentation is available at:
+This project uses Swagger to generate API documentation automatically.
+
+Once the server is running, you can access the interactive API docs at:
 
 ```
 http://127.0.0.1:3000/docs/
