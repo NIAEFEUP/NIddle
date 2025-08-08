@@ -11,8 +11,8 @@ const options: DataSourceOptions & SeederOptions = {
   password: process.env.NODE_ENV === 'production' ? 'postgres' : undefined,
   entities: [Faculty],
   synchronize: true,
-  factories: ['src/seeds/factories/**/*{.ts,.js}'],
-  seeds: ['src/seeds/seeders/**/*{.ts,.js}'],
+  factories: ['src/database/factories/*.factory.{.ts,.js}'],
+  seeds: ['src/database/seeds/*.seeder.{.ts,.js}'],
 };
 
 export const dataSource = new DataSource(options);

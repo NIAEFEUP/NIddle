@@ -6,11 +6,11 @@ import { Faculty } from '../faculties/faculty.entity';
   const options: DataSourceOptions & SeederOptions = {
     type: 'sqlite',
     database: 'dev.db',
-    entities: [Faculty],
     synchronize: true,
     dropSchema: true,
-    factories: ['src/seeds/factories/**/*{.ts,.js}'],
-    seeds: ['src/seeds/seeders/**/*{.ts,.js}'],
+    entities: [Faculty],
+    seeds: ['src/database/seeds/*.seeder.{ts,js}'],
+    factories: ['src/database/factories/*.factory.{ts,js}'],
   };
 
   const dataSource = new DataSource(options);
