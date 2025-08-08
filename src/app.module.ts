@@ -5,18 +5,29 @@ import { AppService } from './app.service';
 import { FacultiesModule } from './faculties/faculties.module';
 import { DatabaseModule } from './database/database.module';
 
+const isProd = process.env.NODE_ENV === 'production';
+
 @Module({
   imports: [
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      host: 'localhost',
-      port: 5432,
-      username: 'postgres',
-      password: 'postgres',
-      database: 'db',
-      autoLoadEntities: true,
-      synchronize: true, // Setting synchronize: true shouldn't be used in production - otherwise you can lose production data.
-    }),
+    TypeOrmModule.forRoot(
+      isProd
+        ? {
+            type: 'postgres',
+            host: 'localhost',
+            port: 5432,
+            username: 'postgres',
+            password: 'postgres',
+            database: 'db',
+            autoLoadEntities: true,
+            synchronize: false,
+          }
+        : {
+            type: 'sqlite',
+            database: 'dev.db',
+            autoLoadEntities: true,
+            synchronize: true,
+          },
+    ),
     FacultiesModule,
     DatabaseModule,
   ],
