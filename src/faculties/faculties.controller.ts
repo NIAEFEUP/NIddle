@@ -7,7 +7,7 @@ import { UpdateResult } from 'typeorm';
 
 @Controller('faculties')
 export class FacultiesController {
-  constructor(private readonly facultiesService: FacultiesService) {}
+  constructor(private readonly facultiesService: FacultiesService) { }
 
   @Post()
   create(@Body(ValidationPipe) createFacultyDto: CreateFacultyDto): Promise<Faculty> {
@@ -20,12 +20,12 @@ export class FacultiesController {
   }
 
   @Get(':id')
-  findOne(@Param('id', ParseIntPipe) id: number): Promise<Faculty|null> {
+  findOne(@Param('id', ParseIntPipe) id: number): Promise<Faculty | null> {
     return this.facultiesService.findOne(id);
   }
 
   @Patch(':id')
-  update(@Param('id', ParseIntPipe) id: number, @Body(ValidationPipe) updateFacultyDto: UpdateFacultyDto): Promise<UpdateResult> {
+  async update(@Param('id', ParseIntPipe) id: number, @Body(ValidationPipe) updateFacultyDto: UpdateFacultyDto): Promise<Faculty> {
     return this.facultiesService.update(id, updateFacultyDto);
   }
 

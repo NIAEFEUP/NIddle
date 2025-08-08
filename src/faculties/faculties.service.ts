@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DeleteResult, UpdateResult, Repository } from 'typeorm';
 import { CreateFacultyDto } from './dto/create-faculty.dto';
@@ -55,8 +55,13 @@ export class FacultiesService {
     return this.facultyRepository.findOneBy({ id: id });
   }
 
-  update(id: number, updateFacultyDto: UpdateFacultyDto): Promise<UpdateResult> {
-    return this.facultyRepository.update(id, updateFacultyDto);
+  async update(id: number, updateFacultyDto: UpdateFacultyDto): Promise<Faculty> {
+    await this.facultyRepository.update(id, updateFacultyDto);
+    const updatedFaculty = await this.facultyRepository.findOneBy({ id });
+    if (!updatedFaculty) {
+      throw new NotFoundException(`Faculty with id ${id} not found`);
+    }
+    return updatedFaculty;
   }
 
   remove(id: number): Promise<DeleteResult> {
