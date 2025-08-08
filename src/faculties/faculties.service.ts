@@ -10,7 +10,7 @@ export class FacultiesService {
   constructor(
     @InjectRepository(Faculty)
     private facultyRepository: Repository<Faculty>,
-  ) { }
+  ) {}
 
   private faculties: Faculty[] = [
     { id: 1, name: 'Faculty of Architecture', acronym: 'FAUP' },
@@ -55,7 +55,10 @@ export class FacultiesService {
     return this.facultyRepository.findOneBy({ id: id });
   }
 
-  update(id: number, updateFacultyDto: UpdateFacultyDto): Promise<UpdateResult> {
+  update(
+    id: number,
+    updateFacultyDto: UpdateFacultyDto,
+  ): Promise<UpdateResult> {
     return this.facultyRepository.update(id, updateFacultyDto);
   }
 

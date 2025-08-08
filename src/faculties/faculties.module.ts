@@ -9,4 +9,4 @@ import { Faculty } from './faculty.entity';
   controllers: [FacultiesController],
   providers: [FacultiesService],
 })
-export class FacultiesModule { }
+export class FacultiesModule {}

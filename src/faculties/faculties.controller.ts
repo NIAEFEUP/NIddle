@@ -1,4 +1,14 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, ValidationPipe } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  ParseIntPipe,
+  ValidationPipe,
+} from '@nestjs/common';
 import { FacultiesService } from './faculties.service';
 import { CreateFacultyDto } from './dto/create-faculty.dto';
 import { UpdateFacultyDto } from './dto/update-faculty.dto';
@@ -10,7 +20,9 @@ export class FacultiesController {
   constructor(private readonly facultiesService: FacultiesService) {}
 
   @Post()
-  create(@Body(ValidationPipe) createFacultyDto: CreateFacultyDto): Promise<Faculty> {
+  create(
+    @Body(ValidationPipe) createFacultyDto: CreateFacultyDto,
+  ): Promise<Faculty> {
     return this.facultiesService.create(createFacultyDto);
   }
 
@@ -20,12 +32,15 @@ export class FacultiesController {
   }
 
   @Get(':id')
-  findOne(@Param('id', ParseIntPipe) id: number): Promise<Faculty|null> {
+  findOne(@Param('id', ParseIntPipe) id: number): Promise<Faculty | null> {
     return this.facultiesService.findOne(id);
   }
 
   @Patch(':id')
-  update(@Param('id', ParseIntPipe) id: number, @Body(ValidationPipe) updateFacultyDto: UpdateFacultyDto): Promise<UpdateResult> {
+  update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body(ValidationPipe) updateFacultyDto: UpdateFacultyDto,
+  ): Promise<UpdateResult> {
     return this.facultiesService.update(id, updateFacultyDto);
   }
 

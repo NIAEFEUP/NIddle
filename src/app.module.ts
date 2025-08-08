@@ -15,7 +15,7 @@ import { DatabaseModule } from './database/database.module';
       password: 'postgres',
       database: 'db',
       autoLoadEntities: true,
-      synchronize: true // Setting synchronize: true shouldn't be used in production - otherwise you can lose production data. 
+      synchronize: true, // Setting synchronize: true shouldn't be used in production - otherwise you can lose production data.
     }),
     FacultiesModule,
     DatabaseModule,
