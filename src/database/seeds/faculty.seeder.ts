@@ -7,16 +7,7 @@ export default class FacultySeeder implements Seeder {
     dataSource: DataSource,
     factoryManager: SeederFactoryManager,
   ) {
-    const repository = dataSource.getRepository(Faculty);
-
-    await repository.insert([
-      {
-        name: 'Faculdade de Engenharia da Universidade do Porto',
-        acronym: 'FEUP',
-      },
-    ]);
-
     const facultyFactory = factoryManager.get(Faculty);
-    await facultyFactory.saveMany(20);
+    await facultyFactory.saveMany(10);
   }
 }
