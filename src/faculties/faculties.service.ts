@@ -10,7 +10,7 @@ export class FacultiesService {
   constructor(
     @InjectRepository(Faculty)
     private facultyRepository: Repository<Faculty>,
-  ) { }
+  ) {}
 
   private faculties: Faculty[] = [
     { id: 1, name: 'Faculty of Architecture', acronym: 'FAUP' },
