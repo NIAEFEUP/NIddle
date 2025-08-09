@@ -13,11 +13,10 @@ import { FacultiesService } from './faculties.service';
 import { CreateFacultyDto } from './dto/create-faculty.dto';
 import { UpdateFacultyDto } from './dto/update-faculty.dto';
 import { Faculty } from './faculty.entity';
-import { UpdateResult } from 'typeorm';
 
 @Controller('faculties')
 export class FacultiesController {
-  constructor(private readonly facultiesService: FacultiesService) { }
+  constructor(private readonly facultiesService: FacultiesService) {}
 
   @Post()
   create(
@@ -37,7 +36,10 @@ export class FacultiesController {
   }
 
   @Patch(':id')
-  async update(@Param('id', ParseIntPipe) id: number, @Body(ValidationPipe) updateFacultyDto: UpdateFacultyDto): Promise<Faculty> {
+  async update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body(ValidationPipe) updateFacultyDto: UpdateFacultyDto,
+  ): Promise<Faculty> {
     return this.facultiesService.update(id, updateFacultyDto);
   }
 

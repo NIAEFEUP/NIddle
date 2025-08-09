@@ -5,11 +5,8 @@ import { FacultiesModule } from './faculties/faculties.module';
 import { DatabaseModule } from './database/database.module';
 
 @Module({
-  imports: [
-    DatabaseModule,
-    FacultiesModule,
-  ],
+  imports: [DatabaseModule, FacultiesModule],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule { }
+export class AppModule {}
