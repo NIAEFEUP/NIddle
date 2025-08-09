@@ -21,7 +21,7 @@ export class DatabaseService implements TypeOrmOptionsFactory {
             }
             : {
                 type: 'sqlite',
-                database: 'dev.db',
+                database: 'src/database/dev.db',
                 entities: [Faculty],
                 autoLoadEntities: true,
                 synchronize: true,

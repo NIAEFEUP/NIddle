@@ -33,7 +33,7 @@ describe('DatabaseService', () => {
   it('should create typeorm options for development', () => {
     const options = service.createTypeOrmOptions();
     expect(options.type).toBe('sqlite');
-    expect(options.database).toBe('dev.db');
+    expect(options.database).toBe('src/database/dev.db');
     expect(options.synchronize).toBe(true);
   });
 

@@ -5,7 +5,7 @@ import { Faculty } from '../faculties/faculty.entity';
 (async () => {
   const options: DataSourceOptions & SeederOptions = {
     type: 'sqlite',
-    database: 'dev.db',
+    database: 'src/database/dev.db',
     synchronize: true,
     dropSchema: true,
     entities: [Faculty],
