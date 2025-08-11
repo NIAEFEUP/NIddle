@@ -15,7 +15,7 @@ export class Faculty {
    */
   @Column()
   name: string;
-  
+
   /**
    * The acronym of the faculty.
    * @example 'FEUP'
