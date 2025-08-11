@@ -8,8 +8,6 @@ async function bootstrap() {
   const config = new DocumentBuilder()
     .setTitle('NIddle')
     .setDescription('NIddle API description')
-    .setVersion('1.0')
-    .addTag('niddle')
     .build();
   const documentFactory = () => SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('docs', app, documentFactory);
