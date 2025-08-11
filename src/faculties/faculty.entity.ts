@@ -14,12 +14,12 @@ export class Faculty {
    * @example 'Faculty of Engineering'
    */
   @Column()
-  acronym: string;
-
+  name: string;
+  
   /**
    * The acronym of the faculty.
    * @example 'FEUP'
    */
   @Column()
-  name: string;
+  acronym: string;
 }
