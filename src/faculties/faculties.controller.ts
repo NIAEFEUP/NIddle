@@ -31,12 +31,12 @@ export class FacultiesController {
   }
 
   @Get(':id')
-  findOne(@Param('id', ParseIntPipe) id: number): Promise<Faculty | null> {
+  findOne(@Param('id', ParseIntPipe) id: number): Promise<Faculty> {
     return this.facultiesService.findOne(id);
   }
 
   @Patch(':id')
-  async update(
+  update(
     @Param('id', ParseIntPipe) id: number,
     @Body(ValidationPipe) updateFacultyDto: UpdateFacultyDto,
   ): Promise<Faculty> {
@@ -44,7 +44,7 @@ export class FacultiesController {
   }
 
   @Delete(':id')
-  remove(@Param('id', ParseIntPipe) id: number) {
+  remove(@Param('id', ParseIntPipe) id: number): Promise<Faculty> {
     return this.facultiesService.remove(id);
   }
 }
