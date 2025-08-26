@@ -1,18 +1,35 @@
-FROM node:22-alpine
+# ---- Base deps ----
 
+FROM node:22-alpine AS deps
 WORKDIR /usr/src/app
 
-USER node
-
-COPY --chown=node:node package*.json ./
-
+# Install deps
+COPY package*.json ./
 RUN npm ci
 
+
+# ---- Build stage ----
+FROM node:22-alpine AS build
+WORKDIR /usr/src/app
+
+COPY --from=deps /usr/src/app/node_modules ./node_modules
 COPY . .
 
 RUN npm run build
 
+# ---- Production runtime ----
+FROM node:22-alpine AS production
+WORKDIR /usr/src/app
 
-EXPOSE 3000
+ENV NODE_ENV=production
 
-CMD [ "node", "dist/main" ]
+# Install only prod deps
+COPY package*.json ./
+COPY .env.docker .env
+RUN npm ci --omit=dev && npm cache clean --force
+
+# Copy built artifacts
+COPY --from=build /usr/src/app/dist ./dist
+
+USER node
+CMD ["node", "dist/main"]
