@@ -32,8 +32,8 @@ describe('DatabaseService', () => {
 
   it('should create typeorm options for development', () => {
     const options = service.createTypeOrmOptions();
-    expect(options.type).toBe('sqlite');
-    expect(options.database).toBe('src/database/dev.db');
+    expect(options.type).toBe('postgres');
+    expect(options.database).toBe('niddle_db');
     expect(options.synchronize).toBe(true);
   });
 
@@ -43,7 +43,7 @@ describe('DatabaseService', () => {
 
     const options = service.createTypeOrmOptions();
     expect(options.type).toBe('postgres');
-    expect(options.database).toBe('db');
+    expect(options.database).toBe('niddle_db');
     expect(options.synchronize).toBe(false);
 
     process.env.NODE_ENV = originalEnv;
