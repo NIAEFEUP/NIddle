@@ -1,6 +1,22 @@
 # NIddle
 
-[![CI status](https://github.com/NIAEFEUP/NIddle/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/NIAEFEUP/NIddle/actions/workflows/ci.yml)
+<p align="center">
+    <a href="https://github.com/niaefeup/niddle/actions/workflows/ci.yml">
+        <img alt="CI" src="https://img.shields.io/github/actions/workflow/status/niaefeup/niddle/ci.yml?branch=main">
+    </a>
+    <a href="https://github.com/prettier/prettier">
+        <img alt="code style: prettier" src="https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square">
+    </a>
+    <a href="https://github.com/niaefeup/niddle/graphs/contributors">
+        <img alt="GitHub contributors" src="https://img.shields.io/github/contributors/niaefeup/niddle">
+    </a>
+    <a href="https://github.com/niaefeup/niddle/issues">
+        <img alt="GitHub Issues or Pull Requests" src="https://img.shields.io/github/issues/niaefeup/niddle">
+    </a>
+    <a href="https://github.com/niaefeup/niddle/blob/main/LICENSE">
+        <img alt="GitHub License" src="https://img.shields.io/github/license/niaefeup/niddle">
+    </a>
+</p>
 
 ## Overview
 
@@ -92,23 +108,23 @@ NIddle is fully containerized and can be easily built and run as a Docker image.
 
 ### Running the Image
 
--   **Run the run script**
+- **Run the run script**
 
-    The `run_image.sh` script will start a container from the image you just built.
+  The `run_image.sh` script will start a container from the image you just built.
 
-    ```bash
-    ./run_image.sh
-    ```
+  ```bash
+  ./run_image.sh
+  ```
 
 ## Available Scripts
 
--   `npm run build`: Compiles the project.
--   `npm run format`: Formats the code using Prettier.
--   `npm run start:prod`: Starts the application in production mode.
--   `npm run start:dev`: Starts the application in development mode with watch.
--   `npm run lint`: Lints the codebase.
--   `npm test`: Runs unit tests.
--   `npm run test:e2e`: Runs end-to-end tests.
+- `npm run build`: Compiles the project.
+- `npm run format`: Formats the code using Prettier.
+- `npm run start:prod`: Starts the application in production mode.
+- `npm run start:dev`: Starts the application in development mode with watch.
+- `npm run lint`: Lints the codebase.
+- `npm test`: Runs unit tests.
+- `npm run test:e2e`: Runs end-to-end tests.
 
 ## License
 
