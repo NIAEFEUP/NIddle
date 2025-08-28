@@ -1,0 +1,23 @@
+networks:
+  niddle-network:
+    name: niddle-network
+    driver: bridge
+
+services:
+  postgres:
+    image: postgres:latest
+    container_name: niddle-postgres
+    restart: unless-stopped
+    ports:
+      - '5432:5432'
+    environment:
+      POSTGRES_USER: niddle
+      POSTGRES_PASSWORD: niddle
+      POSTGRES_DB: niddle_db
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - niddle-network
+
+volumes:
+  pgdata:
