@@ -6,22 +6,15 @@ export class DatabaseService implements TypeOrmOptionsFactory {
   createTypeOrmOptions(): TypeOrmModuleOptions {
     const isProd = process.env.NODE_ENV === 'production';
 
-    return isProd
-      ? {
-          type: 'postgres',
-          host: 'localhost',
-          port: 5432,
-          username: 'postgres',
-          password: 'postgres',
-          database: 'db',
-          autoLoadEntities: true,
-          synchronize: false,
-        }
-      : {
-          type: 'sqlite',
-          database: 'src/database/dev.db',
-          autoLoadEntities: true,
-          synchronize: true,
-        };
+    return {
+      type: 'postgres',
+      host: process.env.DATABASE_HOST || 'localhost',
+      port: parseInt(process.env.DATABASE_PORT || '5432'),
+      username: process.env.DATABASE_USER || 'niddle',
+      password: process.env.DATABASE_PASSWORD || 'niddle',
+      database: process.env.DATABASE_NAME || 'niddle_db',
+      autoLoadEntities: true,
+      synchronize: !isProd,
+    };
   }
 }
