@@ -1,15 +1,14 @@
 # ---- Base deps ----
 
-FROM node:22-alpine AS deps
+FROM docker.io/library/node:22-alpine AS deps
 WORKDIR /usr/src/app
 
 # Install deps
 COPY package*.json ./
 RUN npm ci
 
-
 # ---- Build stage ----
-FROM node:22-alpine AS build
+FROM docker.io/library/node:22-alpine AS build
 WORKDIR /usr/src/app
 
 COPY --from=deps /usr/src/app/node_modules ./node_modules
@@ -18,7 +17,7 @@ COPY . .
 RUN npm run build
 
 # ---- Production runtime ----
-FROM node:22-alpine AS production
+FROM docker.io/library/node:22-alpine AS production
 WORKDIR /usr/src/app
 
 ENV NODE_ENV=production

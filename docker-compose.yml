@@ -5,7 +5,7 @@ networks:
 
 services:
   postgres:
-    image: postgres:latest
+    image: docker.io/library/postgres:16
     container_name: niddle-postgres
     restart: unless-stopped
     ports:
