@@ -2,6 +2,8 @@ name: Coverage
 
 on:
   push:
+    branches:
+      - main
 
 jobs:
   coverage:
@@ -11,17 +13,17 @@ jobs:
       matrix:
         node-version: [22.x]
     steps:
-    - uses: actions/checkout@v4
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ matrix.node-version }}
-        cache: 'npm'
-    - name: Install Dependencies
-      run: npm ci
-    - name: Generate coverage report
-      run: npm run test:cov
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v5
-      with:
-        token: ${{ secrets.CODECOV_TOKEN }}
+      - uses: actions/checkout@v4
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+      - name: Install Dependencies
+        run: npm ci
+      - name: Generate coverage report
+        run: npm run test:cov
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
