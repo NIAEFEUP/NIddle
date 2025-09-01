@@ -1,6 +1,7 @@
 import { DataSource, DataSourceOptions } from 'typeorm';
 import { runSeeders, SeederOptions } from 'typeorm-extension';
 import { Faculty } from '../faculties/faculty.entity';
+import { User } from '../users/user.entity';
 
 (async () => {
   const options: DataSourceOptions & SeederOptions = {
@@ -12,7 +13,7 @@ import { Faculty } from '../faculties/faculty.entity';
     database: process.env.DATABASE_NAME || 'niddle_db',
     synchronize: true,
     dropSchema: true,
-    entities: [Faculty],
+    entities: [Faculty, User],
     seeds: ['src/database/seeds/*.seeder.{ts,js}'],
     factories: ['src/database/factories/*.factory.{ts,js}'],
   };
