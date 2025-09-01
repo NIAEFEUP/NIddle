@@ -22,7 +22,9 @@
           packages = with pkgs; [
             nodejs_22
             nest-cli
-            sqlite
+            postgresql_16
+            podman
+            podman-compose
           ];
         };
       }
