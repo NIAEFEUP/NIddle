@@ -16,6 +16,11 @@ services:
       POSTGRES_DB: niddle_db
     volumes:
       - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U niddle -d niddle_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     networks:
       - niddle-network
 
