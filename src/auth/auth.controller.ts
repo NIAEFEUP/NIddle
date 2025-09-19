@@ -10,7 +10,7 @@ import { LocalAuthGuard } from './local-auth.guard';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from 'src/users/create-user.dto';
 import { SignInDto } from './signin.dto';
-import { AuthGuard } from './auth.guard';
+import { JwtAuthGuard } from './jwt-auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -27,15 +27,11 @@ export class AuthController {
     return this.authService.signIn(signInDto);
   }
 
-  @UseGuards(LocalAuthGuard)
-  @Post('logout')
-  async logout(@Request() req) {
-    return req.logout();
-  }
-
-  @UseGuards(AuthGuard)
+  @UseGuards(JwtAuthGuard)
   @Get('profile')
-  getProfile(@Request() req) {
+  getProfile(
+    @Request() req: { user: { id: number; name: string; email: string } },
+  ) {
     return req.user;
   }
 }

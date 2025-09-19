@@ -38,15 +38,6 @@ export class AuthService {
     return newUser;
   }
 
-  async validateUser(signInDto: SignInDto): Promise<any> {
-    const user = await this.usersService.findOneByEmail(signInDto.email);
-    if (user && user.password === signInDto.password) {
-      const { password, ...result } = user;
-      return result;
-    }
-    return null;
-  }
-
   async signIn(signInDto: SignInDto) {
     const user = await this.usersService.findOneByEmail(signInDto.email);
     if (user.password != signInDto.password) {
@@ -56,5 +47,13 @@ export class AuthService {
     return {
       access_token: await this.jwtService.signAsync(payload),
     };
+  }
+
+  async validateUser(signInDto: SignInDto): Promise<User | null> {
+    const user = await this.usersService.findOneByEmail(signInDto.email);
+    if (user && user.password === signInDto.password) {
+      return user;
+    }
+    return null;
   }
 }
