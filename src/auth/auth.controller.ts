@@ -16,6 +16,14 @@ import { JwtAuthGuard } from './jwt-auth.guard';
 export class AuthController {
   constructor(private authService: AuthService) {}
 
+  @UseGuards(JwtAuthGuard)
+  @Get('profile')
+  getProfile(
+    @Request() req: { user: { id: number; name: string; email: string } },
+  ) {
+    return req.user;
+  }
+
   @Post('register')
   async register(@Body() createUserDto: CreateUserDto) {
     return this.authService.register(createUserDto);
@@ -25,13 +33,5 @@ export class AuthController {
   @Post('login')
   async signIn(@Body() signInDto: SignInDto) {
     return this.authService.signIn(signInDto);
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @Get('profile')
-  getProfile(
-    @Request() req: { user: { id: number; name: string; email: string } },
-  ) {
-    return req.user;
   }
 }

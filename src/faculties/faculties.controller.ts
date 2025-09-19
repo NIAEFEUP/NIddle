@@ -8,22 +8,17 @@ import {
   Delete,
   ParseIntPipe,
   ValidationPipe,
+  UseGuards,
 } from '@nestjs/common';
 import { FacultiesService } from './faculties.service';
 import { CreateFacultyDto } from './dto/create-faculty.dto';
 import { UpdateFacultyDto } from './dto/update-faculty.dto';
 import { Faculty } from './faculty.entity';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 
 @Controller('faculties')
 export class FacultiesController {
   constructor(private readonly facultiesService: FacultiesService) {}
-
-  @Post()
-  create(
-    @Body(ValidationPipe) createFacultyDto: CreateFacultyDto,
-  ): Promise<Faculty> {
-    return this.facultiesService.create(createFacultyDto);
-  }
 
   @Get()
   findAll(): Promise<Faculty[]> {
@@ -35,6 +30,15 @@ export class FacultiesController {
     return this.facultiesService.findOne(id);
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Post()
+  create(
+    @Body(ValidationPipe) createFacultyDto: CreateFacultyDto,
+  ): Promise<Faculty> {
+    return this.facultiesService.create(createFacultyDto);
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Patch(':id')
   update(
     @Param('id', ParseIntPipe) id: number,
@@ -43,6 +47,7 @@ export class FacultiesController {
     return this.facultiesService.update(id, updateFacultyDto);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Delete(':id')
   remove(@Param('id', ParseIntPipe) id: number): Promise<Faculty> {
     return this.facultiesService.remove(id);
