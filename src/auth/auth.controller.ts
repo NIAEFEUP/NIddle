@@ -7,10 +7,10 @@ import {
   Body,
 } from '@nestjs/common';
 import { LocalAuthGuard } from './local-auth.guard';
-import { JwtAuthGuard } from './jwt-auth.guard';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from 'src/users/create-user.dto';
 import { SignInDto } from './signin.dto';
+import { AuthGuard } from './auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -33,7 +33,7 @@ export class AuthController {
     return req.logout();
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(AuthGuard)
   @Get('profile')
   getProfile(@Request() req) {
     return req.user;
