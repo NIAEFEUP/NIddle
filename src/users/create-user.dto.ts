@@ -17,9 +17,17 @@ export class CreateUserDto {
     message:
       'Name is too long. Maximal length is $constraint1 characters, but actual is $value.',
   })
+  /**
+   * The user name.
+   * @example 'Cristiano Ronaldo dos Santos Aveiro'
+   */
   name: string;
 
   @IsEmail({ null: undefined }, { message: 'Invalid email format.' })
+  /**
+   * The user e-mail.
+   * @example 'cr7@gmail.com'
+   */
   email: string;
 
   @IsString({ message: 'Password must be a string.' })
@@ -37,5 +45,9 @@ export class CreateUserDto {
         'Password is too weak. It must be at least 8 characters long and contain at least one lowercase letter, one uppercase letter, one number, and one symbol.',
     },
   )
+  /**
+   * The user password.
+   * @example 'password123'
+   */
   password: string;
 }

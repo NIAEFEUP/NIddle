@@ -10,6 +10,7 @@ import { LocalAuthGuard } from './local-auth.guard';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from 'src/users/create-user.dto';
+import { SignInDto } from './signin.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -22,8 +23,8 @@ export class AuthController {
 
   @UseGuards(LocalAuthGuard)
   @Post('login')
-  async signIn(@Request() req) {
-    return this.authService.signIn(req.user);
+  async signIn(@Body() signInDto: SignInDto) {
+    return this.authService.signIn(signInDto);
   }
 
   @UseGuards(LocalAuthGuard)
