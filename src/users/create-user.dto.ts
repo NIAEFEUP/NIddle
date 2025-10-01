@@ -23,7 +23,7 @@ export class CreateUserDto {
    */
   name: string;
 
-  @IsEmail({ null: undefined }, { message: 'Invalid email format.' })
+  @IsEmail(undefined, { message: 'Invalid email format.' })
   /**
    * The user e-mail.
    * @example 'cr7@gmail.com'
