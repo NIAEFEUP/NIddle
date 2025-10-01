@@ -26,7 +26,7 @@ export class User {
 
   /**
    * The user password.
-   * @example 'password123'
+   * @example 'Password123!'
    */
   @Exclude()
   @Column()

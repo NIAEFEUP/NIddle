@@ -11,7 +11,7 @@ export class SignInDto {
   @IsNotEmpty({ message: 'Password cannot be empty.' })
   /**
    * The user password.
-   * @example 'password123'
+   * @example 'Password123!'
    */
   password: string;
 }
