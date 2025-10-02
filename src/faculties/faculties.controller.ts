@@ -15,6 +15,7 @@ import { CreateFacultyDto } from './dto/create-faculty.dto';
 import { UpdateFacultyDto } from './dto/update-faculty.dto';
 import { Faculty } from './faculty.entity';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
 @Controller('faculties')
 export class FacultiesController {
@@ -30,6 +31,7 @@ export class FacultiesController {
     return this.facultiesService.findOne(id);
   }
 
+  @ApiBearerAuth('access-token')
   @UseGuards(JwtAuthGuard)
   @Post()
   create(
@@ -38,6 +40,7 @@ export class FacultiesController {
     return this.facultiesService.create(createFacultyDto);
   }
 
+  @ApiBearerAuth('access-token')
   @UseGuards(JwtAuthGuard)
   @Patch(':id')
   update(
@@ -47,6 +50,7 @@ export class FacultiesController {
     return this.facultiesService.update(id, updateFacultyDto);
   }
 
+  @ApiBearerAuth('access-token')
   @UseGuards(JwtAuthGuard)
   @Delete(':id')
   remove(@Param('id', ParseIntPipe) id: number): Promise<Faculty> {
