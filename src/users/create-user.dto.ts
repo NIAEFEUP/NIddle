@@ -47,7 +47,7 @@ export class CreateUserDto {
   )
   /**
    * The user password.
-   * @example 'Password123!'
+   * @example 'Password#123'
    */
   password: string;
 }

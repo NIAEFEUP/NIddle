@@ -10,6 +10,10 @@ async function bootstrap() {
   const config = new DocumentBuilder()
     .setTitle('NIddle')
     .setDescription('NIddle API description')
+    .addBearerAuth(
+      { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
+      'access-token',
+    )
     .build();
   const documentFactory = () => SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('docs', app, documentFactory);
