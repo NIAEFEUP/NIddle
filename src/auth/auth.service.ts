@@ -2,6 +2,7 @@ import {
   Injectable,
   NotFoundException,
   UnauthorizedException,
+  ConflictException,
 } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { UsersService } from '../users/users.service';
@@ -18,11 +19,19 @@ export class AuthService {
   ) {}
 
   async register(createUserDto: CreateUserDto) {
+    try {
+      await this.usersService.findOneByEmail(createUserDto.email);
+      throw new ConflictException('Email is already in use.');
+    } catch (error) {
+      if (!(error instanceof NotFoundException)) {
+        throw error;
+      }
+    }
+
     const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
     const newUserDto = { ...createUserDto, password: hashedPassword };
 
-    const newUser = await this.usersService.create(newUserDto);
-    return newUser;
+    return this.usersService.create(newUserDto);
   }
 
   async signIn(signInDto: SignInDto) {

@@ -50,7 +50,7 @@ export class AuthController {
   }
 
   @ApiOperation({ summary: 'User login (JWT issuance)' })
-  @ApiResponse({ status: 200, description: 'Login successful, JWT returned.' })
+  @ApiResponse({ status: 201, description: 'Login successful, JWT returned.' })
   @ApiResponse({
     status: 401,
     description: 'Unauthorized: Invalid credentials.',
