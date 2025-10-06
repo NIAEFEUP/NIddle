@@ -21,7 +21,7 @@ export class User {
    * The user e-mail.
    * @example 'cr7@gmail.com'
    */
-  @Column()
+  @Column({ unique: true })
   email: string;
 
   /**

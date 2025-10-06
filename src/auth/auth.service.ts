@@ -1,5 +1,4 @@
 import {
-  ConflictException,
   Injectable,
   NotFoundException,
   UnauthorizedException,
@@ -19,22 +18,6 @@ export class AuthService {
   ) {}
 
   async register(createUserDto: CreateUserDto) {
-    let existingUser: User | null = null;
-
-    try {
-      existingUser = await this.usersService.findOneByEmail(
-        createUserDto.email,
-      );
-    } catch (error) {
-      if (!(error instanceof NotFoundException)) {
-        throw error;
-      }
-    }
-
-    if (existingUser) {
-      throw new ConflictException('Email is already in use.');
-    }
-
     const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
     const newUserDto = { ...createUserDto, password: hashedPassword };
 

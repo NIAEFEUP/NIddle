@@ -5,6 +5,8 @@ import {
   Get,
   UseGuards,
   Body,
+  UseInterceptors,
+  ClassSerializerInterceptor,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { LocalAuthGuard } from './guards/local-auth.guard';
@@ -13,6 +15,7 @@ import { CreateUserDto } from '../users/create-user.dto';
 import { SignInDto } from './signin.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
+@UseInterceptors(ClassSerializerInterceptor)
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
@@ -47,7 +50,7 @@ export class AuthController {
   }
 
   @ApiOperation({ summary: 'User login (JWT issuance)' })
-  @ApiResponse({ status: 201, description: 'Login successful, JWT returned.' })
+  @ApiResponse({ status: 200, description: 'Login successful, JWT returned.' })
   @ApiResponse({
     status: 401,
     description: 'Unauthorized: Invalid credentials.',
