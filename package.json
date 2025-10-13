@@ -48,7 +48,7 @@
     "@swc/core": "^1.13.5",
     "@types/express": "^5.0.0",
     "@types/jest": "^30.0.0",
-    "@types/node": "^22.10.7",
+    "@types/node": "^24.7.2",
     "@types/supertest": "^6.0.2",
     "eslint": "^9.36.0",
     "eslint-config-prettier": "^10.0.1",
