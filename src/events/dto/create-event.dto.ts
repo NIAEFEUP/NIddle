@@ -19,6 +19,7 @@ export class CreateEventDto {
    * @example 'FEUP week is a period of interruption of classes and teaching mobility. It includes teaching activities (visits, exhibitions, lectures, ...), as well as the FEUP Project Congress.'
    */
   @IsString()
+  @IsOptional()
   description: string;
 
   /**
