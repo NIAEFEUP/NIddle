@@ -24,6 +24,10 @@ export class Faculty {
   @Column()
   acronym: string;
 
+  /**
+   * Calendars associates with this event.
+   * Many calendars can be linked to many faculties.
+   */
   @ManyToMany(() => Calendar, (calendar) => calendar.faculties)
   calendars: Calendar[];
 }

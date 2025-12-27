@@ -44,6 +44,10 @@ export class Event {
   @Column({ type: 'timestamp', nullable: true })
   endDate: Date | null;
 
+  /**
+   * Calendars associates with this event.
+   * Many calendars can be linked to many events.
+   */
   @ManyToMany(() => Calendar, (calendar) => calendar.events)
   calendars: Calendar[];
 }
