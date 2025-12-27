@@ -1,14 +1,9 @@
-import {
-  ExceptionFilter,
-  Catch,
-  NotFoundException,
-  ArgumentsHost,
-} from '@nestjs/common';
+import { ExceptionFilter, Catch, NotFoundException } from '@nestjs/common';
 import { EntityNotFoundError } from 'typeorm';
 
 @Catch(EntityNotFoundError)
 export class EntityNotFoundFilter implements ExceptionFilter {
-  catch(exception: EntityNotFoundError, host: ArgumentsHost) {
+  catch(exception: EntityNotFoundError) {
     const entityMatch = exception.message.match(/entity of type "(\w+)"/);
     const entityName = entityMatch ? entityMatch[1] : 'Resource';
 
