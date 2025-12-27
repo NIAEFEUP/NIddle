@@ -26,7 +26,7 @@ export class Event {
 
   /**
    * The year when the event occours.
-   * @example '2025'
+   * @example 2025
    */
   @Column({ type: 'int' })
   year: number;

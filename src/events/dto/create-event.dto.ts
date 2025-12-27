@@ -25,7 +25,7 @@ export class CreateEventDto {
 
   /**
    * The year when the event occours.
-   * @example '2025'
+   * @example 2025
    */
   @IsNotEmpty()
   @IsInt()
