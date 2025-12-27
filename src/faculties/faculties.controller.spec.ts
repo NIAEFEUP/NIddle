@@ -3,6 +3,7 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { FacultiesController } from './faculties.controller';
 import { FacultiesService } from './faculties.service';
 import { Faculty } from './entities/faculty.entity';
+import { Course } from '../courses/entities/course.entity';
 
 describe('FacultiesController', () => {
   let controller: FacultiesController;
@@ -14,6 +15,10 @@ describe('FacultiesController', () => {
         FacultiesService,
         {
           provide: getRepositoryToken(Faculty),
+          useValue: {},
+        },
+        {
+          provide: getRepositoryToken(Course),
           useValue: {},
         },
       ],
