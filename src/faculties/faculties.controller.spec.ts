@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { FacultiesController } from './faculties.controller';
 import { FacultiesService } from './faculties.service';
-import { Faculty } from './faculty.entity';
+import { Faculty } from './entities/faculty.entity';
 
 describe('FacultiesController', () => {
   let controller: FacultiesController;

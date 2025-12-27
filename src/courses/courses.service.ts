@@ -4,7 +4,7 @@ import { UpdateCourseDto } from './dto/update-course.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Course } from './entities/course.entity';
 import { In, Repository } from 'typeorm';
-import { Faculty } from '../faculties/faculty.entity';
+import { Faculty } from '../faculties/entities/faculty.entity';
 
 @Injectable()
 export class CoursesService {

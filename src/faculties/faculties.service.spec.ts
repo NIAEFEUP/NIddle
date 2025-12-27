@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { Faculty } from './faculty.entity';
+import { Faculty } from './entities/faculty.entity';
 import { FacultiesService } from './faculties.service';
 
 describe('FacultiesService', () => {
