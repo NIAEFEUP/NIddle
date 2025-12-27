@@ -1,4 +1,4 @@
-import { Course } from '../courses/entities/course.entity';
+import { Course } from '../../courses/entities/course.entity';
 import {
   Entity,
   Column,
