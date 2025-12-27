@@ -21,11 +21,14 @@ export class EventsService {
   }
 
   findAll(): Promise<Event[]> {
-    return this.eventRepository.find();
+    return this.eventRepository.find({ relations: ['faculty'] });
   }
 
   async findOne(id: number): Promise<Event> {
-    const event = await this.eventRepository.findOneBy({ id });
+    const event = await this.eventRepository.findOne({
+      where: { id },
+      relations: ['faculty'],
+    });
     if (!event) {
       throw new NotFoundException(`Event with id ${id} not found`);
     }
