@@ -24,7 +24,7 @@ export class CreateEventDto {
   description?: string;
 
   /**
-   * The year when the event occours.
+   * The year when the event occurs.
    * @example 2025
    */
   @IsNotEmpty()

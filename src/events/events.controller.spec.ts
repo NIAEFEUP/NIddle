@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { EventsController } from './events.controller';
 import { EventsService } from './events.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
+import { Event } from './event.entity';
 
 describe('EventsController', () => {
   let controller: EventsController;
