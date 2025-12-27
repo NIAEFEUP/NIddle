@@ -1,38 +1,79 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Course } from './entities/course.entity';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
+import { Faculty } from '../faculties/faculty.entity';
 
 @Injectable()
 export class CoursesService {
   constructor(
     @InjectRepository(Course)
     private courseRepository: Repository<Course>,
+    @InjectRepository(Faculty)
+    private facultyRepository: Repository<Faculty>,
   ) {}
 
-  create(createCourseDto: CreateCourseDto): Promise<Course> {
-    return this.courseRepository.manager.transaction(async (manager) => {
-      const courseRepo = manager.getRepository(Course);
-      const course = courseRepo.create(createCourseDto);
-      return courseRepo.save(course);
-    });
+  async create(createCourseDto: CreateCourseDto): Promise<Course> {
+    const { facultyIds, ...courseData } = createCourseDto;
+    const course = this.courseRepository.create(courseData);
+
+    if (facultyIds && facultyIds.length > 0) {
+      const faculties = await this.facultyRepository.findBy({
+        id: In(facultyIds),
+      });
+      if (faculties.length !== facultyIds.length) {
+        throw new NotFoundException(`One or more faculties not found`);
+      }
+      course.faculties = faculties;
+    } else {
+      course.faculties = [];
+    }
+
+    return this.courseRepository.save(course);
   }
 
   findAll(): Promise<Course[]> {
-    return this.courseRepository.find();
+    return this.courseRepository.find({ relations: ['faculties'] });
   }
 
   findOne(id: number): Promise<Course> {
-    return this.courseRepository.findOneByOrFail({ id });
+    return this.courseRepository.findOneOrFail({
+      where: { id },
+      relations: ['faculties'],
+    });
   }
 
-  update(id: number, updateCourseDto: UpdateCourseDto) {
-    return `This action updates a #${id} course`;
+  async update(id: number, updateCourseDto: UpdateCourseDto): Promise<Course> {
+    const { facultyIds, ...courseData } = updateCourseDto;
+
+    const course = await this.courseRepository.findOneBy({ id });
+
+    if (!course) {
+      throw new NotFoundException(`Course with id ${id} not found`);
+    }
+
+    this.courseRepository.merge(course, courseData);
+
+    if (facultyIds && facultyIds.length > 0) {
+      const faculties = await this.facultyRepository.findBy({
+        id: In(facultyIds),
+      });
+      if (faculties.length !== facultyIds.length) {
+        throw new NotFoundException(`One or more faculties not found`);
+      }
+      course.faculties = faculties;
+    } else {
+      course.faculties = [];
+    }
+
+    return this.courseRepository.save(course);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} course`;
+  async remove(id: number): Promise<Course> {
+    const course = await this.courseRepository.findOneByOrFail({ id });
+    await this.courseRepository.delete(id);
+    return course;
   }
 }

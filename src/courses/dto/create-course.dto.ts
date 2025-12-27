@@ -1,20 +1,34 @@
-import { IsArray, IsNotEmpty, IsNumber, IsOptional, IsString } from "class-validator";
+import {
+  IsArray,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 
 export class CreateCourseDto {
-    @IsString()
-    @IsNotEmpty()
-    name: string;
+  /**
+   * The name of the course.
+   * @example 'Bachelor in Informatics and Computing Engineering'
+   */
+  @IsString()
+  @IsNotEmpty()
+  name: string;
 
-    @IsString()
-    @IsNotEmpty()
-    acronym: string;
+  /**
+   * The acronym of the course.
+   * @example 'LEIC'
+   */
+  @IsString()
+  @IsNotEmpty()
+  acronym: string;
 
-    /**
-     * The IDs of the faculties associated with the course.
-     * @example [1, 2]
-     */
-    @IsArray()
-    @IsNumber({}, { each: true })
-    @IsOptional()
-    facultyIds?: number[];
+  /**
+   * The IDs of the faculties associated with the course.
+   * @example [1, 2]
+   */
+  @IsArray()
+  @IsNumber({}, { each: true })
+  @IsOptional()
+  facultyIds?: number[];
 }

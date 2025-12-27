@@ -1,5 +1,11 @@
 import { Course } from '../courses/entities/course.entity';
-import { Entity, Column, PrimaryGeneratedColumn, ManyToMany, JoinTable } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  ManyToMany,
+  JoinTable,
+} from 'typeorm';
 
 @Entity()
 export class Faculty {
@@ -28,7 +34,9 @@ export class Faculty {
    * The courses associated with the faculty.
    * @example [{ id: 1, name: 'Bachelor in Informatics and Computing Engineering', acronym: 'LEIC' }]
    */
-  @ManyToMany(() => Course, (course) => course.faculties)
+  @ManyToMany(() => Course, (course) => course.faculties, {
+    onDelete: 'CASCADE',
+  })
   @JoinTable()
-  courses: Course[]; 
+  courses: Course[];
 }
