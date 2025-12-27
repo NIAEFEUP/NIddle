@@ -15,6 +15,7 @@ export default class EventSeeder implements Seeder {
     const events: Event[] = [];
     for (let i = 0; i < 20; i++) {
       const event = await eventFactory.make();
+      event.year = Math.random() < 0.5 ? 2025 : 2026;
       if (faculties.length > 0 && Math.random() < 0.8) {
         const faculty = faculties[Math.floor(Math.random() * faculties.length)];
         event.faculty = faculty;

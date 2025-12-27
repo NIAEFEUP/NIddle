@@ -21,7 +21,15 @@ export class CreateEventDto {
    */
   @IsString()
   @IsOptional()
-  description: string;
+  description?: string;
+
+  /**
+   * The year when the event occours.
+   * @example '2025'
+   */
+  @IsNotEmpty()
+  @IsInt()
+  year: number;
 
   /**
    * The start date and time of the event.

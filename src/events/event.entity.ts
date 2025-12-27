@@ -25,6 +25,13 @@ export class Event {
   description?: string;
 
   /**
+   * The year when the event occours.
+   * @example '2025'
+   */
+  @Column({ type: 'int' })
+  year: number;
+
+  /**
    * The start date and time of the event.
    * For single-day events, set this to the event date and leave endDate as null.
    * For period events, set both startDate and endDate.
