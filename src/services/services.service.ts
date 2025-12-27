@@ -10,7 +10,7 @@ export class ServicesService {
   constructor(
     @InjectRepository(Service)
     private serviceRepository: Repository<Service>,
-  ) { }
+  ) {}
   create(CreateServiceDto: CreateServiceDto): Promise<Service> {
     return this.serviceRepository.manager.transaction(async (manager) => {
       const serviceRepo = manager.getRepository(Service);
@@ -20,7 +20,9 @@ export class ServicesService {
   }
 
   findAll(): Promise<Service[]> {
-    return this.serviceRepository.find({ relations: ['schedule', 'schedule.timeIntervals'] });
+    return this.serviceRepository.find({
+      relations: ['schedule', 'schedule.timeIntervals'],
+    });
   }
 
   async findOne(id: number): Promise<Service> {
@@ -61,6 +63,6 @@ export class ServicesService {
       }
       await serviceRepo.delete(id);
       return service;
-    })
+    });
   }
 }

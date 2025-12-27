@@ -1,4 +1,15 @@
-import { Controller, Get, Post, Body, Param, ParseIntPipe, UseGuards, ValidationPipe, Delete, Patch } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  ParseIntPipe,
+  UseGuards,
+  ValidationPipe,
+  Delete,
+  Patch,
+} from '@nestjs/common';
 import { ServicesService } from './services.service';
 import { CreateServiceDto } from './dto/create-service.dto';
 import { ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
@@ -8,7 +19,7 @@ import { UpdateServiceDto } from './dto/update-service.dto';
 
 @Controller('services')
 export class ServicesController {
-  constructor(private readonly servicesService: ServicesService) { }
+  constructor(private readonly servicesService: ServicesService) {}
 
   @ApiOperation({ summary: 'Get all services' })
   @ApiResponse({ status: 200, description: 'List of services returned.' })
@@ -36,7 +47,6 @@ export class ServicesController {
     return this.servicesService.create(createServiceDto);
   }
 
-
   @ApiBearerAuth('access-token')
   @ApiOperation({ summary: 'Update a service by ID' })
   @ApiResponse({ status: 200, description: 'Service updated.' })
@@ -62,4 +72,3 @@ export class ServicesController {
     return this.servicesService.remove(id);
   }
 }
-

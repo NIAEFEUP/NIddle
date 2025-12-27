@@ -1,5 +1,5 @@
-import { IsNotEmpty, IsString } from "class-validator";
-import { Schedule } from "../entity/schedule.entity";
+import { IsNotEmpty, IsString } from 'class-validator';
+import { Schedule } from '../entity/schedule.entity';
 
 export class CreateServiceDto {
   /**

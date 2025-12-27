@@ -13,7 +13,7 @@ describe('ServicesService', () => {
         {
           provide: getRepositoryToken(Service),
           useValue: {},
-        }
+        },
       ],
     }).compile();
 

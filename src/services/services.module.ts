@@ -11,4 +11,4 @@ import { TimeInterval } from './entity/timeInterval.entity';
   controllers: [ServicesController],
   providers: [ServicesService],
 })
-export class ServicesModule { }
+export class ServicesModule {}
