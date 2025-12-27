@@ -21,13 +21,13 @@ export default class CalendarSeeder implements Seeder {
     globalCalendar.name = 'Global Calendar';
     globalCalendar.description =
       'This calendar contains global events shared by all faculties.';
-    globalCalendar.faculty = faculties[0];
+    globalCalendar.faculties = faculties;
     globalCalendar.events = events.slice(0, 3);
     await dataSource.getRepository(Calendar).save(globalCalendar);
 
     for (const faculty of faculties) {
       const facultyCalendar = await calendarFactory.make();
-      facultyCalendar.faculty = faculty;
+      facultyCalendar.faculties = [faculty];
       facultyCalendar.events = events
         .sort(() => 0.5 - Math.random())
         .slice(0, 4);

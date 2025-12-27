@@ -16,8 +16,11 @@ export class CreateCalendarDto {
   @IsOptional()
   description?: string;
 
-  @IsNumber()
-  facultyId: number;
+  @IsArray()
+  @ArrayUnique()
+  @IsNumber({}, { each: true })
+  @IsOptional()
+  facultyIds?: number[];
 
   @IsArray()
   @ArrayUnique()

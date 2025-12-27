@@ -2,7 +2,6 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
-  ManyToOne,
   ManyToMany,
   JoinTable,
 } from 'typeorm';
@@ -20,8 +19,9 @@ export class Calendar {
   @Column({ nullable: true })
   description: string;
 
-  @ManyToOne(() => Faculty, (faculty) => faculty.calendars)
-  faculty: Faculty;
+  @ManyToMany(() => Faculty, (faculty) => faculty.calendars)
+  @JoinTable()
+  faculties: Faculty[];
 
   @ManyToMany(() => Event, (event) => event.calendars)
   @JoinTable()

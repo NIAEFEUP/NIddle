@@ -20,13 +20,17 @@ export class CalendarsService {
       const facultyRepo = manager.getRepository(Faculty);
       const eventRepo = manager.getRepository(Event);
 
-      const faculty = await facultyRepo.findOneBy({
-        id: createCalendarDto.facultyId,
-      });
-      if (!faculty) {
-        throw new NotFoundException(
-          `Faculty with id ${createCalendarDto.facultyId} not found`,
-        );
+      let faculties: Faculty[] = [];
+      if (
+        createCalendarDto.facultyIds &&
+        createCalendarDto.facultyIds.length > 0
+      ) {
+        faculties = await facultyRepo.findBy({
+          id: In(createCalendarDto.facultyIds),
+        });
+        if (faculties.length !== createCalendarDto.facultyIds.length) {
+          throw new NotFoundException('One or more faculties not found');
+        }
       }
 
       let events: Event[] = [];
@@ -37,7 +41,7 @@ export class CalendarsService {
       const calendar = calendarRepo.create({
         name: createCalendarDto.name,
         description: createCalendarDto.description,
-        faculty,
+        faculties,
         events,
       });
       return calendarRepo.save(calendar);
@@ -45,13 +49,13 @@ export class CalendarsService {
   }
 
   findAll(): Promise<Calendar[]> {
-    return this.calendarRepository.find({ relations: ['faculty', 'events'] });
+    return this.calendarRepository.find({ relations: ['faculties', 'events'] });
   }
 
   async findOne(id: number): Promise<Calendar> {
     const calendar = await this.calendarRepository.findOne({
       where: { id },
-      relations: ['faculty', 'events'],
+      relations: ['faculties', 'events'],
     });
     if (!calendar) {
       throw new NotFoundException(`Calendar with id ${id} not found`);
@@ -70,22 +74,20 @@ export class CalendarsService {
 
       const calendar = await calendarRepo.findOne({
         where: { id },
-        relations: ['faculty', 'events'],
+        relations: ['faculties', 'events'],
       });
       if (!calendar) {
         throw new NotFoundException(`Calendar with id ${id} not found`);
       }
 
-      if (updateCalendarDto.facultyId !== undefined) {
-        const faculty = await facultyRepo.findOneBy({
-          id: updateCalendarDto.facultyId,
+      if (updateCalendarDto.facultyIds !== undefined) {
+        const faculties = await facultyRepo.findBy({
+          id: In(updateCalendarDto.facultyIds),
         });
-        if (!faculty) {
-          throw new NotFoundException(
-            `Faculty with id ${updateCalendarDto.facultyId} not found`,
-          );
+        if (faculties.length !== updateCalendarDto.facultyIds.length) {
+          throw new NotFoundException('One or more faculties not found');
         }
-        calendar.faculty = faculty;
+        calendar.faculties = faculties;
       }
 
       if (updateCalendarDto.eventIds !== undefined) {
@@ -104,7 +106,7 @@ export class CalendarsService {
       await calendarRepo.save(calendar);
       const updated = await calendarRepo.findOne({
         where: { id },
-        relations: ['faculty', 'events'],
+        relations: ['faculties', 'events'],
       });
       if (!updated) {
         throw new NotFoundException(
@@ -120,7 +122,7 @@ export class CalendarsService {
       const calendarRepo = manager.getRepository(Calendar);
       const calendar = await calendarRepo.findOne({
         where: { id },
-        relations: ['faculty', 'events'],
+        relations: ['faculties', 'events'],
       });
       if (!calendar) {
         throw new NotFoundException(`Calendar with id ${id} not found`);

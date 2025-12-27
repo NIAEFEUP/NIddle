@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToMany } from 'typeorm';
 import { Calendar } from '../calendars/calendar.entity';
 
 @Entity()
@@ -24,6 +24,6 @@ export class Faculty {
   @Column()
   acronym: string;
 
-  @OneToMany(() => Calendar, (calendar) => calendar.faculty)
+  @ManyToMany(() => Calendar, (calendar) => calendar.faculties)
   calendars: Calendar[];
 }
