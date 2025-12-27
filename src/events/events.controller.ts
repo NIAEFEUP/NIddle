@@ -9,6 +9,7 @@ import {
   ParseIntPipe,
   ValidationPipe,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { EventsService } from './events.service';
 import { CreateEventDto } from './dto/create-event.dto';
@@ -16,6 +17,7 @@ import { UpdateEventDto } from './dto/update-event.dto';
 import { Event } from './event.entity';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { EventFilterDto } from './dto/event-filter.dto';
 
 @Controller('events')
 export class EventsController {
@@ -34,8 +36,8 @@ export class EventsController {
   @ApiOperation({ summary: 'Get all events' })
   @ApiResponse({ status: 200, description: 'List of events returned.' })
   @Get()
-  findAll(): Promise<Event[]> {
-    return this.eventsService.findAll();
+  findAll(@Query() filters: EventFilterDto): Promise<Event[]> {
+    return this.eventsService.findAll(filters);
   }
 
   @ApiOperation({ summary: 'Get event by ID' })

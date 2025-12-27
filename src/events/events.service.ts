@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
 import { Event } from './event.entity';
+import { EventFilterDto } from './dto/event-filter.dto';
 
 @Injectable()
 export class EventsService {
@@ -20,8 +21,15 @@ export class EventsService {
     });
   }
 
-  findAll(): Promise<Event[]> {
-    return this.eventRepository.find({ relations: ['faculty'] });
+  findAll(filters: EventFilterDto): Promise<Event[]> {
+    const { year, facultyId } = filters;
+    return this.eventRepository.find({
+      where: {
+        ...(year && { year }),
+        ...(facultyId && { faculty: { id: facultyId } }),
+      },
+      relations: ['faculty'],
+    });
   }
 
   async findOne(id: number): Promise<Event> {
