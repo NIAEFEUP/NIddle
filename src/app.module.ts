@@ -6,7 +6,6 @@ import { ConfigModule } from '@nestjs/config';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { EventsModule } from './events/events.module';
-import { CalendarsModule } from './calendars/calendars.module';
 
 @Module({
   imports: [
@@ -18,7 +17,6 @@ import { CalendarsModule } from './calendars/calendars.module';
     UsersModule,
     AuthModule,
     EventsModule,
-    CalendarsModule,
   ],
   controllers: [AppController],
 })

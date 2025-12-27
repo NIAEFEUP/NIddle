@@ -2,7 +2,6 @@ import { DataSource, DataSourceOptions } from 'typeorm';
 import { runSeeders, SeederOptions } from 'typeorm-extension';
 import { Faculty } from '../faculties/faculty.entity';
 import { User } from '../users/user.entity';
-import { Calendar } from '../calendars/calendar.entity';
 import { Event } from '../events/event.entity';
 
 (async () => {
@@ -15,7 +14,7 @@ import { Event } from '../events/event.entity';
     database: process.env.DATABASE_NAME || 'niddle_db',
     synchronize: true,
     dropSchema: true,
-    entities: [Faculty, User, Calendar, Event],
+    entities: [Faculty, User, Event],
     seeds: ['src/database/seeds/*.seeder.{ts,js}'],
     factories: ['src/database/factories/*.factory.{ts,js}'],
   };

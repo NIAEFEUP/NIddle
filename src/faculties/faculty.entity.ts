@@ -1,5 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToMany } from 'typeorm';
-import { Calendar } from '../calendars/calendar.entity';
+import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
 export class Faculty {
@@ -23,11 +22,4 @@ export class Faculty {
    */
   @Column()
   acronym: string;
-
-  /**
-   * Calendars associates with this event.
-   * Many calendars can be linked to many faculties.
-   */
-  @ManyToMany(() => Calendar, (calendar) => calendar.faculties)
-  calendars: Calendar[];
 }

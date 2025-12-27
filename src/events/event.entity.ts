@@ -1,5 +1,4 @@
-import { Column, Entity, PrimaryGeneratedColumn, ManyToMany } from 'typeorm';
-import { Calendar } from '../calendars/calendar.entity';
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
 export class Event {
@@ -43,11 +42,4 @@ export class Event {
    */
   @Column({ type: 'timestamp', nullable: true })
   endDate: Date | null;
-
-  /**
-   * Calendars associates with this event.
-   * Many calendars can be linked to many events.
-   */
-  @ManyToMany(() => Calendar, (calendar) => calendar.events)
-  calendars: Calendar[];
 }
