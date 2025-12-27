@@ -29,12 +29,13 @@ export default setSeederFactory(Service, () => {
 
   for (let i = 0; i < numberOfIntervals; i++) {
     const timeInterval = new TimeInterval();
-    timeInterval.startTime = faker.date.soon({
-      refDate: '2024-01-01T08:00:00Z',
-    });
+
+    const openingHour = faker.number.int({ min: 8, max: 18 });
+    const durationHours = faker.number.int({ min: 1, max: 4 });
+
+    timeInterval.startTime = new Date(Date.UTC(1970, 0, 1, openingHour, 0, 0, 0));
     timeInterval.endTime = new Date(
-      timeInterval.startTime.getTime() +
-        faker.number.int({ min: 1, max: 4 }) * 60 * 60 * 1000,
+      Date.UTC(1970, 0, 1, openingHour + durationHours, 0, 0, 0),
     );
     timeInterval.dayOfWeek = faker.helpers.arrayElement(days);
     timeInterval.schedule = schedule;

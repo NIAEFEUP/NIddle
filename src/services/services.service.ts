@@ -11,10 +11,10 @@ export class ServicesService {
     @InjectRepository(Service)
     private serviceRepository: Repository<Service>,
   ) {}
-  create(CreateServiceDto: CreateServiceDto): Promise<Service> {
+  create(createServiceDto: CreateServiceDto): Promise<Service> {
     return this.serviceRepository.manager.transaction(async (manager) => {
       const serviceRepo = manager.getRepository(Service);
-      const service = serviceRepo.create(CreateServiceDto);
+      const service = serviceRepo.create(createServiceDto);
       return serviceRepo.save(service);
     });
   }
@@ -39,25 +39,34 @@ export class ServicesService {
   update(id: number, updateServiceDto: UpdateServiceDto): Promise<Service> {
     return this.serviceRepository.manager.transaction(async (manager) => {
       const serviceRepo = manager.getRepository(Service);
-      const service = await serviceRepo.findOneBy({ id });
+      const service = await serviceRepo.findOne({
+        where: { id },
+        relations: ['schedule', 'schedule.timeIntervals'],
+      });
       if (!service) {
         throw new NotFoundException(`Service with id ${id} not found`);
       }
       await serviceRepo.update(id, updateServiceDto);
-      const updatedService = await serviceRepo.findOneBy({ id });
-      if (!updatedService) {
-        throw new NotFoundException(
-          `Service with id ${id} not found after update`,
-        );
-      }
+      const updatedService = await serviceRepo.findOne({
+        where: { id },
+        relations: ['schedule', 'schedule.timeIntervals'],
+      });
       return updatedService;
     });
   }
 
   remove(id: number): Promise<Service> {
     return this.serviceRepository.manager.transaction(async (manager) => {
+    });
+  }
+
+  remove(id: number): Promise<Service> {
+    return this.serviceRepository.manager.transaction(async (manager) => {
       const serviceRepo = manager.getRepository(Service);
-      const service = await serviceRepo.findOneBy({ id });
+      const service = await serviceRepo.findOne({
+        where: { id },
+        relations: ['schedule', 'schedule.timeIntervals'],
+      });
       if (!service) {
         throw new NotFoundException(`Service with id ${id} not found`);
       }

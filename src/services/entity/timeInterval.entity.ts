@@ -15,13 +15,13 @@ export class TimeInterval {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column({ type: 'timestamp' })
   startTime: Date;
 
-  @Column()
+  @Column({ type: 'timestamp' })
   endTime: Date;
 
-  @Column()
+  @Column({ type: 'enum', enum: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'] })
   dayOfWeek: EnumDays;
 
   @ManyToOne(() => Schedule, (schedule) => schedule.timeIntervals)
