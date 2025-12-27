@@ -19,6 +19,9 @@ export class Calendar {
   @Column({ nullable: true })
   description: string;
 
+  @Column({ type: 'int' })
+  year: number;
+
   @ManyToMany(() => Faculty, (faculty) => faculty.calendars)
   @JoinTable()
   faculties: Faculty[];

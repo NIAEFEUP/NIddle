@@ -2,6 +2,7 @@ import {
   IsNotEmpty,
   IsOptional,
   IsString,
+  IsInt,
   IsNumber,
   IsArray,
   ArrayUnique,
@@ -15,6 +16,10 @@ export class CreateCalendarDto {
   @IsString()
   @IsOptional()
   description?: string;
+
+  @IsInt()
+  @IsNotEmpty()
+  year: number;
 
   @IsArray()
   @ArrayUnique()

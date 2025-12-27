@@ -21,6 +21,7 @@ export default class CalendarSeeder implements Seeder {
     globalCalendar.name = 'Global Calendar';
     globalCalendar.description =
       'This calendar contains global events shared by all faculties.';
+    globalCalendar.year = 2025;
     globalCalendar.faculties = faculties;
     globalCalendar.events = events.slice(0, 3);
     await dataSource.getRepository(Calendar).save(globalCalendar);
