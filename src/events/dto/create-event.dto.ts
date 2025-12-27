@@ -5,6 +5,8 @@ import {
   IsDateString,
   IsInt,
 } from 'class-validator';
+import { Faculty } from '../../faculties/faculty.entity';
+import { ExistsInDb } from '../../validators/exists-in-db.validator';
 
 export class CreateEventDto {
   /**
@@ -53,5 +55,6 @@ export class CreateEventDto {
    */
   @IsOptional()
   @IsInt()
+  @ExistsInDb(Faculty)
   facultyId?: number;
 }
