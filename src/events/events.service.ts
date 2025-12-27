@@ -14,11 +14,8 @@ export class EventsService {
   ) {}
 
   create(createEventDto: CreateEventDto): Promise<Event> {
-    return this.eventRepository.manager.transaction(async (manager) => {
-      const eventRepo = manager.getRepository(Event);
-      const event = eventRepo.create(createEventDto);
-      return eventRepo.save(event);
-    });
+    const event = this.eventRepository.create(createEventDto);
+    return this.eventRepository.save(event);
   }
 
   findAll(filters: EventFilterDto): Promise<Event[]> {
@@ -43,33 +40,25 @@ export class EventsService {
     return event;
   }
 
-  update(id: number, updateEventDto: UpdateEventDto): Promise<Event> {
-    return this.eventRepository.manager.transaction(async (manager) => {
-      const eventRepo = manager.getRepository(Event);
-      const event = await eventRepo.findOneBy({ id });
-      if (!event) {
-        throw new NotFoundException(`Event with id ${id} not found`);
-      }
-      await eventRepo.update(id, updateEventDto);
-      const updatedEvent = await eventRepo.findOneBy({ id });
-      if (!updatedEvent) {
-        throw new NotFoundException(
-          `Event with id ${id} not found after update`,
-        );
-      }
-      return updatedEvent;
-    });
+  async update(id: number, updateEventDto: UpdateEventDto): Promise<Event> {
+    const event = await this.eventRepository.findOneBy({ id });
+    if (!event) {
+      throw new NotFoundException(`Event with id ${id} not found`);
+    }
+    await this.eventRepository.update(id, updateEventDto);
+    const updatedEvent = await this.eventRepository.findOneBy({ id });
+    if (!updatedEvent) {
+      throw new NotFoundException(`Event with id ${id} not found after update`);
+    }
+    return updatedEvent;
   }
 
-  remove(id: number): Promise<Event> {
-    return this.eventRepository.manager.transaction(async (manager) => {
-      const eventRepo = manager.getRepository(Event);
-      const event = await eventRepo.findOneBy({ id });
-      if (!event) {
-        throw new NotFoundException(`Event with id ${id} not found`);
-      }
-      await eventRepo.delete(id);
-      return event;
-    });
+  async remove(id: number): Promise<Event> {
+    const event = await this.eventRepository.findOneBy({ id });
+    if (!event) {
+      throw new NotFoundException(`Event with id ${id} not found`);
+    }
+    await this.eventRepository.delete(id);
+    return event;
   }
 }
