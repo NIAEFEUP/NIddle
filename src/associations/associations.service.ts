@@ -13,8 +13,7 @@ export class AssociationsService {
   ) {}
 
   create(createAssociationDto: CreateAssociationDto) {
-    //implement the user registration logic later
-    return 'This action adds a new association';
+    return this.associationRepository.save(createAssociationDto);
   }
 
   // Feature #50: Filter associations by Faculty ID
@@ -38,7 +37,7 @@ export class AssociationsService {
   }
 
   update(id: number, updateAssociationDto: UpdateAssociationDto) {
-    return `This action updates a #${id} association`;
+    return this.associationRepository.update(id, updateAssociationDto);
   }
 
   remove(id: number) {
