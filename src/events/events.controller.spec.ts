@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { EventsController } from './events.controller';
 import { EventsService } from './events.service';
+import { getRepositoryToken } from '@nestjs/typeorm';
 
 describe('EventsController', () => {
   let controller: EventsController;
@@ -8,7 +9,13 @@ describe('EventsController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [EventsController],
-      providers: [EventsService],
+      providers: [
+        EventsService,
+        {
+          provide: getRepositoryToken(Event),
+          useValue: {},
+        },
+      ],
     }).compile();
 
     controller = module.get<EventsController>(EventsController);
