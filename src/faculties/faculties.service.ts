@@ -11,12 +11,10 @@ export class FacultiesService {
     @InjectRepository(Faculty)
     private facultyRepository: Repository<Faculty>,
   ) {}
+
   create(createFacultyDto: CreateFacultyDto): Promise<Faculty> {
-    return this.facultyRepository.manager.transaction(async (manager) => {
-      const facultyRepo = manager.getRepository(Faculty);
-      const faculty = facultyRepo.create(createFacultyDto);
-      return facultyRepo.save(faculty);
-    });
+    const faculty = this.facultyRepository.create(createFacultyDto);
+    return this.facultyRepository.save(faculty);
   }
 
   findAll(): Promise<Faculty[]> {
@@ -27,33 +25,20 @@ export class FacultiesService {
     return this.facultyRepository.findOneByOrFail({ id });
   }
 
-  update(id: number, updateFacultyDto: UpdateFacultyDto): Promise<Faculty> {
-    return this.facultyRepository.manager.transaction(async (manager) => {
-      const facultyRepo = manager.getRepository(Faculty);
-      const faculty = await facultyRepo.findOneBy({ id });
-      if (!faculty) {
-        throw new NotFoundException(`Faculty with id ${id} not found`);
-      }
-      await facultyRepo.update(id, updateFacultyDto);
-      const updatedFaculty = await facultyRepo.findOneBy({ id });
-      if (!updatedFaculty) {
-        throw new NotFoundException(
-          `Faculty with id ${id} not found after update`,
-        );
-      }
-      return updatedFaculty;
-    });
+  async update(
+    id: number,
+    updateFacultyDto: UpdateFacultyDto,
+  ): Promise<Faculty> {
+    const result = await this.facultyRepository.update(id, updateFacultyDto);
+    if (result.affected === 0) {
+      throw new NotFoundException(`Faculty with id ${id} not found`);
+    }
+    return this.facultyRepository.findOneByOrFail({ id });
   }
 
-  remove(id: number): Promise<Faculty> {
-    return this.facultyRepository.manager.transaction(async (manager) => {
-      const facultyRepo = manager.getRepository(Faculty);
-      const faculty = await facultyRepo.findOneBy({ id });
-      if (!faculty) {
-        throw new NotFoundException(`Faculty with id ${id} not found`);
-      }
-      await facultyRepo.delete(id);
-      return faculty;
-    });
+  async remove(id: number): Promise<Faculty> {
+    const faculty = this.facultyRepository.findOneByOrFail({ id });
+    await this.facultyRepository.delete(id);
+    return faculty;
   }
 }
