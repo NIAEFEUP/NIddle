@@ -46,7 +46,10 @@ export class EventsService {
       throw new NotFoundException(`Event with id ${id} not found`);
     }
     await this.eventRepository.update(id, updateEventDto);
-    const updatedEvent = await this.eventRepository.findOneBy({ id });
+    const updatedEvent = await this.eventRepository.findOne({
+      where: { id },
+      relations: ['faculty'],
+    });
     if (!updatedEvent) {
       throw new NotFoundException(`Event with id ${id} not found after update`);
     }
@@ -54,7 +57,10 @@ export class EventsService {
   }
 
   async remove(id: number): Promise<Event> {
-    const event = await this.eventRepository.findOneBy({ id });
+    const event = await this.eventRepository.findOne({
+      where: { id },
+      relations: ['faculty'],
+    });
     if (!event) {
       throw new NotFoundException(`Event with id ${id} not found`);
     }
