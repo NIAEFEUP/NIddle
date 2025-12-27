@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Faculty } from '../faculties/faculty.entity';
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
 export class Event {
@@ -21,7 +22,7 @@ export class Event {
    * @example 'FEUP week is a period of interruption of classes and teaching mobility. It includes teaching activities (visits, exhibitions, lectures, ...), as well as the FEUP Project Congress.'
    */
   @Column({ nullable: true })
-  description: string;
+  description?: string;
 
   /**
    * The start date and time of the event.
@@ -31,7 +32,7 @@ export class Event {
    * @example '2025-12-26T09:00:00Z'
    */
   @Column({ type: 'timestamp', nullable: true })
-  startDate: Date | null;
+  startDate?: Date | null;
 
   /**
    * The end date and time of the event.
@@ -41,5 +42,11 @@ export class Event {
    * @example '2025-12-27T18:00:00Z'
    */
   @Column({ type: 'timestamp', nullable: true })
-  endDate: Date | null;
+  endDate?: Date | null;
+
+  /**
+   * The faculty this event belongs to.
+   */
+  @ManyToOne(() => Faculty, (faculty) => faculty.events, { nullable: true })
+  faculty?: Faculty;
 }

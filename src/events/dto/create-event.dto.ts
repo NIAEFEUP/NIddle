@@ -3,6 +3,7 @@ import {
   IsString,
   IsNotEmpty,
   IsDateString,
+  IsInt,
 } from 'class-validator';
 
 export class CreateEventDto {
@@ -37,4 +38,12 @@ export class CreateEventDto {
   @IsOptional()
   @IsDateString()
   endDate?: string;
+
+  /**
+   * The faculty ID this event belongs to.
+   * @example 1
+   */
+  @IsOptional()
+  @IsInt()
+  facultyId?: number;
 }
