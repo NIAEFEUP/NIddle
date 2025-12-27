@@ -27,8 +27,6 @@ export class FacultiesService {
         throw new NotFoundException(`One or more courses not found`);
       }
       faculty.courses = courses;
-    } else {
-      faculty.courses = [];
     }
 
     return this.facultyRepository.save(faculty);
@@ -59,16 +57,18 @@ export class FacultiesService {
 
     this.facultyRepository.merge(faculty, facultyData);
 
-    if (courseIds && courseIds.length > 0) {
-      const courses = await this.courseRepository.findBy({
-        id: In(courseIds),
-      });
-      if (courses.length !== courseIds.length) {
-        throw new NotFoundException(`One or more courses not found`);
+    if (courseIds) {
+      if (courseIds.length > 0) {
+        const courses = await this.courseRepository.findBy({
+          id: In(courseIds),
+        });
+        if (courses.length !== courseIds.length) {
+          throw new NotFoundException(`One or more courses not found`);
+        }
+        faculty.courses = courses;
+      } else {
+        faculty.courses = [];
       }
-      faculty.courses = courses;
-    } else {
-      faculty.courses = [];
     }
 
     return this.facultyRepository.save(faculty);

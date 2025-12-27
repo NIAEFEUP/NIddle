@@ -28,8 +28,6 @@ export class Course {
    * The faculties associated with the course.
    * @example [{ id: 1, name: 'Faculty of Engineering', acronym: 'FEUP' }]
    */
-  @ManyToMany(() => Faculty, (faculty) => faculty.courses, {
-    onDelete: 'CASCADE',
-  })
+  @ManyToMany(() => Faculty, (faculty) => faculty.courses)
   faculties: Faculty[];
 }
