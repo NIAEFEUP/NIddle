@@ -1,4 +1,4 @@
-import { Course } from 'src/courses/entities/course.entity';
+import { Course } from '../courses/entities/course.entity';
 import { Entity, Column, PrimaryGeneratedColumn, ManyToMany, JoinTable } from 'typeorm';
 
 @Entity()

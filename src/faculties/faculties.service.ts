@@ -14,9 +14,7 @@ export class FacultiesService {
   create(createFacultyDto: CreateFacultyDto): Promise<Faculty> {
     return this.facultyRepository.manager.transaction(async (manager) => {
       const facultyRepo = manager.getRepository(Faculty);
-      const faculty = new Faculty();
-      faculty.acronym = createFacultyDto.acronym;
-      faculty.name = createFacultyDto.name;
+      const faculty = facultyRepo.create(createFacultyDto);
       return facultyRepo.save(faculty);
     });
   }
@@ -25,12 +23,8 @@ export class FacultiesService {
     return this.facultyRepository.find();
   }
 
-  async findOne(id: number): Promise<Faculty> {
-    const faculty = await this.facultyRepository.findOneBy({ id: id });
-    if (!faculty) {
-      throw new NotFoundException(`Faculty with id ${id} not found`);
-    }
-    return faculty;
+  findOne(id: number): Promise<Faculty> {
+    return this.facultyRepository.findOneByOrFail({ id });
   }
 
   update(id: number, updateFacultyDto: UpdateFacultyDto): Promise<Faculty> {

@@ -24,8 +24,8 @@ export class CoursesService {
     return this.courseRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} course`;
+  findOne(id: number): Promise<Course> {
+    return this.courseRepository.findOneByOrFail({ id });
   }
 
   update(id: number, updateCourseDto: UpdateCourseDto) {
