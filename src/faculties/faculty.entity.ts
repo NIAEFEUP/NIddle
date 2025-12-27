@@ -1,4 +1,5 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
+import { Association } from '../associations/entities/association.entity';
 
 @Entity()
 export class Faculty {
@@ -22,4 +23,10 @@ export class Faculty {
    */
   @Column()
   acronym: string;
+
+  /**
+   * The associations belonging to this faculty.
+   */
+  @OneToMany(() => Association, (association) => association.faculty)
+  associations: Association[];
 }
