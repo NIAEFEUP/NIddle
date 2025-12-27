@@ -1,4 +1,11 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToOne, JoinColumn, ManyToOne } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  OneToOne,
+  JoinColumn,
+  ManyToOne,
+} from 'typeorm';
 import { User } from '../../users/user.entity';
 import { Faculty } from '../../faculties/faculty.entity';
 
@@ -16,6 +23,8 @@ export class Association {
   user: User;
 
   // Feature #46: An Association belongs to a Faculty
-  @ManyToOne(() => Faculty, (faculty) => faculty.associations, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Faculty, (faculty) => faculty.associations, {
+    onDelete: 'CASCADE',
+  })
   faculty: Faculty;
 }
