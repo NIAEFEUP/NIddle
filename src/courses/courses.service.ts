@@ -20,8 +20,8 @@ export class CoursesService {
     });
   }
 
-  findAll() {
-    return `This action returns all courses`;
+  findAll(): Promise<Course[]> {
+    return this.courseRepository.find();
   }
 
   findOne(id: number) {
