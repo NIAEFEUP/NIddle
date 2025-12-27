@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { AssociationsService } from './associations.service';
 import { CreateAssociationDto } from './dto/create-association.dto';
 import { UpdateAssociationDto } from './dto/update-association.dto';
@@ -12,9 +12,10 @@ export class AssociationsController {
     return this.associationsService.create(createAssociationDto);
   }
 
+  // Feature #50: GET /associations?facultyId=1
   @Get()
-  findAll() {
-    return this.associationsService.findAll();
+  findAll(@Query('facultyId') facultyId?: string) {
+    return this.associationsService.findAll(facultyId ? +facultyId : undefined);
   }
 
   @Get(':id')
