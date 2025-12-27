@@ -1,4 +1,5 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
+import { Event } from '../events/event.entity';
 
 @Entity()
 export class Faculty {
@@ -22,4 +23,10 @@ export class Faculty {
    */
   @Column()
   acronym: string;
+
+  /**
+   * Events associated with this faculty.
+   */
+  @OneToMany(() => Event, (event) => event.faculty)
+  events: Event[];
 }
