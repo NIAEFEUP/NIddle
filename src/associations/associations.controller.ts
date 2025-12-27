@@ -2,7 +2,9 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestj
 import { AssociationsService } from './associations.service';
 import { CreateAssociationDto } from './dto/create-association.dto';
 import { UpdateAssociationDto } from './dto/update-association.dto';
+import { ApiQuery, ApiTags } from '@nestjs/swagger';
 
+ApiTags('associations')
 @Controller('associations')
 export class AssociationsController {
   constructor(private readonly associationsService: AssociationsService) {}
@@ -13,6 +15,7 @@ export class AssociationsController {
   }
 
   // Feature #50: GET /associations?facultyId=1
+  @ApiQuery({ name: 'facultyId', required: false, type: Number })  
   @Get()
   findAll(@Query('facultyId') facultyId?: string) {
     return this.associationsService.findAll(facultyId ? +facultyId : undefined);
