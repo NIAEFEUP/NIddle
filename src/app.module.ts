@@ -2,6 +2,7 @@ import { Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
 import { AppController } from "./app.controller";
 import { AuthModule } from "./auth/auth.module";
+import { AssociationsModule } from "./associations/associations.module";
 import { CoursesModule } from "./courses/courses.module";
 import { DatabaseModule } from "./database/database.module";
 import { EventsModule } from "./events/events.module";
@@ -18,6 +19,7 @@ import { UsersModule } from "./users/users.module";
     FacultiesModule,
     UsersModule,
     AuthModule,
+    AssociationsModule,
     ServicesModule,
     EventsModule,
     CoursesModule,
