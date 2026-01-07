@@ -2,7 +2,7 @@ import { DataSource, DataSourceOptions } from 'typeorm';
 import { runSeeders, SeederOptions } from 'typeorm-extension';
 import { Course } from '../courses/entities/course.entity';
 import { Faculty } from '../faculties/entities/faculty.entity';
-import { User } from '../users/user.entity';
+import { User } from '../users/entities/user.entity';
 
 (async () => {
   const options: DataSourceOptions & SeederOptions = {
