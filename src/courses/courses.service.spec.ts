@@ -3,15 +3,12 @@ import { CoursesService } from './courses.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Course } from './entities/course.entity';
 import { Faculty } from '../faculties/entities/faculty.entity';
-import { Repository } from 'typeorm';
 import { NotFoundException } from '@nestjs/common';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
 
 describe('CoursesService', () => {
   let service: CoursesService;
-  let courseRepository: Repository<Course>;
-  let facultyRepository: Repository<Faculty>;
 
   const mockCourse: Course = {
     id: 1,
@@ -58,12 +55,6 @@ describe('CoursesService', () => {
     }).compile();
 
     service = module.get<CoursesService>(CoursesService);
-    courseRepository = module.get<Repository<Course>>(
-      getRepositoryToken(Course),
-    );
-    facultyRepository = module.get<Repository<Faculty>>(
-      getRepositoryToken(Faculty),
-    );
   });
 
   afterEach(() => {
@@ -82,7 +73,7 @@ describe('CoursesService', () => {
       const result = await service.findAll();
 
       expect(result).toEqual(courses);
-      expect(courseRepository.find).toHaveBeenCalledWith({
+      expect(mockCourseRepository.find).toHaveBeenCalledWith({
         relations: ['faculties'],
       });
     });
@@ -95,7 +86,7 @@ describe('CoursesService', () => {
       const result = await service.findOne(1);
 
       expect(result).toEqual(mockCourse);
-      expect(courseRepository.findOneOrFail).toHaveBeenCalledWith({
+      expect(mockCourseRepository.findOneOrFail).toHaveBeenCalledWith({
         where: { id: 1 },
         relations: ['faculties'],
       });
@@ -122,8 +113,8 @@ describe('CoursesService', () => {
       const result = await service.create(createCourseDto);
 
       expect(result).toEqual(mockCourse);
-      expect(courseRepository.create).toHaveBeenCalledWith(createCourseDto);
-      expect(courseRepository.save).toHaveBeenCalledWith(mockCourse);
+      expect(mockCourseRepository.create).toHaveBeenCalledWith(createCourseDto);
+      expect(mockCourseRepository.save).toHaveBeenCalledWith(mockCourse);
     });
 
     it('should create a course with valid faculties', async () => {
@@ -142,7 +133,7 @@ describe('CoursesService', () => {
       const result = await service.create(createCourseDto);
 
       expect(result.faculties).toEqual([mockFaculty]);
-      expect(facultyRepository.findBy).toHaveBeenCalled();
+      expect(mockFacultyRepository.findBy).toHaveBeenCalled();
     });
 
     it('should throw NotFoundException if any faculty is not found', async () => {
@@ -172,8 +163,8 @@ describe('CoursesService', () => {
       const result = await service.update(1, updateCourseDto);
 
       expect(result.name).toEqual('New Name');
-      expect(courseRepository.merge).toHaveBeenCalled();
-      expect(courseRepository.save).toHaveBeenCalled();
+      expect(mockCourseRepository.merge).toHaveBeenCalled();
+      expect(mockCourseRepository.save).toHaveBeenCalled();
     });
 
     it('should throw NotFoundException if course not found', async () => {
@@ -231,7 +222,7 @@ describe('CoursesService', () => {
       const result = await service.remove(1);
 
       expect(result).toEqual(mockCourse);
-      expect(courseRepository.delete).toHaveBeenCalledWith(1);
+      expect(mockCourseRepository.delete).toHaveBeenCalledWith(1);
     });
 
     it('should throw if course not found (findOneByOrFail throws)', async () => {
