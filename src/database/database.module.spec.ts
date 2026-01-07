@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { DatabaseModule } from './database.module';
 import { DatabaseService } from './database.service';
 
@@ -8,11 +9,24 @@ describe('DatabaseModule', () => {
   beforeEach(async () => {
     module = await Test.createTestingModule({
       imports: [DatabaseModule],
-    }).compile();
+    })
+      .overrideProvider(DatabaseService)
+      .useValue({
+        createTypeOrmOptions: (): TypeOrmModuleOptions => ({
+          type: 'sqlite',
+          database: ':memory:',
+          synchronize: true,
+          dropSchema: true,
+          autoLoadEntities: true,
+        }),
+      })
+      .compile();
   });
 
   afterEach(async () => {
-    await module.close();
+    if (module) {
+      await module.close();
+    }
   });
 
   it('should be defined', () => {
