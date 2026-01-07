@@ -25,9 +25,16 @@ export const seed = async () => {
   await runSeeders(dataSource);
 };
 
-if (require.main === module) {
-  seed().catch((err) => {
-    console.error('Seeding failed:', err);
-    process.exit(1);
-  });
-}
+export const handleMain = (
+  moduleRef: NodeJS.Module,
+  mainModule: NodeJS.Module | undefined = require.main,
+) => {
+  if (mainModule === moduleRef) {
+    seed().catch((err) => {
+      console.error('Seeding failed:', err);
+      process.exit(1);
+    });
+  }
+};
+
+handleMain(module);

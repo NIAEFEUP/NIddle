@@ -1,6 +1,6 @@
 import { DataSource } from 'typeorm';
 import { runSeeders } from 'typeorm-extension';
-import { seed } from './seed';
+import { seed, handleMain } from './seed';
 
 interface MockDataSource {
   initialize: jest.Mock<Promise<void>>;
@@ -40,5 +40,53 @@ describe('Seed Script', () => {
 
     expect(mockDataSourceInstance.initialize).toHaveBeenCalled();
     expect(runSeeders).toHaveBeenCalledWith(mockDataSourceInstance);
+  });
+
+  describe('handleMain', () => {
+    let consoleErrorSpy: jest.SpyInstance;
+    let processExitSpy: jest.SpyInstance;
+
+    beforeEach(() => {
+      consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+      processExitSpy = jest
+        .spyOn(process, 'exit')
+        .mockImplementation((() => {}) as unknown as (code?: number) => never);
+      (runSeeders as jest.Mock).mockClear();
+    });
+
+    afterEach(() => {
+      jest.restoreAllMocks();
+    });
+
+    it('should run seed if module is main', async () => {
+      const mockModule = { id: 'mock' } as NodeJS.Module;
+
+      handleMain(mockModule, mockModule);
+
+      await new Promise((resolve) => setImmediate(resolve));
+
+      expect(runSeeders).toHaveBeenCalled();
+    });
+
+    it('should NOT run seed if module is NOT main', () => {
+      const mockModule = { id: 'mock' } as NodeJS.Module;
+      const otherModule = { id: 'other' } as NodeJS.Module;
+
+      handleMain(mockModule, otherModule);
+      expect(runSeeders).not.toHaveBeenCalled();
+    });
+
+    it('should handle errors and exit process', async () => {
+      const error = new Error('Seeding boom');
+      (runSeeders as jest.Mock).mockRejectedValueOnce(error);
+
+      const mockModule = { id: 'mock' } as NodeJS.Module;
+      handleMain(mockModule, mockModule);
+
+      await new Promise((resolve) => setImmediate(resolve));
+
+      expect(consoleErrorSpy).toHaveBeenCalledWith('Seeding failed:', error);
+      expect(processExitSpy).toHaveBeenCalledWith(1);
+    });
   });
 });
