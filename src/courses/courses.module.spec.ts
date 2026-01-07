@@ -23,17 +23,17 @@ describe('CoursesModule', () => {
     }).compile();
   });
 
-  it('should compile the module', async () => {
+  it('should compile the module', () => {
     expect(module).toBeDefined();
   });
 
-  it('should resolve CoursesService', async () => {
+  it('should resolve CoursesService', () => {
     const service = module.get<CoursesService>(CoursesService);
     expect(service).toBeDefined();
     expect(service).toBeInstanceOf(CoursesService);
   });
 
-  it('should resolve CoursesController', async () => {
+  it('should resolve CoursesController', () => {
     const controller = module.get<CoursesController>(CoursesController);
     expect(controller).toBeDefined();
     expect(controller).toBeInstanceOf(CoursesController);
