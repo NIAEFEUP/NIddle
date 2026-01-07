@@ -103,7 +103,10 @@ describe('CoursesController', () => {
       const result = await controller.update(1, updateCourseDto);
 
       expect(result).toEqual(updatedCourse);
-      expect(mockCoursesService.update).toHaveBeenCalledWith(1, updateCourseDto);
+      expect(mockCoursesService.update).toHaveBeenCalledWith(
+        1,
+        updateCourseDto,
+      );
     });
 
     it('should throw NotFoundException if course not found', async () => {
@@ -115,7 +118,10 @@ describe('CoursesController', () => {
       await expect(controller.update(1, updateCourseDto)).rejects.toThrow(
         NotFoundException,
       );
-      expect(mockCoursesService.update).toHaveBeenCalledWith(1, updateCourseDto);
+      expect(mockCoursesService.update).toHaveBeenCalledWith(
+        1,
+        updateCourseDto,
+      );
     });
   });
 
