@@ -17,7 +17,7 @@ describe('AuthService', () => {
     name: 'Test User',
     email: 'test@example.com',
     password: 'hashedPassword',
-  } as User;
+  };
 
   const mockUsersService = {
     findOneByEmail: jest.fn(),
@@ -140,6 +140,13 @@ describe('AuthService', () => {
         UnauthorizedException,
       );
     });
+
+    it('should rethrow other errors from findOneByEmail in signIn', async () => {
+      const error = new Error('Database connection failed');
+      mockUsersService.findOneByEmail.mockRejectedValue(error);
+
+      await expect(service.signIn(signInDto)).rejects.toThrow(error);
+    });
   });
 
   describe('validateUser', () => {
@@ -174,6 +181,13 @@ describe('AuthService', () => {
       const result = await service.validateUser(signInDto);
 
       expect(result).toBeNull();
+    });
+
+    it('should rethrow other errors from findOneByEmail in validateUser', async () => {
+      const error = new Error('Database connection failed');
+      mockUsersService.findOneByEmail.mockRejectedValue(error);
+
+      await expect(service.validateUser(signInDto)).rejects.toThrow(error);
     });
   });
 });
