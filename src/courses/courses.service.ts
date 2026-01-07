@@ -3,8 +3,9 @@ import { CreateCourseDto } from './dto/create-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Course } from './entities/course.entity';
-import { In, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { Faculty } from '../faculties/entities/faculty.entity';
+import { validateAndGetRelations } from '../common/utils/entity-relation.utils';
 
 @Injectable()
 export class CoursesService {
@@ -19,14 +20,12 @@ export class CoursesService {
     const { facultyIds, ...courseData } = createCourseDto;
     const course = this.courseRepository.create(courseData);
 
-    if (facultyIds && facultyIds.length > 0) {
-      const faculties = await this.facultyRepository.findBy({
-        id: In(facultyIds),
-      });
-      if (faculties.length !== facultyIds.length) {
-        throw new NotFoundException(`One or more faculties not found`);
-      }
-      course.faculties = faculties;
+    if (facultyIds) {
+      course.faculties = await validateAndGetRelations(
+        this.facultyRepository,
+        facultyIds,
+        'faculties',
+      );
     }
 
     return this.courseRepository.save(course);
@@ -55,17 +54,11 @@ export class CoursesService {
     this.courseRepository.merge(course, courseData);
 
     if (facultyIds) {
-      if (facultyIds.length > 0) {
-        const faculties = await this.facultyRepository.findBy({
-          id: In(facultyIds),
-        });
-        if (faculties.length !== facultyIds.length) {
-          throw new NotFoundException(`One or more faculties not found`);
-        }
-        course.faculties = faculties;
-      } else {
-        course.faculties = [];
-      }
+      course.faculties = await validateAndGetRelations(
+        this.facultyRepository,
+        facultyIds,
+        'faculties',
+      );
     }
 
     return this.courseRepository.save(course);

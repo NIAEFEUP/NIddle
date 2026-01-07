@@ -1,10 +1,11 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { Course } from '../courses/entities/course.entity';
 import { CreateFacultyDto } from './dto/create-faculty.dto';
 import { UpdateFacultyDto } from './dto/update-faculty.dto';
 import { Faculty } from './entities/faculty.entity';
+import { validateAndGetRelations } from '../common/utils/entity-relation.utils';
 
 @Injectable()
 export class FacultiesService {
@@ -19,14 +20,12 @@ export class FacultiesService {
     const { courseIds, ...facultyData } = createFacultyDto;
     const faculty = this.facultyRepository.create(facultyData);
 
-    if (courseIds && courseIds.length > 0) {
-      const courses = await this.courseRepository.findBy({
-        id: In(courseIds),
-      });
-      if (courses.length !== courseIds.length) {
-        throw new NotFoundException(`One or more courses not found`);
-      }
-      faculty.courses = courses;
+    if (courseIds) {
+      faculty.courses = await validateAndGetRelations(
+        this.courseRepository,
+        courseIds,
+        'courses',
+      );
     }
 
     return this.facultyRepository.save(faculty);
@@ -58,24 +57,18 @@ export class FacultiesService {
     this.facultyRepository.merge(faculty, facultyData);
 
     if (courseIds) {
-      if (courseIds.length > 0) {
-        const courses = await this.courseRepository.findBy({
-          id: In(courseIds),
-        });
-        if (courses.length !== courseIds.length) {
-          throw new NotFoundException(`One or more courses not found`);
-        }
-        faculty.courses = courses;
-      } else {
-        faculty.courses = [];
-      }
+      faculty.courses = await validateAndGetRelations(
+        this.courseRepository,
+        courseIds,
+        'courses',
+      );
     }
 
     return this.facultyRepository.save(faculty);
   }
 
   async remove(id: number): Promise<Faculty> {
-    const faculty = this.facultyRepository.findOneByOrFail({ id });
+    const faculty = await this.facultyRepository.findOneByOrFail({ id });
     await this.facultyRepository.delete(id);
     return faculty;
   }
