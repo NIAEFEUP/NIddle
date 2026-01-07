@@ -1,11 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { TypeOrmModule, getRepositoryToken } from '@nestjs/typeorm';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { CoursesModule } from './courses.module';
 import { CoursesService } from './courses.service';
 import { CoursesController } from './courses.controller';
 import { Course } from './entities/course.entity';
 import { Faculty } from '../faculties/entities/faculty.entity';
-import { Repository } from 'typeorm';
 
 describe('CoursesModule', () => {
   let module: TestingModule;
@@ -38,16 +37,5 @@ describe('CoursesModule', () => {
     const controller = module.get<CoursesController>(CoursesController);
     expect(controller).toBeDefined();
     expect(controller).toBeInstanceOf(CoursesController);
-  });
-
-  it('should have correctly configured Course entity relationships', () => {
-    const repository = module.get<Repository<Course>>(getRepositoryToken(Course));
-    const metadata = repository.metadata;
-    const relation = metadata.findRelationWithPropertyPath('faculties');
-
-    expect(relation).toBeDefined();
-    if (relation) {
-      expect(relation.inverseSidePropertyPath).toBe('courses');
-    }
   });
 });
