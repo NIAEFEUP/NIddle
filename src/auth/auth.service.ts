@@ -1,6 +1,5 @@
 import {
   Injectable,
-  NotFoundException,
   UnauthorizedException,
   ConflictException,
 } from '@nestjs/common';
@@ -10,6 +9,7 @@ import { JwtService } from '@nestjs/jwt';
 import { User } from '../users/entities/user.entity';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { SignInDto } from './dto/signin.dto';
+import { EntityNotFoundError } from 'typeorm';
 
 @Injectable()
 export class AuthService {
@@ -23,7 +23,7 @@ export class AuthService {
       await this.usersService.findOneByEmail(createUserDto.email);
       throw new ConflictException('Email is already in use.');
     } catch (error) {
-      if (!(error instanceof NotFoundException)) {
+      if (!(error instanceof EntityNotFoundError)) {
         throw error;
       }
     }
@@ -40,7 +40,7 @@ export class AuthService {
     try {
       user = await this.usersService.findOneByEmail(signInDto.email);
     } catch (error) {
-      if (!(error instanceof NotFoundException)) {
+      if (!(error instanceof EntityNotFoundError)) {
         throw error;
       }
     }
@@ -69,7 +69,7 @@ export class AuthService {
     try {
       user = await this.usersService.findOneByEmail(signInDto.email);
     } catch (error) {
-      if (!(error instanceof NotFoundException)) {
+      if (!(error instanceof EntityNotFoundError)) {
         throw error;
       }
     }
