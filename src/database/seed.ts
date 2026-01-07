@@ -4,7 +4,7 @@ import { Course } from '../courses/entities/course.entity';
 import { Faculty } from '../faculties/entities/faculty.entity';
 import { User } from '../users/entities/user.entity';
 
-(async () => {
+export const seed = async () => {
   const options: DataSourceOptions & SeederOptions = {
     type: 'postgres',
     host: process.env.DATABASE_HOST || 'localhost',
@@ -23,7 +23,11 @@ import { User } from '../users/entities/user.entity';
   await dataSource.initialize();
 
   await runSeeders(dataSource);
-})().catch((err) => {
-  console.error('Seeding failed:', err);
-  process.exit(1);
-});
+};
+
+if (require.main === module) {
+  seed().catch((err) => {
+    console.error('Seeding failed:', err);
+    process.exit(1);
+  });
+}
