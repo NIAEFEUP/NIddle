@@ -4,12 +4,25 @@ import { AppController } from './app.controller';
 import { DatabaseModule } from './database/database.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
+import { ConfigModule } from '@nestjs/config';
+
 describe('AppModule', () => {
   let module: TestingModule;
 
   beforeAll(async () => {
     module = await Test.createTestingModule({
-      imports: [AppModule],
+      imports: [
+        ConfigModule.forRoot({
+          ignoreEnvFile: true,
+          load: [
+            () => ({
+              JWT_SECRET: 'test_secret',
+            }),
+          ],
+          isGlobal: true,
+        }),
+        AppModule,
+      ],
     })
       .overrideModule(DatabaseModule)
       .useModule(
