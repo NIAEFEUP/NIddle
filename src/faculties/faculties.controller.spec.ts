@@ -88,7 +88,9 @@ describe('FacultiesController', () => {
       const result = await controller.create(createFacultyDto);
 
       expect(result).toEqual(mockFaculty);
-      expect(mockFacultiesService.create).toHaveBeenCalledWith(createFacultyDto);
+      expect(mockFacultiesService.create).toHaveBeenCalledWith(
+        createFacultyDto,
+      );
     });
   });
 
