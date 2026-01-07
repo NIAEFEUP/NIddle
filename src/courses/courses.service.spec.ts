@@ -58,8 +58,12 @@ describe('CoursesService', () => {
     }).compile();
 
     service = module.get<CoursesService>(CoursesService);
-    courseRepository = module.get<Repository<Course>>(getRepositoryToken(Course));
-    facultyRepository = module.get<Repository<Faculty>>(getRepositoryToken(Faculty));
+    courseRepository = module.get<Repository<Course>>(
+      getRepositoryToken(Course),
+    );
+    facultyRepository = module.get<Repository<Faculty>>(
+      getRepositoryToken(Faculty),
+    );
   });
 
   afterEach(() => {
@@ -98,7 +102,9 @@ describe('CoursesService', () => {
     });
 
     it('should throw if course not found', async () => {
-      mockCourseRepository.findOneOrFail.mockRejectedValue(new Error('Not found'));
+      mockCourseRepository.findOneOrFail.mockRejectedValue(
+        new Error('Not found'),
+      );
 
       await expect(service.findOne(1)).rejects.toThrow('Not found');
     });
@@ -199,16 +205,22 @@ describe('CoursesService', () => {
         NotFoundException,
       );
     });
-    
+
     it('should clear faculties if empty array provided', async () => {
-        const updateCourseDto: UpdateCourseDto = { facultyIds: [] };
-        mockCourseRepository.findOneBy.mockResolvedValue({ ...mockCourse, faculties: [mockFaculty] });
-        mockCourseRepository.save.mockResolvedValue({ ...mockCourse, faculties: [] });
-  
-        const result = await service.update(1, updateCourseDto);
-  
-        expect(result.faculties).toEqual([]);
+      const updateCourseDto: UpdateCourseDto = { facultyIds: [] };
+      mockCourseRepository.findOneBy.mockResolvedValue({
+        ...mockCourse,
+        faculties: [mockFaculty],
       });
+      mockCourseRepository.save.mockResolvedValue({
+        ...mockCourse,
+        faculties: [],
+      });
+
+      const result = await service.update(1, updateCourseDto);
+
+      expect(result.faculties).toEqual([]);
+    });
   });
 
   describe('remove', () => {
