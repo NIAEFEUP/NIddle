@@ -87,7 +87,9 @@ describe('UsersService', () => {
     });
 
     it('should throw if user not found', async () => {
-      mockUserRepository.findOneOrFail.mockRejectedValue(new Error('Not found'));
+      mockUserRepository.findOneOrFail.mockRejectedValue(
+        new Error('Not found'),
+      );
 
       await expect(service.findOne(1)).rejects.toThrow('Not found');
     });
@@ -110,9 +112,9 @@ describe('UsersService', () => {
         new Error('Not found'),
       );
 
-      await expect(
-        service.findOneByEmail('john@example.com'),
-      ).rejects.toThrow('Not found');
+      await expect(service.findOneByEmail('john@example.com')).rejects.toThrow(
+        'Not found',
+      );
     });
   });
 });
