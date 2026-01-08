@@ -20,7 +20,7 @@ export class CoursesService {
     const { facultyIds, ...courseData } = createCourseDto;
     const course = this.courseRepository.create(courseData);
 
-    if (facultyIds) {
+    if (facultyIds !== undefined) {
       course.faculties = await validateAndGetRelations(
         this.facultyRepository,
         facultyIds,
@@ -53,7 +53,7 @@ export class CoursesService {
 
     this.courseRepository.merge(course, courseData);
 
-    if (facultyIds) {
+    if (facultyIds !== undefined) {
       course.faculties = await validateAndGetRelations(
         this.facultyRepository,
         facultyIds,
