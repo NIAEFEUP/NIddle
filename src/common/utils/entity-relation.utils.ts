@@ -8,12 +8,18 @@ export async function validateAndGetRelations<
     return [];
   }
 
+  const uniqueIds = [...new Set(ids)];
+
   const entities = await repository.findBy({
-    id: In(ids),
+    id: In(uniqueIds),
   } as FindOptionsWhere<T>);
 
-  if (entities.length !== ids.length) {
-    throw new NotFoundException(`One or more ${entityName} not found`);
+  if (entities.length !== uniqueIds.length) {
+    const foundIds = entities.map((e) => e.id);
+    const missingIds = uniqueIds.filter((id) => !foundIds.includes(id));
+    throw new NotFoundException(
+      `One or more ${entityName} not found. Missing IDs: ${missingIds.join(', ')}`,
+    );
   }
 
   return entities;
