@@ -154,7 +154,7 @@ describe('CoursesService', () => {
   describe('update', () => {
     it('should update a course successfully', async () => {
       const updateCourseDto: UpdateCourseDto = { name: 'New Name' };
-      mockCourseRepository.findOneBy.mockResolvedValue({ ...mockCourse });
+      mockCourseRepository.findOneByOrFail.mockResolvedValue({ ...mockCourse });
       mockCourseRepository.save.mockResolvedValue({
         ...mockCourse,
         name: 'New Name',
@@ -168,14 +168,16 @@ describe('CoursesService', () => {
     });
 
     it('should throw NotFoundException if course not found', async () => {
-      mockCourseRepository.findOneBy.mockResolvedValue(null);
+      mockCourseRepository.findOneByOrFail.mockRejectedValue(
+        new Error('Not found'),
+      );
 
-      await expect(service.update(1, {})).rejects.toThrow(NotFoundException);
+      await expect(service.update(1, {})).rejects.toThrow('Not found');
     });
 
     it('should update faculties if provided', async () => {
       const updateCourseDto: UpdateCourseDto = { facultyIds: [1] };
-      mockCourseRepository.findOneBy.mockResolvedValue({ ...mockCourse });
+      mockCourseRepository.findOneByOrFail.mockResolvedValue({ ...mockCourse });
       mockFacultyRepository.findBy.mockResolvedValue([mockFaculty]);
       mockCourseRepository.save.mockResolvedValue({
         ...mockCourse,
@@ -189,7 +191,7 @@ describe('CoursesService', () => {
 
     it('should throw NotFoundException if updating with invalid faculty IDs', async () => {
       const updateCourseDto: UpdateCourseDto = { facultyIds: [1, 2] };
-      mockCourseRepository.findOneBy.mockResolvedValue({ ...mockCourse });
+      mockCourseRepository.findOneByOrFail.mockResolvedValue({ ...mockCourse });
       mockFacultyRepository.findBy.mockResolvedValue([mockFaculty]);
 
       await expect(service.update(1, updateCourseDto)).rejects.toThrow(
@@ -199,7 +201,7 @@ describe('CoursesService', () => {
 
     it('should clear faculties if empty array provided', async () => {
       const updateCourseDto: UpdateCourseDto = { facultyIds: [] };
-      mockCourseRepository.findOneBy.mockResolvedValue({
+      mockCourseRepository.findOneByOrFail.mockResolvedValue({
         ...mockCourse,
         faculties: [mockFaculty],
       });
