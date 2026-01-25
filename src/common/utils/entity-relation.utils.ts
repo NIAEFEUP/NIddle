@@ -15,8 +15,8 @@ export async function validateAndGetRelations<
   } as FindOptionsWhere<T>);
 
   if (entities.length !== uniqueIds.length) {
-    const foundIds = entities.map((e) => e.id);
-    const missingIds = uniqueIds.filter((id) => !foundIds.includes(id));
+    const foundIds = new Set(entities.map((e) => e.id));
+    const missingIds = uniqueIds.filter((id) => ! foundIds.has(id));
     throw new NotFoundException(
       `One or more ${entityName} not found. Missing IDs: ${missingIds.join(', ')}`,
     );
