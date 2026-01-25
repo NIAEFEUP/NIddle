@@ -48,11 +48,7 @@ export class FacultiesService {
   ): Promise<Faculty> {
     const { courseIds, ...facultyData } = updateFacultyDto;
 
-    const faculty = await this.facultyRepository.findOneBy({ id });
-
-    if (!faculty) {
-      throw new NotFoundException(`Faculty with id ${id} not found`);
-    }
+    const faculty = await this.facultyRepository.findOneByOrFail({ id });
 
     this.facultyRepository.merge(faculty, facultyData);
 

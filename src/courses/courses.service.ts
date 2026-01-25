@@ -45,11 +45,7 @@ export class CoursesService {
   async update(id: number, updateCourseDto: UpdateCourseDto): Promise<Course> {
     const { facultyIds, ...courseData } = updateCourseDto;
 
-    const course = await this.courseRepository.findOneBy({ id });
-
-    if (!course) {
-      throw new NotFoundException(`Course with id ${id} not found`);
-    }
+    const course = await this.courseRepository.findOneByOrFail({ id });
 
     this.courseRepository.merge(course, courseData);
 
