@@ -6,6 +6,7 @@ import { DatabaseService } from './database.service';
 describe('DatabaseService', () => {
   let service: DatabaseService;
   let mockDataSource: Partial<DataSource>;
+  let module: TestingModule;
 
   beforeEach(async () => {
     mockDataSource = {
@@ -13,7 +14,7 @@ describe('DatabaseService', () => {
       options: { type: 'sqlite', database: ':memory:' },
     };
 
-    const module: TestingModule = await Test.createTestingModule({
+    module = await Test.createTestingModule({
       providers: [
         DatabaseService,
         {
@@ -24,6 +25,10 @@ describe('DatabaseService', () => {
     }).compile();
 
     service = module.get<DatabaseService>(DatabaseService);
+  });
+
+  afterEach(async () => {
+    await module.close();
   });
 
   it('should be defined', () => {
