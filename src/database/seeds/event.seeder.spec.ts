@@ -1,8 +1,9 @@
 import { DataSource, EntityTarget, Repository } from 'typeorm';
 import { SeederFactoryManager } from 'typeorm-extension';
-import EventSeeder from './3-event.seeder';
+import EventSeeder from './4-event.seeder';
 import { Event } from '../../events/entities/event.entity';
 import { Faculty } from '../../faculties/entities/faculty.entity';
+import { Course } from '../../courses/entities/course.entity';
 
 describe('EventSeeder', () => {
   let seeder: EventSeeder;
@@ -22,6 +23,23 @@ describe('EventSeeder', () => {
       name: 'Science Faculty',
       acronym: 'FCUP',
       courses: [],
+      events: [],
+    },
+  ];
+
+  const mockCourses: Course[] = [
+    {
+      id: 1,
+      name: 'Computer Science',
+      acronym: 'CS',
+      faculties: [],
+      events: [],
+    },
+    {
+      id: 2,
+      name: 'Engineering',
+      acronym: 'ENG',
+      faculties: [],
       events: [],
     },
   ];
@@ -49,10 +67,15 @@ describe('EventSeeder', () => {
     find: jest.fn().mockResolvedValue(mockFaculties),
   };
 
+  const mockCourseRepository = {
+    find: jest.fn().mockResolvedValue(mockCourses),
+  };
+
   const mockGet = jest.fn().mockReturnValue(mockFactory);
   const mockGetRepository = jest.fn((entity: any) => {
     if (entity === Event) return mockEventRepository;
     if (entity === Faculty) return mockFacultyRepository;
+    if (entity === Course) return mockCourseRepository;
     return {} as Repository<any>;
   });
 
@@ -69,10 +92,12 @@ describe('EventSeeder', () => {
     mockFactory.make.mockClear();
     mockEventRepository.save.mockClear();
     mockFacultyRepository.find.mockClear();
+    mockCourseRepository.find.mockClear();
     mockGetRepository.mockClear();
 
     mockFactory.make.mockResolvedValue({ ...mockEvent });
     mockFacultyRepository.find.mockResolvedValue(mockFaculties);
+    mockCourseRepository.find.mockResolvedValue(mockCourses);
   });
 
   it('should be defined', () => {
@@ -84,6 +109,7 @@ describe('EventSeeder', () => {
 
     expect(mockGet).toHaveBeenCalledWith(Event);
     expect(mockFacultyRepository.find).toHaveBeenCalled();
+    expect(mockCourseRepository.find).toHaveBeenCalled();
     expect(mockFactory.make).toHaveBeenCalledTimes(50);
     expect(mockEventRepository.save).toHaveBeenCalled();
   });
@@ -116,5 +142,21 @@ describe('EventSeeder', () => {
     expect(savedEvents.length).toBe(50);
     const eventsWithFaculty = savedEvents.filter((event) => event.faculty);
     expect(eventsWithFaculty.length).toBeGreaterThan(0);
+  });
+
+  it('should assign courses to some events', async () => {
+    const savedEvents: Event[] = [];
+    mockEventRepository.save.mockImplementation((events: Event[]) => {
+      savedEvents.push(...events);
+      return Promise.resolve(events);
+    });
+
+    await seeder.run(dataSource, factoryManager);
+
+    expect(savedEvents.length).toBe(50);
+    const eventsWithCourses = savedEvents.filter(
+      (event) => event.courses && event.courses.length > 0,
+    );
+    expect(eventsWithCourses.length).toBeGreaterThan(0);
   });
 });
