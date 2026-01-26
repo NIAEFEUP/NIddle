@@ -1,5 +1,13 @@
 import { Faculty } from '../../faculties/entities/faculty.entity';
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Course } from '../../courses/entities/course.entity';
+import {
+  Column,
+  Entity,
+  ManyToOne,
+  ManyToMany,
+  JoinTable,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 @Entity()
 export class Event {
@@ -56,4 +64,11 @@ export class Event {
    */
   @ManyToOne(() => Faculty, (faculty) => faculty.events, { nullable: true })
   faculty?: Faculty;
+
+  /**
+   * The courses associated with the event.
+   */
+  @ManyToMany(() => Course, (course) => course.events, { onDelete: 'CASCADE' })
+  @JoinTable()
+  courses: Course[];
 }

@@ -34,6 +34,7 @@ describe('EventSeeder', () => {
     startDate: new Date('2025-12-26T09:00:00Z'),
     endDate: new Date('2025-12-27T18:00:00Z'),
     faculty: undefined,
+    courses: [],
   };
 
   const mockFactory = {

@@ -4,6 +4,7 @@ import {
   IsNotEmpty,
   IsDateString,
   IsInt,
+  IsArray,
 } from 'class-validator';
 
 export class CreateEventDto {
@@ -54,4 +55,13 @@ export class CreateEventDto {
   @IsInt()
   @IsOptional()
   facultyId?: number;
+
+  /**
+   * The course IDs associated with this event.
+   * @example [1, 2]
+   */
+  @IsArray()
+  @IsInt({ each: true })
+  @IsOptional()
+  courseIds?: number[];
 }
