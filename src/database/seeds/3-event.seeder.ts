@@ -14,12 +14,13 @@ export default class EventSeeder implements Seeder {
 
     const events: Event[] = [];
     const currentYear = new Date().getFullYear();
-    const minYear = currentYear - 2;
-    const maxYear = currentYear + 2;
     for (let i = 0; i < 50; i++) {
       const event = await eventFactory.make();
-      event.year =
-        Math.floor(Math.random() * (maxYear - minYear + 1)) + minYear;
+      const eventYear =
+        event.startDate instanceof Date
+          ? event.startDate.getFullYear()
+          : currentYear;
+      event.year = eventYear;
       if (faculties.length > 0 && Math.random() < 0.8) {
         const faculty = faculties[Math.floor(Math.random() * faculties.length)];
         event.faculty = faculty;
