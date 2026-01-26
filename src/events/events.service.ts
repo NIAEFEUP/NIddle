@@ -1,20 +1,31 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
-import { Event } from './event.entity';
+import { Event } from './entities/event.entity';
 import { EventFilterDto } from './dto/event-filter.dto';
+import { Faculty } from '../faculties/entities/faculty.entity';
 
 @Injectable()
 export class EventsService {
   constructor(
     @InjectRepository(Event)
     private eventRepository: Repository<Event>,
+    @InjectRepository(Faculty)
+    private facultyRepository: Repository<Faculty>,
   ) {}
 
-  create(createEventDto: CreateEventDto): Promise<Event> {
-    const event = this.eventRepository.create(createEventDto);
+  async create(createEventDto: CreateEventDto): Promise<Event> {
+    const { facultyId, ...eventData } = createEventDto;
+    const event = this.eventRepository.create(eventData);
+
+    if (facultyId !== undefined) {
+      event.faculty = await this.facultyRepository.findOneByOrFail({
+        id: facultyId,
+      });
+    }
+
     return this.eventRepository.save(event);
   }
 
@@ -29,41 +40,30 @@ export class EventsService {
     });
   }
 
-  async findOne(id: number): Promise<Event> {
-    const event = await this.eventRepository.findOne({
+  findOne(id: number): Promise<Event> {
+    return this.eventRepository.findOneOrFail({
       where: { id },
       relations: ['faculty'],
     });
-    if (!event) {
-      throw new NotFoundException(`Event with id ${id} not found`);
-    }
-    return event;
   }
 
   async update(id: number, updateEventDto: UpdateEventDto): Promise<Event> {
-    const event = await this.eventRepository.findOneBy({ id });
-    if (!event) {
-      throw new NotFoundException(`Event with id ${id} not found`);
+    const { facultyId, ...eventData } = updateEventDto;
+
+    const event = await this.eventRepository.findOneByOrFail({ id });
+    this.eventRepository.merge(event, eventData);
+
+    if (facultyId !== undefined) {
+      event.faculty = await this.facultyRepository.findOneByOrFail({
+        id: facultyId,
+      });
     }
-    await this.eventRepository.update(id, updateEventDto);
-    const updatedEvent = await this.eventRepository.findOne({
-      where: { id },
-      relations: ['faculty'],
-    });
-    if (!updatedEvent) {
-      throw new NotFoundException(`Event with id ${id} not found after update`);
-    }
-    return updatedEvent;
+
+    return this.eventRepository.save(event);
   }
 
   async remove(id: number): Promise<Event> {
-    const event = await this.eventRepository.findOne({
-      where: { id },
-      relations: ['faculty'],
-    });
-    if (!event) {
-      throw new NotFoundException(`Event with id ${id} not found`);
-    }
+    const event = await this.eventRepository.findOneByOrFail({ id });
     await this.eventRepository.delete(id);
     return event;
   }

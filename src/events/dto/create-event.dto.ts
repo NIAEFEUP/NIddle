@@ -27,31 +27,31 @@ export class CreateEventDto {
    * The year when the event occurs.
    * @example 2025
    */
-  @IsNotEmpty()
   @IsInt()
+  @IsNotEmpty()
   year: number;
 
   /**
    * The start date and time of the event.
    * @example '2025-12-26T09:00:00Z'
    */
-  @IsOptional()
   @IsDateString()
+  @IsOptional()
   startDate?: string;
 
   /**
    * The end date and time of the event.
    * @example '2025-12-27T18:00:00Z'
    */
-  @IsOptional()
   @IsDateString()
+  @IsOptional()
   endDate?: string;
 
   /**
    * The faculty ID this event belongs to.
    * @example 1
    */
-  @IsOptional()
   @IsInt()
+  @IsOptional()
   facultyId?: number;
 }
