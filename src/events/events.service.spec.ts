@@ -3,6 +3,7 @@ import { EventsService } from './events.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Event } from './entities/event.entity';
 import { Faculty } from '../faculties/entities/faculty.entity';
+import { Course } from '../courses/entities/course.entity';
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
 import { EventFilterDto } from './dto/event-filter.dto';
@@ -18,6 +19,7 @@ describe('EventsService', () => {
     startDate: new Date('2025-12-26T09:00:00Z'),
     endDate: new Date('2025-12-27T18:00:00Z'),
     faculty: undefined,
+    courses: [],
   };
 
   const mockFaculty: Faculty = {
@@ -25,6 +27,14 @@ describe('EventsService', () => {
     name: 'Engineering Faculty',
     acronym: 'FEUP',
     courses: [],
+    events: [],
+  };
+
+  const mockCourse: Course = {
+    id: 1,
+    name: 'Computer Science',
+    acronym: 'CS',
+    faculties: [],
     events: [],
   };
 
@@ -43,6 +53,10 @@ describe('EventsService', () => {
     findOneByOrFail: jest.fn(),
   };
 
+  const mockCourseRepository = {
+    findBy: jest.fn(),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -54,6 +68,10 @@ describe('EventsService', () => {
         {
           provide: getRepositoryToken(Faculty),
           useValue: mockFacultyRepository,
+        },
+        {
+          provide: getRepositoryToken(Course),
+          useValue: mockCourseRepository,
         },
       ],
     }).compile();
@@ -80,7 +98,7 @@ describe('EventsService', () => {
       expect(result).toEqual(events);
       expect(mockEventRepository.find).toHaveBeenCalledWith({
         where: {},
-        relations: ['faculty'],
+        relations: ['faculty', 'courses'],
       });
     });
 
@@ -94,7 +112,7 @@ describe('EventsService', () => {
       expect(result).toEqual(events);
       expect(mockEventRepository.find).toHaveBeenCalledWith({
         where: { year: 2025 },
-        relations: ['faculty'],
+        relations: ['faculty', 'courses'],
       });
     });
 
@@ -108,7 +126,7 @@ describe('EventsService', () => {
       expect(result).toEqual(events);
       expect(mockEventRepository.find).toHaveBeenCalledWith({
         where: { faculty: { id: 1 } },
-        relations: ['faculty'],
+        relations: ['faculty', 'courses'],
       });
     });
 
@@ -122,7 +140,7 @@ describe('EventsService', () => {
       expect(result).toEqual(events);
       expect(mockEventRepository.find).toHaveBeenCalledWith({
         where: { year: 2025, faculty: { id: 1 } },
-        relations: ['faculty'],
+        relations: ['faculty', 'courses'],
       });
     });
   });
@@ -136,7 +154,7 @@ describe('EventsService', () => {
       expect(result).toEqual(mockEvent);
       expect(mockEventRepository.findOneOrFail).toHaveBeenCalledWith({
         where: { id: 1 },
-        relations: ['faculty'],
+        relations: ['faculty', 'courses'],
       });
     });
 
@@ -212,6 +230,39 @@ describe('EventsService', () => {
 
       await expect(service.create(createEventDto)).rejects.toThrow('Not found');
     });
+
+    it('should create an event with valid courses', async () => {
+      const createEventDto: CreateEventDto = {
+        name: 'FEUP Week',
+        description: 'Annual FEUP event',
+        year: 2025,
+        courseIds: [1],
+      };
+      mockEventRepository.create.mockReturnValue({ ...mockEvent });
+      mockCourseRepository.findBy.mockResolvedValue([mockCourse]);
+      mockEventRepository.save.mockResolvedValue({
+        ...mockEvent,
+        courses: [mockCourse],
+      });
+
+      const result = await service.create(createEventDto);
+
+      expect(result.courses).toEqual([mockCourse]);
+      expect(mockCourseRepository.findBy).toHaveBeenCalled();
+    });
+
+    it('should throw NotFoundException if any course is not found', async () => {
+      const createEventDto: CreateEventDto = {
+        name: 'FEUP Week',
+        description: 'Annual FEUP event',
+        year: 2025,
+        courseIds: [1, 2],
+      };
+      mockEventRepository.create.mockReturnValue(mockEvent);
+      mockCourseRepository.findBy.mockResolvedValue([mockCourse]);
+
+      await expect(service.create(createEventDto)).rejects.toThrow();
+    });
   });
 
   describe('update', () => {
@@ -265,6 +316,44 @@ describe('EventsService', () => {
       await expect(service.update(1, updateEventDto)).rejects.toThrow(
         'Not found',
       );
+    });
+
+    it('should update courses if provided', async () => {
+      const updateEventDto: UpdateEventDto = { courseIds: [1] };
+      mockEventRepository.findOneByOrFail.mockResolvedValue({ ...mockEvent });
+      mockCourseRepository.findBy.mockResolvedValue([mockCourse]);
+      mockEventRepository.save.mockResolvedValue({
+        ...mockEvent,
+        courses: [mockCourse],
+      });
+
+      const result = await service.update(1, updateEventDto);
+
+      expect(result.courses).toEqual([mockCourse]);
+    });
+
+    it('should throw NotFoundException if updating with invalid course IDs', async () => {
+      const updateEventDto: UpdateEventDto = { courseIds: [1, 2] };
+      mockEventRepository.findOneByOrFail.mockResolvedValue({ ...mockEvent });
+      mockCourseRepository.findBy.mockResolvedValue([mockCourse]);
+
+      await expect(service.update(1, updateEventDto)).rejects.toThrow();
+    });
+
+    it('should clear courses if empty array provided', async () => {
+      const updateEventDto: UpdateEventDto = { courseIds: [] };
+      mockEventRepository.findOneByOrFail.mockResolvedValue({
+        ...mockEvent,
+        courses: [mockCourse],
+      });
+      mockEventRepository.save.mockResolvedValue({
+        ...mockEvent,
+        courses: [],
+      });
+
+      const result = await service.update(1, updateEventDto);
+
+      expect(result.courses).toEqual([]);
     });
   });
 
