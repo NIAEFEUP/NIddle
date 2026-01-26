@@ -5,6 +5,7 @@ import { FacultiesService } from './faculties.service';
 import { FacultiesController } from './faculties.controller';
 import { Faculty } from './entities/faculty.entity';
 import { Course } from '../courses/entities/course.entity';
+import { Event } from '../events/event.entity';
 
 describe('FacultiesModule', () => {
   let module: TestingModule;
@@ -15,7 +16,7 @@ describe('FacultiesModule', () => {
         TypeOrmModule.forRoot({
           type: 'sqlite',
           database: ':memory:',
-          entities: [Faculty, Course],
+          entities: [Faculty, Course, Event],
           synchronize: true,
         }),
         FacultiesModule,
