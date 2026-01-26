@@ -7,6 +7,7 @@ import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { EventsModule } from './events/events.module';
 import { ExistsInDbConstraint } from './validators/exists-in-db.validator';
+import { CoursesModule } from './courses/courses.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { ExistsInDbConstraint } from './validators/exists-in-db.validator';
     UsersModule,
     AuthModule,
     EventsModule,
+    CoursesModule,
   ],
   providers: [ExistsInDbConstraint],
   controllers: [AppController],

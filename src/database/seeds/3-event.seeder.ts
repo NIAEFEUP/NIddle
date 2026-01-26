@@ -1,7 +1,7 @@
 import { Seeder, SeederFactoryManager } from 'typeorm-extension';
 import { DataSource } from 'typeorm';
 import { Event } from '../../events/event.entity';
-import { Faculty } from '../../faculties/faculty.entity';
+import { Faculty } from '../../faculties/entities/faculty.entity';
 
 export default class EventSeeder implements Seeder {
   public async run(

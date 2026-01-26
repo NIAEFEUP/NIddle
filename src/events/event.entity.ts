@@ -1,4 +1,4 @@
-import { Faculty } from '../faculties/faculty.entity';
+import { Faculty } from '../faculties/entities/faculty.entity';
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()

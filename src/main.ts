@@ -2,12 +2,12 @@ import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
-import { useContainer } from 'class-validator';
+import { EntityNotFoundFilter } from './filters/entity-not-found.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.useGlobalPipes(new ValidationPipe({ validateCustomDecorators: true }));
-  useContainer(app.select(AppModule), { fallbackOnErrors: true });
+  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalFilters(new EntityNotFoundFilter());
 
   const port = process.env.PORT ?? 3000;
   const config = new DocumentBuilder()
