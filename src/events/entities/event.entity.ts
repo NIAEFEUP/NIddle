@@ -38,7 +38,7 @@ export class Event {
    * For 'TBD' or 'until' events, this can be null.
    * @example '2025-12-26T09:00:00Z'
    */
-  @Column({ type: 'datetime', nullable: true })
+  @Column({ type: Date, nullable: true })
   startDate?: Date | null;
 
   /**
@@ -48,7 +48,7 @@ export class Event {
    * For 'until' events, set this to the deadline and leave startDate as null.
    * @example '2025-12-27T18:00:00Z'
    */
-  @Column({ type: 'datetime', nullable: true })
+  @Column({ type: Date, nullable: true })
   endDate?: Date | null;
 
   /**
