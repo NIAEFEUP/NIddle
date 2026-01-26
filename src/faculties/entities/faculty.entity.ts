@@ -1,5 +1,5 @@
 import { Course } from '../../courses/entities/course.entity';
-import { Event } from '../../events/event.entity';
+import { Event } from '../../events/entities/event.entity';
 import {
   Entity,
   Column,

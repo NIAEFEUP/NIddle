@@ -1,6 +1,6 @@
 import { setSeederFactory } from 'typeorm-extension';
 import { faker } from '@faker-js/faker';
-import { Event } from '../../events/event.entity';
+import { Event } from '../../events/entities/event.entity';
 
 const eventTemplates = [
   {

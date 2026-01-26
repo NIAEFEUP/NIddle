@@ -5,7 +5,7 @@ import { FacultiesService } from './faculties.service';
 import { FacultiesController } from './faculties.controller';
 import { Faculty } from './entities/faculty.entity';
 import { Course } from '../courses/entities/course.entity';
-import { Event } from '../events/event.entity';
+import { Event } from '../events/entities/event.entity';
 
 describe('FacultiesModule', () => {
   let module: TestingModule;

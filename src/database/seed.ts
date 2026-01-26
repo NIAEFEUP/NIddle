@@ -2,7 +2,7 @@ import { DataSource, DataSourceOptions } from 'typeorm';
 import { runSeeders, SeederOptions } from 'typeorm-extension';
 import { Faculty } from '../faculties/entities/faculty.entity';
 import { User } from '../users/entities/user.entity';
-import { Event } from '../events/event.entity';
+import { Event } from '../events/entities/event.entity';
 import { Course } from '../courses/entities/course.entity';
 
 export const seed = async () => {
