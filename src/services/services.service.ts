@@ -36,7 +36,10 @@ export class ServicesService {
     return service;
   }
 
-  async update(id: number, updateServiceDto: UpdateServiceDto): Promise<Service> {
+  async update(
+    id: number,
+    updateServiceDto: UpdateServiceDto,
+  ): Promise<Service> {
     return this.serviceRepository.manager.transaction(async (manager) => {
       const serviceRepo = manager.getRepository(Service);
       const service = await serviceRepo.findOne({
@@ -52,7 +55,9 @@ export class ServicesService {
         relations: ['schedule', 'schedule.timeIntervals'],
       });
       if (!updatedService) {
-        throw new NotFoundException(`Service with id ${id} not found after update`);
+        throw new NotFoundException(
+          `Service with id ${id} not found after update`,
+        );
       }
       return updatedService;
     });

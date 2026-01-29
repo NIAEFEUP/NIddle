@@ -33,7 +33,9 @@ export default setSeederFactory(Service, () => {
     const openingHour = faker.number.int({ min: 8, max: 18 });
     const durationHours = faker.number.int({ min: 1, max: 4 });
 
-    timeInterval.startTime = new Date(Date.UTC(1970, 0, 1, openingHour, 0, 0, 0));
+    timeInterval.startTime = new Date(
+      Date.UTC(1970, 0, 1, openingHour, 0, 0, 0),
+    );
     timeInterval.endTime = new Date(
       Date.UTC(1970, 0, 1, openingHour + durationHours, 0, 0, 0),
     );

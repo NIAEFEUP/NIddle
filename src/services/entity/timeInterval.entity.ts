@@ -21,7 +21,18 @@ export class TimeInterval {
   @Column({ type: 'timestamp' })
   endTime: Date;
 
-  @Column({ type: 'enum', enum: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'] })
+  @Column({
+    type: 'enum',
+    enum: [
+      'Monday',
+      'Tuesday',
+      'Wednesday',
+      'Thursday',
+      'Friday',
+      'Saturday',
+      'Sunday',
+    ],
+  })
   dayOfWeek: EnumDays;
 
   @ManyToOne(() => Schedule, (schedule) => schedule.timeIntervals)
