@@ -4,8 +4,11 @@ import {
   PrimaryGeneratedColumn,
   OneToOne,
   JoinColumn,
+  ManyToOne,
 } from 'typeorm';
 import { Schedule } from './schedule.entity';
+import { Faculty } from '../../faculties/faculty.entity';
+import { Optional } from '@nestjs/common';
 
 @Entity()
 export class Service {
@@ -27,7 +30,7 @@ export class Service {
    * The service e-mail.
    * @example 'PdB@gmail.com'
    */
-  @Column()
+  @Column({nullable: true})
   email?: string;
 
   /**
@@ -42,10 +45,14 @@ export class Service {
    * The service's phone number.
    * @example '+315 999999999'
    */
-  @Column()
+  @Column({nullable: true})
   phoneNumber?: string;
 
   @OneToOne(() => Schedule, { cascade: true })
   @JoinColumn()
   schedule: Schedule;
+
+  @ManyToOne(() => Faculty, (service) => service.id)
+  @JoinColumn()
+  faculty: Faculty;
 }

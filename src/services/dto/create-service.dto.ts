@@ -1,4 +1,5 @@
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsOptional, IsString, ValidateNested } from 'class-validator';
+import { Type } from 'class-transformer';
 import { Schedule } from '../entity/schedule.entity';
 
 export class CreateServiceDto {
@@ -15,6 +16,8 @@ export class CreateServiceDto {
    * @example 'PdB@gmail.com'
    */
   @IsString()
+  @IsEmail(undefined, { message: 'Invalid email format' })
+  @IsOptional()
   email?: string;
 
   /**
@@ -29,6 +32,9 @@ export class CreateServiceDto {
    * The service's working hours.
    * TODO : make example
    */
+  @IsNotEmpty()
+  @ValidateNested()
+  @Type(() => Schedule)
   schedule: Schedule;
 
   /**
@@ -36,5 +42,6 @@ export class CreateServiceDto {
    * @example '+315 999999999'
    */
   @IsString()
+  @IsOptional()
   phoneNumber?: string;
 }
