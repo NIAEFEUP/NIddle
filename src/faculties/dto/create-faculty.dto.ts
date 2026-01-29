@@ -1,4 +1,10 @@
-import { IsNotEmpty, IsString } from 'class-validator';
+import {
+  IsArray,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 
 export class CreateFacultyDto {
   /**
@@ -16,4 +22,13 @@ export class CreateFacultyDto {
   @IsString()
   @IsNotEmpty()
   acronym: string;
+
+  /**
+   * The IDs of the courses associated with the faculty.
+   * @example [1, 2]
+   */
+  @IsArray()
+  @IsNumber({}, { each: true })
+  @IsOptional()
+  courseIds?: number[];
 }

@@ -7,12 +7,13 @@ import {
   Body,
   UseInterceptors,
   ClassSerializerInterceptor,
+  ValidationPipe,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { AuthService } from './auth.service';
-import { CreateUserDto } from '../users/create-user.dto';
-import { SignInDto } from './signin.dto';
+import { CreateUserDto } from '../users/dto/create-user.dto';
+import { SignInDto } from './dto/signin.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
 @UseInterceptors(ClassSerializerInterceptor)
@@ -45,7 +46,7 @@ export class AuthController {
     description: 'Conflict: Email is already in use.',
   })
   @Post('register')
-  async register(@Body() createUserDto: CreateUserDto) {
+  async register(@Body(ValidationPipe) createUserDto: CreateUserDto) {
     return this.authService.register(createUserDto);
   }
 
@@ -57,7 +58,7 @@ export class AuthController {
   })
   @UseGuards(LocalAuthGuard)
   @Post('login')
-  async signIn(@Body() signInDto: SignInDto) {
+  async signIn(@Body(ValidationPipe) signInDto: SignInDto) {
     return this.authService.signIn(signInDto);
   }
 }

@@ -15,4 +15,15 @@ describe('AppController', () => {
   it('should be defined', () => {
     expect(appController).toBeDefined();
   });
+
+  describe('root', () => {
+    it('should return health check information', () => {
+      const result = appController.root();
+      expect(result).toHaveProperty('status', 'online');
+      expect(result).toHaveProperty('uptime');
+      expect(result).toHaveProperty('timestamp');
+      expect(result).toHaveProperty('version');
+      expect(result).toHaveProperty('message', 'Welcome to the NIddle API!');
+    });
+  });
 });

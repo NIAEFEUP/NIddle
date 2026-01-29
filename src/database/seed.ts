@@ -5,8 +5,11 @@ import { User } from '../users/user.entity';
 import { Service } from '../services/entity/service.entity';
 import { Schedule } from '../services/entity/schedule.entity';
 import { TimeInterval } from '../services/entity/timeInterval.entity';
+import { Course } from '../courses/entities/course.entity';
+import { Faculty } from '../faculties/entities/faculty.entity';
+import { User } from '../users/entities/user.entity';
 
-(async () => {
+export const seed = async () => {
   const options: DataSourceOptions & SeederOptions = {
     type: 'postgres',
     host: process.env.DATABASE_HOST || 'localhost',
@@ -17,6 +20,7 @@ import { TimeInterval } from '../services/entity/timeInterval.entity';
     synchronize: true,
     dropSchema: true,
     entities: [Faculty, User, Service, Schedule, TimeInterval],
+    entities: [Course, Faculty, User],
     seeds: ['src/database/seeds/*.seeder.{ts,js}'],
     factories: ['src/database/factories/*.factory.{ts,js}'],
   };
@@ -25,7 +29,18 @@ import { TimeInterval } from '../services/entity/timeInterval.entity';
   await dataSource.initialize();
 
   await runSeeders(dataSource);
-})().catch((err) => {
-  console.error('Seeding failed:', err);
-  process.exit(1);
-});
+};
+
+export const handleMain = (
+  moduleRef: NodeJS.Module,
+  mainModule: NodeJS.Module | undefined = require.main,
+) => {
+  if (mainModule === moduleRef) {
+    seed().catch((err) => {
+      console.error('Seeding failed:', err);
+      process.exit(1);
+    });
+  }
+};
+
+handleMain(module);
