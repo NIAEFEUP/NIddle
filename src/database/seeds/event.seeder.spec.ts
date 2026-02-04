@@ -159,4 +159,21 @@ describe('EventSeeder', () => {
     );
     expect(eventsWithCourses.length).toBeGreaterThan(0);
   });
+
+  it('should use current year if startDate is not a Date instance', async () => {
+    const currentYear = new Date().getFullYear();
+    mockFactory.make.mockResolvedValue({ ...mockEvent, startDate: undefined });
+
+    const savedEvents: Event[] = [];
+    mockEventRepository.save.mockImplementation((events: Event[]) => {
+      savedEvents.push(...events);
+      return Promise.resolve(events);
+    });
+
+    await seeder.run(dataSource, factoryManager);
+
+    savedEvents.forEach((event) => {
+      expect(event.year).toBe(currentYear);
+    });
+  });
 });
