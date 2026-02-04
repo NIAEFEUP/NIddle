@@ -3,6 +3,7 @@ import { runSeeders, SeederOptions } from 'typeorm-extension';
 import { Course } from '../courses/entities/course.entity';
 import { Faculty } from '../faculties/entities/faculty.entity';
 import { User } from '../users/entities/user.entity';
+import { Event } from '../events/entities/event.entity';
 
 export const seed = async () => {
   const options: DataSourceOptions & SeederOptions = {
@@ -14,7 +15,7 @@ export const seed = async () => {
     database: process.env.DATABASE_NAME || 'niddle_db',
     synchronize: true,
     dropSchema: true,
-    entities: [Course, Faculty, User],
+    entities: [Course, Faculty, User, Event],
     seeds: ['src/database/seeds/*.seeder.{ts,js}'],
     factories: ['src/database/factories/*.factory.{ts,js}'],
   };

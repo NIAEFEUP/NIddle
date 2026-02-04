@@ -1,4 +1,5 @@
 import { Faculty } from '../../faculties/entities/faculty.entity';
+import { Event } from '../../events/entities/event.entity';
 import { Column, Entity, ManyToMany, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
@@ -30,4 +31,10 @@ export class Course {
    */
   @ManyToMany(() => Faculty, (faculty) => faculty.courses)
   faculties: Faculty[];
+
+  /**
+   * Events associated with this course.
+   */
+  @ManyToMany(() => Event, (event) => event.courses)
+  events: Event[];
 }

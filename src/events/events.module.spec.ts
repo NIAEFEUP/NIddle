@@ -1,13 +1,13 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { CoursesModule } from './courses.module';
-import { CoursesService } from './courses.service';
-import { CoursesController } from './courses.controller';
-import { Course } from './entities/course.entity';
+import { Course } from '../courses/entities/course.entity';
 import { Faculty } from '../faculties/entities/faculty.entity';
 import { Event } from '../events/entities/event.entity';
+import { EventsModule } from './events.module';
+import { EventsService } from './events.service';
+import { EventsController } from './events.controller';
 
-describe('CoursesModule', () => {
+describe('EventsModule', () => {
   let module: TestingModule;
 
   beforeAll(async () => {
@@ -19,7 +19,7 @@ describe('CoursesModule', () => {
           entities: [Course, Faculty, Event],
           synchronize: true,
         }),
-        CoursesModule,
+        EventsModule,
       ],
     }).compile();
   });
@@ -28,15 +28,15 @@ describe('CoursesModule', () => {
     expect(module).toBeDefined();
   });
 
-  it('should resolve CoursesService', () => {
-    const service = module.get<CoursesService>(CoursesService);
+  it('should resolve EventsService', () => {
+    const service = module.get<EventsService>(EventsService);
     expect(service).toBeDefined();
-    expect(service).toBeInstanceOf(CoursesService);
+    expect(service).toBeInstanceOf(EventsService);
   });
 
-  it('should resolve CoursesController', () => {
-    const controller = module.get<CoursesController>(CoursesController);
+  it('should resolve EventsController', () => {
+    const controller = module.get<EventsController>(EventsController);
     expect(controller).toBeDefined();
-    expect(controller).toBeInstanceOf(CoursesController);
+    expect(controller).toBeInstanceOf(EventsController);
   });
 });
