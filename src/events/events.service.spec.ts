@@ -130,6 +130,20 @@ describe('EventsService', () => {
       });
     });
 
+    it('should return events filtered by courseId', async () => {
+      const events = [mockEvent];
+      const filters: EventFilterDto = { courseId: 1 };
+      mockEventRepository.find.mockResolvedValue(events);
+
+      const result = await service.findAll(filters);
+
+      expect(result).toEqual(events);
+      expect(mockEventRepository.find).toHaveBeenCalledWith({
+        where: { courses: { id: 1 } },
+        relations: ['faculty', 'courses'],
+      });
+    });
+
     it('should return events filtered by year and facultyId', async () => {
       const events = [mockEvent];
       const filters: EventFilterDto = { year: 2025, facultyId: 1 };
@@ -140,6 +154,48 @@ describe('EventsService', () => {
       expect(result).toEqual(events);
       expect(mockEventRepository.find).toHaveBeenCalledWith({
         where: { year: 2025, faculty: { id: 1 } },
+        relations: ['faculty', 'courses'],
+      });
+    });
+
+    it('should return events filtered by year and courseId', async () => {
+      const events = [mockEvent];
+      const filters: EventFilterDto = { year: 2025, courseId: 1 };
+      mockEventRepository.find.mockResolvedValue(events);
+
+      const result = await service.findAll(filters);
+
+      expect(result).toEqual(events);
+      expect(mockEventRepository.find).toHaveBeenCalledWith({
+        where: { year: 2025, courses: { id: 1 } },
+        relations: ['faculty', 'courses'],
+      });
+    });
+
+    it('should return events filtered by facultyId and courseId', async () => {
+      const events = [mockEvent];
+      const filters: EventFilterDto = { facultyId: 1, courseId: 1 };
+      mockEventRepository.find.mockResolvedValue(events);
+
+      const result = await service.findAll(filters);
+
+      expect(result).toEqual(events);
+      expect(mockEventRepository.find).toHaveBeenCalledWith({
+        where: { faculty: { id: 1 }, courses: { id: 1 } },
+        relations: ['faculty', 'courses'],
+      });
+    });
+
+    it('should return events filtered by year, facultyId and courseId', async () => {
+      const events = [mockEvent];
+      const filters: EventFilterDto = { year: 2025, facultyId: 1, courseId: 1 };
+      mockEventRepository.find.mockResolvedValue(events);
+
+      const result = await service.findAll(filters);
+
+      expect(result).toEqual(events);
+      expect(mockEventRepository.find).toHaveBeenCalledWith({
+        where: { year: 2025, faculty: { id: 1 }, courses: { id: 1 } },
         relations: ['faculty', 'courses'],
       });
     });
