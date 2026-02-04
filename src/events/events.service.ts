@@ -42,11 +42,13 @@ export class EventsService {
   }
 
   findAll(filters: EventFilterDto): Promise<Event[]> {
-    const { year, facultyId } = filters;
+    const { year, facultyId, courseId } = filters;
+
     return this.eventRepository.find({
       where: {
-        ...(year && { year }),
+        ...(year !== undefined && { year }),
         ...(facultyId && { faculty: { id: facultyId } }),
+        ...(courseId && { courses: { id: courseId } }),
       },
       relations: ['faculty', 'courses'],
     });
