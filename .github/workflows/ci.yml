@@ -7,8 +7,23 @@ on:
     branches: [ main ]
 
 jobs:
+  lint-and-format:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [22.x]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Biome
+        uses: biomejs/setup-biome@v2
+        with:
+          version: latest
+      - name: Run Biome CI
+        run: biome ci ./src ./test
+
   test:
     runs-on: ubuntu-latest
+    needs: [lint-and-format]
     strategy:
       matrix:
         node-version: [22.x]
@@ -24,28 +39,9 @@ jobs:
     - name: Unit Tests
       run: npm test
 
-  lint-and-format:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [22.x]
-    steps:
-    - uses: actions/checkout@v4
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ matrix.node-version }}
-        cache: 'npm'
-    - name: Install Dependencies
-      run: npm ci
-    - name: Lint
-      run: npm run lint
-    - name: Format Check
-      run: npm run format:check
-
   build:
     runs-on: ubuntu-latest
-    needs: [test, lint-and-format]
+    needs: [test]
     strategy:
       matrix:
         node-version: [22.x]
