@@ -216,6 +216,24 @@ describe('ServicesService', () => {
         service.update(1, { name: 'x' } as UpdateServiceDto),
       ).rejects.toThrow('Service with id 1 not found');
     });
+
+    it('should throw if service not found after update', async () => {
+      const repo = {
+        findOne: jest
+          .fn()
+          .mockResolvedValueOnce(mockService) // exists before update
+          .mockResolvedValueOnce(undefined), // missing after update
+        update: jest.fn().mockResolvedValue(undefined),
+      } as unknown as Partial<Repository<Service>>;
+
+      mockServiceRepository.manager.transaction.mockImplementation((cb: TxCb) =>
+        Promise.resolve(cb({ getRepository: () => repo })),
+      );
+
+      await expect(
+        service.update(1, { name: 'x' } as UpdateServiceDto),
+      ).rejects.toThrow('Service with id 1 not found after update');
+    });
   });
 
   describe('remove', () => {
