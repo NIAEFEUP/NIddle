@@ -8,6 +8,7 @@ import { EnumDays, TimeInterval } from './entity/timeInterval.entity';
 import { Faculty } from '../faculties/entities/faculty.entity';
 import { Course } from '../courses/entities/course.entity';
 import { CreateServiceDto } from './dto/create-service.dto';
+import { Repository } from 'typeorm';
 
 describe('ServicesService', () => {
   let service: ServicesService;
@@ -24,6 +25,9 @@ describe('ServicesService', () => {
     dayOfWeek: EnumDays.MONDAY,
     schedule: mockSchedule,
   };
+
+  // attach the time interval to the schedule (prevents unused-variable lint)
+  mockSchedule.timeIntervals = [mockTimeInterval];
 
   const mockFaculty: Faculty = {
     id: 1,
@@ -71,6 +75,11 @@ describe('ServicesService', () => {
   const mockCourseRepository = {
     findBy: jest.fn(),
   };
+
+  // transaction callback type for typing mocks (use any to avoid complex generics)
+  type TxCb = (manager: {
+    getRepository: (e: any) => Partial<Repository<any>>;
+  }) => Promise<any>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -146,19 +155,17 @@ describe('ServicesService', () => {
         email: 'PdB@gmail.com',
         phoneNumber: '+315 999999999',
         schedule: mockSchedule,
-      } as any;
+      };
 
       // prepare a repository that will be returned by manager.getRepository
       const repo = {
         create: jest.fn().mockReturnValue(createServiceDto),
         save: jest.fn().mockResolvedValue(mockService),
-      } as any;
+      } as unknown as Partial<Repository<Service>>;
 
       // transaction implementation should call the callback with a manager
-      mockServiceRepository.manager.transaction.mockImplementation(
-        async (cb: any) => {
-          return cb({ getRepository: () => repo });
-        },
+      mockServiceRepository.manager.transaction.mockImplementation((cb: TxCb) =>
+        Promise.resolve(cb({ getRepository: () => repo })),
       );
 
       const result = await service.create(createServiceDto);
@@ -172,20 +179,20 @@ describe('ServicesService', () => {
 
   describe('update', () => {
     it('should update and return the updated service', async () => {
-      const updateDto: UpdateServiceDto = { name: 'New name' } as any;
+      const updateDto: UpdateServiceDto = {
+        name: 'New name',
+      } as UpdateServiceDto;
 
-      const repo: any = {
+      const repo = {
         findOne: jest
           .fn()
           .mockResolvedValueOnce(mockService) // before update
           .mockResolvedValueOnce({ ...mockService, ...updateDto }), // after update
         update: jest.fn().mockResolvedValue(undefined),
-      };
+      } as unknown as Partial<Repository<Service>>;
 
-      mockServiceRepository.manager.transaction.mockImplementation(
-        async (cb: any) => {
-          return cb({ getRepository: () => repo });
-        },
+      mockServiceRepository.manager.transaction.mockImplementation((cb: TxCb) =>
+        Promise.resolve(cb({ getRepository: () => repo })),
       );
 
       const result = await service.update(1, updateDto);
@@ -196,34 +203,30 @@ describe('ServicesService', () => {
     });
 
     it('should throw if service to update not found', async () => {
-      const repo: any = {
+      const repo = {
         findOne: jest.fn().mockResolvedValue(undefined),
         update: jest.fn(),
-      };
+      } as unknown as Partial<Repository<Service>>;
 
-      mockServiceRepository.manager.transaction.mockImplementation(
-        async (cb: any) => {
-          return cb({ getRepository: () => repo });
-        },
+      mockServiceRepository.manager.transaction.mockImplementation((cb: TxCb) =>
+        Promise.resolve(cb({ getRepository: () => repo })),
       );
 
-      await expect(service.update(1, { name: 'x' } as any)).rejects.toThrow(
-        'Service with id 1 not found',
-      );
+      await expect(
+        service.update(1, { name: 'x' } as UpdateServiceDto),
+      ).rejects.toThrow('Service with id 1 not found');
     });
   });
 
   describe('remove', () => {
     it('should remove and return the deleted service', async () => {
-      const repo: any = {
+      const repo = {
         findOne: jest.fn().mockResolvedValue(mockService),
         delete: jest.fn().mockResolvedValue(undefined),
-      };
+      } as unknown as Partial<Repository<Service>>;
 
-      mockServiceRepository.manager.transaction.mockImplementation(
-        async (cb: any) => {
-          return cb({ getRepository: () => repo });
-        },
+      mockServiceRepository.manager.transaction.mockImplementation((cb: TxCb) =>
+        Promise.resolve(cb({ getRepository: () => repo })),
       );
 
       const result = await service.remove(1);
@@ -237,15 +240,13 @@ describe('ServicesService', () => {
     });
 
     it('should throw if service to remove not found', async () => {
-      const repo: any = {
+      const repo = {
         findOne: jest.fn().mockResolvedValue(undefined),
         delete: jest.fn(),
-      };
+      } as unknown as Partial<Repository<Service>>;
 
-      mockServiceRepository.manager.transaction.mockImplementation(
-        async (cb: any) => {
-          return cb({ getRepository: () => repo });
-        },
+      mockServiceRepository.manager.transaction.mockImplementation((cb: TxCb) =>
+        Promise.resolve(cb({ getRepository: () => repo })),
       );
 
       await expect(service.remove(1)).rejects.toThrow(
