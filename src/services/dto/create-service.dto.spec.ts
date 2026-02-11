@@ -1,6 +1,7 @@
 import { validate } from 'class-validator';
 import { CreateServiceDto } from './create-service.dto';
 import { Schedule } from '../entity/schedule.entity';
+import { plainToInstance } from 'class-transformer';
 
 describe('CreateServiceDto validation', () => {
   it('valid dto should have no validation errors', async () => {
@@ -28,5 +29,19 @@ describe('CreateServiceDto validation', () => {
     const errors = await validate(dto);
     // should include an error for name
     expect(errors.some((e) => e.property === 'name')).toBe(true);
+  });
+
+  it('should transform plain schedule object into Schedule instance using Type decorator', () => {
+    const plain = {
+      name: 'Papelaria',
+      location: 'B-142',
+      schedule: { timeIntervals: [] },
+    };
+
+    const dto = plainToInstance(CreateServiceDto, plain);
+
+    // Type decorator should have transformed nested plain object to Schedule
+    expect(dto.schedule).toBeInstanceOf(Schedule);
+    expect(Array.isArray(dto.schedule.timeIntervals)).toBe(true);
   });
 });
