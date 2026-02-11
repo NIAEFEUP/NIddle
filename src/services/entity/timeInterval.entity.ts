@@ -1,37 +1,31 @@
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { Schedule } from './schedule.entity';
 
-export type EnumDays =
-  | 'Monday'
-  | 'Tuesday'
-  | 'Wednesday'
-  | 'Thursday'
-  | 'Friday'
-  | 'Saturday'
-  | 'Sunday';
+export enum EnumDays {
+  MONDAY = "Monday",
+  TUESDAY = "Tuesday",
+  WEDNESDAY = "Wednesday",
+  THURSDAY = "Thursday",
+  FRIDAY = "Friday",
+  SATURDAY = "Saturday",
+  SUNDAY = "Sunday",
+}
 
 @Entity()
 export class TimeInterval {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: 'timestamp' })
+  @Column({ type: 'date' })
   startTime: Date;
 
-  @Column({ type: 'timestamp' })
+  @Column({ type: 'date' })
   endTime: Date;
 
   @Column({
-    type: 'enum',
-    enum: [
-      'Monday',
-      'Tuesday',
-      'Wednesday',
-      'Thursday',
-      'Friday',
-      'Saturday',
-      'Sunday',
-    ],
+    type: 'varchar',
+    enum: EnumDays,
+    default: EnumDays.MONDAY,
   })
   dayOfWeek: EnumDays;
 

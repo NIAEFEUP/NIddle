@@ -17,13 +17,13 @@ export default setSeederFactory(Service, () => {
   const schedule = new Schedule();
   schedule.timeIntervals = [];
   const days: EnumDays[] = [
-    'Monday',
-    'Tuesday',
-    'Wednesday',
-    'Thursday',
-    'Friday',
-    'Saturday',
-    'Sunday',
+    EnumDays.MONDAY,
+    EnumDays.TUESDAY,
+    EnumDays.WEDNESDAY,
+    EnumDays.THURSDAY,
+    EnumDays.FRIDAY,
+    EnumDays.SATURDAY,
+    EnumDays.SUNDAY,
   ];
   const numberOfIntervals = faker.number.int({ min: 1, max: 5 });
 

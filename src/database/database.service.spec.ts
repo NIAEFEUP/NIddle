@@ -35,11 +35,27 @@ describe('DatabaseService', () => {
     expect(service).toBeDefined();
   });
 
+  it('should create typeorm options for test', () => {
+    const originalEnv = process.env.NODE_ENV;
+    process.env.NODE_ENV = 'test';
+
+    const options = service.createTypeOrmOptions();
+    expect(options.type).toBe('sqlite');
+    expect(options.database).toBe(':memory:');
+
+    process.env.NODE_ENV = originalEnv;
+  });
+
   it('should create typeorm options for development', () => {
+    const originalEnv = process.env.NODE_ENV;
+    process.env.NODE_ENV = 'development';
+
     const options = service.createTypeOrmOptions();
     expect(options.type).toBe('postgres');
     expect(options.database).toBe('niddle_db');
     expect(options.synchronize).toBe(true);
+
+    process.env.NODE_ENV = originalEnv;
   });
 
   it('should create typeorm options for production', () => {

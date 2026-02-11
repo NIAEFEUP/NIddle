@@ -4,6 +4,17 @@ import { TypeOrmModuleOptions, TypeOrmOptionsFactory } from '@nestjs/typeorm';
 @Injectable()
 export class DatabaseService implements TypeOrmOptionsFactory {
   createTypeOrmOptions(): TypeOrmModuleOptions {
+    const isTest = process.env.NODE_ENV === 'test';
+    if (isTest) {
+      return {
+        type: 'sqlite',
+        database: ':memory:',
+        dropSchema: true,
+        autoLoadEntities: true,
+        synchronize: true,
+        };
+    }
+
     const isProd = process.env.NODE_ENV === 'production';
 
     return {

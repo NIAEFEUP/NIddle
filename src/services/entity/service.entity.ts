@@ -8,6 +8,7 @@ import {
 } from 'typeorm';
 import { Schedule } from './schedule.entity';
 import { Faculty } from '../../faculties/entities/faculty.entity';
+import { Course } from '../../courses/entities/course.entity';
 
 @Entity()
 export class Service {
@@ -54,4 +55,8 @@ export class Service {
   @ManyToOne(() => Faculty, { cascade: true })
   @JoinColumn()
   faculty: Faculty;
+
+  @ManyToOne(() => Course, { cascade: true })
+  @JoinColumn()
+  course: Course;
 }
