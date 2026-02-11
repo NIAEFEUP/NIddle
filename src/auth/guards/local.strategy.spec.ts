@@ -1,10 +1,10 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { LocalStrategy } from './local.strategy';
-import { AuthService } from '../auth.service';
-import { UnauthorizedException } from '@nestjs/common';
-import { User } from '../../users/entities/user.entity';
+import { UnauthorizedException } from "@nestjs/common";
+import { Test, TestingModule } from "@nestjs/testing";
+import { User } from "../../users/entities/user.entity";
+import { AuthService } from "../auth.service";
+import { LocalStrategy } from "./local.strategy";
 
-describe('LocalStrategy', () => {
+describe("LocalStrategy", () => {
   let strategy: LocalStrategy;
 
   const mockAuthService = {
@@ -29,28 +29,28 @@ describe('LocalStrategy', () => {
     jest.clearAllMocks();
   });
 
-  it('should be defined', () => {
+  it("should be defined", () => {
     expect(strategy).toBeDefined();
   });
 
-  it('should return user if validation is successful', async () => {
-    const user = { id: 1, email: 'test@example.com' } as User;
+  it("should return user if validation is successful", async () => {
+    const user = { id: 1, email: "test@example.com" } as User;
     mockAuthService.validateUser.mockResolvedValue(user);
 
-    const result = await strategy.validate('test@example.com', 'password');
+    const result = await strategy.validate("test@example.com", "password");
 
     expect(result).toEqual(user);
     expect(mockAuthService.validateUser).toHaveBeenCalledWith({
-      email: 'test@example.com',
-      password: 'password',
+      email: "test@example.com",
+      password: "password",
     });
   });
 
-  it('should throw UnauthorizedException if validation fails', async () => {
+  it("should throw UnauthorizedException if validation fails", async () => {
     mockAuthService.validateUser.mockResolvedValue(null);
 
     await expect(
-      strategy.validate('test@example.com', 'password'),
+      strategy.validate("test@example.com", "password"),
     ).rejects.toThrow(UnauthorizedException);
   });
 });

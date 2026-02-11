@@ -1,18 +1,18 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { NotFoundException } from '@nestjs/common';
-import { CoursesController } from './courses.controller';
-import { CoursesService } from './courses.service';
-import { Course } from './entities/course.entity';
-import { CreateCourseDto } from './dto/create-course.dto';
-import { UpdateCourseDto } from './dto/update-course.dto';
+import { NotFoundException } from "@nestjs/common";
+import { Test, TestingModule } from "@nestjs/testing";
+import { CoursesController } from "./courses.controller";
+import { CoursesService } from "./courses.service";
+import { CreateCourseDto } from "./dto/create-course.dto";
+import { UpdateCourseDto } from "./dto/update-course.dto";
+import { Course } from "./entities/course.entity";
 
-describe('CoursesController', () => {
+describe("CoursesController", () => {
   let controller: CoursesController;
 
   const mockCourse: Course = {
     id: 1,
-    name: 'Computer Science',
-    acronym: 'CS',
+    name: "Computer Science",
+    acronym: "CS",
     faculties: [],
     events: [],
   };
@@ -43,12 +43,12 @@ describe('CoursesController', () => {
     jest.clearAllMocks();
   });
 
-  it('should be defined', () => {
+  it("should be defined", () => {
     expect(controller).toBeDefined();
   });
 
-  describe('findAll', () => {
-    it('should return an array of courses', async () => {
+  describe("findAll", () => {
+    it("should return an array of courses", async () => {
       const courses = [mockCourse];
       mockCoursesService.findAll.mockResolvedValue(courses);
 
@@ -59,8 +59,8 @@ describe('CoursesController', () => {
     });
   });
 
-  describe('findOne', () => {
-    it('should return a single course', async () => {
+  describe("findOne", () => {
+    it("should return a single course", async () => {
       mockCoursesService.findOne.mockResolvedValue(mockCourse);
 
       const result = await controller.findOne(1);
@@ -69,7 +69,7 @@ describe('CoursesController', () => {
       expect(mockCoursesService.findOne).toHaveBeenCalledWith(1);
     });
 
-    it('should throw NotFoundException if course not found', async () => {
+    it("should throw NotFoundException if course not found", async () => {
       mockCoursesService.findOne.mockRejectedValue(new NotFoundException());
 
       await expect(controller.findOne(1)).rejects.toThrow(NotFoundException);
@@ -77,11 +77,11 @@ describe('CoursesController', () => {
     });
   });
 
-  describe('create', () => {
-    it('should create a new course', async () => {
+  describe("create", () => {
+    it("should create a new course", async () => {
       const createCourseDto: CreateCourseDto = {
-        name: 'Computer Science',
-        acronym: 'CS',
+        name: "Computer Science",
+        acronym: "CS",
         facultyIds: [1, 2],
       };
       mockCoursesService.create.mockResolvedValue(mockCourse);
@@ -93,10 +93,10 @@ describe('CoursesController', () => {
     });
   });
 
-  describe('update', () => {
-    it('should update a course', async () => {
+  describe("update", () => {
+    it("should update a course", async () => {
       const updateCourseDto: UpdateCourseDto = {
-        name: 'Updated Course Name',
+        name: "Updated Course Name",
       };
       const updatedCourse = { ...mockCourse, ...updateCourseDto };
       mockCoursesService.update.mockResolvedValue(updatedCourse);
@@ -110,9 +110,9 @@ describe('CoursesController', () => {
       );
     });
 
-    it('should throw NotFoundException if course not found', async () => {
+    it("should throw NotFoundException if course not found", async () => {
       const updateCourseDto: UpdateCourseDto = {
-        name: 'Updated Course Name',
+        name: "Updated Course Name",
       };
       mockCoursesService.update.mockRejectedValue(new NotFoundException());
 
@@ -126,8 +126,8 @@ describe('CoursesController', () => {
     });
   });
 
-  describe('remove', () => {
-    it('should remove a course', async () => {
+  describe("remove", () => {
+    it("should remove a course", async () => {
       mockCoursesService.remove.mockResolvedValue(mockCourse);
 
       const result = await controller.remove(1);
@@ -136,7 +136,7 @@ describe('CoursesController', () => {
       expect(mockCoursesService.remove).toHaveBeenCalledWith(1);
     });
 
-    it('should throw NotFoundException if course not found', async () => {
+    it("should throw NotFoundException if course not found", async () => {
       mockCoursesService.remove.mockRejectedValue(new NotFoundException());
 
       await expect(controller.remove(1)).rejects.toThrow(NotFoundException);

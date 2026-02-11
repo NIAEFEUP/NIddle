@@ -1,11 +1,11 @@
-import { DataSource, EntityTarget, Repository } from 'typeorm';
-import { SeederFactoryManager } from 'typeorm-extension';
-import EventSeeder from './4-event.seeder';
-import { Event } from '../../events/entities/event.entity';
-import { Faculty } from '../../faculties/entities/faculty.entity';
-import { Course } from '../../courses/entities/course.entity';
+import { DataSource, EntityTarget, Repository } from "typeorm";
+import { SeederFactoryManager } from "typeorm-extension";
+import { Course } from "../../courses/entities/course.entity";
+import { Event } from "../../events/entities/event.entity";
+import { Faculty } from "../../faculties/entities/faculty.entity";
+import EventSeeder from "./4-event.seeder";
 
-describe('EventSeeder', () => {
+describe("EventSeeder", () => {
   let seeder: EventSeeder;
   let dataSource: DataSource;
   let factoryManager: SeederFactoryManager;
@@ -13,15 +13,15 @@ describe('EventSeeder', () => {
   const mockFaculties: Faculty[] = [
     {
       id: 1,
-      name: 'Engineering Faculty',
-      acronym: 'FEUP',
+      name: "Engineering Faculty",
+      acronym: "FEUP",
       courses: [],
       events: [],
     },
     {
       id: 2,
-      name: 'Science Faculty',
-      acronym: 'FCUP',
+      name: "Science Faculty",
+      acronym: "FCUP",
       courses: [],
       events: [],
     },
@@ -30,15 +30,15 @@ describe('EventSeeder', () => {
   const mockCourses: Course[] = [
     {
       id: 1,
-      name: 'Computer Science',
-      acronym: 'CS',
+      name: "Computer Science",
+      acronym: "CS",
       faculties: [],
       events: [],
     },
     {
       id: 2,
-      name: 'Engineering',
-      acronym: 'ENG',
+      name: "Engineering",
+      acronym: "ENG",
       faculties: [],
       events: [],
     },
@@ -46,11 +46,11 @@ describe('EventSeeder', () => {
 
   const mockEvent: Event = {
     id: 1,
-    name: 'FEUP Week',
-    description: 'Annual FEUP event',
+    name: "FEUP Week",
+    description: "Annual FEUP event",
     year: 2025,
-    startDate: new Date('2025-12-26T09:00:00Z'),
-    endDate: new Date('2025-12-27T18:00:00Z'),
+    startDate: new Date("2025-12-26T09:00:00Z"),
+    endDate: new Date("2025-12-27T18:00:00Z"),
     faculty: undefined,
     courses: [],
   };
@@ -100,11 +100,11 @@ describe('EventSeeder', () => {
     mockCourseRepository.find.mockResolvedValue(mockCourses);
   });
 
-  it('should be defined', () => {
+  it("should be defined", () => {
     expect(seeder).toBeDefined();
   });
 
-  it('should seed events', async () => {
+  it("should seed events", async () => {
     await seeder.run(dataSource, factoryManager);
 
     expect(mockGet).toHaveBeenCalledWith(Event);
@@ -114,7 +114,7 @@ describe('EventSeeder', () => {
     expect(mockEventRepository.save).toHaveBeenCalled();
   });
 
-  it('should assign years to events', async () => {
+  it("should assign years to events", async () => {
     const savedEvents: Event[] = [];
     mockEventRepository.save.mockImplementation((events: Event[]) => {
       savedEvents.push(...events);
@@ -126,11 +126,11 @@ describe('EventSeeder', () => {
     expect(savedEvents.length).toBe(50);
     savedEvents.forEach((event) => {
       expect(event.year).toBeDefined();
-      expect(typeof event.year).toBe('number');
+      expect(typeof event.year).toBe("number");
     });
   });
 
-  it('should assign faculties to some events', async () => {
+  it("should assign faculties to some events", async () => {
     const savedEvents: Event[] = [];
     mockEventRepository.save.mockImplementation((events: Event[]) => {
       savedEvents.push(...events);
@@ -144,7 +144,7 @@ describe('EventSeeder', () => {
     expect(eventsWithFaculty.length).toBeGreaterThan(0);
   });
 
-  it('should assign courses to some events', async () => {
+  it("should assign courses to some events", async () => {
     const savedEvents: Event[] = [];
     mockEventRepository.save.mockImplementation((events: Event[]) => {
       savedEvents.push(...events);
@@ -160,7 +160,7 @@ describe('EventSeeder', () => {
     expect(eventsWithCourses.length).toBeGreaterThan(0);
   });
 
-  it('should use current year if startDate is not a Date instance', async () => {
+  it("should use current year if startDate is not a Date instance", async () => {
     const currentYear = new Date().getFullYear();
     mockFactory.make.mockResolvedValue({ ...mockEvent, startDate: undefined });
 

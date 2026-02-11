@@ -1,9 +1,9 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { TypeOrmModuleOptions } from '@nestjs/typeorm';
-import { DatabaseModule } from './database.module';
-import { DatabaseService } from './database.service';
+import { Test, TestingModule } from "@nestjs/testing";
+import { TypeOrmModuleOptions } from "@nestjs/typeorm";
+import { DatabaseModule } from "./database.module";
+import { DatabaseService } from "./database.service";
 
-describe('DatabaseModule', () => {
+describe("DatabaseModule", () => {
   let module: TestingModule;
 
   beforeEach(async () => {
@@ -13,8 +13,8 @@ describe('DatabaseModule', () => {
       .overrideProvider(DatabaseService)
       .useValue({
         createTypeOrmOptions: (): TypeOrmModuleOptions => ({
-          type: 'sqlite',
-          database: ':memory:',
+          type: "sqlite",
+          database: ":memory:",
           synchronize: true,
           dropSchema: true,
           autoLoadEntities: true,
@@ -29,11 +29,11 @@ describe('DatabaseModule', () => {
     }
   });
 
-  it('should be defined', () => {
+  it("should be defined", () => {
     expect(module).toBeDefined();
   });
 
-  it('should provide DatabaseService', () => {
+  it("should provide DatabaseService", () => {
     const service = module.get<DatabaseService>(DatabaseService);
     expect(service).toBeDefined();
   });

@@ -1,13 +1,13 @@
-import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { CreateEventDto } from './dto/create-event.dto';
-import { UpdateEventDto } from './dto/update-event.dto';
-import { Event } from './entities/event.entity';
-import { EventFilterDto } from './dto/event-filter.dto';
-import { Faculty } from '../faculties/entities/faculty.entity';
-import { Course } from '../courses/entities/course.entity';
-import { validateAndGetRelations } from '../common/utils/entity-relation.utils';
+import { Injectable } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository } from "typeorm";
+import { validateAndGetRelations } from "../common/utils/entity-relation.utils";
+import { Course } from "../courses/entities/course.entity";
+import { Faculty } from "../faculties/entities/faculty.entity";
+import { CreateEventDto } from "./dto/create-event.dto";
+import { EventFilterDto } from "./dto/event-filter.dto";
+import { UpdateEventDto } from "./dto/update-event.dto";
+import { Event } from "./entities/event.entity";
 
 @Injectable()
 export class EventsService {
@@ -34,7 +34,7 @@ export class EventsService {
       event.courses = await validateAndGetRelations(
         this.courseRepository,
         courseIds,
-        'courses',
+        "courses",
       );
     }
 
@@ -50,14 +50,14 @@ export class EventsService {
         ...(facultyId && { faculty: { id: facultyId } }),
         ...(courseId && { courses: { id: courseId } }),
       },
-      relations: ['faculty', 'courses'],
+      relations: ["faculty", "courses"],
     });
   }
 
   findOne(id: number): Promise<Event> {
     return this.eventRepository.findOneOrFail({
       where: { id },
-      relations: ['faculty', 'courses'],
+      relations: ["faculty", "courses"],
     });
   }
 
@@ -77,7 +77,7 @@ export class EventsService {
       event.courses = await validateAndGetRelations(
         this.courseRepository,
         courseIds,
-        'courses',
+        "courses",
       );
     }
 

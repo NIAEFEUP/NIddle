@@ -1,8 +1,8 @@
-import { Seeder, SeederFactoryManager } from 'typeorm-extension';
-import { DataSource } from 'typeorm';
-import { Faculty } from '../../faculties/entities/faculty.entity';
-import { Course } from '../../courses/entities/course.entity';
-import { faker } from '@faker-js/faker';
+import { faker } from "@faker-js/faker";
+import { DataSource } from "typeorm";
+import { Seeder, SeederFactoryManager } from "typeorm-extension";
+import { Course } from "../../courses/entities/course.entity";
+import { Faculty } from "../../faculties/entities/faculty.entity";
 
 export default class FacultySeeder implements Seeder {
   public async run(

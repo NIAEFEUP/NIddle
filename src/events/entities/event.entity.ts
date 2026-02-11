@@ -1,13 +1,13 @@
-import { Faculty } from '../../faculties/entities/faculty.entity';
-import { Course } from '../../courses/entities/course.entity';
 import {
   Column,
   Entity,
-  ManyToOne,
-  ManyToMany,
   JoinTable,
+  ManyToMany,
+  ManyToOne,
   PrimaryGeneratedColumn,
-} from 'typeorm';
+} from "typeorm";
+import { Course } from "../../courses/entities/course.entity";
+import { Faculty } from "../../faculties/entities/faculty.entity";
 
 @Entity()
 export class Event {
@@ -36,7 +36,7 @@ export class Event {
    * The year when the event occurs.
    * @example 2025
    */
-  @Column({ type: 'int' })
+  @Column({ type: "int" })
   year: number;
 
   /**
@@ -62,13 +62,21 @@ export class Event {
   /**
    * The faculty this event belongs to.
    */
-  @ManyToOne(() => Faculty, (faculty) => faculty.events, { nullable: true })
+  @ManyToOne(
+    () => Faculty,
+    (faculty) => faculty.events,
+    { nullable: true },
+  )
   faculty?: Faculty;
 
   /**
    * The courses associated with the event.
    */
-  @ManyToMany(() => Course, (course) => course.events, { onDelete: 'CASCADE' })
+  @ManyToMany(
+    () => Course,
+    (course) => course.events,
+    { onDelete: "CASCADE" },
+  )
   @JoinTable()
   courses: Course[];
 }

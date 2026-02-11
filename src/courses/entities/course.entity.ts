@@ -1,6 +1,6 @@
-import { Faculty } from '../../faculties/entities/faculty.entity';
-import { Event } from '../../events/entities/event.entity';
-import { Column, Entity, ManyToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, ManyToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Event } from "../../events/entities/event.entity";
+import { Faculty } from "../../faculties/entities/faculty.entity";
 
 @Entity()
 export class Course {
@@ -29,12 +29,18 @@ export class Course {
    * The faculties associated with the course.
    * @example [{ id: 1, name: 'Faculty of Engineering', acronym: 'FEUP' }]
    */
-  @ManyToMany(() => Faculty, (faculty) => faculty.courses)
+  @ManyToMany(
+    () => Faculty,
+    (faculty) => faculty.courses,
+  )
   faculties: Faculty[];
 
   /**
    * Events associated with this course.
    */
-  @ManyToMany(() => Event, (event) => event.courses)
+  @ManyToMany(
+    () => Event,
+    (event) => event.courses,
+  )
   events: Event[];
 }

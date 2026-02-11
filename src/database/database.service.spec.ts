@@ -1,9 +1,9 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { getDataSourceToken } from '@nestjs/typeorm';
-import { DataSource } from 'typeorm';
-import { DatabaseService } from './database.service';
+import { Test, TestingModule } from "@nestjs/testing";
+import { getDataSourceToken } from "@nestjs/typeorm";
+import { DataSource } from "typeorm";
+import { DatabaseService } from "./database.service";
 
-describe('DatabaseService', () => {
+describe("DatabaseService", () => {
   let service: DatabaseService;
   let mockDataSource: Partial<DataSource>;
   let module: TestingModule;
@@ -11,7 +11,7 @@ describe('DatabaseService', () => {
   beforeEach(async () => {
     mockDataSource = {
       isInitialized: true,
-      options: { type: 'sqlite', database: ':memory:' },
+      options: { type: "sqlite", database: ":memory:" },
     };
 
     module = await Test.createTestingModule({
@@ -31,24 +31,24 @@ describe('DatabaseService', () => {
     await module.close();
   });
 
-  it('should be defined', () => {
+  it("should be defined", () => {
     expect(service).toBeDefined();
   });
 
-  it('should create typeorm options for development', () => {
+  it("should create typeorm options for development", () => {
     const options = service.createTypeOrmOptions();
-    expect(options.type).toBe('postgres');
-    expect(options.database).toBe('niddle_db');
+    expect(options.type).toBe("postgres");
+    expect(options.database).toBe("niddle_db");
     expect(options.synchronize).toBe(true);
   });
 
-  it('should create typeorm options for production', () => {
+  it("should create typeorm options for production", () => {
     const originalEnv = process.env.NODE_ENV;
-    process.env.NODE_ENV = 'production';
+    process.env.NODE_ENV = "production";
 
     const options = service.createTypeOrmOptions();
-    expect(options.type).toBe('postgres');
-    expect(options.database).toBe('niddle_db');
+    expect(options.type).toBe("postgres");
+    expect(options.database).toBe("niddle_db");
     expect(options.synchronize).toBe(false);
 
     process.env.NODE_ENV = originalEnv;
