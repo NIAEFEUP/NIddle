@@ -12,7 +12,7 @@ export class DatabaseService implements TypeOrmOptionsFactory {
         dropSchema: true,
         autoLoadEntities: true,
         synchronize: true,
-        };
+      };
     }
 
     const isProd = process.env.NODE_ENV === 'production';

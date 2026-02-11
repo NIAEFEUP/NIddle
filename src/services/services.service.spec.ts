@@ -12,11 +12,10 @@ import { CreateServiceDto } from './dto/create-service.dto';
 describe('ServicesService', () => {
   let service: ServicesService;
 
-
   const mockSchedule: Schedule = {
     id: 1,
     timeIntervals: [],
-  }
+  };
 
   const mockTimeInterval: TimeInterval = {
     id: 1,
@@ -24,21 +23,23 @@ describe('ServicesService', () => {
     endTime: new Date('1970-01-01T17:00:00Z'),
     dayOfWeek: EnumDays.MONDAY,
     schedule: mockSchedule,
-  }
+  };
 
   const mockFaculty: Faculty = {
     id: 1,
     name: 'Engineering Faculty',
     acronym: 'FEUP',
+    events: [],
     courses: [],
-  }
+  };
 
   const mockCourse: Course = {
     id: 1,
     name: 'Computer Science',
     acronym: 'CS',
     faculties: [],
-  }
+    events: [],
+  };
 
   const mockService: Service = {
     id: 1,
@@ -49,7 +50,7 @@ describe('ServicesService', () => {
     schedule: mockSchedule,
     faculty: mockFaculty,
     course: mockCourse,
-  }
+  };
 
   const mockServiceRepository = {
     create: jest.fn(),
@@ -61,15 +62,15 @@ describe('ServicesService', () => {
     manager: {
       transaction: jest.fn(),
     },
-  }
+  };
 
   const mockFacultyRepository = {
     findBy: jest.fn(),
-  }
+  };
 
   const mockCourseRepository = {
     findBy: jest.fn(),
-  }
+  };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -86,7 +87,7 @@ describe('ServicesService', () => {
         {
           provide: getRepositoryToken(Course),
           useValue: mockCourseRepository,
-        }
+        },
       ],
     }).compile();
 
@@ -95,7 +96,7 @@ describe('ServicesService', () => {
 
   afterEach(() => {
     jest.clearAllMocks();
-  })
+  });
 
   it('should be defined', () => {
     expect(service).toBeDefined();
@@ -154,9 +155,11 @@ describe('ServicesService', () => {
       } as any;
 
       // transaction implementation should call the callback with a manager
-      mockServiceRepository.manager.transaction.mockImplementation(async (cb: any) => {
-        return cb({ getRepository: () => repo });
-      });
+      mockServiceRepository.manager.transaction.mockImplementation(
+        async (cb: any) => {
+          return cb({ getRepository: () => repo });
+        },
+      );
 
       const result = await service.create(createServiceDto);
 
@@ -172,15 +175,18 @@ describe('ServicesService', () => {
       const updateDto: UpdateServiceDto = { name: 'New name' } as any;
 
       const repo: any = {
-        findOne: jest.fn()
+        findOne: jest
+          .fn()
           .mockResolvedValueOnce(mockService) // before update
           .mockResolvedValueOnce({ ...mockService, ...updateDto }), // after update
         update: jest.fn().mockResolvedValue(undefined),
       };
 
-      mockServiceRepository.manager.transaction.mockImplementation(async (cb: any) => {
-        return cb({ getRepository: () => repo });
-      });
+      mockServiceRepository.manager.transaction.mockImplementation(
+        async (cb: any) => {
+          return cb({ getRepository: () => repo });
+        },
+      );
 
       const result = await service.update(1, updateDto);
 
@@ -195,9 +201,11 @@ describe('ServicesService', () => {
         update: jest.fn(),
       };
 
-      mockServiceRepository.manager.transaction.mockImplementation(async (cb: any) => {
-        return cb({ getRepository: () => repo });
-      });
+      mockServiceRepository.manager.transaction.mockImplementation(
+        async (cb: any) => {
+          return cb({ getRepository: () => repo });
+        },
+      );
 
       await expect(service.update(1, { name: 'x' } as any)).rejects.toThrow(
         'Service with id 1 not found',
@@ -212,13 +220,18 @@ describe('ServicesService', () => {
         delete: jest.fn().mockResolvedValue(undefined),
       };
 
-      mockServiceRepository.manager.transaction.mockImplementation(async (cb: any) => {
-        return cb({ getRepository: () => repo });
-      });
+      mockServiceRepository.manager.transaction.mockImplementation(
+        async (cb: any) => {
+          return cb({ getRepository: () => repo });
+        },
+      );
 
       const result = await service.remove(1);
 
-      expect(repo.findOne).toHaveBeenCalledWith({ where: { id: 1 }, relations: ['schedule', 'schedule.timeIntervals'] });
+      expect(repo.findOne).toHaveBeenCalledWith({
+        where: { id: 1 },
+        relations: ['schedule', 'schedule.timeIntervals'],
+      });
       expect(repo.delete).toHaveBeenCalledWith(1);
       expect(result).toEqual(mockService);
     });
@@ -229,12 +242,15 @@ describe('ServicesService', () => {
         delete: jest.fn(),
       };
 
-      mockServiceRepository.manager.transaction.mockImplementation(async (cb: any) => {
-        return cb({ getRepository: () => repo });
-      });
+      mockServiceRepository.manager.transaction.mockImplementation(
+        async (cb: any) => {
+          return cb({ getRepository: () => repo });
+        },
+      );
 
-      await expect(service.remove(1)).rejects.toThrow('Service with id 1 not found');
+      await expect(service.remove(1)).rejects.toThrow(
+        'Service with id 1 not found',
+      );
     });
   });
-
 });
