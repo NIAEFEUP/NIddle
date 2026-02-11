@@ -1,7 +1,10 @@
 import { setSeederFactory } from 'typeorm-extension';
 import { Service } from '../../services/entity/service.entity';
 import { Schedule } from '../../services/entity/schedule.entity';
-import { TimeInterval, EnumDays } from '../../services/entity/timeInterval.entity';
+import {
+  TimeInterval,
+  EnumDays,
+} from '../../services/entity/timeInterval.entity';
 
 interface MockedFactory {
   entity: unknown;
@@ -20,7 +23,10 @@ import serviceFactory from './service.factory';
 
 describe('ServiceFactory', () => {
   it('should define a factory for Service', () => {
-    expect(setSeederFactory).toHaveBeenCalledWith(Service, expect.any(Function));
+    expect(setSeederFactory).toHaveBeenCalledWith(
+      Service,
+      expect.any(Function),
+    );
     const factory = serviceFactory as unknown as MockedFactory;
     expect(factory.entity).toBe(Service);
   });
@@ -37,7 +43,7 @@ describe('ServiceFactory', () => {
     expect(Array.isArray(service.schedule.timeIntervals)).toBe(true);
     expect(service.schedule.timeIntervals.length).toBeGreaterThanOrEqual(1);
 
-    for (const ti of service.schedule.timeIntervals as TimeInterval[]) {
+    for (const ti of service.schedule.timeIntervals) {
       expect(ti).toBeInstanceOf(TimeInterval);
       expect(ti.startTime).toBeInstanceOf(Date);
       expect(ti.endTime).toBeInstanceOf(Date);
