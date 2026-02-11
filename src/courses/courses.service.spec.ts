@@ -15,6 +15,7 @@ describe('CoursesService', () => {
     name: 'Computer Science',
     acronym: 'CS',
     faculties: [],
+    events: [],
   };
 
   const mockFaculty: Faculty = {
@@ -22,6 +23,7 @@ describe('CoursesService', () => {
     name: 'Engineering Faculty',
     acronym: 'FEUP',
     courses: [],
+    events: [],
   };
 
   const mockCourseRepository = {

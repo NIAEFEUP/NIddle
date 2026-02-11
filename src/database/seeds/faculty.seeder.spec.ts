@@ -1,6 +1,6 @@
 import { DataSource, EntityTarget } from 'typeorm';
 import { SeederFactoryManager } from 'typeorm-extension';
-import FacultySeeder from './faculty.seeder';
+import FacultySeeder from './2-faculty.seeder';
 import { Faculty } from '../../faculties/entities/faculty.entity';
 import { Course } from '../../courses/entities/course.entity';
 

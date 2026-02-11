@@ -1,10 +1,12 @@
 import { Course } from '../../courses/entities/course.entity';
+import { Event } from '../../events/entities/event.entity';
 import {
   Entity,
   Column,
   PrimaryGeneratedColumn,
   ManyToMany,
   JoinTable,
+  OneToMany,
 } from 'typeorm';
 
 @Entity()
@@ -39,4 +41,10 @@ export class Faculty {
   })
   @JoinTable()
   courses: Course[];
+
+  /**
+   * Events associated with this faculty.
+   */
+  @OneToMany(() => Event, (event) => event.faculty)
+  events: Event[];
 }

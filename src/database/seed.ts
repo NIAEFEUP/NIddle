@@ -6,6 +6,7 @@ import { TimeInterval } from '../services/entity/timeInterval.entity';
 import { Course } from '../courses/entities/course.entity';
 import { Faculty } from '../faculties/entities/faculty.entity';
 import { User } from '../users/entities/user.entity';
+import { Event } from '../events/entities/event.entity';
 
 export const seed = async () => {
   const options: DataSourceOptions & SeederOptions = {
