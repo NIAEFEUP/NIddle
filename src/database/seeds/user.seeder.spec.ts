@@ -1,6 +1,6 @@
-import { User } from "@users/entities/user.entity";
 import { DataSource, EntityTarget } from "typeorm";
 import { SeederFactoryManager } from "typeorm-extension";
+import { User } from "@/users/entities/user.entity";
 import UserSeeder from "./1-user.seeder";
 
 describe("UserSeeder", () => {

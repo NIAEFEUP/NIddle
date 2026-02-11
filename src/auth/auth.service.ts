@@ -4,11 +4,11 @@ import {
   UnauthorizedException,
 } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
-import { CreateUserDto } from "@users/dto/create-user.dto";
-import { User } from "@users/entities/user.entity";
-import { UsersService } from "@users/users.service";
 import * as bcrypt from "bcrypt";
 import { EntityNotFoundError } from "typeorm";
+import { CreateUserDto } from "@/users/dto/create-user.dto";
+import { User } from "@/users/entities/user.entity";
+import { UsersService } from "@/users/users.service";
 import { SignInDto } from "./dto/signin.dto";
 
 @Injectable()

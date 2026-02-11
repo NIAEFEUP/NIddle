@@ -1,6 +1,6 @@
-import { Event } from "@events/entities/event.entity";
-import { Faculty } from "@faculties/entities/faculty.entity";
 import { Column, Entity, ManyToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Event } from "@/events/entities/event.entity";
+import { Faculty } from "@/faculties/entities/faculty.entity";
 
 @Entity()
 export class Course {

@@ -1,7 +1,7 @@
-import { Course } from "@courses/entities/course.entity";
-import { Event } from "@events/entities/event.entity";
 import { Test, TestingModule } from "@nestjs/testing";
 import { TypeOrmModule } from "@nestjs/typeorm";
+import { Course } from "@/courses/entities/course.entity";
+import { Event } from "@/events/entities/event.entity";
 import { Faculty } from "./entities/faculty.entity";
 import { FacultiesController } from "./faculties.controller";
 import { FacultiesModule } from "./faculties.module";

@@ -1,7 +1,7 @@
 import { ConfigModule } from "@nestjs/config";
 import { Test, TestingModule } from "@nestjs/testing";
 import { TypeOrmModule } from "@nestjs/typeorm";
-import { User } from "@users/entities/user.entity";
+import { User } from "@/users/entities/user.entity";
 import { AuthController } from "./auth.controller";
 import { AuthModule } from "./auth.module";
 import { AuthService } from "./auth.service";

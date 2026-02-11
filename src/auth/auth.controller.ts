@@ -10,7 +10,7 @@ import {
   ValidationPipe,
 } from "@nestjs/common";
 import { ApiBearerAuth, ApiOperation, ApiResponse } from "@nestjs/swagger";
-import { CreateUserDto } from "@users/dto/create-user.dto";
+import { CreateUserDto } from "@/users/dto/create-user.dto";
 import { AuthService } from "./auth.service";
 import { SignInDto } from "./dto/signin.dto";
 import { JwtAuthGuard } from "./guards/jwt-auth.guard";

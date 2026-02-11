@@ -1,5 +1,5 @@
-import { Faculty } from "@faculties/entities/faculty.entity";
 import { setSeederFactory } from "typeorm-extension";
+import { Faculty } from "@/faculties/entities/faculty.entity";
 
 interface MockedFactory {
   entity: unknown;

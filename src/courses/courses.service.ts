@@ -1,8 +1,8 @@
-import { validateAndGetRelations } from "@common/utils/entity-relation.utils";
-import { Faculty } from "@faculties/entities/faculty.entity";
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
+import { validateAndGetRelations } from "@/common/utils/entity-relation.utils";
+import { Faculty } from "@/faculties/entities/faculty.entity";
 import { CreateCourseDto } from "./dto/create-course.dto";
 import { UpdateCourseDto } from "./dto/update-course.dto";
 import { Course } from "./entities/course.entity";

@@ -1,9 +1,9 @@
-import { validateAndGetRelations } from "@common/utils/entity-relation.utils";
-import { Course } from "@courses/entities/course.entity";
-import { Faculty } from "@faculties/entities/faculty.entity";
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
+import { validateAndGetRelations } from "@/common/utils/entity-relation.utils";
+import { Course } from "@/courses/entities/course.entity";
+import { Faculty } from "@/faculties/entities/faculty.entity";
 import { CreateEventDto } from "./dto/create-event.dto";
 import { EventFilterDto } from "./dto/event-filter.dto";
 import { UpdateEventDto } from "./dto/update-event.dto";

@@ -1,6 +1,6 @@
-import { Faculty } from "@faculties/entities/faculty.entity";
 import { faker } from "@faker-js/faker";
 import { setSeederFactory } from "typeorm-extension";
+import { Faculty } from "@/faculties/entities/faculty.entity";
 
 const facultyTypes = ["Faculty", "School", "College"];
 

@@ -1,6 +1,6 @@
-import { Faculty } from "@faculties/entities/faculty.entity";
 import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
+import { Faculty } from "@/faculties/entities/faculty.entity";
 import { CoursesController } from "./courses.controller";
 import { CoursesService } from "./courses.service";
 import { Course } from "./entities/course.entity";

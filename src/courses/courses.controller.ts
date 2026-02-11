@@ -1,4 +1,3 @@
-import { JwtAuthGuard } from "@auth/guards/jwt-auth.guard";
 import {
   Body,
   Controller,
@@ -12,6 +11,7 @@ import {
   ValidationPipe,
 } from "@nestjs/common";
 import { ApiBearerAuth, ApiOperation, ApiResponse } from "@nestjs/swagger";
+import { JwtAuthGuard } from "@/auth/guards/jwt-auth.guard";
 import { CoursesService } from "./courses.service";
 import { CreateCourseDto } from "./dto/create-course.dto";
 import { UpdateCourseDto } from "./dto/update-course.dto";
