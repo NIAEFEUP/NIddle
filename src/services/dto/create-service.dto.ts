@@ -1,12 +1,12 @@
+import { Type } from "class-transformer";
 import {
   IsEmail,
   IsNotEmpty,
   IsOptional,
   IsString,
   ValidateNested,
-} from 'class-validator';
-import { Type } from 'class-transformer';
-import { Schedule } from '../entity/schedule.entity';
+} from "class-validator";
+import { Schedule } from "@/services/entity/schedule.entity";
 
 export class CreateServiceDto {
   /**
@@ -22,7 +22,7 @@ export class CreateServiceDto {
    * @example 'PdB@gmail.com'
    */
   @IsString()
-  @IsEmail(undefined, { message: 'Invalid email format' })
+  @IsEmail(undefined, { message: "Invalid email format" })
   @IsOptional()
   email?: string;
 

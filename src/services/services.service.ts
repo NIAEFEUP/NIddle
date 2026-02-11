@@ -1,9 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { CreateServiceDto } from './dto/create-service.dto';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Service } from './entity/service.entity';
-import { Repository } from 'typeorm';
-import { UpdateServiceDto } from './dto/update-service.dto';
+import { Injectable, NotFoundException } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository } from "typeorm";
+import { CreateServiceDto } from "./dto/create-service.dto";
+import { UpdateServiceDto } from "./dto/update-service.dto";
+import { Service } from "./entity/service.entity";
 
 @Injectable()
 export class ServicesService {
@@ -21,14 +21,14 @@ export class ServicesService {
 
   findAll(): Promise<Service[]> {
     return this.serviceRepository.find({
-      relations: ['schedule', 'schedule.timeIntervals'],
+      relations: ["schedule", "schedule.timeIntervals"],
     });
   }
 
   async findOne(id: number): Promise<Service> {
     const service = await this.serviceRepository.findOne({
       where: { id: id },
-      relations: ['schedule', 'schedule.timeIntervals'],
+      relations: ["schedule", "schedule.timeIntervals"],
     });
     if (!service) {
       throw new NotFoundException(`Service with id ${id} not found`);
@@ -44,7 +44,7 @@ export class ServicesService {
       const serviceRepo = manager.getRepository(Service);
       const service = await serviceRepo.findOne({
         where: { id },
-        relations: ['schedule', 'schedule.timeIntervals'],
+        relations: ["schedule", "schedule.timeIntervals"],
       });
       if (!service) {
         throw new NotFoundException(`Service with id ${id} not found`);
@@ -52,7 +52,7 @@ export class ServicesService {
       await serviceRepo.update(id, updateServiceDto);
       const updatedService = await serviceRepo.findOne({
         where: { id },
-        relations: ['schedule', 'schedule.timeIntervals'],
+        relations: ["schedule", "schedule.timeIntervals"],
       });
       if (!updatedService) {
         throw new NotFoundException(
@@ -68,7 +68,7 @@ export class ServicesService {
       const serviceRepo = manager.getRepository(Service);
       const service = await serviceRepo.findOne({
         where: { id },
-        relations: ['schedule', 'schedule.timeIntervals'],
+        relations: ["schedule", "schedule.timeIntervals"],
       });
       if (!service) {
         throw new NotFoundException(`Service with id ${id} not found`);

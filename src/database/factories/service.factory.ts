@@ -1,12 +1,8 @@
-import { Schedule } from '../../services/entity/schedule.entity';
-import {
-  EnumDays,
-  TimeInterval,
-} from '../../services/entity/timeInterval.entity';
-import { setSeederFactory } from 'typeorm-extension';
-import { faker } from '@faker-js/faker';
-import { Service } from '../../services/entity/service.entity';
-
+import { faker } from "@faker-js/faker";
+import { setSeederFactory } from "typeorm-extension";
+import { Schedule } from "@/services/entity/schedule.entity";
+import { Service } from "@/services/entity/service.entity";
+import { EnumDays, TimeInterval } from "@/services/entity/timeInterval.entity";
 export default setSeederFactory(Service, () => {
   const service = new Service();
   service.name = faker.company.name();

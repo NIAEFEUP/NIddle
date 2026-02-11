@@ -1,9 +1,9 @@
-import { DataSource, EntityTarget } from 'typeorm';
-import { SeederFactoryManager } from 'typeorm-extension';
-import ServiceSeeder from './service.seeder';
-import { Service } from '../../services/entity/service.entity';
+import { DataSource, EntityTarget } from "typeorm";
+import { SeederFactoryManager } from "typeorm-extension";
+import { Service } from "@/services/entity/service.entity";
+import ServiceSeeder from "./service.seeder";
 
-describe('ServiceSeeder', () => {
+describe("ServiceSeeder", () => {
   let seeder: ServiceSeeder;
   let dataSource: DataSource;
   let factoryManager: SeederFactoryManager;
@@ -25,11 +25,11 @@ describe('ServiceSeeder', () => {
     mockFactory.saveMany.mockClear();
   });
 
-  it('should be defined', () => {
+  it("should be defined", () => {
     expect(seeder).toBeDefined();
   });
 
-  it('should seed services', async () => {
+  it("should seed services", async () => {
     await seeder.run(dataSource, factoryManager);
 
     expect(mockGet).toHaveBeenCalledWith(Service);

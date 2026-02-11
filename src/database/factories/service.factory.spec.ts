@@ -1,17 +1,14 @@
-import { setSeederFactory } from 'typeorm-extension';
-import { Service } from '../../services/entity/service.entity';
-import { Schedule } from '../../services/entity/schedule.entity';
-import {
-  TimeInterval,
-  EnumDays,
-} from '../../services/entity/timeInterval.entity';
+import { setSeederFactory } from "typeorm-extension";
+import { Schedule } from "@/services/entity/schedule.entity";
+import { Service } from "@/services/entity/service.entity";
+import { EnumDays, TimeInterval } from "@/services/entity/timeInterval.entity";
 
 interface MockedFactory {
   entity: unknown;
   factoryFn: () => Service;
 }
 
-jest.mock('typeorm-extension', () => ({
+jest.mock("typeorm-extension", () => ({
   setSeederFactory: jest.fn(
     (entity: unknown, factoryFn: () => unknown): MockedFactory => {
       return { entity, factoryFn: factoryFn as () => Service };
@@ -19,10 +16,10 @@ jest.mock('typeorm-extension', () => ({
   ),
 }));
 
-import serviceFactory from './service.factory';
+import serviceFactory from "./service.factory";
 
-describe('ServiceFactory', () => {
-  it('should define a factory for Service', () => {
+describe("ServiceFactory", () => {
+  it("should define a factory for Service", () => {
     expect(setSeederFactory).toHaveBeenCalledWith(
       Service,
       expect.any(Function),
@@ -31,7 +28,7 @@ describe('ServiceFactory', () => {
     expect(factory.entity).toBe(Service);
   });
 
-  it('should generate a valid service with schedule and time intervals', () => {
+  it("should generate a valid service with schedule and time intervals", () => {
     const factory = serviceFactory as unknown as MockedFactory;
     const service = factory.factoryFn();
 

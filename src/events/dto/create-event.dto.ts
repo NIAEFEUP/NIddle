@@ -1,11 +1,11 @@
 import {
-  IsOptional,
-  IsString,
-  IsNotEmpty,
+  IsArray,
   IsDateString,
   IsInt,
-  IsArray,
-} from 'class-validator';
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+} from "class-validator";
 
 export class CreateEventDto {
   /**

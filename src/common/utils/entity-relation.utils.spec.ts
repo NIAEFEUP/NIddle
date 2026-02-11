@@ -1,5 +1,5 @@
-import { validateAndGetRelations } from './entity-relation.utils';
-import { Repository, ObjectLiteral, In } from 'typeorm';
+import { In, ObjectLiteral, Repository } from "typeorm";
+import { validateAndGetRelations } from "./entity-relation.utils";
 
 interface TestEntity extends ObjectLiteral {
   id: number;
@@ -9,7 +9,7 @@ type MockRepository<T extends ObjectLiteral> = Partial<
   Record<keyof Repository<T>, jest.Mock>
 >;
 
-describe('validateAndGetRelations', () => {
+describe("validateAndGetRelations", () => {
   let mockRepository: MockRepository<TestEntity>;
 
   beforeEach(() => {
@@ -18,7 +18,7 @@ describe('validateAndGetRelations', () => {
     };
   });
 
-  it('should handle duplicate IDs correctly', async () => {
+  it("should handle duplicate IDs correctly", async () => {
     const ids = [1, 1, 2];
     const entities: TestEntity[] = [{ id: 1 }, { id: 2 }];
 
@@ -27,7 +27,7 @@ describe('validateAndGetRelations', () => {
     const result = await validateAndGetRelations(
       mockRepository as unknown as Repository<TestEntity>,
       ids,
-      'TestEntity',
+      "TestEntity",
     );
 
     expect(result).toEqual(entities);
@@ -36,7 +36,7 @@ describe('validateAndGetRelations', () => {
     });
   });
 
-  it('should throw NotFoundException if strictly unique entities count mismatch', async () => {
+  it("should throw NotFoundException if strictly unique entities count mismatch", async () => {
     const ids = [1, 2, 3];
     const entities: TestEntity[] = [{ id: 1 }, { id: 2 }];
 
@@ -46,25 +46,25 @@ describe('validateAndGetRelations', () => {
       validateAndGetRelations(
         mockRepository as unknown as Repository<TestEntity>,
         ids,
-        'TestEntity',
+        "TestEntity",
       ),
-    ).rejects.toThrow('One or more TestEntity not found. Missing IDs: 3');
+    ).rejects.toThrow("One or more TestEntity not found. Missing IDs: 3");
   });
 
-  it('should return empty array if input ids list is empty', async () => {
+  it("should return empty array if input ids list is empty", async () => {
     const ids: number[] = [];
 
     const result = await validateAndGetRelations(
       mockRepository as unknown as Repository<TestEntity>,
       ids,
-      'TestEntity',
+      "TestEntity",
     );
 
     expect(result).toEqual([]);
     expect(mockRepository.findBy).not.toHaveBeenCalled();
   });
 
-  it('should list all missing IDs in the error message', async () => {
+  it("should list all missing IDs in the error message", async () => {
     const ids = [1, 2, 3, 4];
     const entities: TestEntity[] = [{ id: 1 }, { id: 4 }];
 
@@ -74,8 +74,8 @@ describe('validateAndGetRelations', () => {
       validateAndGetRelations(
         mockRepository as unknown as Repository<TestEntity>,
         ids,
-        'TestEntity',
+        "TestEntity",
       ),
-    ).rejects.toThrow('One or more TestEntity not found. Missing IDs: 2, 3');
+    ).rejects.toThrow("One or more TestEntity not found. Missing IDs: 2, 3");
   });
 });

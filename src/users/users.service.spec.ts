@@ -1,17 +1,17 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { UsersService } from './users.service';
-import { getRepositoryToken } from '@nestjs/typeorm';
-import { User } from './entities/user.entity';
-import { CreateUserDto } from './dto/create-user.dto';
+import { Test, TestingModule } from "@nestjs/testing";
+import { getRepositoryToken } from "@nestjs/typeorm";
+import { CreateUserDto } from "./dto/create-user.dto";
+import { User } from "./entities/user.entity";
+import { UsersService } from "./users.service";
 
-describe('UsersService', () => {
+describe("UsersService", () => {
   let service: UsersService;
 
   const mockUser: User = {
     id: 1,
-    name: 'John Doe',
-    email: 'john@example.com',
-    password: 'password',
+    name: "John Doe",
+    email: "john@example.com",
+    password: "password",
   } as User;
 
   const mockUserRepository = {
@@ -40,16 +40,16 @@ describe('UsersService', () => {
     jest.clearAllMocks();
   });
 
-  it('should be defined', () => {
+  it("should be defined", () => {
     expect(service).toBeDefined();
   });
 
-  describe('create', () => {
-    it('should create and save a user', async () => {
+  describe("create", () => {
+    it("should create and save a user", async () => {
       const createUserDto: CreateUserDto = {
-        name: 'John Doe',
-        email: 'john@example.com',
-        password: 'password',
+        name: "John Doe",
+        email: "john@example.com",
+        password: "password",
       };
       mockUserRepository.create.mockReturnValue(mockUser);
       mockUserRepository.save.mockResolvedValue(mockUser);
@@ -62,8 +62,8 @@ describe('UsersService', () => {
     });
   });
 
-  describe('findAll', () => {
-    it('should return an array of users', async () => {
+  describe("findAll", () => {
+    it("should return an array of users", async () => {
       const users = [mockUser];
       mockUserRepository.find.mockResolvedValue(users);
 
@@ -74,8 +74,8 @@ describe('UsersService', () => {
     });
   });
 
-  describe('findOne', () => {
-    it('should return a user by ID', async () => {
+  describe("findOne", () => {
+    it("should return a user by ID", async () => {
       mockUserRepository.findOneOrFail.mockResolvedValue(mockUser);
 
       const result = await service.findOne(1);
@@ -86,34 +86,34 @@ describe('UsersService', () => {
       });
     });
 
-    it('should throw if user not found', async () => {
+    it("should throw if user not found", async () => {
       mockUserRepository.findOneOrFail.mockRejectedValue(
-        new Error('Not found'),
+        new Error("Not found"),
       );
 
-      await expect(service.findOne(1)).rejects.toThrow('Not found');
+      await expect(service.findOne(1)).rejects.toThrow("Not found");
     });
   });
 
-  describe('findOneByEmail', () => {
-    it('should return a user by email', async () => {
+  describe("findOneByEmail", () => {
+    it("should return a user by email", async () => {
       mockUserRepository.findOneByOrFail.mockResolvedValue(mockUser);
 
-      const result = await service.findOneByEmail('john@example.com');
+      const result = await service.findOneByEmail("john@example.com");
 
       expect(result).toEqual(mockUser);
       expect(mockUserRepository.findOneByOrFail).toHaveBeenCalledWith({
-        email: 'john@example.com',
+        email: "john@example.com",
       });
     });
 
-    it('should throw if user email not found', async () => {
+    it("should throw if user email not found", async () => {
       mockUserRepository.findOneByOrFail.mockRejectedValue(
-        new Error('Not found'),
+        new Error("Not found"),
       );
 
-      await expect(service.findOneByEmail('john@example.com')).rejects.toThrow(
-        'Not found',
+      await expect(service.findOneByEmail("john@example.com")).rejects.toThrow(
+        "Not found",
       );
     });
   });

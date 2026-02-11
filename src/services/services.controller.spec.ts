@@ -1,12 +1,12 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { ServicesController } from './services.controller';
-import { ServicesService } from './services.service';
-import { CreateServiceDto } from './dto/create-service.dto';
-import { UpdateServiceDto } from './dto/update-service.dto';
-import { Service } from './entity/service.entity';
-import { Schedule } from './entity/schedule.entity';
+import { Test, TestingModule } from "@nestjs/testing";
+import { CreateServiceDto } from "./dto/create-service.dto";
+import { UpdateServiceDto } from "./dto/update-service.dto";
+import { Schedule } from "./entity/schedule.entity";
+import { Service } from "./entity/service.entity";
+import { ServicesController } from "./services.controller";
+import { ServicesService } from "./services.service";
 
-describe('ServicesController', () => {
+describe("ServicesController", () => {
   let controller: ServicesController;
   const mockService: Record<string, jest.Mock> = {
     findAll: jest.fn(),
@@ -30,39 +30,39 @@ describe('ServicesController', () => {
     controller = module.get<ServicesController>(ServicesController);
   });
 
-  it('should be defined', () => {
+  it("should be defined", () => {
     expect(controller).toBeDefined();
   });
 
-  describe('delegation', () => {
+  describe("delegation", () => {
     const svc: Partial<Service> = {
       id: 1,
-      name: 'x',
-      location: 'L',
+      name: "x",
+      location: "L",
     };
 
     beforeEach(() => {
       jest.clearAllMocks();
     });
 
-    it('findAll should call service.findAll and return its value', async () => {
+    it("findAll should call service.findAll and return its value", async () => {
       mockService.findAll.mockResolvedValue([svc]);
       const res = await controller.findAll();
       expect(mockService.findAll).toHaveBeenCalled();
       expect(res).toEqual([svc]);
     });
 
-    it('findOne should call service.findOne with numeric id', async () => {
+    it("findOne should call service.findOne with numeric id", async () => {
       mockService.findOne.mockResolvedValue(svc);
       const res = await controller.findOne(1);
       expect(mockService.findOne).toHaveBeenCalledWith(1);
       expect(res).toEqual(svc);
     });
 
-    it('create should forward the dto to service.create', async () => {
+    it("create should forward the dto to service.create", async () => {
       const dto: CreateServiceDto = {
-        name: 'a',
-        location: 'b',
+        name: "a",
+        location: "b",
         schedule: { id: 0, timeIntervals: [] } as Schedule,
       };
       mockService.create.mockResolvedValue(svc);
@@ -71,15 +71,15 @@ describe('ServicesController', () => {
       expect(res).toEqual(svc);
     });
 
-    it('update should forward id and dto to service.update', async () => {
-      const dto: UpdateServiceDto = { name: 'updated' } as UpdateServiceDto;
+    it("update should forward id and dto to service.update", async () => {
+      const dto: UpdateServiceDto = { name: "updated" } as UpdateServiceDto;
       mockService.update.mockResolvedValue({ ...svc, ...dto });
       const res = await controller.update(1, dto);
       expect(mockService.update).toHaveBeenCalledWith(1, dto);
       expect(res).toEqual({ ...svc, ...dto });
     });
 
-    it('remove should call service.remove and return value', async () => {
+    it("remove should call service.remove and return value", async () => {
       mockService.remove.mockResolvedValue(svc);
       const res = await controller.remove(1);
       expect(mockService.remove).toHaveBeenCalledWith(1);

@@ -1,14 +1,14 @@
 import {
-  Entity,
   Column,
-  PrimaryGeneratedColumn,
-  OneToOne,
+  Entity,
   JoinColumn,
   ManyToOne,
-} from 'typeorm';
-import { Schedule } from './schedule.entity';
-import { Faculty } from '../../faculties/entities/faculty.entity';
-import { Course } from '../../courses/entities/course.entity';
+  OneToOne,
+  PrimaryGeneratedColumn,
+} from "typeorm";
+import { Course } from "@/courses/entities/course.entity";
+import { Faculty } from "@/faculties/entities/faculty.entity";
+import { Schedule } from "./schedule.entity";
 
 @Entity()
 export class Service {

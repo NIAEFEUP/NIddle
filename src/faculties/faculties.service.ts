@@ -1,11 +1,11 @@
-import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Course } from '../courses/entities/course.entity';
-import { CreateFacultyDto } from './dto/create-faculty.dto';
-import { UpdateFacultyDto } from './dto/update-faculty.dto';
-import { Faculty } from './entities/faculty.entity';
-import { validateAndGetRelations } from '../common/utils/entity-relation.utils';
+import { Injectable } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository } from "typeorm";
+import { validateAndGetRelations } from "@/common/utils/entity-relation.utils";
+import { Course } from "@/courses/entities/course.entity";
+import { CreateFacultyDto } from "./dto/create-faculty.dto";
+import { UpdateFacultyDto } from "./dto/update-faculty.dto";
+import { Faculty } from "./entities/faculty.entity";
 
 @Injectable()
 export class FacultiesService {
@@ -24,7 +24,7 @@ export class FacultiesService {
       faculty.courses = await validateAndGetRelations(
         this.courseRepository,
         courseIds,
-        'courses',
+        "courses",
       );
     }
 
@@ -32,13 +32,13 @@ export class FacultiesService {
   }
 
   findAll(): Promise<Faculty[]> {
-    return this.facultyRepository.find({ relations: ['courses'] });
+    return this.facultyRepository.find({ relations: ["courses"] });
   }
 
   findOne(id: number): Promise<Faculty> {
     return this.facultyRepository.findOneOrFail({
       where: { id },
-      relations: ['courses'],
+      relations: ["courses"],
     });
   }
 
@@ -56,7 +56,7 @@ export class FacultiesService {
       faculty.courses = await validateAndGetRelations(
         this.courseRepository,
         courseIds,
-        'courses',
+        "courses",
       );
     }
 

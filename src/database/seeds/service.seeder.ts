@@ -1,10 +1,10 @@
-import { Service } from '../../services/entity/service.entity';
-import { DataSource } from 'typeorm';
-import { Seeder, SeederFactoryManager } from 'typeorm-extension';
+import { DataSource } from "typeorm";
+import { Seeder, SeederFactoryManager } from "typeorm-extension";
+import { Service } from "@/services/entity/service.entity";
 
 export default class ServiceSeeder implements Seeder {
   public async run(
-    dataSource: DataSource,
+    _dataSource: DataSource,
     factoryManager: SeederFactoryManager,
   ) {
     const serviceFactory = factoryManager.get(Service);
