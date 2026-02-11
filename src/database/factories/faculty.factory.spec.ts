@@ -1,12 +1,12 @@
-import { setSeederFactory } from 'typeorm-extension';
-import { Faculty } from '../../faculties/entities/faculty.entity';
+import { setSeederFactory } from "typeorm-extension";
+import { Faculty } from "@/faculties/entities/faculty.entity";
 
 interface MockedFactory {
   entity: unknown;
   factoryFn: () => Faculty;
 }
 
-jest.mock('typeorm-extension', () => ({
+jest.mock("typeorm-extension", () => ({
   setSeederFactory: jest.fn(
     (entity: unknown, factoryFn: () => unknown): MockedFactory => {
       return { entity, factoryFn: factoryFn as () => Faculty };
@@ -14,10 +14,10 @@ jest.mock('typeorm-extension', () => ({
   ),
 }));
 
-import facultyFactory from './faculty.factory';
+import facultyFactory from "./faculty.factory";
 
-describe('FacultyFactory', () => {
-  it('should define a factory for Faculty', () => {
+describe("FacultyFactory", () => {
+  it("should define a factory for Faculty", () => {
     expect(setSeederFactory).toHaveBeenCalledWith(
       Faculty,
       expect.any(Function),
@@ -26,7 +26,7 @@ describe('FacultyFactory', () => {
     expect(factory.entity).toBe(Faculty);
   });
 
-  it('should generate a valid faculty', () => {
+  it("should generate a valid faculty", () => {
     const factory = facultyFactory as unknown as MockedFactory;
     const faculty = factory.factoryFn();
 

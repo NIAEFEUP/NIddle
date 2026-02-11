@@ -5,17 +5,17 @@ import {
   IsStrongPassword,
   MaxLength,
   MinLength,
-} from 'class-validator';
+} from "class-validator";
 
 export class CreateUserDto {
-  @IsString({ message: 'Name must be a string.' })
+  @IsString({ message: "Name must be a string." })
   @MinLength(5, {
     message:
-      'Name is too short. Minimal length is $constraint1 characters, but actual is $value.',
+      "Name is too short. Minimal length is $constraint1 characters, but actual is $value.",
   })
   @MaxLength(100, {
     message:
-      'Name is too long. Maximal length is $constraint1 characters, but actual is $value.',
+      "Name is too long. Maximal length is $constraint1 characters, but actual is $value.",
   })
   /**
    * The user name.
@@ -23,15 +23,15 @@ export class CreateUserDto {
    */
   name: string;
 
-  @IsEmail(undefined, { message: 'Invalid email format.' })
+  @IsEmail(undefined, { message: "Invalid email format." })
   /**
    * The user e-mail.
    * @example 'cr7@gmail.com'
    */
   email: string;
 
-  @IsString({ message: 'Password must be a string.' })
-  @IsNotEmpty({ message: 'Password cannot be empty.' })
+  @IsString({ message: "Password must be a string." })
+  @IsNotEmpty({ message: "Password cannot be empty." })
   @IsStrongPassword(
     {
       minLength: 8,
@@ -42,7 +42,7 @@ export class CreateUserDto {
     },
     {
       message:
-        'Password is too weak. It must be at least 8 characters long and contain at least one lowercase letter, one uppercase letter, one number, and one symbol.',
+        "Password is too weak. It must be at least 8 characters long and contain at least one lowercase letter, one uppercase letter, one number, and one symbol.",
     },
   )
   /**

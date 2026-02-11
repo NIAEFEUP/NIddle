@@ -1,8 +1,8 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { JwtStrategy } from './jwt.strategy';
-import { ConfigService } from '@nestjs/config';
+import { ConfigService } from "@nestjs/config";
+import { Test, TestingModule } from "@nestjs/testing";
+import { JwtStrategy } from "./jwt.strategy";
 
-describe('JwtStrategy', () => {
+describe("JwtStrategy", () => {
   let strategy: JwtStrategy;
   let configService: ConfigService;
 
@@ -13,7 +13,7 @@ describe('JwtStrategy', () => {
         {
           provide: ConfigService,
           useValue: {
-            get: jest.fn().mockReturnValue('test-secret'),
+            get: jest.fn().mockReturnValue("test-secret"),
           },
         },
       ],
@@ -23,22 +23,22 @@ describe('JwtStrategy', () => {
     configService = module.get<ConfigService>(ConfigService);
   });
 
-  it('should be defined', () => {
+  it("should be defined", () => {
     expect(strategy).toBeDefined();
   });
 
-  it('should throw error if JWT_SECRET is not set', () => {
-    jest.spyOn(configService, 'get').mockReturnValue(null);
+  it("should throw error if JWT_SECRET is not set", () => {
+    jest.spyOn(configService, "get").mockReturnValue(null);
     try {
       new JwtStrategy(configService);
     } catch (error) {
-      expect((error as Error).message).toBe('JWT_SECRET is not set');
+      expect((error as Error).message).toBe("JWT_SECRET is not set");
     }
   });
 
-  it('should validate and return user payload', () => {
-    const payload = { sub: 1, email: 'test@example.com' };
+  it("should validate and return user payload", () => {
+    const payload = { sub: 1, email: "test@example.com" };
     const result = strategy.validate(payload);
-    expect(result).toEqual({ id: 1, email: 'test@example.com' });
+    expect(result).toEqual({ id: 1, email: "test@example.com" });
   });
 });

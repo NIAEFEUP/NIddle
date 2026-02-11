@@ -1,15 +1,15 @@
 import {
+  ConflictException,
   Injectable,
   UnauthorizedException,
-  ConflictException,
-} from '@nestjs/common';
-import * as bcrypt from 'bcrypt';
-import { UsersService } from '../users/users.service';
-import { JwtService } from '@nestjs/jwt';
-import { User } from '../users/entities/user.entity';
-import { CreateUserDto } from '../users/dto/create-user.dto';
-import { SignInDto } from './dto/signin.dto';
-import { EntityNotFoundError } from 'typeorm';
+} from "@nestjs/common";
+import { JwtService } from "@nestjs/jwt";
+import * as bcrypt from "bcrypt";
+import { EntityNotFoundError } from "typeorm";
+import { CreateUserDto } from "@/users/dto/create-user.dto";
+import { User } from "@/users/entities/user.entity";
+import { UsersService } from "@/users/users.service";
+import { SignInDto } from "./dto/signin.dto";
 
 @Injectable()
 export class AuthService {
@@ -21,7 +21,7 @@ export class AuthService {
   async register(createUserDto: CreateUserDto) {
     try {
       await this.usersService.findOneByEmail(createUserDto.email);
-      throw new ConflictException('Email is already in use.');
+      throw new ConflictException("Email is already in use.");
     } catch (error) {
       if (!(error instanceof EntityNotFoundError)) {
         throw error;
@@ -46,7 +46,7 @@ export class AuthService {
     }
 
     if (!user) {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new UnauthorizedException("Invalid credentials");
     }
 
     const isPasswordMatching = await bcrypt.compare(
@@ -54,7 +54,7 @@ export class AuthService {
       user.password,
     );
     if (!isPasswordMatching) {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new UnauthorizedException("Invalid credentials");
     }
 
     const payload = { sub: user.id, email: user.email, name: user.name };

@@ -1,22 +1,22 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { AuthController } from './auth.controller';
-import { AuthService } from './auth.service';
-import { CreateUserDto } from '../users/dto/create-user.dto';
-import { SignInDto } from './dto/signin.dto';
-import { User } from '../users/entities/user.entity';
+import { Test, TestingModule } from "@nestjs/testing";
+import { CreateUserDto } from "@/users/dto/create-user.dto";
+import { User } from "@/users/entities/user.entity";
+import { AuthController } from "./auth.controller";
+import { AuthService } from "./auth.service";
+import { SignInDto } from "./dto/signin.dto";
 
-describe('AuthController', () => {
+describe("AuthController", () => {
   let controller: AuthController;
 
   const mockUser: User = {
     id: 1,
-    name: 'Test User',
-    email: 'test@example.com',
-    password: 'hashedPassword',
+    name: "Test User",
+    email: "test@example.com",
+    password: "hashedPassword",
   };
 
   const mockAccessToken = {
-    access_token: 'mock.jwt.token',
+    access_token: "mock.jwt.token",
   };
 
   const mockAuthService = {
@@ -42,12 +42,12 @@ describe('AuthController', () => {
     jest.clearAllMocks();
   });
 
-  it('should be defined', () => {
+  it("should be defined", () => {
     expect(controller).toBeDefined();
   });
 
-  describe('getProfile', () => {
-    it('should return the user from the request', () => {
+  describe("getProfile", () => {
+    it("should return the user from the request", () => {
       const req = {
         user: { id: mockUser.id, name: mockUser.name, email: mockUser.email },
       };
@@ -56,12 +56,12 @@ describe('AuthController', () => {
     });
   });
 
-  describe('register', () => {
-    it('should register a new user', async () => {
+  describe("register", () => {
+    it("should register a new user", async () => {
       const createUserDto: CreateUserDto = {
-        name: 'Test User',
-        email: 'test@example.com',
-        password: 'password123',
+        name: "Test User",
+        email: "test@example.com",
+        password: "password123",
       };
 
       mockAuthService.register.mockResolvedValue(mockUser);
@@ -73,11 +73,11 @@ describe('AuthController', () => {
     });
   });
 
-  describe('signIn', () => {
-    it('should sign in a user and return a token', async () => {
+  describe("signIn", () => {
+    it("should sign in a user and return a token", async () => {
       const signInDto: SignInDto = {
-        email: 'test@example.com',
-        password: 'password123',
+        email: "test@example.com",
+        password: "password123",
       };
 
       mockAuthService.signIn.mockResolvedValue(mockAccessToken);

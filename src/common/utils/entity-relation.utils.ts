@@ -1,5 +1,5 @@
-import { NotFoundException } from '@nestjs/common';
-import { In, ObjectLiteral, Repository, FindOptionsWhere } from 'typeorm';
+import { NotFoundException } from "@nestjs/common";
+import { FindOptionsWhere, In, ObjectLiteral, Repository } from "typeorm";
 
 export async function validateAndGetRelations<
   T extends ObjectLiteral & { id: number },
@@ -18,7 +18,7 @@ export async function validateAndGetRelations<
     const foundIds = new Set(entities.map((e) => e.id));
     const missingIds = uniqueIds.filter((id) => !foundIds.has(id));
     throw new NotFoundException(
-      `One or more ${entityName} not found. Missing IDs: ${missingIds.join(', ')}`,
+      `One or more ${entityName} not found. Missing IDs: ${missingIds.join(", ")}`,
     );
   }
 

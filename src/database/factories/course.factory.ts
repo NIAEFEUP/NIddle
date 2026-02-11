@@ -1,20 +1,20 @@
-import { setSeederFactory } from 'typeorm-extension';
-import { faker } from '@faker-js/faker';
-import { Course } from '../../courses/entities/course.entity';
+import { faker } from "@faker-js/faker";
+import { setSeederFactory } from "typeorm-extension";
+import { Course } from "@/courses/entities/course.entity";
 
-const degreeTypes = ['Bachelor', 'Master', 'PhD'];
+const degreeTypes = ["Bachelor", "Master", "PhD"];
 
 const fields = [
-  'Informatics Engineering',
-  'Civil Engineering',
-  'Mechanical Engineering',
-  'Electrical Engineering',
-  'Chemical Engineering',
-  'Bioengineering',
-  'Environmental Engineering',
-  'Industrial Engineering',
-  'Data Science',
-  'Artificial Intelligence',
+  "Informatics Engineering",
+  "Civil Engineering",
+  "Mechanical Engineering",
+  "Electrical Engineering",
+  "Chemical Engineering",
+  "Bioengineering",
+  "Environmental Engineering",
+  "Industrial Engineering",
+  "Data Science",
+  "Artificial Intelligence",
 ];
 
 export default setSeederFactory(Course, () => {
@@ -25,9 +25,9 @@ export default setSeederFactory(Course, () => {
 
   const typeAcronym = type[0];
   const fieldAcronym = field
-    .split(' ')
+    .split(" ")
     .map((word) => word[0])
-    .join('');
+    .join("");
 
   const acronym = `${typeAcronym}${fieldAcronym}`.toUpperCase();
 

@@ -1,17 +1,17 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { NotFoundException } from '@nestjs/common';
-import { UsersController } from './users.controller';
-import { UsersService } from './users.service';
-import { User } from './entities/user.entity';
+import { NotFoundException } from "@nestjs/common";
+import { Test, TestingModule } from "@nestjs/testing";
+import { User } from "./entities/user.entity";
+import { UsersController } from "./users.controller";
+import { UsersService } from "./users.service";
 
-describe('UsersController', () => {
+describe("UsersController", () => {
   let controller: UsersController;
 
   const mockUser: User = {
     id: 1,
-    name: 'John Doe',
-    email: 'john@example.com',
-    password: 'password',
+    name: "John Doe",
+    email: "john@example.com",
+    password: "password",
   };
 
   const mockUsersService = {
@@ -37,12 +37,12 @@ describe('UsersController', () => {
     jest.clearAllMocks();
   });
 
-  it('should be defined', () => {
+  it("should be defined", () => {
     expect(controller).toBeDefined();
   });
 
-  describe('findAll', () => {
-    it('should return an array of users', async () => {
+  describe("findAll", () => {
+    it("should return an array of users", async () => {
       const users = [mockUser];
       mockUsersService.findAll.mockResolvedValue(users);
 
@@ -53,8 +53,8 @@ describe('UsersController', () => {
     });
   });
 
-  describe('findOne', () => {
-    it('should return a single user', async () => {
+  describe("findOne", () => {
+    it("should return a single user", async () => {
       mockUsersService.findOne.mockResolvedValue(mockUser);
 
       const result = await controller.findOne(1);
@@ -63,7 +63,7 @@ describe('UsersController', () => {
       expect(mockUsersService.findOne).toHaveBeenCalledWith(1);
     });
 
-    it('should throw NotFoundException if user not found', async () => {
+    it("should throw NotFoundException if user not found", async () => {
       mockUsersService.findOne.mockRejectedValue(new NotFoundException());
 
       await expect(controller.findOne(1)).rejects.toThrow(NotFoundException);

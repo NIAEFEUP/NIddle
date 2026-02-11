@@ -1,10 +1,10 @@
-import { DataSource, EntityTarget } from 'typeorm';
-import { SeederFactoryManager } from 'typeorm-extension';
-import FacultySeeder from './2-faculty.seeder';
-import { Faculty } from '../../faculties/entities/faculty.entity';
-import { Course } from '../../courses/entities/course.entity';
+import { DataSource, EntityTarget } from "typeorm";
+import { SeederFactoryManager } from "typeorm-extension";
+import { Course } from "@/courses/entities/course.entity";
+import { Faculty } from "@/faculties/entities/faculty.entity";
+import FacultySeeder from "./2-faculty.seeder";
 
-describe('FacultySeeder', () => {
+describe("FacultySeeder", () => {
   let seeder: FacultySeeder;
   let dataSource: DataSource;
   let factoryManager: SeederFactoryManager;
@@ -50,11 +50,11 @@ describe('FacultySeeder', () => {
     mockGetRepository.mockClear();
   });
 
-  it('should be defined', () => {
+  it("should be defined", () => {
     expect(seeder).toBeDefined();
   });
 
-  it('should seed faculties and assign courses if courses exist', async () => {
+  it("should seed faculties and assign courses if courses exist", async () => {
     mockCourseRepo.find.mockResolvedValue(mockCourses);
 
     await seeder.run(dataSource, factoryManager);
@@ -72,7 +72,7 @@ describe('FacultySeeder', () => {
     expect(Array.isArray(savedFaculty.courses)).toBe(true);
   });
 
-  it('should seed faculties but not assign courses if no courses exist', async () => {
+  it("should seed faculties but not assign courses if no courses exist", async () => {
     mockCourseRepo.find.mockResolvedValue([]);
 
     await seeder.run(dataSource, factoryManager);
