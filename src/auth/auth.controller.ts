@@ -47,7 +47,7 @@ export class AuthController {
   })
   @Post("register")
   async register(@Body(ValidationPipe) createUserDto: CreateUserDto) {
-    return await this.authService.register(createUserDto);
+    return this.authService.register(createUserDto);
   }
 
   @ApiOperation({ summary: "User login (JWT issuance)" })
@@ -59,6 +59,6 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   @Post("login")
   async signIn(@Body(ValidationPipe) signInDto: SignInDto) {
-    return await this.authService.signIn(signInDto);
+    return this.authService.signIn(signInDto);
   }
 }

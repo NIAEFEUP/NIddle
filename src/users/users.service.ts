@@ -13,7 +13,7 @@ export class UsersService {
 
   async create(createUserDto: CreateUserDto) {
     const user = this.userRepository.create(createUserDto);
-    return await this.userRepository.save(user);
+    return this.userRepository.save(user);
   }
 
   findAll(): Promise<User[]> {
