@@ -1,10 +1,10 @@
 import { ConflictException, UnauthorizedException } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { Test, TestingModule } from "@nestjs/testing";
+import { User } from "@users/entities/user.entity";
+import { UsersService } from "@users/users.service";
 import * as bcrypt from "bcrypt";
 import { EntityNotFoundError } from "typeorm";
-import { User } from "../users/entities/user.entity";
-import { UsersService } from "../users/users.service";
 import { AuthService } from "./auth.service";
 
 jest.mock("bcrypt");

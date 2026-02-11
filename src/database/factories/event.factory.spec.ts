@@ -1,5 +1,5 @@
+import { Event } from "@events/entities/event.entity";
 import { setSeederFactory } from "typeorm-extension";
-import { Event } from "../../events/entities/event.entity";
 
 interface MockedFactory {
   entity: unknown;

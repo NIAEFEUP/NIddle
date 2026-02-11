@@ -1,8 +1,8 @@
+import { Course } from "@courses/entities/course.entity";
+import { Event } from "@events/entities/event.entity";
+import { Faculty } from "@faculties/entities/faculty.entity";
 import { DataSource, EntityTarget, Repository } from "typeorm";
 import { SeederFactoryManager } from "typeorm-extension";
-import { Course } from "../../courses/entities/course.entity";
-import { Event } from "../../events/entities/event.entity";
-import { Faculty } from "../../faculties/entities/faculty.entity";
 import EventSeeder from "./4-event.seeder";
 
 describe("EventSeeder", () => {

@@ -1,6 +1,6 @@
+import { Course } from "@courses/entities/course.entity";
 import { faker } from "@faker-js/faker";
 import { setSeederFactory } from "typeorm-extension";
-import { Course } from "../../courses/entities/course.entity";
 
 const degreeTypes = ["Bachelor", "Master", "PhD"];
 

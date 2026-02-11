@@ -1,7 +1,7 @@
+import { Faculty } from "@faculties/entities/faculty.entity";
 import { NotFoundException } from "@nestjs/common";
 import { Test, TestingModule } from "@nestjs/testing";
 import { getRepositoryToken } from "@nestjs/typeorm";
-import { Faculty } from "../faculties/entities/faculty.entity";
 import { CoursesService } from "./courses.service";
 import { CreateCourseDto } from "./dto/create-course.dto";
 import { UpdateCourseDto } from "./dto/update-course.dto";

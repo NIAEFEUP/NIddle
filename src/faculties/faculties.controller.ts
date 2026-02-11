@@ -1,3 +1,4 @@
+import { JwtAuthGuard } from "@auth/guards/jwt-auth.guard";
 import {
   Body,
   Controller,
@@ -11,7 +12,6 @@ import {
   ValidationPipe,
 } from "@nestjs/common";
 import { ApiBearerAuth, ApiOperation, ApiResponse } from "@nestjs/swagger";
-import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
 import { CreateFacultyDto } from "./dto/create-faculty.dto";
 import { UpdateFacultyDto } from "./dto/update-faculty.dto";
 import { Faculty } from "./entities/faculty.entity";
