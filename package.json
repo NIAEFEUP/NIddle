@@ -45,6 +45,7 @@
     "typeorm-extension": "^3.7.4"
   },
   "devDependencies": {
+    "@biomejs/biome": "2.3.14",
     "@eslint/eslintrc": "^3.3.3",
     "@eslint/js": "^9.39.2",
     "@faker-js/faker": "^9.9.0",
