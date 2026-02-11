@@ -1,5 +1,6 @@
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Schedule } from "./schedule.entity";
+import { Exclude } from "class-transformer";
 
 export enum EnumDays {
   MONDAY = "Monday",
@@ -13,6 +14,7 @@ export enum EnumDays {
 
 @Entity()
 export class TimeInterval {
+  @Exclude()
   @PrimaryGeneratedColumn()
   id: number;
 

@@ -1,5 +1,6 @@
 import {
   Body,
+  ClassSerializerInterceptor,
   Controller,
   Delete,
   Get,
@@ -8,6 +9,7 @@ import {
   Patch,
   Post,
   UseGuards,
+  UseInterceptors,
   ValidationPipe,
 } from "@nestjs/common";
 import { ApiBearerAuth, ApiOperation, ApiResponse } from "@nestjs/swagger";
@@ -21,12 +23,15 @@ import { ServicesService } from "./services.service";
 export class ServicesController {
   constructor(private readonly servicesService: ServicesService) {}
 
+  @UseInterceptors(ClassSerializerInterceptor)
   @ApiOperation({ summary: "Get all services" })
   @ApiResponse({ status: 200, description: "List of services returned." })
   @Get()
   findAll(): Promise<Service[]> {
     return this.servicesService.findAll();
   }
+
+  @UseInterceptors(ClassSerializerInterceptor)
   @ApiOperation({ summary: "Get service by ID" })
   @ApiResponse({ status: 200, description: "Service found." })
   @ApiResponse({ status: 404, description: "Service not found" })
