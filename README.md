@@ -1,7 +1,7 @@
 # NIddle
 
 <p align="center">
-    <a href="https://github.com/niaefeup/niddle/actions/workflows/ci.yml"><img alt="CI" src="https://img.shields.io/github/actions/workflow/status/niaefeup/niddle/ci.yml?branch=main"></a>
+    <a href="https://github.com/niaefeup/niddle/actions/workflows/checks.yml"><img alt="CI" src="https://img.shields.io/github/actions/workflow/status/niaefeup/niddle/checks.yml?branch=main"></a>
     <a href="https://codecov.io/gh/NIAEFEUP/NIddle" ><img src="https://codecov.io/gh/NIAEFEUP/NIddle/graph/badge.svg?token=GLE6F6JWZK"/></a>
     <a href="https://github.com/biomejs/biome/"><img alt="code style: biome" src="https://img.shields.io/badge/code_style-biome-ff69b4.svg?style=flat-square"></a>
     <a href="https://github.com/niaefeup/niddle/graphs/contributors"><img alt="GitHub contributors" src="https://img.shields.io/github/contributors/niaefeup/niddle"></a>
@@ -134,7 +134,7 @@ NIddle is fully containerized and can be easily built and run as a Docker image.
 
     The `run_image.sh` script will start a container from the image and inject the environment variables from `.env.docker`.
 
-     ```bash
+    ```bash
     ./run_image.sh
     ```
 
