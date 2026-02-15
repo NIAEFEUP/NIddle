@@ -1,5 +1,6 @@
 import { setSeederFactory } from "typeorm-extension";
 import { Event } from "@/events/entities/event.entity";
+import eventFactory from "./event.factory";
 
 interface MockedFactory {
   entity: unknown;
@@ -14,8 +15,6 @@ jest.mock("typeorm-extension", () => ({
   ),
 }));
 
-import eventFactory from "./event.factory";
-
 describe("EventFactory", () => {
   it("should define a factory for Event", () => {
     expect(setSeederFactory).toHaveBeenCalledWith(Event, expect.any(Function));
@@ -23,26 +22,27 @@ describe("EventFactory", () => {
     expect(factory.entity).toBe(Event);
   });
 
-  it("should generate a valid event", () => {
+  it("should generate a valid event with varying date combinations", () => {
     const factory = eventFactory as unknown as MockedFactory;
-    const event = factory.factoryFn();
 
-    expect(event).toBeInstanceOf(Event);
-    expect(event.name).toBeTruthy();
-    expect(event.description).toBeTruthy();
-    expect(event.name.length).toBeGreaterThan(0);
-  });
+    for (let i = 0; i < 100; i++) {
+      const event = factory.factoryFn();
 
-  it("should generate event with dates or null dates", () => {
-    const factory = eventFactory as unknown as MockedFactory;
-    const event = factory.factoryFn();
+      expect(event).toBeInstanceOf(Event);
+      expect(event.name).toBeTruthy();
+      expect(event.description).toBeTruthy();
 
-    // Dates can be either Date objects or null
-    if (event.startDate !== null) {
-      expect(event.startDate).toBeInstanceOf(Date);
-    }
-    if (event.endDate !== null) {
-      expect(event.endDate).toBeInstanceOf(Date);
+      if (event.startDate) {
+        expect(event.startDate).toBeInstanceOf(Date);
+      } else {
+        expect(event.startDate).toBeNull();
+      }
+
+      if (event.endDate) {
+        expect(event.endDate).toBeInstanceOf(Date);
+      } else {
+        expect(event.endDate).toBeNull();
+      }
     }
   });
 });
