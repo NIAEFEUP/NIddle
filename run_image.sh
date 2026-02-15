@@ -16,5 +16,6 @@ echo "🚀 Starting container $CONTAINER_NAME on network $NETWORK_NAME ..."
 docker run --rm -it \
   --name "$CONTAINER_NAME" \
   --network "$NETWORK_NAME" \
+  --env-file .env.docker \
   -p 3000:3000 \
   "$IMAGE_NAME"
