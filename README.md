@@ -157,7 +157,7 @@ NIddle is fully containerized and can be easily built and run as a Docker image.
 
 ### Testing
 
-- `npm test`: Runs units tests.
+- `npm test`: Runs unit tests.
 - `npm run test:watch`: Runs unit tests in watch mode.
 - `npm run test:cov`: Runs unit tests and generates coverage reports.
 - `npm run test:e2e`: Runs end-to-end tests.
