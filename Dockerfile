@@ -24,7 +24,6 @@ ENV NODE_ENV=production
 
 # Install only prod deps
 COPY package*.json ./
-COPY .env.docker .env
 RUN npm ci --omit=dev && npm cache clean --force
 
 # Copy built artifacts
