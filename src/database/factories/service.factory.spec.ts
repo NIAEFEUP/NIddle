@@ -1,5 +1,4 @@
 import { setSeederFactory } from "typeorm-extension";
-import { Schedule } from "@/services/entity/schedule.entity";
 import { Service } from "@/services/entity/service.entity";
 import { EnumDays, TimeInterval } from "@/services/entity/timeInterval.entity";
 
@@ -36,18 +35,15 @@ describe("ServiceFactory", () => {
     expect(service.name).toBeTruthy();
     expect(service.location).toBeTruthy();
     // schedule exists
-    expect(service.schedule).toBeInstanceOf(Schedule);
-    expect(Array.isArray(service.schedule.timeIntervals)).toBe(true);
-    expect(service.schedule.timeIntervals.length).toBeGreaterThanOrEqual(1);
+    expect(Array.isArray(service.schedule)).toBe(true);
+    expect(service.schedule.length).toBeGreaterThanOrEqual(1);
 
-    for (const ti of service.schedule.timeIntervals) {
+    for (const ti of service.schedule) {
       expect(ti).toBeInstanceOf(TimeInterval);
       expect(ti.startTime).toBeInstanceOf(Date);
       expect(ti.endTime).toBeInstanceOf(Date);
       expect(ti.startTime.getTime()).toBeLessThan(ti.endTime.getTime());
       expect(Object.values(EnumDays)).toContain(ti.dayOfWeek);
-      // schedule backref
-      expect(ti.schedule).toBe(service.schedule);
     }
   });
 });

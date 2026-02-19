@@ -32,7 +32,7 @@ describe("CreateServiceDto validation", () => {
     const plain = {
       name: "Papelaria",
       location: "B-142",
-      schedule: { timeIntervals: [] },
+      schedule: [],
     };
 
     const dto = plainToInstance(CreateServiceDto, plain);
