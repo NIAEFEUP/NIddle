@@ -3,12 +3,12 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
-  OneToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from "typeorm";
 import { Course } from "@/courses/entities/course.entity";
 import { Faculty } from "@/faculties/entities/faculty.entity";
-import { Schedule } from "./schedule.entity";
+import { TimeInterval } from "./timeInterval.entity";
 
 @Entity()
 export class Service {
@@ -48,9 +48,14 @@ export class Service {
   @Column({ nullable: true })
   phoneNumber?: string;
 
-  @OneToOne(() => Schedule, { cascade: true })
-  @JoinColumn()
-  schedule: Schedule;
+  @OneToMany(
+    () => TimeInterval,
+    (timeInterval) => timeInterval.service,
+    {
+      cascade: true,
+    },
+  )
+  schedule: TimeInterval[];
 
   @ManyToOne(() => Faculty, { cascade: true })
   @JoinColumn()

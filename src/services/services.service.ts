@@ -20,15 +20,19 @@ export class ServicesService {
   }
 
   findAll(): Promise<Service[]> {
+    // use nested relations object to avoid relation-path resolution issues
     return this.serviceRepository.find({
-      relations: ["schedule", "schedule.timeIntervals"],
+      // cast to any to satisfy TypeScript relation typing in tests/runtime
+      relations: ({
+        schedule: { timeIntervals: true },
+      } as any),
     });
   }
 
   async findOne(id: number): Promise<Service> {
     const service = await this.serviceRepository.findOne({
       where: { id: id },
-      relations: ["schedule", "schedule.timeIntervals"],
+      relations: ({ schedule: { timeIntervals: true } } as any),
     });
     if (!service) {
       throw new NotFoundException(`Service with id ${id} not found`);
@@ -44,7 +48,7 @@ export class ServicesService {
       const serviceRepo = manager.getRepository(Service);
       const service = await serviceRepo.findOne({
         where: { id },
-        relations: ["schedule", "schedule.timeIntervals"],
+        relations: ({ schedule: { timeIntervals: true } } as any),
       });
       if (!service) {
         throw new NotFoundException(`Service with id ${id} not found`);
@@ -52,7 +56,7 @@ export class ServicesService {
       await serviceRepo.update(id, updateServiceDto);
       const updatedService = await serviceRepo.findOne({
         where: { id },
-        relations: ["schedule", "schedule.timeIntervals"],
+        relations: ({ schedule: { timeIntervals: true } } as any),
       });
       if (!updatedService) {
         throw new NotFoundException(
@@ -68,7 +72,7 @@ export class ServicesService {
       const serviceRepo = manager.getRepository(Service);
       const service = await serviceRepo.findOne({
         where: { id },
-        relations: ["schedule", "schedule.timeIntervals"],
+        relations: ({ schedule: { timeIntervals: true } } as any),
       });
       if (!service) {
         throw new NotFoundException(`Service with id ${id} not found`);

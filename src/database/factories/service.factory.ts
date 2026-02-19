@@ -1,6 +1,5 @@
 import { faker } from "@faker-js/faker";
 import { setSeederFactory } from "typeorm-extension";
-import { Schedule } from "@/services/entity/schedule.entity";
 import { Service } from "@/services/entity/service.entity";
 import { EnumDays, TimeInterval } from "@/services/entity/timeInterval.entity";
 export default setSeederFactory(Service, () => {
@@ -10,8 +9,7 @@ export default setSeederFactory(Service, () => {
   service.location = faker.location.streetAddress();
   service.phoneNumber = faker.phone.number();
 
-  const schedule = new Schedule();
-  schedule.timeIntervals = [];
+  const schedule: TimeInterval[] = [];
   const days: EnumDays[] = [
     EnumDays.MONDAY,
     EnumDays.TUESDAY,
@@ -36,8 +34,7 @@ export default setSeederFactory(Service, () => {
       Date.UTC(1970, 0, 1, openingHour + durationHours, 0, 0, 0),
     );
     timeInterval.dayOfWeek = faker.helpers.arrayElement(days);
-    timeInterval.schedule = schedule;
-    schedule.timeIntervals.push(timeInterval);
+    schedule.push(timeInterval);
   }
 
   service.schedule = schedule;

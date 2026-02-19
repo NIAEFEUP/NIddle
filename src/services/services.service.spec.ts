@@ -5,29 +5,12 @@ import { Course } from "@/courses/entities/course.entity";
 import { Faculty } from "@/faculties/entities/faculty.entity";
 import { CreateServiceDto } from "./dto/create-service.dto";
 import { UpdateServiceDto } from "./dto/update-service.dto";
-import { Schedule } from "./entity/schedule.entity";
 import { Service } from "./entity/service.entity";
 import { EnumDays, TimeInterval } from "./entity/timeInterval.entity";
 import { ServicesService } from "./services.service";
 
 describe("ServicesService", () => {
   let service: ServicesService;
-
-  const mockSchedule: Schedule = {
-    id: 1,
-    timeIntervals: [],
-  };
-
-  const mockTimeInterval: TimeInterval = {
-    id: 1,
-    startTime: new Date("1970-01-01T09:00:00Z"),
-    endTime: new Date("1970-01-01T17:00:00Z"),
-    dayOfWeek: EnumDays.MONDAY,
-    schedule: mockSchedule,
-  };
-
-  // attach the time interval to the schedule (prevents unused-variable lint)
-  mockSchedule.timeIntervals = [mockTimeInterval];
 
   const mockFaculty: Faculty = {
     id: 1,
@@ -45,6 +28,8 @@ describe("ServicesService", () => {
     events: [],
   };
 
+  const mockSchedule: TimeInterval[] = [];
+
   const mockService: Service = {
     id: 1,
     name: "Papelaria D. Beatriz",
@@ -55,6 +40,21 @@ describe("ServicesService", () => {
     faculty: mockFaculty,
     course: mockCourse,
   };
+
+  const mockTimeInterval: TimeInterval = {
+    id: 1,
+    startTime: new Date("1970-01-01T09:00:00Z"),
+    endTime: new Date("1970-01-01T17:00:00Z"),
+    dayOfWeek: EnumDays.MONDAY,
+    service: mockService,
+  };
+
+  mockSchedule.push(mockTimeInterval);
+
+  // attach the time interval to the schedule (prevents unused-variable lint)
+  // assign a schedule property dynamically (not present on TimeInterval type)
+  (mockTimeInterval as any).schedule = null;
+  mockSchedule.push(mockTimeInterval);
 
   const mockServiceRepository = {
     create: jest.fn(),
@@ -120,7 +120,7 @@ describe("ServicesService", () => {
 
       expect(result).toEqual(services);
       expect(mockServiceRepository.find).toHaveBeenCalledWith({
-        relations: ["schedule", "schedule.timeIntervals"],
+        relations: ({ schedule: { timeIntervals: true } } as any),
       });
     });
   });
@@ -134,7 +134,7 @@ describe("ServicesService", () => {
       expect(result).toEqual(mockService);
       expect(mockServiceRepository.findOne).toHaveBeenCalledWith({
         where: { id: 1 },
-        relations: ["schedule", "schedule.timeIntervals"],
+        relations: ({ schedule: { timeIntervals: true } } as any),
       });
     });
 
@@ -251,7 +251,7 @@ describe("ServicesService", () => {
 
       expect(repo.findOne).toHaveBeenCalledWith({
         where: { id: 1 },
-        relations: ["schedule", "schedule.timeIntervals"],
+        relations: ({ schedule: { timeIntervals: true } } as any),
       });
       expect(repo.delete).toHaveBeenCalledWith(1);
       expect(result).toEqual(mockService);

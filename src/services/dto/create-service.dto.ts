@@ -6,7 +6,7 @@ import {
   IsString,
   ValidateNested,
 } from "class-validator";
-import { Schedule } from "@/services/entity/schedule.entity";
+import { TimeInterval } from "@/services/entity/timeInterval.entity";
 
 export class CreateServiceDto {
   /**
@@ -39,9 +39,9 @@ export class CreateServiceDto {
    * TODO : make example
    */
   @IsNotEmpty()
-  @ValidateNested()
-  @Type(() => Schedule)
-  schedule: Schedule;
+  @ValidateNested({ each: true })
+  @Type(() => TimeInterval)
+  schedule: TimeInterval[];
 
   /**
    * The service's phone number.
