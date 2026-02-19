@@ -120,7 +120,7 @@ describe("ServicesService", () => {
 
       expect(result).toEqual(services);
       expect(mockServiceRepository.find).toHaveBeenCalledWith({
-        relations: { schedule: { timeIntervals: true } } as any,
+        relations: { schedule: true } as any,
       });
     });
   });
@@ -134,7 +134,7 @@ describe("ServicesService", () => {
       expect(result).toEqual(mockService);
       expect(mockServiceRepository.findOne).toHaveBeenCalledWith({
         where: { id: 1 },
-        relations: { schedule: { timeIntervals: true } } as any,
+        relations: { schedule: true } as any,
       });
     });
 
@@ -251,7 +251,7 @@ describe("ServicesService", () => {
 
       expect(repo.findOne).toHaveBeenCalledWith({
         where: { id: 1 },
-        relations: { schedule: { timeIntervals: true } } as any,
+        relations: { schedule: true } as any,
       });
       expect(repo.delete).toHaveBeenCalledWith(1);
       expect(result).toEqual(mockService);

@@ -24,7 +24,7 @@ export class ServicesService {
     return this.serviceRepository.find({
       // cast to any to satisfy TypeScript relation typing in tests/runtime
       relations: {
-        schedule: { timeIntervals: true },
+        schedule: true,
       } as any,
     });
   }
@@ -32,7 +32,7 @@ export class ServicesService {
   async findOne(id: number): Promise<Service> {
     const service = await this.serviceRepository.findOne({
       where: { id: id },
-      relations: { schedule: { timeIntervals: true } } as any,
+      relations: { schedule: true } as any,
     });
     if (!service) {
       throw new NotFoundException(`Service with id ${id} not found`);
@@ -48,7 +48,7 @@ export class ServicesService {
       const serviceRepo = manager.getRepository(Service);
       const service = await serviceRepo.findOne({
         where: { id },
-        relations: { schedule: { timeIntervals: true } } as any,
+        relations: { schedule: true } as any,
       });
       if (!service) {
         throw new NotFoundException(`Service with id ${id} not found`);
@@ -56,7 +56,7 @@ export class ServicesService {
       await serviceRepo.update(id, updateServiceDto);
       const updatedService = await serviceRepo.findOne({
         where: { id },
-        relations: { schedule: { timeIntervals: true } } as any,
+        relations: { schedule: true } as any,
       });
       if (!updatedService) {
         throw new NotFoundException(
@@ -72,7 +72,7 @@ export class ServicesService {
       const serviceRepo = manager.getRepository(Service);
       const service = await serviceRepo.findOne({
         where: { id },
-        relations: { schedule: { timeIntervals: true } } as any,
+        relations: { schedule: true } as any,
       });
       if (!service) {
         throw new NotFoundException(`Service with id ${id} not found`);
