@@ -1,4 +1,5 @@
 name: Deployment
+run-name: Deploy to ${{ github.ref_name == 'main' && 'Production' || 'Staging' }}
 
 on:
   push:
@@ -10,7 +11,7 @@ concurrency:
 
 jobs:
   deploy:
-    name: Deploy to ${{ github.ref == 'refs/heads/main' && 'Production' || 'Staging' }}
+    name: Deploy
     if: false # temporarily disabled
     runs-on: ubuntu-latest
     environment: 
