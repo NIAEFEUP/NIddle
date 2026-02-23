@@ -6,6 +6,7 @@
   "scripts": {
     "build": "nest build",
     "seed": "ts-node -r tsconfig-paths/register src/database/seed.ts",
+    "schema:create": "ts-node -r tsconfig-paths/register src/database/schema.ts",
     "start": "nest start",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
