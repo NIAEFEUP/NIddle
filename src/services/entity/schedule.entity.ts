@@ -13,7 +13,7 @@ export enum EnumDays {
 }
 
 @Entity()
-export class TimeInterval {
+export class Schedule {
   @Exclude()
   @PrimaryGeneratedColumn()
   id: number;

@@ -1,14 +1,18 @@
 import {
+  BeforeInsert,
+  BeforeUpdate,
   Column,
   Entity,
   JoinColumn,
+  JoinTable,
+  ManyToMany,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
 } from "typeorm";
 import { Course } from "@/courses/entities/course.entity";
 import { Faculty } from "@/faculties/entities/faculty.entity";
-import { TimeInterval } from "./timeInterval.entity";
+import { Schedule } from "./schedule.entity";
 
 @Entity()
 export class Service {
@@ -49,19 +53,32 @@ export class Service {
   phoneNumber?: string;
 
   @OneToMany(
-    () => TimeInterval,
+    () => Schedule,
     (timeInterval) => timeInterval.service,
     {
       cascade: true,
     },
   )
-  schedule: TimeInterval[];
+  schedule: Schedule[];
 
-  @ManyToOne(() => Faculty, { cascade: true })
+  @ManyToOne(() => Faculty, { cascade: true, nullable: true })
   @JoinColumn()
   faculty: Faculty;
 
-  @ManyToOne(() => Course, { cascade: true })
-  @JoinColumn()
-  course: Course;
+  @ManyToMany(() => Course, { cascade: true, nullable: true })
+  @JoinTable()
+  courses: Course[];
+
+  @BeforeInsert()
+  @BeforeUpdate()
+  validateFacultyAndCourses() {
+    const hasFaculty = this.faculty != null;
+    const hasCourses = this.courses != null && this.courses.length > 0;
+
+    if (hasFaculty && hasCourses) {
+      throw new Error(
+        "Service cannot have both faculty and courses assigned. Please choose either a faculty or courses, not both.",
+      );
+    }
+  }
 }

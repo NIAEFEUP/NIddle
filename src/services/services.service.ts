@@ -1,9 +1,11 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
+import { In, Repository } from "typeorm";
 import { CreateServiceDto } from "./dto/create-service.dto";
 import { UpdateServiceDto } from "./dto/update-service.dto";
 import { Service } from "./entity/service.entity";
+import { ServiceFilterDto } from "./dto/service-filter.dto";
+import { Course } from "@/courses/entities/course.entity";
 
 @Injectable()
 export class ServicesService {
@@ -14,25 +16,38 @@ export class ServicesService {
   create(createServiceDto: CreateServiceDto): Promise<Service> {
     return this.serviceRepository.manager.transaction(async (manager) => {
       const serviceRepo = manager.getRepository(Service);
-      const service = serviceRepo.create(createServiceDto);
+      const { courseIds, ...serviceData } = createServiceDto;
+      const service = serviceRepo.create(serviceData);
+
+      if (courseIds && courseIds.length > 0) {
+        const courseRepo = manager.getRepository(Course);
+        service.courses = await courseRepo.find({
+          where: {
+            id: In(courseIds),
+          },
+        });
+      }
+
       return serviceRepo.save(service);
     });
   }
 
-  findAll(): Promise<Service[]> {
-    // use nested relations object to avoid relation-path resolution issues
+  findAll(filters: ServiceFilterDto): Promise<Service[]> {
+    const { facultyId, courseId } = filters;
+
     return this.serviceRepository.find({
-      // cast to any to satisfy TypeScript relation typing in tests/runtime
-      relations: {
-        schedule: true,
-      } as any,
+      where: {
+        ...(facultyId && { faculty: { id: facultyId } }),
+        ...(courseId && { courses: { id: courseId } }),
+      },
+      relations: ["faculty", "courses"],
     });
   }
 
   async findOne(id: number): Promise<Service> {
     const service = await this.serviceRepository.findOne({
-      where: { id: id },
-      relations: { schedule: true } as any,
+      where: { id },
+      relations: ["faculty", "courses"],
     });
     if (!service) {
       throw new NotFoundException(`Service with id ${id} not found`);
@@ -48,15 +63,33 @@ export class ServicesService {
       const serviceRepo = manager.getRepository(Service);
       const service = await serviceRepo.findOne({
         where: { id },
-        relations: { schedule: true } as any,
+        relations: ["faculty", "courses"],
       });
       if (!service) {
         throw new NotFoundException(`Service with id ${id} not found`);
       }
-      await serviceRepo.update(id, updateServiceDto);
+
+      const { courseIds, ...serviceData } = updateServiceDto;
+
+      serviceRepo.merge(service, serviceData);
+
+      if (courseIds !== undefined) {
+        const courseRepo = manager.getRepository(Course);
+        service.courses =
+          courseIds.length > 0
+            ? await courseRepo.find({
+                where: {
+                  id: In(courseIds),
+                },
+              })
+            : [];
+      }
+
+      await serviceRepo.save(service);
+
       const updatedService = await serviceRepo.findOne({
         where: { id },
-        relations: { schedule: true } as any,
+        relations: ["faculty", "courses"],
       });
       if (!updatedService) {
         throw new NotFoundException(

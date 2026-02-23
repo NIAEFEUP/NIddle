@@ -4,7 +4,7 @@ import { Course } from "@/courses/entities/course.entity";
 import { Event } from "@/events/entities/event.entity";
 import { Faculty } from "@/faculties/entities/faculty.entity";
 import { Service } from "@/services/entity/service.entity";
-import { TimeInterval } from "@/services/entity/timeInterval.entity";
+import { Schedule } from "@/services/entity/schedule.entity";
 import { User } from "@/users/entities/user.entity";
 
 export const seed = async () => {
@@ -17,7 +17,7 @@ export const seed = async () => {
     database: process.env.DATABASE_NAME || "niddle_db",
     synchronize: true,
     dropSchema: true,
-    entities: [Course, Faculty, User, Service, TimeInterval, Event],
+    entities: [Course, Faculty, User, Service, Schedule, Event],
     seeds: ["src/database/seeds/*.seeder.{ts,js}"],
     factories: ["src/database/factories/*.factory.{ts,js}"],
   };

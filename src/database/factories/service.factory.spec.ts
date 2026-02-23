@@ -1,6 +1,6 @@
 import { setSeederFactory } from "typeorm-extension";
 import { Service } from "@/services/entity/service.entity";
-import { EnumDays, TimeInterval } from "@/services/entity/timeInterval.entity";
+import { EnumDays, Schedule } from "@/services/entity/schedule.entity";
 
 interface MockedFactory {
   entity: unknown;
@@ -39,7 +39,7 @@ describe("ServiceFactory", () => {
     expect(service.schedule.length).toBeGreaterThanOrEqual(1);
 
     for (const ti of service.schedule) {
-      expect(ti).toBeInstanceOf(TimeInterval);
+      expect(ti).toBeInstanceOf(Schedule);
       expect(ti.startTime).toBeInstanceOf(Date);
       expect(ti.endTime).toBeInstanceOf(Date);
       expect(ti.startTime.getTime()).toBeLessThan(ti.endTime.getTime());

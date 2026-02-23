@@ -2,7 +2,7 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { CreateServiceDto } from "./dto/create-service.dto";
 import { UpdateServiceDto } from "./dto/update-service.dto";
 import { Service } from "./entity/service.entity";
-import { TimeInterval } from "./entity/timeInterval.entity";
+import { Schedule } from "./entity/schedule.entity";
 import { ServicesController } from "./services.controller";
 import { ServicesService } from "./services.service";
 
@@ -47,8 +47,8 @@ describe("ServicesController", () => {
 
     it("findAll should call service.findAll and return its value", async () => {
       mockService.findAll.mockResolvedValue([svc]);
-      const res = await controller.findAll();
-      expect(mockService.findAll).toHaveBeenCalled();
+      const res = await controller.findAll({});
+      expect(mockService.findAll).toHaveBeenCalledWith({});
       expect(res).toEqual([svc]);
     });
 
@@ -63,7 +63,7 @@ describe("ServicesController", () => {
       const dto: CreateServiceDto = {
         name: "a",
         location: "b",
-        schedule: [] as TimeInterval[],
+        schedule: [] as Schedule[],
       };
       mockService.create.mockResolvedValue(svc);
       const res = await controller.create(dto);

@@ -8,6 +8,7 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Query,
   UseGuards,
   UseInterceptors,
   ValidationPipe,
@@ -18,6 +19,7 @@ import { CreateServiceDto } from "./dto/create-service.dto";
 import { UpdateServiceDto } from "./dto/update-service.dto";
 import { Service } from "./entity/service.entity";
 import { ServicesService } from "./services.service";
+import { ServiceFilterDto } from "./dto/service-filter.dto";
 
 @Controller("services")
 export class ServicesController {
@@ -27,8 +29,8 @@ export class ServicesController {
   @ApiOperation({ summary: "Get all services" })
   @ApiResponse({ status: 200, description: "List of services returned." })
   @Get()
-  findAll(): Promise<Service[]> {
-    return this.servicesService.findAll();
+  findAll(@Query() filters: ServiceFilterDto): Promise<Service[]> {
+    return this.servicesService.findAll(filters);
   }
 
   @UseInterceptors(ClassSerializerInterceptor)
