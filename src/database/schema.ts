@@ -5,6 +5,8 @@ import { Faculty } from "@/faculties/entities/faculty.entity";
 import { User } from "@/users/entities/user.entity";
 
 export const createSchema = async () => {
+  const isProd = process.env.NODE_ENV === "production";
+
   const options: DataSourceOptions = {
     type: "postgres",
     host: process.env.DATABASE_HOST || "localhost",
@@ -12,7 +14,7 @@ export const createSchema = async () => {
     username: process.env.DATABASE_USER || "niddle",
     password: process.env.DATABASE_PASSWORD || "niddle",
     database: process.env.DATABASE_NAME || "niddle_db",
-    synchronize: true,
+    synchronize: !isProd,
     dropSchema: false,
     entities: [Course, Faculty, User, Event],
   };
