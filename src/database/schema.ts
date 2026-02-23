@@ -21,7 +21,13 @@ export const createSchema = async () => {
 
   const dataSource = new DataSource(options);
   await dataSource.initialize();
-  console.log("Database schema created successfully.");
+  if (options.synchronize) {
+    console.log("Database schema created successfully.");
+  } else {
+    console.log(
+      "Database connection initialized; schema synchronization is disabled (e.g., NODE_ENV=production).",
+    );
+  }
   await dataSource.destroy();
 };
 
