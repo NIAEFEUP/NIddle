@@ -12,7 +12,6 @@ concurrency:
 jobs:
   deploy:
     name: Deploy
-    if: false # temporarily disabled
     runs-on: ubuntu-latest
     environment: 
       name: ${{ github.ref == 'refs/heads/main' && 'production' || 'staging' }}
