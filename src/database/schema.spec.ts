@@ -1,11 +1,11 @@
-import { createSchema, handleMain } from "./schema";
 import { DataSource } from "typeorm";
+import { createSchema, handleMain } from "./schema";
 
 jest.mock("typeorm", () => {
   const actual = jest.requireActual("typeorm");
   return {
     ...actual,
-    DataSource: jest.fn().mockImplementation((options) => {
+    DataSource: jest.fn().mockImplementation((_options) => {
       return {
         initialize: jest.fn().mockResolvedValue(undefined),
         destroy: jest.fn().mockResolvedValue(undefined),
