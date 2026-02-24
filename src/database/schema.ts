@@ -20,18 +20,31 @@ export const createSchema = async () => {
   };
 
   const dataSource = new DataSource(options);
-  await dataSource.initialize();
-  if (options.synchronize) {
-    console.log("Database schema created successfully.");
-  } else {
-    console.log(
-      "Database connection initialized; schema synchronization is disabled (e.g., NODE_ENV=production).",
-    );
+  try {
+    await dataSource.initialize();
+    if (options.synchronize) {
+      console.log("Database schema created successfully.");
+    } else {
+      console.log(
+        "Database connection initialized; schema synchronization is disabled (e.g., NODE_ENV=production).",
+      );
+    }
+    await dataSource.destroy();
+  } catch (err) {
+    console.error("Schema creation failed:", err);
+    throw err;
   }
-  await dataSource.destroy();
 };
 
-createSchema().catch((err) => {
-  console.error("Schema creation failed:", err);
-  process.exit(1);
-});
+export const handleMain = (
+  moduleRef: NodeJS.Module,
+  mainModule: NodeJS.Module | undefined = require.main,
+) => {
+  if (mainModule === moduleRef) {
+    createSchema().catch(() => {
+      process.exit(1);
+    });
+  }
+};
+
+handleMain(module);
