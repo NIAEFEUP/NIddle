@@ -1,0 +1,30 @@
+name: Deployment
+run-name: Deploy to ${{ github.ref_name == 'main' && 'Production' || 'Staging' }}
+
+on:
+  push:
+    branches: [ main, develop ]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    environment: 
+      name: ${{ github.ref == 'refs/heads/main' && 'production' || 'staging' }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Upload to Registry
+        uses: NIAEFEUP/push-to-niployments@v2.2
+        with:
+          docker_dockerfile: Dockerfile
+          docker_context: .
+          docker_target: production
+          NIPLOYMENTS_REGISTRY_URL: ${{ vars.NIPLOYMENTS_REGISTRY_URL }}
+          NIPLOYMENTS_REGISTRY_USERNAME: ${{ vars.NIPLOYMENTS_REGISTRY_USERNAME }}
+          NIPLOYMENTS_REGISTRY_PASSWORD: ${{ secrets.NIPLOYMENTS_REGISTRY_PASSWORD }}
