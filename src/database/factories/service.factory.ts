@@ -1,7 +1,7 @@
 import { faker } from "@faker-js/faker";
 import { setSeederFactory } from "typeorm-extension";
-import { Service } from "@/services/entity/service.entity";
 import { EnumDays, Schedule } from "@/services/entity/schedule.entity";
+import { Service } from "@/services/entity/service.entity";
 export default setSeederFactory(Service, () => {
   const service = new Service();
   service.name = faker.company.name();

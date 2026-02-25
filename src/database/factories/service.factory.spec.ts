@@ -1,6 +1,6 @@
 import { setSeederFactory } from "typeorm-extension";
-import { Service } from "@/services/entity/service.entity";
 import { EnumDays, Schedule } from "@/services/entity/schedule.entity";
+import { Service } from "@/services/entity/service.entity";
 
 interface MockedFactory {
   entity: unknown;

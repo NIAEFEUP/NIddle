@@ -5,8 +5,8 @@ import { Course } from "@/courses/entities/course.entity";
 import { Faculty } from "@/faculties/entities/faculty.entity";
 import { CreateServiceDto } from "./dto/create-service.dto";
 import { UpdateServiceDto } from "./dto/update-service.dto";
-import { Service } from "./entity/service.entity";
 import { EnumDays, Schedule } from "./entity/schedule.entity";
+import { Service } from "./entity/service.entity";
 import { ServicesService } from "./services.service";
 
 describe("ServicesService", () => {
@@ -39,7 +39,7 @@ describe("ServicesService", () => {
     schedule: mockSchedule,
     faculty: mockFaculty,
     courses: [mockCourse],
-    validateFacultyAndCourses() {},
+    validateFacultyAndCourses() { },
   };
 
   const mockTimeInterval: Schedule = {

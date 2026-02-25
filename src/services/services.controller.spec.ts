@@ -1,8 +1,8 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { CreateServiceDto } from "./dto/create-service.dto";
 import { UpdateServiceDto } from "./dto/update-service.dto";
-import { Service } from "./entity/service.entity";
 import { Schedule } from "./entity/schedule.entity";
+import { Service } from "./entity/service.entity";
 import { ServicesController } from "./services.controller";
 import { ServicesService } from "./services.service";
 

@@ -1,6 +1,6 @@
-import { Service } from "./service.entity";
-import { Faculty } from "@/faculties/entities/faculty.entity";
 import { Course } from "@/courses/entities/course.entity";
+import { Faculty } from "@/faculties/entities/faculty.entity";
+import { Service } from "./service.entity";
 
 describe("Service Entity", () => {
   let service: Service;

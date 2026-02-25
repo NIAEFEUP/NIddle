@@ -16,14 +16,14 @@ import {
 import { ApiBearerAuth, ApiOperation, ApiResponse } from "@nestjs/swagger";
 import { JwtAuthGuard } from "@/auth/guards/jwt-auth.guard";
 import { CreateServiceDto } from "./dto/create-service.dto";
+import { ServiceFilterDto } from "./dto/service-filter.dto";
 import { UpdateServiceDto } from "./dto/update-service.dto";
 import { Service } from "./entity/service.entity";
 import { ServicesService } from "./services.service";
-import { ServiceFilterDto } from "./dto/service-filter.dto";
 
 @Controller("services")
 export class ServicesController {
-  constructor(private readonly servicesService: ServicesService) {}
+  constructor(private readonly servicesService: ServicesService) { }
 
   @UseInterceptors(ClassSerializerInterceptor)
   @ApiOperation({ summary: "Get all services" })
