@@ -64,5 +64,5 @@ export class CreateServiceDto {
    */
   @IsOptional()
   @Type(() => Number)
-  courseIds?: number[];
+  courseId?: number;
 }

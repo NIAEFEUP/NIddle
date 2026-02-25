@@ -67,15 +67,15 @@ export class Service {
 
   @ManyToMany(() => Course, { cascade: true, nullable: true })
   @JoinTable()
-  courses: Course[];
+  course: Course;
 
   @BeforeInsert()
   @BeforeUpdate()
   validateFacultyAndCourses() {
     const hasFaculty = this.faculty != null;
-    const hasCourses = this.courses != null && this.courses.length > 0;
+    const hasCourse = this.course != null;
 
-    if (hasFaculty && hasCourses) {
+    if (hasFaculty && hasCourse) {
       throw new Error(
         "Service cannot have both faculty and courses assigned. Please choose either a faculty or courses, not both.",
       );

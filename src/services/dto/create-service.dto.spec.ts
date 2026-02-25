@@ -42,19 +42,19 @@ describe("CreateServiceDto validation", () => {
     expect(dto.schedule).toEqual(plain.schedule);
   });
 
-  it("should transform string courseIds to numbers using Type decorator", () => {
+  it("should transform string courseId to numbers using Type decorator", () => {
     const plain = {
       name: "Service Name",
       location: "B-142",
       schedule: [],
-      courseIds: ["1", "2", "3"],
+      courseId: "1",
     };
 
     const dto = plainToInstance(CreateServiceDto, plain);
 
-    expect(dto.courseIds).toEqual([1, 2, 3]);
-    if (dto.courseIds) {
-      expect(typeof dto.courseIds[0]).toBe("number");
+    expect(dto.courseId).toEqual(1);
+    if (dto.courseId) {
+      expect(typeof dto.courseId).toBe("number");
     }
   });
 
@@ -67,7 +67,7 @@ describe("CreateServiceDto validation", () => {
     expect(dto.email).toBeUndefined();
     expect(dto.phoneNumber).toBeUndefined();
     expect(dto.facultyId).toBeUndefined();
-    expect(dto.courseIds).toBeUndefined();
+    expect(dto.courseId).toBeUndefined();
   });
 
   describe("Required fields validation", () => {
@@ -177,44 +177,18 @@ describe("CreateServiceDto validation", () => {
     });
   });
 
-  describe("Optional courseIds transformation", () => {
+  describe("Optional courseId transformation", () => {
     it("should convert numeric strings to numbers", () => {
       const plain = {
         name: "Service",
         location: "B-142",
         schedule: [],
-        courseIds: ["100", "200"],
+        courseIds: 100,
       };
 
       const dto = plainToInstance(CreateServiceDto, plain);
 
-      expect(dto.courseIds).toEqual([100, 200]);
-    });
-
-    it("should handle single courseId", () => {
-      const plain = {
-        name: "Service",
-        location: "B-142",
-        schedule: [],
-        courseIds: ["42"],
-      };
-
-      const dto = plainToInstance(CreateServiceDto, plain);
-
-      expect(dto.courseIds).toEqual([42]);
-    });
-
-    it("should handle empty courseIds array", () => {
-      const plain = {
-        name: "Service",
-        location: "B-142",
-        schedule: [],
-        courseIds: [],
-      };
-
-      const dto = plainToInstance(CreateServiceDto, plain);
-
-      expect(dto.courseIds).toEqual([]);
+      expect(dto.courseId).toEqual(100);
     });
   });
 
@@ -251,8 +225,7 @@ describe("CreateServiceDto validation", () => {
         email: "pbeatriz@example.com",
         phoneNumber: "+1-555-0123",
         schedule: [],
-        courseIds: ["1", "2"],
-        facultyId: 1,
+        courseIds: 12,
       };
 
       const dto = plainToInstance(CreateServiceDto, plain);
@@ -263,8 +236,7 @@ describe("CreateServiceDto validation", () => {
       expect(dto.location).toBe("B-142");
       expect(dto.email).toBe("pbeatriz@example.com");
       expect(dto.phoneNumber).toBe("+1-555-0123");
-      expect(dto.courseIds).toEqual([1, 2]);
-      expect(dto.facultyId).toBe(1);
+      expect(dto.courseId).toEqual(12);
     });
   });
 });

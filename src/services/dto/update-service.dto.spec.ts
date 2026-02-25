@@ -54,15 +54,15 @@ describe("UpdateServiceDto", () => {
     expect(dto.phoneNumber).toBe("+1234567890");
   });
 
-  it("should allow updating only courseIds", async () => {
+  it("should allow updating only courseId", async () => {
     const dto = plainToInstance(UpdateServiceDto, {
-      courseIds: [1, 2, 3],
+      courseId: 1,
     });
 
     const errors = await validate(dto);
 
     expect(errors).toHaveLength(0);
-    expect(dto.courseIds).toEqual([1, 2, 3]);
+    expect(dto.courseId).toEqual(1);
   });
 
   it("should allow updating only facultyId", async () => {
@@ -122,7 +122,7 @@ describe("UpdateServiceDto", () => {
     expect(errors).toHaveLength(0);
   });
 
-  it("should allow undefined courseIds", async () => {
+  it("should allow undefined courseId", async () => {
     const dto = plainToInstance(UpdateServiceDto, {
       courseIds: undefined,
     });
@@ -130,28 +130,28 @@ describe("UpdateServiceDto", () => {
     const errors = await validate(dto);
 
     expect(errors).toHaveLength(0);
-    expect(dto.courseIds).toBeUndefined();
+    expect(dto.courseId).toBeUndefined();
   });
 
   it("should transform string courseIds to numbers", () => {
     const dto = plainToInstance(UpdateServiceDto, {
-      courseIds: ["1", "2", "3"],
+      courseId: 3,
     });
 
-    expect(dto.courseIds).toEqual([1, 2, 3]);
-    if (dto.courseIds) {
-      expect(typeof dto.courseIds[0]).toBe("number");
+    expect(dto.courseId).toEqual(3);
+    if (dto.courseId) {
+      expect(typeof dto.courseId).toBe("number");
     }
   });
 
   it("should allow clearing courseIds with empty array", async () => {
     const dto = plainToInstance(UpdateServiceDto, {
-      courseIds: [],
+      courseId: undefined,
     });
 
     const errors = await validate(dto);
 
     expect(errors).toHaveLength(0);
-    expect(dto.courseIds).toEqual([]);
+    expect(dto.courseId).toBeUndefined();
   });
 });

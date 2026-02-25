@@ -38,8 +38,8 @@ describe("ServicesService", () => {
     phoneNumber: "+315 999999999",
     schedule: mockSchedule,
     faculty: mockFaculty,
-    courses: [mockCourse],
-    validateFacultyAndCourses() {},
+    course: mockCourse,
+    validateFacultyAndCourses() { },
   };
 
   const mockTimeInterval: Schedule = {
@@ -222,14 +222,14 @@ describe("ServicesService", () => {
       expect(mockServiceRepository.manager.transaction).toHaveBeenCalled();
     });
 
-    it("should create service with course IDs", async () => {
+    it("should create service with course ID", async () => {
       const createServiceDto: CreateServiceDto = {
         name: "Papelaria D. Beatriz",
         location: "B-142",
         email: "PdB@gmail.com",
         phoneNumber: "+315 999999999",
         schedule: mockSchedule,
-        courseIds: [1, 2],
+        courseId: 1,
       };
 
       const repo = {
@@ -260,7 +260,7 @@ describe("ServicesService", () => {
       expect(courseRepo.find).toHaveBeenCalledWith({
         where: { id: In([1, 2]) },
       });
-      expect(result.courses).toEqual([mockCourse]);
+      expect(result.course).toEqual([mockCourse]);
     });
   });
 
