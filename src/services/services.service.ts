@@ -12,7 +12,7 @@ export class ServicesService {
   constructor(
     @InjectRepository(Service)
     private serviceRepository: Repository<Service>,
-  ) { }
+  ) {}
   create(createServiceDto: CreateServiceDto): Promise<Service> {
     return this.serviceRepository.manager.transaction(async (manager) => {
       const serviceRepo = manager.getRepository(Service);
@@ -78,10 +78,10 @@ export class ServicesService {
         service.courses =
           courseIds.length > 0
             ? await courseRepo.find({
-              where: {
-                id: In(courseIds),
-              },
-            })
+                where: {
+                  id: In(courseIds),
+                },
+              })
             : [];
       }
 

@@ -1,6 +1,6 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { getRepositoryToken } from "@nestjs/typeorm";
-import { Repository, In } from "typeorm";
+import { In, Repository } from "typeorm";
 import { Course } from "@/courses/entities/course.entity";
 import { Faculty } from "@/faculties/entities/faculty.entity";
 import { CreateServiceDto } from "./dto/create-service.dto";
@@ -39,7 +39,7 @@ describe("ServicesService", () => {
     schedule: mockSchedule,
     faculty: mockFaculty,
     courses: [mockCourse],
-    validateFacultyAndCourses() { },
+    validateFacultyAndCourses() {},
   };
 
   const mockTimeInterval: Schedule = {

@@ -23,7 +23,7 @@ import { ServicesService } from "./services.service";
 
 @Controller("services")
 export class ServicesController {
-  constructor(private readonly servicesService: ServicesService) { }
+  constructor(private readonly servicesService: ServicesService) {}
 
   @UseInterceptors(ClassSerializerInterceptor)
   @ApiOperation({ summary: "Get all services" })
