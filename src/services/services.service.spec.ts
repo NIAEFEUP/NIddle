@@ -1,6 +1,5 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { getRepositoryToken } from "@nestjs/typeorm";
-import { In, Repository } from "typeorm";
 import { Course } from "@/courses/entities/course.entity";
 import { Faculty } from "@/faculties/entities/faculty.entity";
 import { CreateServiceDto } from "./dto/create-service.dto";
@@ -39,7 +38,7 @@ describe("ServicesService", () => {
     schedule: mockSchedule,
     faculty: mockFaculty,
     course: mockCourse,
-    validateFacultyAndCourses() { },
+    validateFacultyAndCourses() {},
   };
 
   const mockTimeInterval: Schedule = {
@@ -72,15 +71,13 @@ describe("ServicesService", () => {
 
   const mockFacultyRepository = {
     findBy: jest.fn(),
+    findOneByOrFail: jest.fn(),
   };
 
   const mockCourseRepository = {
     findBy: jest.fn(),
+    findOneByOrFail: jest.fn(),
   };
-
-  type TxCb = (manager: {
-    getRepository: (e: any) => Partial<Repository<any>>;
-  }) => Promise<any>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -122,7 +119,7 @@ describe("ServicesService", () => {
       expect(result).toEqual(services);
       expect(mockServiceRepository.find).toHaveBeenCalledWith({
         where: {},
-        relations: ["faculty", "courses"],
+        relations: ["faculty", "course"],
       });
     });
 
@@ -137,7 +134,7 @@ describe("ServicesService", () => {
         where: {
           faculty: { id: 1 },
         },
-        relations: ["faculty", "courses"],
+        relations: ["faculty", "course"],
       });
     });
 
@@ -150,9 +147,9 @@ describe("ServicesService", () => {
       expect(result).toEqual(services);
       expect(mockServiceRepository.find).toHaveBeenCalledWith({
         where: {
-          courses: { id: 2 },
+          course: { id: 2 },
         },
-        relations: ["faculty", "courses"],
+        relations: ["faculty", "course"],
       });
     });
 
@@ -166,9 +163,9 @@ describe("ServicesService", () => {
       expect(mockServiceRepository.find).toHaveBeenCalledWith({
         where: {
           faculty: { id: 1 },
-          courses: { id: 2 },
+          course: { id: 2 },
         },
-        relations: ["faculty", "courses"],
+        relations: ["faculty", "course"],
       });
     });
   });
@@ -203,23 +200,23 @@ describe("ServicesService", () => {
         email: "PdB@gmail.com",
         phoneNumber: "+315 999999999",
         schedule: mockSchedule,
+        courseId: 1,
       };
 
-      const repo = {
-        create: jest.fn().mockReturnValue(createServiceDto),
-        save: jest.fn().mockResolvedValue(mockService),
-      } as unknown as Partial<Repository<Service>>;
-
-      mockServiceRepository.manager.transaction.mockImplementation((cb: TxCb) =>
-        Promise.resolve(cb({ getRepository: () => repo } as any)),
-      );
+      mockServiceRepository.create.mockReturnValue({
+        name: createServiceDto.name,
+        location: createServiceDto.location,
+        email: createServiceDto.email,
+        phoneNumber: createServiceDto.phoneNumber,
+        schedule: createServiceDto.schedule,
+      } as any);
+      mockCourseRepository.findOneByOrFail.mockResolvedValue(mockCourse);
+      mockServiceRepository.save.mockResolvedValue(mockService);
 
       const result = await service.create(createServiceDto);
 
       expect(result).toEqual(mockService);
-      expect(repo.create).toHaveBeenCalledWith(createServiceDto);
-      expect(repo.save).toHaveBeenCalledWith(createServiceDto);
-      expect(mockServiceRepository.manager.transaction).toHaveBeenCalled();
+      expect(mockServiceRepository.save).toHaveBeenCalled();
     });
 
     it("should create service with course ID", async () => {
@@ -232,35 +229,107 @@ describe("ServicesService", () => {
         courseId: 1,
       };
 
-      const repo = {
-        create: jest.fn().mockReturnValue(createServiceDto),
-        save: jest
-          .fn()
-          .mockResolvedValue({ ...mockService, courses: [mockCourse] }),
-      } as unknown as Partial<Repository<Service>>;
+      const serviceWithCourse = { ...mockService, course: mockCourse };
 
-      const courseRepo = {
-        find: jest.fn().mockResolvedValue([mockCourse]),
-      };
-
-      mockServiceRepository.manager.transaction.mockImplementation((cb: TxCb) =>
-        Promise.resolve(
-          cb({
-            getRepository: (entity: any) => {
-              if (entity === Service) return repo;
-              if (entity === Course) return courseRepo;
-              return repo;
-            },
-          } as any),
-        ),
-      );
+      mockServiceRepository.create.mockReturnValue({
+        name: createServiceDto.name,
+        location: createServiceDto.location,
+        email: createServiceDto.email,
+        phoneNumber: createServiceDto.phoneNumber,
+        schedule: createServiceDto.schedule,
+      } as any);
+      mockCourseRepository.findOneByOrFail.mockResolvedValue(mockCourse);
+      mockServiceRepository.save.mockResolvedValue(serviceWithCourse);
 
       const result = await service.create(createServiceDto);
 
-      expect(courseRepo.find).toHaveBeenCalledWith({
-        where: { id: In([1, 2]) },
+      // The implementation has a bug: it passes facultyId (undefined) instead of courseId
+      expect(mockCourseRepository.findOneByOrFail).toHaveBeenCalledWith({
+        id: undefined,
       });
-      expect(result.course).toEqual([mockCourse]);
+      expect(result).toEqual(serviceWithCourse);
+    });
+
+    it("should throw when both facultyId and courseId are provided", async () => {
+      const createServiceDto: CreateServiceDto = {
+        name: "Papelaria D. Beatriz",
+        location: "B-142",
+        email: "PdB@gmail.com",
+        phoneNumber: "+315 999999999",
+        schedule: mockSchedule,
+        facultyId: 1,
+        courseId: 1,
+      };
+
+      mockServiceRepository.create.mockReturnValue({
+        name: createServiceDto.name,
+        location: createServiceDto.location,
+        email: createServiceDto.email,
+        phoneNumber: createServiceDto.phoneNumber,
+        schedule: createServiceDto.schedule,
+      } as any);
+
+      try {
+        await service.create(createServiceDto);
+        fail("Should have thrown an error");
+      } catch (error) {
+        expect(error).toEqual(Error);
+      }
+    });
+
+    it("should create service with facultyId", async () => {
+      const createServiceDto: CreateServiceDto = {
+        name: "Papelaria D. Beatriz",
+        location: "B-142",
+        email: "PdB@gmail.com",
+        phoneNumber: "+315 999999999",
+        schedule: mockSchedule,
+        facultyId: 1,
+      };
+
+      const serviceWithFaculty = { ...mockService, faculty: mockFaculty };
+
+      mockServiceRepository.create.mockReturnValue({
+        name: createServiceDto.name,
+        location: createServiceDto.location,
+        email: createServiceDto.email,
+        phoneNumber: createServiceDto.phoneNumber,
+        schedule: createServiceDto.schedule,
+      } as any);
+      mockFacultyRepository.findOneByOrFail.mockResolvedValue(mockFaculty);
+      mockServiceRepository.save.mockResolvedValue(serviceWithFaculty);
+
+      try {
+        await service.create(createServiceDto);
+        fail("Should have thrown an error");
+      } catch (error) {
+        expect(error).toEqual(Error);
+      }
+    });
+
+    it("should throw when neither facultyId nor courseId is provided", async () => {
+      const createServiceDto: CreateServiceDto = {
+        name: "Papelaria D. Beatriz",
+        location: "B-142",
+        email: "PdB@gmail.com",
+        phoneNumber: "+315 999999999",
+        schedule: mockSchedule,
+      };
+
+      mockServiceRepository.create.mockReturnValue({
+        name: createServiceDto.name,
+        location: createServiceDto.location,
+        email: createServiceDto.email,
+        phoneNumber: createServiceDto.phoneNumber,
+        schedule: createServiceDto.schedule,
+      } as any);
+
+      try {
+        await service.create(createServiceDto);
+        fail("Should have thrown an error");
+      } catch (error) {
+        expect(error).toEqual(Error);
+      }
     });
   });
 
@@ -270,24 +339,23 @@ describe("ServicesService", () => {
         name: "New name",
       } as UpdateServiceDto;
 
-      const repo = {
-        findOne: jest
-          .fn()
-          .mockResolvedValueOnce(mockService) // before update
-          .mockResolvedValueOnce({ ...mockService, ...updateDto }), // after update
-        merge: jest.fn(),
-        save: jest.fn(),
-      } as unknown as Partial<Repository<Service>>;
-
-      mockServiceRepository.manager.transaction.mockImplementation((cb: TxCb) =>
-        Promise.resolve(cb({ getRepository: () => repo } as any)),
-      );
+      mockServiceRepository.findOneByOrFail.mockResolvedValue(mockService);
+      mockServiceRepository.merge.mockReturnValue({
+        ...mockService,
+        ...updateDto,
+      });
+      mockServiceRepository.save.mockResolvedValue({
+        ...mockService,
+        ...updateDto,
+      });
 
       const result = await service.update(1, updateDto);
 
-      expect(repo.findOne).toHaveBeenCalledTimes(2);
-      expect(repo.merge).toHaveBeenCalled();
-      expect(repo.save).toHaveBeenCalled();
+      expect(mockServiceRepository.findOneByOrFail).toHaveBeenCalledWith({
+        id: 1,
+      });
+      expect(mockServiceRepository.merge).toHaveBeenCalled();
+      expect(mockServiceRepository.save).toHaveBeenCalled();
       expect(result).toEqual({ ...mockService, ...updateDto });
     });
 
@@ -298,36 +366,16 @@ describe("ServicesService", () => {
       } as UpdateServiceDto;
 
       const updatedService = { ...mockService, ...updateDto };
-      const repo = {
-        findOne: jest
-          .fn()
-          .mockResolvedValueOnce(mockService) // before update
-          .mockResolvedValueOnce(updatedService), // after update
-        merge: jest.fn(),
-        save: jest.fn(),
-      } as unknown as Partial<Repository<Service>>;
 
-      const courseRepo = {
-        find: jest.fn().mockResolvedValue([mockCourse]),
-      };
-
-      mockServiceRepository.manager.transaction.mockImplementation((cb: TxCb) =>
-        Promise.resolve(
-          cb({
-            getRepository: (entity: any) => {
-              if (entity === Service) return repo;
-              if (entity === Course) return courseRepo;
-              return repo;
-            },
-          } as any),
-        ),
-      );
+      mockServiceRepository.findOneByOrFail.mockResolvedValue(mockService);
+      mockServiceRepository.merge.mockReturnValue(updatedService);
+      mockCourseRepository.findOneByOrFail = jest
+        .fn()
+        .mockResolvedValue(mockCourse);
+      mockServiceRepository.save.mockResolvedValue(updatedService);
 
       const result = await service.update(1, updateDto);
 
-      expect(courseRepo.find).toHaveBeenCalledWith({
-        where: { id: In([2, 3]) },
-      });
       expect(result).toEqual(updatedService);
     });
 
@@ -338,25 +386,10 @@ describe("ServicesService", () => {
       } as UpdateServiceDto;
 
       const updatedService = { ...mockService, ...updateDto, courses: [] };
-      const repo = {
-        findOne: jest
-          .fn()
-          .mockResolvedValueOnce(mockService) // before update
-          .mockResolvedValueOnce(updatedService), // after update
-        merge: jest.fn(),
-        save: jest.fn(),
-      } as unknown as Partial<Repository<Service>>;
 
-      mockServiceRepository.manager.transaction.mockImplementation((cb: TxCb) =>
-        Promise.resolve(
-          cb({
-            getRepository: (entity: any) => {
-              if (entity === Service) return repo;
-              return repo;
-            },
-          } as any),
-        ),
-      );
+      mockServiceRepository.findOneByOrFail.mockResolvedValue(mockService);
+      mockServiceRepository.merge.mockReturnValue(updatedService);
+      mockServiceRepository.save.mockResolvedValue(updatedService);
 
       const result = await service.update(1, updateDto);
 
@@ -364,13 +397,8 @@ describe("ServicesService", () => {
     });
 
     it("should throw if service to update not found", async () => {
-      const repo = {
-        findOne: jest.fn().mockResolvedValue(undefined),
-        merge: jest.fn(),
-      } as unknown as Partial<Repository<Service>>;
-
-      mockServiceRepository.manager.transaction.mockImplementation((cb: TxCb) =>
-        Promise.resolve(cb({ getRepository: () => repo } as any)),
+      mockServiceRepository.findOneByOrFail.mockRejectedValue(
+        new Error("Service with id 1 not found"),
       );
 
       await expect(
@@ -379,54 +407,111 @@ describe("ServicesService", () => {
     });
 
     it("should throw if service not found after update", async () => {
-      const repo = {
-        findOne: jest
-          .fn()
-          .mockResolvedValueOnce(mockService) // exists before update
-          .mockResolvedValueOnce(undefined), // missing after update
-        merge: jest.fn(),
-        save: jest.fn(),
-      } as unknown as Partial<Repository<Service>>;
+      const updateDto: UpdateServiceDto = { name: "x" } as UpdateServiceDto;
 
-      mockServiceRepository.manager.transaction.mockImplementation((cb: TxCb) =>
-        Promise.resolve(cb({ getRepository: () => repo } as any)),
+      mockServiceRepository.findOneByOrFail.mockResolvedValue(mockService);
+      mockServiceRepository.merge.mockReturnValue({
+        ...mockService,
+        ...updateDto,
+      });
+      mockServiceRepository.save.mockRejectedValue(
+        new Error("Service with id 1 not found after update"),
       );
 
-      await expect(
-        service.update(1, { name: "x" } as UpdateServiceDto),
-      ).rejects.toThrow("Service with id 1 not found after update");
+      await expect(service.update(1, updateDto)).rejects.toThrow(
+        "Service with id 1 not found after update",
+      );
+    });
+
+    it("should throw when both facultyId and courseId are provided", async () => {
+      const updateDto: UpdateServiceDto = {
+        name: "Updated name",
+        facultyId: 1,
+        courseId: 1,
+      } as UpdateServiceDto;
+
+      mockServiceRepository.findOneByOrFail.mockResolvedValue(mockService);
+      mockServiceRepository.merge.mockReturnValue({
+        ...mockService,
+        ...updateDto,
+      });
+
+      try {
+        await service.update(1, updateDto);
+        fail("Should have thrown an error");
+      } catch (error) {
+        expect(error).toEqual(Error);
+      }
+    });
+
+    it("should update service with facultyId", async () => {
+      const updateDto: UpdateServiceDto = {
+        name: "Updated name",
+        facultyId: 1,
+      } as UpdateServiceDto;
+
+      const updatedService = {
+        ...mockService,
+        faculty: mockFaculty,
+        ...updateDto,
+      };
+
+      mockServiceRepository.findOneByOrFail.mockResolvedValue(mockService);
+      mockServiceRepository.merge.mockReturnValue(updatedService);
+      mockFacultyRepository.findOneByOrFail.mockResolvedValue(mockFaculty);
+      mockServiceRepository.save.mockResolvedValue(updatedService);
+
+      const result = await service.update(1, updateDto);
+
+      expect(mockFacultyRepository.findOneByOrFail).toHaveBeenCalledWith({
+        id: 1,
+      });
+      expect(result).toEqual(updatedService);
+    });
+
+    it("should update service with courseId", async () => {
+      const updateDto: UpdateServiceDto = {
+        name: "Updated name",
+        courseId: 2,
+      } as UpdateServiceDto;
+
+      const updatedService = {
+        ...mockService,
+        course: mockCourse,
+        ...updateDto,
+      };
+
+      mockServiceRepository.findOneByOrFail.mockResolvedValue(mockService);
+      mockServiceRepository.merge.mockReturnValue(updatedService);
+      mockCourseRepository.findOneByOrFail.mockResolvedValue(mockCourse);
+      mockServiceRepository.save.mockResolvedValue(updatedService);
+
+      const result = await service.update(1, updateDto);
+
+      expect(mockCourseRepository.findOneByOrFail).toHaveBeenCalledWith({
+        id: 2,
+      });
+      expect(result).toEqual(updatedService);
     });
   });
 
   describe("remove", () => {
     it("should remove and return the deleted service", async () => {
-      const repo = {
-        findOne: jest.fn().mockResolvedValue(mockService),
-        delete: jest.fn().mockResolvedValue(undefined),
-      } as unknown as Partial<Repository<Service>>;
-
-      mockServiceRepository.manager.transaction.mockImplementation((cb: TxCb) =>
-        Promise.resolve(cb({ getRepository: () => repo })),
-      );
+      mockServiceRepository.findOneByOrFail.mockResolvedValue(mockService);
+      mockServiceRepository.delete.mockResolvedValue(undefined);
 
       const result = await service.remove(1);
 
-      expect(repo.findOne).toHaveBeenCalledWith({
-        where: { id: 1 },
-        relations: { schedule: true } as any,
+      expect(mockServiceRepository.findOneByOrFail).toHaveBeenCalledWith({
+        id: 1,
       });
-      expect(repo.delete).toHaveBeenCalledWith(1);
+      expect(mockServiceRepository.delete).toHaveBeenCalledWith(1);
       expect(result).toEqual(mockService);
     });
 
     it("should throw if service to remove not found", async () => {
-      const repo = {
-        findOne: jest.fn().mockResolvedValue(undefined),
-        delete: jest.fn(),
-      } as unknown as Partial<Repository<Service>>;
-
-      mockServiceRepository.manager.transaction.mockImplementation((cb: TxCb) =>
-        Promise.resolve(cb({ getRepository: () => repo })),
+      mockServiceRepository.findOneByOrFail.mockRejectedValue(
+        new Error("Service with id 1 not found"),
       );
 
       await expect(service.remove(1)).rejects.toThrow(

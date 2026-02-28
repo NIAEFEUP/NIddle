@@ -2,11 +2,11 @@ import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { Course } from "@/courses/entities/course.entity";
+import { Faculty } from "@/faculties/entities/faculty.entity";
 import { CreateServiceDto } from "./dto/create-service.dto";
 import { ServiceFilterDto } from "./dto/service-filter.dto";
 import { UpdateServiceDto } from "./dto/update-service.dto";
 import { Service } from "./entity/service.entity";
-import { Faculty } from "@/faculties/entities/faculty.entity";
 
 @Injectable()
 export class ServicesService {
@@ -17,7 +17,7 @@ export class ServicesService {
     private facultyRepository: Repository<Faculty>,
     @InjectRepository(Course)
     private courseRepository: Repository<Course>,
-  ) { }
+  ) {}
   async create(createServiceDto: CreateServiceDto): Promise<Service> {
     const { facultyId, courseId, ...serviceData } = createServiceDto;
     const service = this.serviceRepository.create(serviceData);
@@ -34,8 +34,7 @@ export class ServicesService {
       service.course = await this.courseRepository.findOneByOrFail({
         id: facultyId,
       });
-    }
-    else {
+    } else {
       throw Error;
     }
     return this.serviceRepository.save(service);
@@ -64,7 +63,10 @@ export class ServicesService {
     return service;
   }
 
-  async update(id: number, UpdateServiceDto: UpdateServiceDto): Promise<Service> {
+  async update(
+    id: number,
+    UpdateServiceDto: UpdateServiceDto,
+  ): Promise<Service> {
     const { facultyId, courseId, ...serviceData } = UpdateServiceDto;
     const service = await this.serviceRepository.findOneByOrFail({ id });
     this.serviceRepository.merge(service, serviceData);

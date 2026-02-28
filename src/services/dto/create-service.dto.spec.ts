@@ -183,7 +183,7 @@ describe("CreateServiceDto validation", () => {
         name: "Service",
         location: "B-142",
         schedule: [],
-        courseIds: 100,
+        courseId: 100,
       };
 
       const dto = plainToInstance(CreateServiceDto, plain);
@@ -225,7 +225,7 @@ describe("CreateServiceDto validation", () => {
         email: "pbeatriz@example.com",
         phoneNumber: "+1-555-0123",
         schedule: [],
-        courseIds: 12,
+        courseId: 12,
       };
 
       const dto = plainToInstance(CreateServiceDto, plain);

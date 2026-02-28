@@ -26,25 +26,24 @@ describe("Service Entity", () => {
   });
 
   describe("validateFacultyAndCourses", () => {
-    it("should not throw when neither faculty nor courses are assigned", () => {
+    it("should not throw when neither faculty nor course are assigned", () => {
       expect(() => service.validateFacultyAndCourses()).not.toThrow();
     });
 
     it("should not throw when only faculty is assigned", () => {
       service.faculty = mockFaculty;
-      service.courses = [];
       expect(() => service.validateFacultyAndCourses()).not.toThrow();
     });
 
-    it("should not throw when only courses are assigned", () => {
+    it("should not throw when only course is assigned", () => {
       service.faculty = undefined as any;
-      service.courses = [mockCourse];
+      service.course = mockCourse;
       expect(() => service.validateFacultyAndCourses()).not.toThrow();
     });
 
-    it("should throw when both faculty and courses are assigned", () => {
+    it("should throw when both faculty and course are assigned", () => {
       service.faculty = mockFaculty;
-      service.courses = [mockCourse];
+      service.course = mockCourse;
       expect(() => service.validateFacultyAndCourses()).toThrow(
         "Service cannot have both faculty and courses assigned. Please choose either a faculty or courses, not both.",
       );
