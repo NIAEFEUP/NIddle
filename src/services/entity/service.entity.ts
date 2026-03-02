@@ -5,7 +5,6 @@ import {
   Entity,
   JoinColumn,
   JoinTable,
-  ManyToMany,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
@@ -65,7 +64,7 @@ export class Service {
   @JoinColumn()
   faculty: Faculty;
 
-  @ManyToMany(() => Course, { cascade: true, nullable: true })
+  @ManyToOne(() => Course, { cascade: true, nullable: true })
   @JoinTable()
   course: Course;
 

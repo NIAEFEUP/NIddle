@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { Course } from "@/courses/entities/course.entity";
@@ -24,18 +24,21 @@ export class ServicesService {
 
     if (facultyId !== undefined) {
       if (courseId !== undefined) {
-        throw Error;
+        throw new Error(
+          "Service cannot have both faculty and courses assigned. Please choose either a faculty or courses, not both.",
+        );
       }
       service.faculty = await this.facultyRepository.findOneByOrFail({
         id: facultyId,
       });
-    }
-    if (courseId !== undefined) {
+    } else if (courseId !== undefined) {
       service.course = await this.courseRepository.findOneByOrFail({
-        id: facultyId,
+        id: courseId,
       });
     } else {
-      throw Error;
+      throw new Error(
+        "Service must have either facultyId or courseId assigned.",
+      );
     }
     return this.serviceRepository.save(service);
   }
@@ -53,13 +56,10 @@ export class ServicesService {
   }
 
   async findOne(id: number): Promise<Service> {
-    const service = await this.serviceRepository.findOne({
+    const service = await this.serviceRepository.findOneOrFail({
       where: { id },
-      relations: ["faculty", "courses"],
+      relations: ["faculty", "course"],
     });
-    if (!service) {
-      throw new NotFoundException(`Service with id ${id} not found`);
-    }
     return service;
   }
 

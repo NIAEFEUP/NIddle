@@ -172,19 +172,21 @@ describe("ServicesService", () => {
 
   describe("findOne", () => {
     it("should return a service by ID", async () => {
-      mockServiceRepository.findOne.mockResolvedValue(mockService);
+      mockServiceRepository.findOneOrFail.mockResolvedValue(mockService);
 
       const result = await service.findOne(1);
 
       expect(result).toEqual(mockService);
-      expect(mockServiceRepository.findOne).toHaveBeenCalledWith({
+      expect(mockServiceRepository.findOneOrFail).toHaveBeenCalledWith({
         where: { id: 1 },
-        relations: ["faculty", "courses"],
+        relations: ["faculty", "course"],
       });
     });
 
     it("should throw if service not found", async () => {
-      mockServiceRepository.findOne.mockResolvedValue(undefined);
+      mockServiceRepository.findOneOrFail.mockRejectedValue(
+        new Error("Service with id 1 not found"),
+      );
 
       await expect(service.findOne(1)).rejects.toThrow(
         "Service with id 1 not found",
@@ -243,9 +245,8 @@ describe("ServicesService", () => {
 
       const result = await service.create(createServiceDto);
 
-      // The implementation has a bug: it passes facultyId (undefined) instead of courseId
       expect(mockCourseRepository.findOneByOrFail).toHaveBeenCalledWith({
-        id: undefined,
+        id: 1,
       });
       expect(result).toEqual(serviceWithCourse);
     });
@@ -273,7 +274,7 @@ describe("ServicesService", () => {
         await service.create(createServiceDto);
         fail("Should have thrown an error");
       } catch (error) {
-        expect(error).toEqual(Error);
+        expect(error).toBeInstanceOf(Error);
       }
     });
 
@@ -299,12 +300,12 @@ describe("ServicesService", () => {
       mockFacultyRepository.findOneByOrFail.mockResolvedValue(mockFaculty);
       mockServiceRepository.save.mockResolvedValue(serviceWithFaculty);
 
-      try {
-        await service.create(createServiceDto);
-        fail("Should have thrown an error");
-      } catch (error) {
-        expect(error).toEqual(Error);
-      }
+      const result = await service.create(createServiceDto);
+
+      expect(mockFacultyRepository.findOneByOrFail).toHaveBeenCalledWith({
+        id: 1,
+      });
+      expect(result).toEqual(serviceWithFaculty);
     });
 
     it("should throw when neither facultyId nor courseId is provided", async () => {
@@ -328,7 +329,7 @@ describe("ServicesService", () => {
         await service.create(createServiceDto);
         fail("Should have thrown an error");
       } catch (error) {
-        expect(error).toEqual(Error);
+        expect(error).toBeInstanceOf(Error);
       }
     });
   });
