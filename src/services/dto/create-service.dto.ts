@@ -1,11 +1,6 @@
 import { Type } from "class-transformer";
-import {
-  IsEmail,
-  IsNotEmpty,
-  IsOptional,
-  IsString,
-  ValidateNested,
-} from "class-validator";
+import { IsEmail, IsNotEmpty, IsOptional, IsString } from "class-validator";
+import { ValidateOneOf } from "@/common/decorators/validate-one-of.decorator";
 import { Schedule } from "@/services/entity/schedule.entity";
 
 export class CreateServiceDto {
@@ -36,10 +31,9 @@ export class CreateServiceDto {
 
   /**
    * The service's working hours.
-   * TODO : make example
+   * @example []
    */
   @IsNotEmpty()
-  @ValidateNested({ each: true })
   @Type(() => Schedule)
   schedule: Schedule[];
 
@@ -56,11 +50,12 @@ export class CreateServiceDto {
    * @example 1
    */
   @IsOptional()
+  @ValidateOneOf(["facultyId", "courseId"])
   facultyId?: number;
 
   /**
    * The course IDs associated with this service.
-   * @example [1, 2]
+   * @example 1
    */
   @IsOptional()
   @Type(() => Number)

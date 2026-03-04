@@ -211,6 +211,7 @@ describe("ServicesService", () => {
         email: createServiceDto.email,
         phoneNumber: createServiceDto.phoneNumber,
         schedule: createServiceDto.schedule,
+        validateFacultyAndCourses: jest.fn(),
       } as any);
       mockCourseRepository.findOneByOrFail.mockResolvedValue(mockCourse);
       mockServiceRepository.save.mockResolvedValue(mockService);
@@ -239,6 +240,7 @@ describe("ServicesService", () => {
         email: createServiceDto.email,
         phoneNumber: createServiceDto.phoneNumber,
         schedule: createServiceDto.schedule,
+        validateFacultyAndCourses: jest.fn(),
       } as any);
       mockCourseRepository.findOneByOrFail.mockResolvedValue(mockCourse);
       mockServiceRepository.save.mockResolvedValue(serviceWithCourse);
@@ -270,12 +272,9 @@ describe("ServicesService", () => {
         schedule: createServiceDto.schedule,
       } as any);
 
-      try {
-        await service.create(createServiceDto);
-        fail("Should have thrown an error");
-      } catch (error) {
-        expect(error).toBeInstanceOf(Error);
-      }
+      await expect(service.create(createServiceDto)).rejects.toThrow(
+        "Exactly one of [facultyId, courseId] must be provided, not both and not neither.",
+      );
     });
 
     it("should create service with facultyId", async () => {
@@ -296,6 +295,7 @@ describe("ServicesService", () => {
         email: createServiceDto.email,
         phoneNumber: createServiceDto.phoneNumber,
         schedule: createServiceDto.schedule,
+        validateFacultyAndCourses: jest.fn(),
       } as any);
       mockFacultyRepository.findOneByOrFail.mockResolvedValue(mockFaculty);
       mockServiceRepository.save.mockResolvedValue(serviceWithFaculty);
@@ -325,12 +325,9 @@ describe("ServicesService", () => {
         schedule: createServiceDto.schedule,
       } as any);
 
-      try {
-        await service.create(createServiceDto);
-        fail("Should have thrown an error");
-      } catch (error) {
-        expect(error).toBeInstanceOf(Error);
-      }
+      await expect(service.create(createServiceDto)).rejects.toThrow(
+        "Exactly one of [facultyId, courseId] must be provided, not both and not neither.",
+      );
     });
   });
 
@@ -441,7 +438,7 @@ describe("ServicesService", () => {
         await service.update(1, updateDto);
         fail("Should have thrown an error");
       } catch (error) {
-        expect(error).toEqual(Error);
+        expect(error).toBeInstanceOf(Error);
       }
     });
 

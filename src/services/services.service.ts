@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { BadRequestException, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { Course } from "@/courses/entities/course.entity";
@@ -20,26 +20,35 @@ export class ServicesService {
   ) {}
   async create(createServiceDto: CreateServiceDto): Promise<Service> {
     const { facultyId, courseId, ...serviceData } = createServiceDto;
+
+    if (facultyId !== undefined && courseId !== undefined) {
+      throw new BadRequestException(
+        "Exactly one of [facultyId, courseId] must be provided, not both and not neither.",
+      );
+    }
+
+    if (facultyId === undefined && courseId === undefined) {
+      throw new BadRequestException(
+        "Exactly one of [facultyId, courseId] must be provided, not both and not neither.",
+      );
+    }
+
     const service = this.serviceRepository.create(serviceData);
 
-    if (facultyId !== undefined) {
-      if (courseId !== undefined) {
-        throw new Error(
-          "Service cannot have both faculty and courses assigned. Please choose either a faculty or courses, not both.",
-        );
-      }
+    if (facultyId) {
       service.faculty = await this.facultyRepository.findOneByOrFail({
         id: facultyId,
       });
-    } else if (courseId !== undefined) {
+    }
+
+    if (courseId) {
       service.course = await this.courseRepository.findOneByOrFail({
         id: courseId,
       });
-    } else {
-      throw new Error(
-        "Service must have either facultyId or courseId assigned.",
-      );
     }
+
+    service.validateFacultyAndCourses();
+
     return this.serviceRepository.save(service);
   }
 
@@ -70,19 +79,21 @@ export class ServicesService {
     const { facultyId, courseId, ...serviceData } = UpdateServiceDto;
     const service = await this.serviceRepository.findOneByOrFail({ id });
     this.serviceRepository.merge(service, serviceData);
+
     if (facultyId !== undefined) {
-      if (courseId !== undefined) {
-        throw Error;
-      }
       service.faculty = await this.facultyRepository.findOneByOrFail({
         id: facultyId,
       });
+      service.course = null;
     }
+
     if (courseId !== undefined) {
       service.course = await this.courseRepository.findOneByOrFail({
         id: courseId,
       });
+      service.faculty = null;
     }
+
     return this.serviceRepository.save(service);
   }
 

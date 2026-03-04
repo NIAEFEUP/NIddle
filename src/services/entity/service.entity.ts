@@ -1,10 +1,7 @@
 import {
-  BeforeInsert,
-  BeforeUpdate,
   Column,
   Entity,
   JoinColumn,
-  JoinTable,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
@@ -51,6 +48,10 @@ export class Service {
   @Column({ nullable: true })
   phoneNumber?: string;
 
+  /**
+   * The service's schedule.
+   * @example null
+   */
   @OneToMany(
     () => Schedule,
     (timeInterval) => timeInterval.service,
@@ -62,19 +63,14 @@ export class Service {
 
   @ManyToOne(() => Faculty, { cascade: true, nullable: true })
   @JoinColumn()
-  faculty: Faculty;
+  faculty: Faculty | null;
 
   @ManyToOne(() => Course, { cascade: true, nullable: true })
-  @JoinTable()
-  course: Course;
+  @JoinColumn()
+  course: Course | null;
 
-  @BeforeInsert()
-  @BeforeUpdate()
-  validateFacultyAndCourses() {
-    const hasFaculty = this.faculty != null;
-    const hasCourse = this.course != null;
-
-    if (hasFaculty && hasCourse) {
+  validateFacultyAndCourses(): void {
+    if (this.faculty && this.course) {
       throw new Error(
         "Service cannot have both faculty and courses assigned. Please choose either a faculty or courses, not both.",
       );

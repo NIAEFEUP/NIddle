@@ -11,14 +11,14 @@ export default class ServiceSeeder implements Seeder {
     factoryManager: SeederFactoryManager,
   ) {
     const serviceFactory = factoryManager.get(Service);
-    await serviceFactory.saveMany(10);
-    const serviceRepository = dataSource.getRepository(Service);
-    const services = await serviceRepository.find();
     const facultyRepository = dataSource.getRepository(Faculty);
     const faculties = await facultyRepository.find();
     const courseRepository = dataSource.getRepository(Course);
     const courses = await courseRepository.find();
-    for (const service of services) {
+
+    const services: Service[] = [];
+    for (let i = 0; i < 10; i++) {
+      const service = await serviceFactory.make();
       const relType = faker.number.int({ min: 0, max: 1 });
       if (relType === 0) {
         // Course relation
@@ -33,7 +33,10 @@ export default class ServiceSeeder implements Seeder {
             faculties[faker.number.int({ min: 0, max: faculties.length - 1 })];
         }
       }
+      services.push(service);
     }
+
+    const serviceRepository = dataSource.getRepository(Service);
     await serviceRepository.save(services);
   }
 }
