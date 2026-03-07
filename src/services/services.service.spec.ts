@@ -1,3 +1,4 @@
+import { BadRequestException } from "@nestjs/common";
 import { Test, TestingModule } from "@nestjs/testing";
 import { getRepositoryToken } from "@nestjs/typeorm";
 import { Course } from "@/courses/entities/course.entity";
@@ -7,7 +8,6 @@ import { UpdateServiceDto } from "./dto/update-service.dto";
 import { EnumDays, Schedule } from "./entity/schedule.entity";
 import { Service } from "./entity/service.entity";
 import { ServicesService } from "./services.service";
-import { BadRequestException } from "@nestjs/common";
 
 describe("ServicesService", () => {
   let service: ServicesService;

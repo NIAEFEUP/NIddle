@@ -1,3 +1,4 @@
+import { BadRequestException } from "@nestjs/common";
 import {
   BeforeInsert,
   BeforeUpdate,
@@ -11,7 +12,6 @@ import {
 import { Course } from "@/courses/entities/course.entity";
 import { Faculty } from "@/faculties/entities/faculty.entity";
 import { Schedule } from "./schedule.entity";
-import { BadRequestException } from "@nestjs/common";
 
 @Entity()
 export class Service {

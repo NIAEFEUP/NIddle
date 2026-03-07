@@ -1,4 +1,4 @@
-import { Schedule, EnumDays } from "./schedule.entity";
+import { EnumDays, Schedule } from "./schedule.entity";
 import { Service } from "./service.entity";
 
 describe("Schedule Entity", () => {
