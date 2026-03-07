@@ -1,6 +1,5 @@
 import { Type } from "class-transformer";
 import { IsEmail, IsNotEmpty, IsOptional, IsString } from "class-validator";
-import { ValidateOneOf } from "@/common/decorators/validate-one-of.decorator";
 import { Schedule } from "@/services/entity/schedule.entity";
 
 export class CreateServiceDto {
@@ -50,7 +49,7 @@ export class CreateServiceDto {
    * @example 1
    */
   @IsOptional()
-  @ValidateOneOf(["facultyId", "courseId"])
+  @Type(() => Number)
   facultyId?: number;
 
   /**

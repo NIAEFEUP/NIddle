@@ -11,6 +11,11 @@ describe("ServiceSeeder", () => {
   let factoryManager: SeederFactoryManager;
 
   const mockFactory = {
+    make: jest
+      .fn()
+      .mockImplementation(() =>
+        Promise.resolve({ id: 1, course: null, faculty: null }),
+      ),
     saveMany: jest.fn(),
   };
 
@@ -19,6 +24,7 @@ describe("ServiceSeeder", () => {
   beforeEach(() => {
     seeder = new ServiceSeeder();
     mockGet.mockClear();
+    mockFactory.make.mockClear();
     mockFactory.saveMany.mockClear();
     jest.clearAllMocks();
   });
@@ -62,7 +68,7 @@ describe("ServiceSeeder", () => {
     await seeder.run(dataSource, factoryManager);
 
     expect(mockGet).toHaveBeenCalledWith(Service);
-    expect(mockFactory.saveMany).toHaveBeenCalledWith(10);
+    expect(mockFactory.make).toHaveBeenCalledTimes(10);
     expect(mockServiceRepository.save).toHaveBeenCalled();
   });
 
@@ -101,9 +107,11 @@ describe("ServiceSeeder", () => {
       get: mockGet,
     } as unknown as SeederFactoryManager;
 
+    mockFactory.make.mockResolvedValue(mockService);
+
     jest
       .spyOn(require("@faker-js/faker").faker.number, "int")
-      .mockReturnValueOnce(0);
+      .mockReturnValue(0);
 
     await seeder.run(dataSource, factoryManager);
 
@@ -145,9 +153,14 @@ describe("ServiceSeeder", () => {
       get: mockGet,
     } as unknown as SeederFactoryManager;
 
+    mockFactory.make.mockResolvedValue(mockService);
+
     jest
       .spyOn(require("@faker-js/faker").faker.number, "int")
-      .mockReturnValueOnce(1);
+      .mockImplementation((args: any) => {
+        if (args && args.max === 1) return 1;
+        return 0;
+      });
 
     await seeder.run(dataSource, factoryManager);
 
@@ -188,9 +201,11 @@ describe("ServiceSeeder", () => {
       get: mockGet,
     } as unknown as SeederFactoryManager;
 
+    mockFactory.make.mockResolvedValue(mockService);
+
     jest
       .spyOn(require("@faker-js/faker").faker.number, "int")
-      .mockReturnValueOnce(0);
+      .mockReturnValue(0);
 
     await seeder.run(dataSource, factoryManager);
 
@@ -231,9 +246,14 @@ describe("ServiceSeeder", () => {
       get: mockGet,
     } as unknown as SeederFactoryManager;
 
+    mockFactory.make.mockResolvedValue(mockService);
+
     jest
       .spyOn(require("@faker-js/faker").faker.number, "int")
-      .mockReturnValueOnce(1);
+      .mockImplementation((args: any) => {
+        if (args && args.max === 1) return 1;
+        return 0;
+      });
 
     await seeder.run(dataSource, factoryManager);
 

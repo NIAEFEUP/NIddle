@@ -18,22 +18,23 @@ export class ServicesService {
     @InjectRepository(Course)
     private courseRepository: Repository<Course>,
   ) {}
+
   async create(createServiceDto: CreateServiceDto): Promise<Service> {
     const { facultyId, courseId, ...serviceData } = createServiceDto;
 
-    if (facultyId !== undefined && courseId !== undefined) {
-      throw new BadRequestException(
-        "Exactly one of [facultyId, courseId] must be provided, not both and not neither.",
-      );
-    }
-
-    if (facultyId === undefined && courseId === undefined) {
-      throw new BadRequestException(
-        "Exactly one of [facultyId, courseId] must be provided, not both and not neither.",
-      );
-    }
-
     const service = this.serviceRepository.create(serviceData);
+
+    if (facultyId && courseId) {
+      throw new BadRequestException(
+        "A service cannot be associated with both a faculty and a course.",
+      );
+    }
+
+    if (!facultyId && !courseId) {
+      throw new BadRequestException(
+        "A service must be associated with either a faculty or a course.",
+      );
+    }
 
     if (facultyId) {
       service.faculty = await this.facultyRepository.findOneByOrFail({
@@ -47,9 +48,7 @@ export class ServicesService {
       });
     }
 
-    service.validateFacultyAndCourses();
-
-    return this.serviceRepository.save(service);
+    return await this.serviceRepository.save(service);
   }
 
   findAll(filters: ServiceFilterDto): Promise<Service[]> {
@@ -74,27 +73,46 @@ export class ServicesService {
 
   async update(
     id: number,
-    UpdateServiceDto: UpdateServiceDto,
+    updateServiceDto: UpdateServiceDto,
   ): Promise<Service> {
-    const { facultyId, courseId, ...serviceData } = UpdateServiceDto;
-    const service = await this.serviceRepository.findOneByOrFail({ id });
+    const { facultyId, courseId, ...serviceData } = updateServiceDto;
+
+    const service = await this.serviceRepository.findOneOrFail({
+      where: { id },
+      relations: ["faculty", "course"],
+    });
+
     this.serviceRepository.merge(service, serviceData);
 
+    if (facultyId && courseId) {
+      throw new BadRequestException(
+        "A service cannot be associated with both a faculty and a course.",
+      );
+    }
+
     if (facultyId !== undefined) {
-      service.faculty = await this.facultyRepository.findOneByOrFail({
-        id: facultyId,
-      });
-      service.course = null;
+      if (facultyId === null) {
+        service.faculty = null;
+      } else {
+        service.faculty = await this.facultyRepository.findOneByOrFail({
+          id: facultyId,
+        });
+        service.course = null;
+      }
     }
 
     if (courseId !== undefined) {
-      service.course = await this.courseRepository.findOneByOrFail({
-        id: courseId,
-      });
-      service.faculty = null;
+      if (courseId === null) {
+        service.course = null;
+      } else {
+        service.course = await this.courseRepository.findOneByOrFail({
+          id: courseId,
+        });
+        service.faculty = null;
+      }
     }
 
-    return this.serviceRepository.save(service);
+    return await this.serviceRepository.save(service);
   }
 
   async remove(id: number): Promise<Service> {

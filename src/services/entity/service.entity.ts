@@ -1,4 +1,6 @@
 import {
+  BeforeInsert,
+  BeforeUpdate,
   Column,
   Entity,
   JoinColumn,
@@ -9,6 +11,7 @@ import {
 import { Course } from "@/courses/entities/course.entity";
 import { Faculty } from "@/faculties/entities/faculty.entity";
 import { Schedule } from "./schedule.entity";
+import { BadRequestException } from "@nestjs/common";
 
 @Entity()
 export class Service {
@@ -69,10 +72,21 @@ export class Service {
   @JoinColumn()
   course: Course | null;
 
+  @BeforeInsert()
+  @BeforeUpdate()
   validateFacultyAndCourses(): void {
-    if (this.faculty && this.course) {
-      throw new Error(
-        "Service cannot have both faculty and courses assigned. Please choose either a faculty or courses, not both.",
+    const hasFaculty = !!this.faculty;
+    const hasCourse = !!this.course;
+
+    if (hasFaculty && hasCourse) {
+      throw new BadRequestException(
+        "Exactly one of [faculty, course] must be provided, not both.",
+      );
+    }
+
+    if (!hasFaculty && !hasCourse) {
+      throw new BadRequestException(
+        "Exactly one of [faculty, course] must be provided, not neither.",
       );
     }
   }
