@@ -117,7 +117,7 @@ describe("ServicesService", () => {
       expect(result).toEqual(services);
       expect(mockServiceRepository.find).toHaveBeenCalledWith({
         where: {},
-        relations: ["faculty", "course"],
+        relations: ["schedule", "faculty", "course"],
       });
     });
 
@@ -132,7 +132,7 @@ describe("ServicesService", () => {
         where: {
           faculty: { id: 1 },
         },
-        relations: ["faculty", "course"],
+        relations: ["schedule", "faculty", "course"],
       });
     });
 
@@ -147,7 +147,7 @@ describe("ServicesService", () => {
         where: {
           course: { id: 2 },
         },
-        relations: ["faculty", "course"],
+        relations: ["schedule", "faculty", "course"],
       });
     });
 
@@ -163,7 +163,7 @@ describe("ServicesService", () => {
           faculty: { id: 1 },
           course: { id: 2 },
         },
-        relations: ["faculty", "course"],
+        relations: ["schedule", "faculty", "course"],
       });
     });
   });
@@ -177,7 +177,7 @@ describe("ServicesService", () => {
       expect(result).toEqual(mockService);
       expect(mockServiceRepository.findOneOrFail).toHaveBeenCalledWith({
         where: { id: 1 },
-        relations: ["faculty", "course"],
+        relations: ["schedule", "faculty", "course"],
       });
     });
 

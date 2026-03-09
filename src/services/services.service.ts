@@ -59,14 +59,14 @@ export class ServicesService {
         ...(facultyId && { faculty: { id: facultyId } }),
         ...(courseId && { course: { id: courseId } }),
       },
-      relations: ["faculty", "course"],
+      relations: ["schedule", "faculty", "course"],
     });
   }
 
   async findOne(id: number): Promise<Service> {
     const service = await this.serviceRepository.findOneOrFail({
       where: { id },
-      relations: ["faculty", "course"],
+      relations: ["schedule", "faculty", "course"],
     });
     return service;
   }
