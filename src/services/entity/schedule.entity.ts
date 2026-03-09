@@ -1,10 +1,5 @@
 import { Exclude, Type } from "class-transformer";
-import {
-  IsEnum,
-  IsMilitaryTime,
-  IsNotEmpty,
-  IsString,
-} from "class-validator";
+import { IsEnum, IsMilitaryTime, IsNotEmpty, IsString } from "class-validator";
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Service } from "./service.entity";
 
