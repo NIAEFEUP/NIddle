@@ -1,5 +1,11 @@
 import { Type } from "class-transformer";
-import { IsEmail, IsNotEmpty, IsOptional, IsString } from "class-validator";
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  ValidateNested,
+} from "class-validator";
 import { Schedule } from "@/services/entity/schedule.entity";
 
 export class CreateServiceDto {
@@ -33,6 +39,7 @@ export class CreateServiceDto {
    * @example []
    */
   @IsNotEmpty()
+  @ValidateNested({ each: true })
   @Type(() => Schedule)
   schedule: Schedule[];
 

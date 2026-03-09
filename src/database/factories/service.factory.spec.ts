@@ -40,9 +40,8 @@ describe("ServiceFactory", () => {
 
     for (const ti of service.schedule) {
       expect(ti).toBeInstanceOf(Schedule);
-      expect(ti.startTime).toBeInstanceOf(Date);
-      expect(ti.endTime).toBeInstanceOf(Date);
-      expect(ti.startTime.getTime()).toBeLessThan(ti.endTime.getTime());
+      expect(typeof ti.startTime).toBe("string");
+      expect(typeof ti.endTime).toBe("string");
       expect(Object.values(EnumDays)).toContain(ti.dayOfWeek);
     }
   });

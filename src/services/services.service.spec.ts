@@ -44,8 +44,8 @@ describe("ServicesService", () => {
 
   const mockTimeInterval: Schedule = {
     id: 1,
-    startTime: new Date("1970-01-01T09:00:00Z"),
-    endTime: new Date("1970-01-01T17:00:00Z"),
+    startTime: "09:00",
+    endTime: "17:00",
     dayOfWeek: EnumDays.MONDAY,
     service: mockService,
   };

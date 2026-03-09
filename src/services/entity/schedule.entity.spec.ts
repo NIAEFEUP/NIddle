@@ -5,8 +5,8 @@ describe("Schedule Entity", () => {
   it("should create a schedule instance and allow assigning properties", () => {
     const schedule = new Schedule();
     const service = new Service();
-    const startTime = new Date();
-    const endTime = new Date();
+    const startTime = "09:00";
+    const endTime = "17:00";
 
     schedule.id = 1;
     schedule.startTime = startTime;
