@@ -41,8 +41,8 @@ export class Service {
    * @example 'B-142'
    */
 
-  @Column()
-  location: string;
+  @Column({ nullable: true })
+  location?: string;
 
   /**
    * The service's phone number.
@@ -62,7 +62,7 @@ export class Service {
       cascade: true,
     },
   )
-  schedule: Schedule[];
+  schedule?: Schedule[];
 
   @ManyToOne(() => Faculty, { cascade: true, nullable: true })
   @JoinColumn()
