@@ -36,9 +36,9 @@ describe("ServiceFactory", () => {
     expect(service.location).toBeTruthy();
     // schedule exists
     expect(Array.isArray(service.schedule)).toBe(true);
-    expect(service.schedule!.length).toBeGreaterThanOrEqual(1);
+    expect(service.schedule?.length).toBeGreaterThanOrEqual(1);
 
-    for (const ti of service.schedule!) {
+    for (const ti of service.schedule ?? []) {
       expect(ti).toBeInstanceOf(Schedule);
       expect(typeof ti.startTime).toBe("string");
       expect(typeof ti.endTime).toBe("string");

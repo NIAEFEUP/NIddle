@@ -1,7 +1,7 @@
+import { instanceToPlain, plainToInstance } from "class-transformer";
+import { getMetadataArgsStorage } from "typeorm";
 import { EnumDays, Schedule } from "./schedule.entity";
 import { Service } from "./service.entity";
-import { getMetadataArgsStorage } from "typeorm";
-import { instanceToPlain, plainToInstance } from "class-transformer";
 
 describe("Schedule Entity", () => {
   it("should create a schedule instance and allow assigning properties", () => {
@@ -58,5 +58,3 @@ describe("Schedule Entity", () => {
     expect(scheduleWithService.service.name).toBe("Test Service");
   });
 });
-
-
