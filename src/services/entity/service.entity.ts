@@ -64,11 +64,11 @@ export class Service {
   )
   schedule?: Schedule[];
 
-  @ManyToOne(() => Faculty, { cascade: true, nullable: true })
+  @ManyToOne(() => Faculty, { nullable: true })
   @JoinColumn()
   faculty: Faculty | null;
 
-  @ManyToOne(() => Course, { cascade: true, nullable: true })
+  @ManyToOne(() => Course, { nullable: true })
   @JoinColumn()
   course: Course | null;
 
