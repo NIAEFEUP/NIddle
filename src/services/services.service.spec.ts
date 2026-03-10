@@ -467,12 +467,18 @@ describe("ServicesService", () => {
       await expect(service.update(1, updateDto)).rejects.toThrow("Save failed");
     });
 
-    it("should allow setting facultyId to null", async () => {
+    it("should allow setting facultyId to null if course is present", async () => {
       const updateDto: UpdateServiceDto = {
         facultyId: null as any,
       };
 
-      mockServiceRepository.findOneOrFail.mockResolvedValue({ ...mockService });
+      const serviceWithBoth = {
+        ...mockService,
+        faculty: mockFaculty,
+        course: mockCourse,
+      };
+
+      mockServiceRepository.findOneOrFail.mockResolvedValue(serviceWithBoth);
       mockServiceRepository.merge.mockImplementation((s, d) =>
         Object.assign(s, d),
       );
@@ -481,6 +487,7 @@ describe("ServicesService", () => {
       const result = await service.update(1, updateDto);
 
       expect(result.faculty).toBeNull();
+      expect(result.course).toEqual(mockCourse);
     });
 
     it("should allow setting courseId to null", async () => {
@@ -497,6 +504,29 @@ describe("ServicesService", () => {
       const result = await service.update(1, updateDto);
 
       expect(result.course).toBeNull();
+    });
+
+    it("should throw when neither faculty nor course is provided after update", async () => {
+      const updateDto: UpdateServiceDto = {
+        facultyId: null as any,
+      };
+
+      const serviceWithoutCourse = {
+        ...mockService,
+        faculty: mockFaculty,
+        course: null,
+      };
+
+      mockServiceRepository.findOneOrFail.mockResolvedValue(
+        serviceWithoutCourse,
+      );
+      mockServiceRepository.merge.mockImplementation((s, d) =>
+        Object.assign(s, d),
+      );
+
+      await expect(service.update(1, updateDto)).rejects.toThrow(
+        BadRequestException,
+      );
     });
   });
 

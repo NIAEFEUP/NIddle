@@ -53,7 +53,7 @@ export class Service {
 
   /**
    * The service's schedule.
-   * @example null
+   * @example []
    */
   @OneToMany(
     () => Schedule,

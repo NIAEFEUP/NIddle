@@ -1,6 +1,7 @@
 import { Type } from "class-transformer";
 import {
   IsEmail,
+  IsInt,
   IsNotEmpty,
   IsOptional,
   IsString,
@@ -55,6 +56,7 @@ export class CreateServiceDto {
    * The faculty ID this service belongs to.
    * @example 1
    */
+  @IsInt()
   @IsOptional()
   @Type(() => Number)
   facultyId?: number;
@@ -63,6 +65,7 @@ export class CreateServiceDto {
    * The course ID associated with this service.
    * @example 1
    */
+  @IsInt()
   @IsOptional()
   @Type(() => Number)
   courseId?: number;
