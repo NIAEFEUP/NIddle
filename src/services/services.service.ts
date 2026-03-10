@@ -112,6 +112,11 @@ export class ServicesService {
       }
     }
 
+    if (!service.faculty && !service.course) {
+      throw new BadRequestException(
+        "A service must be associated with either a faculty or a course.",
+      );
+    }
     return await this.serviceRepository.save(service);
   }
 
