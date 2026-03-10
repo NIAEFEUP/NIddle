@@ -60,7 +60,7 @@ export class CreateServiceDto {
   facultyId?: number;
 
   /**
-   * The course IDs associated with this service.
+   * The course ID associated with this service.
    * @example 1
    */
   @IsOptional()
