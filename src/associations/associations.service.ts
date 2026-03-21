@@ -12,8 +12,11 @@ export class AssociationsService {
     private associationRepository: Repository<Association>,
   ) {}
 
-  create(createAssociationDto: CreateAssociationDto) {
-    return this.associationRepository.save(createAssociationDto);
+  create(createAssociationDto: CreateAssociationDto): Promise<Association> {
+    const association = this.associationRepository.create(
+      createAssociationDto as Partial<Association>,
+    );
+    return this.associationRepository.save(association);
   }
 
   // Feature #50: Filter associations by Faculty ID
