@@ -9,6 +9,7 @@ describe("AssociationsService", () => {
   let associationRepository: {
     find: jest.Mock;
     findOne: jest.Mock;
+    create: jest.Mock;
     save: jest.Mock;
     update: jest.Mock;
     delete: jest.Mock;
@@ -18,6 +19,7 @@ describe("AssociationsService", () => {
     associationRepository = {
       find: jest.fn(),
       findOne: jest.fn(),
+      create: jest.fn(),
       save: jest.fn(),
       update: jest.fn(),
       delete: jest.fn(),
@@ -42,10 +44,12 @@ describe("AssociationsService", () => {
 
   it("creates an association", async () => {
     const createDto = { name: "Chess Club" } as Association;
+    associationRepository.create.mockReturnValue(createDto);
     associationRepository.save.mockResolvedValue(createDto);
 
     const result = await service.create(createDto);
 
+    expect(associationRepository.create).toHaveBeenCalledWith(createDto);
     expect(associationRepository.save).toHaveBeenCalledWith(createDto);
     expect(result).toBe(createDto);
   });
