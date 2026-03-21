@@ -29,6 +29,26 @@ jobs:
     name: Test and Collect Coverage
     runs-on: ubuntu-latest
     needs: [lint-and-format]
+    env:
+      DATABASE_HOST: localhost
+      DATABASE_PORT: 5432
+      DATABASE_USER: niddle
+      DATABASE_PASSWORD: niddle
+      DATABASE_NAME: niddle_db
+    services:
+      postgres:
+        image: postgres:13
+        env:
+          POSTGRES_USER: niddle
+          POSTGRES_PASSWORD: niddle
+          POSTGRES_DB: niddle_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     strategy:
       matrix:
         node-version: [22.x]
