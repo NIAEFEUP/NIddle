@@ -55,5 +55,5 @@ export class Course {
     () => Association,
     (association) => association.course,
   )
-  association: Association;
+  association?: Association | null;
 }
