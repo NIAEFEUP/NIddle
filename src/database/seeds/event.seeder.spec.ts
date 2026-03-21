@@ -17,6 +17,7 @@ describe("EventSeeder", () => {
       acronym: "FEUP",
       courses: [],
       events: [],
+      associations: [],
     },
     {
       id: 2,
@@ -24,6 +25,7 @@ describe("EventSeeder", () => {
       acronym: "FCUP",
       courses: [],
       events: [],
+      associations: [],
     },
   ];
 
@@ -34,6 +36,7 @@ describe("EventSeeder", () => {
       acronym: "CS",
       faculties: [],
       events: [],
+      association: {} as any,
     },
     {
       id: 2,
@@ -41,6 +44,7 @@ describe("EventSeeder", () => {
       acronym: "ENG",
       faculties: [],
       events: [],
+      association: {} as any,
     },
   ];
 
