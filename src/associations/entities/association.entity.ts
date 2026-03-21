@@ -6,8 +6,8 @@ import {
   JoinColumn,
   ManyToOne,
 } from 'typeorm';
-import { User } from '../../users/user.entity';
-import { Faculty } from '../../faculties/faculty.entity';
+import { User } from '../../users/entities/user.entity';
+import { Faculty } from '../../faculties/entities/faculty.entity';
 
 @Entity()
 export class Association {
@@ -23,7 +23,7 @@ export class Association {
   user: User;
 
   // Feature #46: An Association belongs to a Faculty
-  @ManyToOne(() => Faculty, (faculty) => faculty.associations, {
+  @ManyToOne(() => Faculty, {
     onDelete: 'CASCADE',
   })
   faculty: Faculty;
