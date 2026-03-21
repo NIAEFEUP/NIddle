@@ -1,4 +1,10 @@
-import { Column, Entity, ManyToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import {
+  Column,
+  Entity,
+  ManyToMany,
+  OneToOne,
+  PrimaryGeneratedColumn,
+} from "typeorm";
 import { Association } from "@/associations/entities/association.entity";
 import { Event } from "@/events/entities/event.entity";
 import { Faculty } from "@/faculties/entities/faculty.entity";

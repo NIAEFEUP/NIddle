@@ -73,15 +73,23 @@ export class Service {
   @JoinColumn()
   course: Course | null;
 
-  @ManyToOne(() => Association, (association) => association.ownerServices, {
-    nullable: true,
-  })
+  @ManyToOne(
+    () => Association,
+    (association) => association.ownerServices,
+    {
+      nullable: true,
+    },
+  )
   @JoinColumn()
   ownedAssociation: Association | null;
 
-  @ManyToOne(() => Association, (association) => association.managerServices, {
-    nullable: true,
-  })
+  @ManyToOne(
+    () => Association,
+    (association) => association.managerServices,
+    {
+      nullable: true,
+    },
+  )
   @JoinColumn()
   managedAssociation: Association | null;
 

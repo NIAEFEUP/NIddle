@@ -1,17 +1,17 @@
 import {
-  Entity,
-  PrimaryGeneratedColumn,
   Column,
-  OneToOne,
+  Entity,
   JoinColumn,
   ManyToOne,
   OneToMany,
-} from 'typeorm';
-import { Course } from '../../courses/entities/course.entity';
-import { Event } from '../../events/entities/event.entity';
-import { Service } from '../../services/entity/service.entity';
-import { User } from '../../users/entities/user.entity';
-import { Faculty } from '../../faculties/entities/faculty.entity';
+  OneToOne,
+  PrimaryGeneratedColumn,
+} from "typeorm";
+import { Course } from "@/courses/entities/course.entity";
+import { Event } from "@/events/entities/event.entity";
+import { Faculty } from "@/faculties/entities/faculty.entity";
+import { Service } from "@/services/entity/service.entity";
+import { User } from "@/users/entities/user.entity";
 
 @Entity()
 export class Association {
@@ -22,26 +22,39 @@ export class Association {
   name: string;
 
   // Feature #46: An Association is a type of User (has login credentials)
-  @OneToOne(() => User, { cascade: true, onDelete: 'CASCADE' })
+  @OneToOne(() => User, { cascade: true, onDelete: "CASCADE" })
   @JoinColumn()
   user: User;
 
-  @OneToOne(() => Course, (course) => course.association, { nullable: true })
+  @OneToOne(
+    () => Course,
+    (course) => course.association,
+    { nullable: true },
+  )
   @JoinColumn()
   course?: Course | null;
 
-  @OneToMany(() => Event, (event) => event.association)
+  @OneToMany(
+    () => Event,
+    (event) => event.association,
+  )
   events: Event[];
 
-  @OneToMany(() => Service, (service) => service.ownedAssociation)
+  @OneToMany(
+    () => Service,
+    (service) => service.ownedAssociation,
+  )
   ownerServices: Service[];
 
-  @OneToMany(() => Service, (service) => service.managedAssociation)
+  @OneToMany(
+    () => Service,
+    (service) => service.managedAssociation,
+  )
   managerServices: Service[];
 
   // Feature #46: An Association belongs to a Faculty
   @ManyToOne(() => Faculty, {
-    onDelete: 'CASCADE',
+    onDelete: "CASCADE",
   })
   faculty: Faculty;
 }

@@ -1,20 +1,20 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
   Query,
-} from '@nestjs/common';
-import { AssociationsService } from './associations.service';
-import { CreateAssociationDto } from './dto/create-association.dto';
-import { UpdateAssociationDto } from './dto/update-association.dto';
-import { ApiQuery, ApiTags } from '@nestjs/swagger';
+} from "@nestjs/common";
+import { ApiQuery, ApiTags } from "@nestjs/swagger";
+import { AssociationsService } from "./associations.service";
+import { CreateAssociationDto } from "./dto/create-association.dto";
+import { UpdateAssociationDto } from "./dto/update-association.dto";
 
-ApiTags('associations');
-@Controller('associations')
+ApiTags("associations");
+@Controller("associations")
 export class AssociationsController {
   constructor(private readonly associationsService: AssociationsService) {}
 
@@ -24,27 +24,27 @@ export class AssociationsController {
   }
 
   // Feature #50: GET /associations?facultyId=1
-  @ApiQuery({ name: 'facultyId', required: false, type: Number })
+  @ApiQuery({ name: "facultyId", required: false, type: Number })
   @Get()
-  findAll(@Query('facultyId') facultyId?: string) {
+  findAll(@Query("facultyId") facultyId?: string) {
     return this.associationsService.findAll(facultyId ? +facultyId : undefined);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
+  @Get(":id")
+  findOne(@Param("id") id: string) {
     return this.associationsService.findOne(+id);
   }
 
-  @Patch(':id')
+  @Patch(":id")
   update(
-    @Param('id') id: string,
+    @Param("id") id: string,
     @Body() updateAssociationDto: UpdateAssociationDto,
   ) {
     return this.associationsService.update(+id, updateAssociationDto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
+  @Delete(":id")
+  remove(@Param("id") id: string) {
     return this.associationsService.remove(+id);
   }
 }
