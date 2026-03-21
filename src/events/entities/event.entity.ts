@@ -1,11 +1,13 @@
 import {
   Column,
   Entity,
+  JoinColumn,
   JoinTable,
   ManyToMany,
   ManyToOne,
   PrimaryGeneratedColumn,
 } from "typeorm";
+import { Association } from "@/associations/entities/association.entity";
 import { Course } from "@/courses/entities/course.entity";
 import { Faculty } from "@/faculties/entities/faculty.entity";
 
@@ -68,6 +70,14 @@ export class Event {
     { nullable: true },
   )
   faculty?: Faculty;
+
+  @ManyToOne(
+    () => Association,
+    (association) => association.events,
+    { nullable: true },
+  )
+  @JoinColumn()
+  association?: Association | null;
 
   /**
    * The courses associated with the event.
