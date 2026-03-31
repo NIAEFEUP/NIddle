@@ -42,10 +42,10 @@ export class Association {
   @OneToOne(
     () => Course,
     (course) => course.association,
-    { nullable: true },
+    { nullable: true, onDelete: "SET NULL" },
   )
   @JoinColumn()
-  course?: Course | null;
+  course: Course | null;
 
   /**
    * The events organized by this association.

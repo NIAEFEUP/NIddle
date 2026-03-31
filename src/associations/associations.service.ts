@@ -38,7 +38,7 @@ export class AssociationsService {
       id: userId,
     });
 
-    if (courseId !== undefined && courseId !== null) {
+    if (courseId !== undefined) {
       association.course = await this.courseRepository.findOneByOrFail({
         id: courseId,
       });
@@ -62,7 +62,7 @@ export class AssociationsService {
   findOne(id: number): Promise<Association> {
     return this.associationRepository.findOneOrFail({
       where: { id },
-      relations: ["faculty", "user"],
+      relations: ["faculty", "user", "course"],
     });
   }
 

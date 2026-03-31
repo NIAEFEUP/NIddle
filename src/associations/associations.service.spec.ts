@@ -255,7 +255,7 @@ describe("AssociationsService", () => {
       expect(result).toEqual(mockAssociation);
       expect(mockAssociationRepository.findOneOrFail).toHaveBeenCalledWith({
         where: { id: 1 },
-        relations: ["faculty", "user"],
+        relations: ["faculty", "user", "course"],
       });
     });
 
