@@ -4,6 +4,7 @@ import { Course } from "@/courses/entities/course.entity";
 import { Faculty } from "@/faculties/entities/faculty.entity";
 import { User } from "@/users/entities/user.entity";
 import { AssociationsService } from "./associations.service";
+import { AssociationFilterDto } from "./dto/association-filter.dto";
 import { CreateAssociationDto } from "./dto/create-association.dto";
 import { UpdateAssociationDto } from "./dto/update-association.dto";
 import { Association } from "./entities/association.entity";
@@ -188,21 +189,24 @@ describe("AssociationsService", () => {
   describe("findAll", () => {
     it("should return all associations without faculty filter", async () => {
       const associations = [mockAssociation];
+      const filters: AssociationFilterDto = {};
       mockAssociationRepository.find.mockResolvedValue(associations);
 
-      const result = await service.findAll();
+      const result = await service.findAll(filters);
 
       expect(result).toEqual(associations);
       expect(mockAssociationRepository.find).toHaveBeenCalledWith({
+        where: {},
         relations: ["faculty", "user"],
       });
     });
 
     it("should return associations filtered by faculty", async () => {
       const associations = [mockAssociation];
+      const filters: AssociationFilterDto = { facultyId: 1 };
       mockAssociationRepository.find.mockResolvedValue(associations);
 
-      const result = await service.findAll(1);
+      const result = await service.findAll(filters);
 
       expect(result).toEqual(associations);
       expect(mockAssociationRepository.find).toHaveBeenCalledWith({

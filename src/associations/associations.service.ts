@@ -4,6 +4,7 @@ import { Repository } from "typeorm";
 import { Course } from "@/courses/entities/course.entity";
 import { Faculty } from "@/faculties/entities/faculty.entity";
 import { User } from "@/users/entities/user.entity";
+import { AssociationFilterDto } from "./dto/association-filter.dto";
 import { CreateAssociationDto } from "./dto/create-association.dto";
 import { UpdateAssociationDto } from "./dto/update-association.dto";
 import { Association } from "./entities/association.entity";
@@ -46,14 +47,13 @@ export class AssociationsService {
     return this.associationRepository.save(association);
   }
 
-  findAll(facultyId?: number): Promise<Association[]> {
-    if (facultyId) {
-      return this.associationRepository.find({
-        where: { faculty: { id: facultyId } },
-        relations: ["faculty", "user"],
-      });
-    }
+  findAll(filters: AssociationFilterDto): Promise<Association[]> {
+    const { facultyId } = filters;
+
     return this.associationRepository.find({
+      where: {
+        ...(facultyId && { faculty: { id: facultyId } }),
+      },
       relations: ["faculty", "user"],
     });
   }

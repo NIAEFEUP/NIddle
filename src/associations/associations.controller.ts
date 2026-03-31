@@ -14,12 +14,12 @@ import {
 import {
   ApiBearerAuth,
   ApiOperation,
-  ApiQuery,
   ApiResponse,
   ApiTags,
 } from "@nestjs/swagger";
 import { JwtAuthGuard } from "@/auth/guards/jwt-auth.guard";
 import { AssociationsService } from "./associations.service";
+import { AssociationFilterDto } from "./dto/association-filter.dto";
 import { CreateAssociationDto } from "./dto/create-association.dto";
 import { UpdateAssociationDto } from "./dto/update-association.dto";
 import { Association } from "./entities/association.entity";
@@ -31,10 +31,9 @@ export class AssociationsController {
 
   @ApiOperation({ summary: "Get all associations" })
   @ApiResponse({ status: 200, description: "List of associations returned." })
-  @ApiQuery({ name: "facultyId", required: false, type: Number })
   @Get()
-  findAll(@Query("facultyId") facultyId?: string): Promise<Association[]> {
-    return this.associationsService.findAll(facultyId ? +facultyId : undefined);
+  findAll(@Query() filters: AssociationFilterDto): Promise<Association[]> {
+    return this.associationsService.findAll(filters);
   }
 
   @ApiOperation({ summary: "Get association by ID" })
