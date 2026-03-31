@@ -1,6 +1,7 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { AssociationsController } from "./associations.controller";
 import { AssociationsService } from "./associations.service";
+import { CreateAssociationDto } from "./dto/create-association.dto";
 import { UpdateAssociationDto } from "./dto/update-association.dto";
 
 describe("AssociationsController", () => {
@@ -40,7 +41,11 @@ describe("AssociationsController", () => {
   });
 
   it("creates an association", async () => {
-    const createDto = { name: "Chess Club" };
+    const createDto: CreateAssociationDto = {
+      name: "Chess Club",
+      facultyId: 1,
+      userId: 1,
+    };
     const expected = { id: 1, ...createDto };
     service.create.mockResolvedValue(expected);
 
@@ -82,7 +87,7 @@ describe("AssociationsController", () => {
 
   it("updates an association", async () => {
     const updateDto: UpdateAssociationDto = { name: "Drama Club" };
-    const expected = { affected: 1 };
+    const expected = { id: 3, name: "Drama Club" };
     service.update.mockResolvedValue(expected);
 
     const result = await controller.update("3", updateDto);
@@ -92,7 +97,7 @@ describe("AssociationsController", () => {
   });
 
   it("removes an association", async () => {
-    const expected = { affected: 1 };
+    const expected = { id: 3, name: "Drama" };
     service.remove.mockResolvedValue(expected);
 
     const result = await controller.remove("3");
