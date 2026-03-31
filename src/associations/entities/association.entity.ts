@@ -21,7 +21,6 @@ export class Association {
   @Column()
   name: string;
 
-  // Feature #46: An Association is a type of User (has login credentials)
   @OneToOne(() => User, { cascade: true, onDelete: "CASCADE" })
   @JoinColumn()
   user: User;
@@ -52,7 +51,6 @@ export class Association {
   )
   managerServices: Service[];
 
-  // Feature #46: An Association belongs to a Faculty
   @ManyToOne(() => Faculty, {
     onDelete: "CASCADE",
   })

@@ -19,7 +19,6 @@ export class AssociationsService {
     return this.associationRepository.save(association);
   }
 
-  // Feature #50: Filter associations by Faculty ID
   findAll(facultyId?: number) {
     if (facultyId) {
       return this.associationRepository.find({

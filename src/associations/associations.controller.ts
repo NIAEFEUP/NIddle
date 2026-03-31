@@ -36,7 +36,6 @@ export class AssociationsController {
     return this.associationsService.create(createAssociationDto);
   }
 
-  // Feature #50: GET /associations?facultyId=1
   @ApiQuery({ name: "facultyId", required: false, type: Number })
   @Get()
   findAll(@Query("facultyId") facultyId?: string) {
