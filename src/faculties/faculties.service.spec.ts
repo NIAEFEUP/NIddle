@@ -25,7 +25,7 @@ describe("FacultiesService", () => {
     acronym: "CS",
     faculties: [],
     events: [],
-    association: {} as any,
+    association: null,
   };
 
   const mockFacultyRepository = {

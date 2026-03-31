@@ -36,7 +36,7 @@ describe("EventSeeder", () => {
       acronym: "CS",
       faculties: [],
       events: [],
-      association: {} as any,
+      association: null,
     },
     {
       id: 2,
@@ -44,7 +44,7 @@ describe("EventSeeder", () => {
       acronym: "ENG",
       faculties: [],
       events: [],
-      association: {} as any,
+      association: null,
     },
   ];
 
