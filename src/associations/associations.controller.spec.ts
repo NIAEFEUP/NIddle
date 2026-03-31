@@ -79,7 +79,7 @@ describe("AssociationsController", () => {
     const expected = { id: 3, name: "Drama" };
     service.findOne.mockResolvedValue(expected);
 
-    const result = await controller.findOne("3");
+    const result = await controller.findOne(3);
 
     expect(service.findOne).toHaveBeenCalledWith(3);
     expect(result).toBe(expected);
@@ -90,7 +90,7 @@ describe("AssociationsController", () => {
     const expected = { id: 3, name: "Drama Club" };
     service.update.mockResolvedValue(expected);
 
-    const result = await controller.update("3", updateDto);
+    const result = await controller.update(3, updateDto);
 
     expect(service.update).toHaveBeenCalledWith(3, updateDto);
     expect(result).toBe(expected);
@@ -100,7 +100,7 @@ describe("AssociationsController", () => {
     const expected = { id: 3, name: "Drama" };
     service.remove.mockResolvedValue(expected);
 
-    const result = await controller.remove("3");
+    const result = await controller.remove(3);
 
     expect(service.remove).toHaveBeenCalledWith(3);
     expect(result).toBe(expected);
