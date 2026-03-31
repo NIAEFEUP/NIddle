@@ -9,4 +9,12 @@ export class AssociationFilterDto {
   @IsOptional()
   @Type(() => Number)
   facultyId?: number;
+
+  /**
+   * The course ID to filter associations by.
+   * @example 1
+   */
+  @IsOptional()
+  @Type(() => Number)
+  courseId?: number;
 }

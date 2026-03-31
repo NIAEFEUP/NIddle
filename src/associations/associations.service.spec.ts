@@ -187,7 +187,7 @@ describe("AssociationsService", () => {
   });
 
   describe("findAll", () => {
-    it("should return all associations without faculty filter", async () => {
+    it("should return all associations without filters", async () => {
       const associations = [mockAssociation];
       const filters: AssociationFilterDto = {};
       mockAssociationRepository.find.mockResolvedValue(associations);
@@ -197,7 +197,7 @@ describe("AssociationsService", () => {
       expect(result).toEqual(associations);
       expect(mockAssociationRepository.find).toHaveBeenCalledWith({
         where: {},
-        relations: ["faculty", "user"],
+        relations: ["faculty", "user", "course"],
       });
     });
 
@@ -211,7 +211,35 @@ describe("AssociationsService", () => {
       expect(result).toEqual(associations);
       expect(mockAssociationRepository.find).toHaveBeenCalledWith({
         where: { faculty: { id: 1 } },
-        relations: ["faculty", "user"],
+        relations: ["faculty", "user", "course"],
+      });
+    });
+
+    it("should return associations filtered by course", async () => {
+      const associations = [mockAssociation];
+      const filters: AssociationFilterDto = { courseId: 2 };
+      mockAssociationRepository.find.mockResolvedValue(associations);
+
+      const result = await service.findAll(filters);
+
+      expect(result).toEqual(associations);
+      expect(mockAssociationRepository.find).toHaveBeenCalledWith({
+        where: { course: { id: 2 } },
+        relations: ["faculty", "user", "course"],
+      });
+    });
+
+    it("should return associations filtered by both faculty and course", async () => {
+      const associations = [mockAssociation];
+      const filters: AssociationFilterDto = { facultyId: 1, courseId: 2 };
+      mockAssociationRepository.find.mockResolvedValue(associations);
+
+      const result = await service.findAll(filters);
+
+      expect(result).toEqual(associations);
+      expect(mockAssociationRepository.find).toHaveBeenCalledWith({
+        where: { faculty: { id: 1 }, course: { id: 2 } },
+        relations: ["faculty", "user", "course"],
       });
     });
   });

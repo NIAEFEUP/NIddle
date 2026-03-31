@@ -26,7 +26,7 @@ export class CreateAssociationDto {
   userId: number;
 
   /**
-   * The course ID associated with this association (optional, can be null to clear).
+   * The course ID associated with this association (optional).
    * @example 3
    */
   @IsInt()

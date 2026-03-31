@@ -48,13 +48,14 @@ export class AssociationsService {
   }
 
   findAll(filters: AssociationFilterDto): Promise<Association[]> {
-    const { facultyId } = filters;
+    const { facultyId, courseId } = filters;
 
     return this.associationRepository.find({
       where: {
         ...(facultyId && { faculty: { id: facultyId } }),
+        ...(courseId && { course: { id: courseId } }),
       },
-      relations: ["faculty", "user"],
+      relations: ["faculty", "user", "course"],
     });
   }
 
@@ -92,9 +93,13 @@ export class AssociationsService {
     }
 
     if (courseId !== undefined) {
-      association.course = await this.courseRepository.findOneByOrFail({
-        id: courseId,
-      });
+      if (courseId === null) {
+        association.course = null;
+      } else {
+        association.course = await this.courseRepository.findOneByOrFail({
+          id: courseId,
+        });
+      }
     }
 
     return this.associationRepository.save(association);

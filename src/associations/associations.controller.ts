@@ -11,12 +11,7 @@ import {
   UseGuards,
   ValidationPipe,
 } from "@nestjs/common";
-import {
-  ApiBearerAuth,
-  ApiOperation,
-  ApiResponse,
-  ApiTags,
-} from "@nestjs/swagger";
+import { ApiBearerAuth, ApiOperation, ApiResponse } from "@nestjs/swagger";
 import { JwtAuthGuard } from "@/auth/guards/jwt-auth.guard";
 import { AssociationsService } from "./associations.service";
 import { AssociationFilterDto } from "./dto/association-filter.dto";
@@ -24,7 +19,6 @@ import { CreateAssociationDto } from "./dto/create-association.dto";
 import { UpdateAssociationDto } from "./dto/update-association.dto";
 import { Association } from "./entities/association.entity";
 
-@ApiTags("associations")
 @Controller("associations")
 export class AssociationsController {
   constructor(private readonly associationsService: AssociationsService) {}
