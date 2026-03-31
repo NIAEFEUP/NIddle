@@ -1,5 +1,6 @@
 import {
   Body,
+  ClassSerializerInterceptor,
   Controller,
   Delete,
   Get,
@@ -9,6 +10,7 @@ import {
   Post,
   Query,
   UseGuards,
+  UseInterceptors,
   ValidationPipe,
 } from "@nestjs/common";
 import { ApiBearerAuth, ApiOperation, ApiResponse } from "@nestjs/swagger";
@@ -23,6 +25,7 @@ import { Association } from "./entities/association.entity";
 export class AssociationsController {
   constructor(private readonly associationsService: AssociationsService) {}
 
+  @UseInterceptors(ClassSerializerInterceptor)
   @ApiOperation({ summary: "Get all associations" })
   @ApiResponse({ status: 200, description: "List of associations returned." })
   @Get()
@@ -30,6 +33,7 @@ export class AssociationsController {
     return this.associationsService.findAll(filters);
   }
 
+  @UseInterceptors(ClassSerializerInterceptor)
   @ApiOperation({ summary: "Get association by ID" })
   @ApiResponse({ status: 200, description: "Association found." })
   @ApiResponse({ status: 404, description: "Association not found." })
