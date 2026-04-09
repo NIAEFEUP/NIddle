@@ -1,5 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { TypeOrmModuleOptions, TypeOrmOptionsFactory } from "@nestjs/typeorm";
+import { getDatabaseSynchronize } from "./synchronize";
 
 @Injectable()
 export class DatabaseService implements TypeOrmOptionsFactory {
@@ -15,8 +16,6 @@ export class DatabaseService implements TypeOrmOptionsFactory {
       };
     }
 
-    const isProd = process.env.NODE_ENV === "production";
-
     return {
       type: "postgres",
       host: process.env.DATABASE_HOST || "localhost",
@@ -25,7 +24,7 @@ export class DatabaseService implements TypeOrmOptionsFactory {
       password: process.env.DATABASE_PASSWORD || "niddle",
       database: process.env.DATABASE_NAME || "niddle_db",
       autoLoadEntities: true,
-      synchronize: !isProd,
+      synchronize: getDatabaseSynchronize(),
     };
   }
 }
