@@ -2,6 +2,8 @@ import { DataSource, DataSourceOptions } from "typeorm";
 import { Course } from "@/courses/entities/course.entity";
 import { Event } from "@/events/entities/event.entity";
 import { Faculty } from "@/faculties/entities/faculty.entity";
+import { Schedule } from "@/services/entity/schedule.entity";
+import { Service } from "@/services/entity/service.entity";
 import { User } from "@/users/entities/user.entity";
 
 export const createSchema = async () => {
@@ -16,7 +18,7 @@ export const createSchema = async () => {
     database: process.env.DATABASE_NAME || "niddle_db",
     synchronize: !isProd,
     dropSchema: false,
-    entities: [Course, Faculty, User, Event],
+    entities: [Course, Faculty, User, Event, Service, Schedule],
   };
 
   const dataSource = new DataSource(options);
