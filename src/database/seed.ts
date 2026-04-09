@@ -17,6 +17,7 @@ export const seed = async () => {
     database: process.env.DATABASE_NAME || "niddle_db",
     synchronize: true,
     dropSchema: true,
+    schema: "public",
     entities: [Course, Faculty, User, Service, Schedule, Event],
     seeds: ["src/database/seeds/*.seeder.{ts,js}"],
     factories: ["src/database/factories/*.factory.{ts,js}"],

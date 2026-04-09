@@ -19,6 +19,7 @@ export const createSchema = async () => {
     database: process.env.DATABASE_NAME || "niddle_db",
     synchronize,
     dropSchema: false,
+    schema: "public",
     entities: [Course, Faculty, User, Event, Service, Schedule],
   };
 
