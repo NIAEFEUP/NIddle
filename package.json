@@ -25,13 +25,13 @@
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
-    "@nestjs/config": "^1.1.5",
+    "@nestjs/config": "^4.0.2",
     "@nestjs/core": "^11.0.1",
     "@nestjs/jwt": "^11.0.2",
     "@nestjs/mapped-types": "*",
     "@nestjs/passport": "^11.0.5",
     "@nestjs/platform-express": "^11.0.1",
-    "@nestjs/swagger": "^11.0.0",
+    "@nestjs/swagger": "^11.2.5",
     "@nestjs/typeorm": "^11.0.0",
     "@types/bcrypt": "^6.0.0",
     "bcrypt": "^6.0.0",
@@ -44,7 +44,7 @@
     "postgres": "^3.4.7",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
-    "typeorm": "^0.3.6",
+    "typeorm": "^0.3.27",
     "typeorm-extension": "^3.7.4"
   },
   "devDependencies": {
@@ -65,7 +65,7 @@
     "globals": "^17.3.0",
     "jest": "^30.1.1",
     "source-map-support": "^0.5.21",
-    "sqlite3": "^6.0.1",
+    "sqlite3": "^5.1.7",
     "supertest": "^7.2.2",
     "ts-jest": "^29.4.6",
     "ts-loader": "^9.5.4",

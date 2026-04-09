@@ -27,7 +27,7 @@ describe("createSchema", () => {
 
   it("should create schema and log success in development", async () => {
     process.env.NODE_ENV = "development";
-    const logSpy = jest.spyOn(console, "log").mockImplementation(() => { });
+    const logSpy = jest.spyOn(console, "log").mockImplementation(() => {});
     await createSchema();
     expect(DataSource).toHaveBeenCalled();
     expect(logSpy).toHaveBeenCalledWith(
@@ -38,7 +38,7 @@ describe("createSchema", () => {
 
   it("should log when schema sync is disabled in production", async () => {
     process.env.NODE_ENV = "production";
-    const logSpy = jest.spyOn(console, "log").mockImplementation(() => { });
+    const logSpy = jest.spyOn(console, "log").mockImplementation(() => {});
     await createSchema();
     expect(DataSource).toHaveBeenCalled();
     expect(logSpy).toHaveBeenCalledWith(
@@ -50,7 +50,7 @@ describe("createSchema", () => {
   it("should enable schema sync when override is set in production", async () => {
     process.env.NODE_ENV = "production";
     process.env.DATABASE_SYNCHRONIZE = "true";
-    const logSpy = jest.spyOn(console, "log").mockImplementation(() => { });
+    const logSpy = jest.spyOn(console, "log").mockImplementation(() => {});
 
     await createSchema();
 
@@ -70,7 +70,7 @@ describe("createSchema", () => {
         destroy: jest.fn().mockResolvedValue(undefined),
       });
     });
-    const errorSpy = jest.spyOn(console, "error").mockImplementation(() => { });
+    const errorSpy = jest.spyOn(console, "error").mockImplementation(() => {});
     const exitSpy = jest.spyOn(process, "exit").mockImplementation(() => {
       throw new Error("fail");
     });
@@ -96,7 +96,7 @@ describe("createSchema", () => {
     beforeEach(() => {
       processExitSpy = jest
         .spyOn(process, "exit")
-        .mockImplementation((() => { }) as unknown as (code?: number) => never);
+        .mockImplementation((() => {}) as unknown as (code?: number) => never);
     });
 
     afterEach(() => {
