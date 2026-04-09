@@ -5,9 +5,10 @@ import { Faculty } from "@/faculties/entities/faculty.entity";
 import { Schedule } from "@/services/entity/schedule.entity";
 import { Service } from "@/services/entity/service.entity";
 import { User } from "@/users/entities/user.entity";
+import { getDatabaseSynchronize } from "./synchronize";
 
 export const createSchema = async () => {
-  const isProd = process.env.NODE_ENV === "production";
+  const synchronize = getDatabaseSynchronize();
 
   const options: DataSourceOptions = {
     type: "postgres",
@@ -16,7 +17,7 @@ export const createSchema = async () => {
     username: process.env.DATABASE_USER || "niddle",
     password: process.env.DATABASE_PASSWORD || "niddle",
     database: process.env.DATABASE_NAME || "niddle_db",
-    synchronize: !isProd,
+    synchronize,
     dropSchema: false,
     entities: [Course, Faculty, User, Event, Service, Schedule],
   };
@@ -28,7 +29,7 @@ export const createSchema = async () => {
       console.log("Database schema created successfully.");
     } else {
       console.log(
-        "Database connection initialized; schema synchronization is disabled (e.g., NODE_ENV=production).",
+        "Database connection initialized; schema synchronization is disabled (set DATABASE_SYNCHRONIZE=true to enable it).",
       );
     }
     await dataSource.destroy();

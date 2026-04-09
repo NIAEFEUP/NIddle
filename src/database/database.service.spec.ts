@@ -58,9 +58,24 @@ describe("DatabaseService", () => {
     process.env.NODE_ENV = originalEnv;
   });
 
+  it("should allow synchronize override in production", () => {
+    const originalEnv = process.env.NODE_ENV;
+    const originalSynchronize = process.env.DATABASE_SYNCHRONIZE;
+    process.env.NODE_ENV = "production";
+    process.env.DATABASE_SYNCHRONIZE = "true";
+
+    const options = service.createTypeOrmOptions();
+    expect(options.synchronize).toBe(true);
+
+    process.env.NODE_ENV = originalEnv;
+    process.env.DATABASE_SYNCHRONIZE = originalSynchronize;
+  });
+
   it("should create typeorm options for production", () => {
     const originalEnv = process.env.NODE_ENV;
+    const originalSynchronize = process.env.DATABASE_SYNCHRONIZE;
     process.env.NODE_ENV = "production";
+    delete process.env.DATABASE_SYNCHRONIZE;
 
     const options = service.createTypeOrmOptions();
     expect(options.type).toBe("postgres");
@@ -68,5 +83,6 @@ describe("DatabaseService", () => {
     expect(options.synchronize).toBe(false);
 
     process.env.NODE_ENV = originalEnv;
+    process.env.DATABASE_SYNCHRONIZE = originalSynchronize;
   });
 });
