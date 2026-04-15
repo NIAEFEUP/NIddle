@@ -31,5 +31,5 @@ export class CreateAssociationDto {
    */
   @IsInt()
   @IsOptional()
-  courseId?: number;
+  courseId?: number | null;
 }

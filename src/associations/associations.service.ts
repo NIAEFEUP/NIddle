@@ -39,9 +39,13 @@ export class AssociationsService {
     });
 
     if (courseId !== undefined) {
-      association.course = await this.courseRepository.findOneByOrFail({
-        id: courseId,
-      });
+      if (courseId === null) {
+        association.course = null;
+      } else {
+        association.course = await this.courseRepository.findOneByOrFail({
+          id: courseId,
+        });
+      }
     }
 
     return this.associationRepository.save(association);

@@ -356,6 +356,23 @@ describe("AssociationsService", () => {
         id: 1,
       });
     });
+
+    it("should set course to null when courseId is null", async () => {
+      const updateDto = { courseId: null } as UpdateAssociationDto;
+      mockAssociationRepository.findOneOrFail.mockResolvedValue({
+        ...mockAssociation,
+        course: mockCourse,
+      });
+      mockAssociationRepository.save.mockResolvedValue({
+        ...mockAssociation,
+        course: null,
+      });
+
+      const result = await service.update(1, updateDto);
+
+      expect(result.course).toBeNull();
+      expect(mockCourseRepository.findOneByOrFail).not.toHaveBeenCalled();
+    });
   });
 
   describe("remove", () => {
