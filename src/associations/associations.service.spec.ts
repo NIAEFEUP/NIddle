@@ -156,6 +156,27 @@ describe("AssociationsService", () => {
       });
     });
 
+    it("should create an association with course set to null", async () => {
+      const createDto: CreateAssociationDto = {
+        name: "Chess Club",
+        facultyId: 1,
+        userId: 1,
+        courseId: null,
+      };
+      mockAssociationRepository.create.mockReturnValue({ ...mockAssociation });
+      mockFacultyRepository.findOneByOrFail.mockResolvedValue(mockFaculty);
+      mockUserRepository.findOneByOrFail.mockResolvedValue(mockUser);
+      mockAssociationRepository.save.mockResolvedValue({
+        ...mockAssociation,
+        course: null,
+      });
+
+      const result = await service.create(createDto);
+
+      expect(result.course).toBeNull();
+      expect(mockCourseRepository.findOneByOrFail).not.toHaveBeenCalled();
+    });
+
     it("should throw if faculty not found", async () => {
       const createDto: CreateAssociationDto = {
         name: "Chess Club",
