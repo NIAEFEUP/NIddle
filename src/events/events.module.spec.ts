@@ -1,8 +1,12 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { TypeOrmModule } from "@nestjs/typeorm";
+import { Association } from "@/associations/entities/association.entity";
 import { Course } from "@/courses/entities/course.entity";
 import { Event } from "@/events/entities/event.entity";
 import { Faculty } from "@/faculties/entities/faculty.entity";
+import { Schedule } from "@/services/entity/schedule.entity";
+import { Service } from "@/services/entity/service.entity";
+import { User } from "@/users/entities/user.entity";
 import { EventsController } from "./events.controller";
 import { EventsModule } from "./events.module";
 import { EventsService } from "./events.service";
@@ -16,7 +20,15 @@ describe("EventsModule", () => {
         TypeOrmModule.forRoot({
           type: "sqlite",
           database: ":memory:",
-          entities: [Course, Faculty, Event],
+          entities: [
+            Association,
+            Course,
+            Faculty,
+            Event,
+            Service,
+            Schedule,
+            User,
+          ],
           synchronize: true,
         }),
         EventsModule,

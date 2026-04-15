@@ -18,6 +18,7 @@ describe("ServicesService", () => {
     acronym: "FEUP",
     events: [],
     courses: [],
+    associations: [],
   };
 
   const mockCourse: Course = {
@@ -26,6 +27,7 @@ describe("ServicesService", () => {
     acronym: "CS",
     faculties: [],
     events: [],
+    association: null,
   };
 
   const mockSchedule: Schedule[] = [];
@@ -39,6 +41,8 @@ describe("ServicesService", () => {
     schedule: mockSchedule,
     faculty: mockFaculty,
     course: null,
+    ownedAssociation: null,
+    managedAssociation: null,
     validateFacultyAndCourses() {},
   };
 

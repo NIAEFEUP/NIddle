@@ -28,6 +28,7 @@ describe("EventsService", () => {
     acronym: "FEUP",
     courses: [],
     events: [],
+    associations: [],
   };
 
   const mockCourse: Course = {
@@ -36,6 +37,7 @@ describe("EventsService", () => {
     acronym: "CS",
     faculties: [],
     events: [],
+    association: null,
   };
 
   const mockEventRepository = {
