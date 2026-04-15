@@ -1,6 +1,8 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { AssociationsController } from "./associations.controller";
 import { AssociationsService } from "./associations.service";
+import { AssociationFilterDto } from "./dto/association-filter.dto";
+import { CreateAssociationDto } from "./dto/create-association.dto";
 import { UpdateAssociationDto } from "./dto/update-association.dto";
 
 describe("AssociationsController", () => {
@@ -40,7 +42,11 @@ describe("AssociationsController", () => {
   });
 
   it("creates an association", async () => {
-    const createDto = { name: "Chess Club" };
+    const createDto: CreateAssociationDto = {
+      name: "Chess Club",
+      facultyId: 1,
+      userId: 1,
+    };
     const expected = { id: 1, ...createDto };
     service.create.mockResolvedValue(expected);
 
@@ -52,21 +58,23 @@ describe("AssociationsController", () => {
 
   it("finds all associations without faculty filter", async () => {
     const expected = [{ id: 1, name: "Chess Club" }];
+    const filters: AssociationFilterDto = {};
     service.findAll.mockResolvedValue(expected);
 
-    const result = await controller.findAll();
+    const result = await controller.findAll(filters);
 
-    expect(service.findAll).toHaveBeenCalledWith(undefined);
+    expect(service.findAll).toHaveBeenCalledWith(filters);
     expect(result).toBe(expected);
   });
 
   it("finds all associations for a faculty", async () => {
     const expected = [{ id: 2, name: "Robotics" }];
+    const filters: AssociationFilterDto = { facultyId: 12 };
     service.findAll.mockResolvedValue(expected);
 
-    const result = await controller.findAll("12");
+    const result = await controller.findAll(filters);
 
-    expect(service.findAll).toHaveBeenCalledWith(12);
+    expect(service.findAll).toHaveBeenCalledWith(filters);
     expect(result).toBe(expected);
   });
 
@@ -74,7 +82,7 @@ describe("AssociationsController", () => {
     const expected = { id: 3, name: "Drama" };
     service.findOne.mockResolvedValue(expected);
 
-    const result = await controller.findOne("3");
+    const result = await controller.findOne(3);
 
     expect(service.findOne).toHaveBeenCalledWith(3);
     expect(result).toBe(expected);
@@ -82,20 +90,20 @@ describe("AssociationsController", () => {
 
   it("updates an association", async () => {
     const updateDto: UpdateAssociationDto = { name: "Drama Club" };
-    const expected = { affected: 1 };
+    const expected = { id: 3, name: "Drama Club" };
     service.update.mockResolvedValue(expected);
 
-    const result = await controller.update("3", updateDto);
+    const result = await controller.update(3, updateDto);
 
     expect(service.update).toHaveBeenCalledWith(3, updateDto);
     expect(result).toBe(expected);
   });
 
   it("removes an association", async () => {
-    const expected = { affected: 1 };
+    const expected = { id: 3, name: "Drama" };
     service.remove.mockResolvedValue(expected);
 
-    const result = await controller.remove("3");
+    const result = await controller.remove(3);
 
     expect(service.remove).toHaveBeenCalledWith(3);
     expect(result).toBe(expected);

@@ -21,7 +21,7 @@ describe("Service Entity", () => {
     acronym: "CS",
     faculties: [],
     events: [],
-    association: {} as any,
+    association: null,
   };
 
   beforeEach(() => {

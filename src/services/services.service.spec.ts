@@ -27,7 +27,7 @@ describe("ServicesService", () => {
     acronym: "CS",
     faculties: [],
     events: [],
-    association: {} as any,
+    association: null,
   };
 
   const mockSchedule: Schedule[] = [];
