@@ -42,8 +42,23 @@ describe("createSchema", () => {
     await createSchema();
     expect(DataSource).toHaveBeenCalled();
     expect(logSpy).toHaveBeenCalledWith(
-      "Database connection initialized; schema synchronization is disabled (e.g., NODE_ENV=production).",
+      "Database connection initialized; schema synchronization is disabled (set DATABASE_SYNCHRONIZE=true to enable it).",
     );
+    logSpy.mockRestore();
+  });
+
+  it("should enable schema sync when override is set in production", async () => {
+    process.env.NODE_ENV = "production";
+    process.env.DATABASE_SYNCHRONIZE = "true";
+    const logSpy = jest.spyOn(console, "log").mockImplementation(() => {});
+
+    await createSchema();
+
+    expect(DataSource).toHaveBeenCalled();
+    expect(logSpy).toHaveBeenCalledWith(
+      "Database schema created successfully.",
+    );
+
     logSpy.mockRestore();
   });
 
