@@ -1,13 +1,13 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { TypeOrmModule } from "@nestjs/typeorm";
+import { Course } from "@/courses/entities/course.entity";
+import { Event } from "@/events/entities/event.entity";
+import { Faculty } from "@/faculties/entities/faculty.entity";
 import {
   CourseTranslation,
   EventTranslation,
   FacultyTranslation,
 } from "@/i18n/entities";
-import { Course } from "@/courses/entities/course.entity";
-import { Event } from "@/events/entities/event.entity";
-import { Faculty } from "@/faculties/entities/faculty.entity";
 import { CoursesController } from "./courses.controller";
 import { CoursesModule } from "./courses.module";
 import { CoursesService } from "./courses.service";

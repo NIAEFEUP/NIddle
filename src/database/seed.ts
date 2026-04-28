@@ -3,14 +3,14 @@ import { runSeeders, SeederOptions } from "typeorm-extension";
 import { Course } from "@/courses/entities/course.entity";
 import { Event } from "@/events/entities/event.entity";
 import { Faculty } from "@/faculties/entities/faculty.entity";
-import { Schedule } from "@/services/entity/schedule.entity";
-import { Service } from "@/services/entity/service.entity";
-import { User } from "@/users/entities/user.entity";
 import {
   CourseTranslation,
   EventTranslation,
   FacultyTranslation,
 } from "@/i18n/entities";
+import { Schedule } from "@/services/entity/schedule.entity";
+import { Service } from "@/services/entity/service.entity";
+import { User } from "@/users/entities/user.entity";
 
 export const seed = async () => {
   const options: DataSourceOptions & SeederOptions = {
