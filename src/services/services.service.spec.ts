@@ -15,7 +15,16 @@ describe("ServicesService", () => {
   const mockFaculty: Faculty = {
     id: 1,
     defaultLanguage: "en",
-    translations: [{ id: 1, facultyId: 1, languageCode: "en", name: "Engineering Faculty", acronym: "FEUP", faculty: undefined as any }],
+    translations: [
+      {
+        id: 1,
+        facultyId: 1,
+        languageCode: "en",
+        name: "Engineering Faculty",
+        acronym: "FEUP",
+        faculty: undefined as any,
+      },
+    ],
     events: [],
     courses: [],
   };
@@ -23,7 +32,16 @@ describe("ServicesService", () => {
   const mockCourse: Course = {
     id: 1,
     defaultLanguage: "en",
-    translations: [{ id: 1, courseId: 1, languageCode: "en", name: "Computer Science", acronym: "CS", course: undefined as any }],
+    translations: [
+      {
+        id: 1,
+        courseId: 1,
+        languageCode: "en",
+        name: "Computer Science",
+        acronym: "CS",
+        course: undefined as any,
+      },
+    ],
     faculties: [],
     events: [],
   };
