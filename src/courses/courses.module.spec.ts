@@ -1,11 +1,16 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { TypeOrmModule } from "@nestjs/typeorm";
+import {
+  CourseTranslation,
+  EventTranslation,
+  FacultyTranslation,
+} from "@/i18n/entities";
+import { Course } from "@/courses/entities/course.entity";
 import { Event } from "@/events/entities/event.entity";
 import { Faculty } from "@/faculties/entities/faculty.entity";
 import { CoursesController } from "./courses.controller";
 import { CoursesModule } from "./courses.module";
 import { CoursesService } from "./courses.service";
-import { Course } from "./entities/course.entity";
 
 describe("CoursesModule", () => {
   let module: TestingModule;
@@ -16,7 +21,14 @@ describe("CoursesModule", () => {
         TypeOrmModule.forRoot({
           type: "sqlite",
           database: ":memory:",
-          entities: [Course, Faculty, Event],
+          entities: [
+            Course,
+            CourseTranslation,
+            Event,
+            EventTranslation,
+            Faculty,
+            FacultyTranslation,
+          ],
           synchronize: true,
         }),
         CoursesModule,

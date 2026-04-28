@@ -4,10 +4,12 @@ import {
   JoinTable,
   ManyToMany,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from "typeorm";
 import { Course } from "@/courses/entities/course.entity";
 import { Faculty } from "@/faculties/entities/faculty.entity";
+import { EventTranslation } from "@/i18n/entities";
 
 @Entity()
 export class Event {
@@ -19,18 +21,21 @@ export class Event {
   id: number;
 
   /**
-   * The event name.
-   * @example 'FEUP Week'
+   * The default language for this event's translations.
+   * @example "en"
    */
-  @Column()
-  name: string;
+  @Column({ name: "default_language", length: 10, default: "en" })
+  defaultLanguage: string;
 
   /**
-   * The event description.
-   * @example 'FEUP week is a period of interruption of classes and teaching mobility. It includes teaching activities (visits, exhibitions, lectures, ...), as well as the FEUP Project Congress.'
+   * Translations for the event name and description.
    */
-  @Column({ nullable: true })
-  description?: string;
+  @OneToMany(
+    () => EventTranslation,
+    (translation) => translation.event,
+    { cascade: true },
+  )
+  translations: EventTranslation[];
 
   /**
    * The year when the event occurs.

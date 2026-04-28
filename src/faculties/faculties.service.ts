@@ -3,6 +3,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { validateAndGetRelations } from "@/common/utils/entity-relation.utils";
 import { Course } from "@/courses/entities/course.entity";
+import { FacultyTranslation } from "@/i18n/entities";
 import { CreateFacultyDto } from "./dto/create-faculty.dto";
 import { UpdateFacultyDto } from "./dto/update-faculty.dto";
 import { Faculty } from "./entities/faculty.entity";
@@ -17,8 +18,19 @@ export class FacultiesService {
   ) {}
 
   async create(createFacultyDto: CreateFacultyDto): Promise<Faculty> {
-    const { courseIds, ...facultyData } = createFacultyDto;
-    const faculty = this.facultyRepository.create(facultyData);
+    const { courseIds, translations } = createFacultyDto;
+    const faculty = new Faculty();
+    faculty.defaultLanguage = "en";
+
+    if (translations && translations.length > 0) {
+      faculty.translations = translations.map((t) => {
+        const translation = new FacultyTranslation();
+        translation.languageCode = t.languageCode;
+        translation.name = t.name;
+        translation.acronym = t.acronym;
+        return translation;
+      });
+    }
 
     if (courseIds !== undefined) {
       faculty.courses = await validateAndGetRelations(
@@ -32,13 +44,15 @@ export class FacultiesService {
   }
 
   findAll(): Promise<Faculty[]> {
-    return this.facultyRepository.find({ relations: ["courses"] });
+    return this.facultyRepository.find({
+      relations: ["translations", "courses"],
+    });
   }
 
   findOne(id: number): Promise<Faculty> {
     return this.facultyRepository.findOneOrFail({
       where: { id },
-      relations: ["courses"],
+      relations: ["translations", "courses"],
     });
   }
 
@@ -46,11 +60,9 @@ export class FacultiesService {
     id: number,
     updateFacultyDto: UpdateFacultyDto,
   ): Promise<Faculty> {
-    const { courseIds, ...facultyData } = updateFacultyDto;
+    const { courseIds } = updateFacultyDto;
 
     const faculty = await this.facultyRepository.findOneByOrFail({ id });
-
-    this.facultyRepository.merge(faculty, facultyData);
 
     if (courseIds !== undefined) {
       faculty.courses = await validateAndGetRelations(

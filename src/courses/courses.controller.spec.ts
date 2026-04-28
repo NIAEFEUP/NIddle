@@ -11,8 +11,17 @@ describe("CoursesController", () => {
 
   const mockCourse: Course = {
     id: 1,
-    name: "Computer Science",
-    acronym: "CS",
+    defaultLanguage: "en",
+    translations: [
+      {
+        id: 1,
+        courseId: 1,
+        languageCode: "en",
+        name: "Computer Science",
+        acronym: "CS",
+        course: undefined as any,
+      },
+    ],
     faculties: [],
     events: [],
   };
@@ -80,8 +89,9 @@ describe("CoursesController", () => {
   describe("create", () => {
     it("should create a new course", async () => {
       const createCourseDto: CreateCourseDto = {
-        name: "Computer Science",
-        acronym: "CS",
+        translations: [
+          { languageCode: "en", name: "Computer Science", acronym: "CS" },
+        ],
         facultyIds: [1, 2],
       };
       mockCoursesService.create.mockResolvedValue(mockCourse);
@@ -96,9 +106,11 @@ describe("CoursesController", () => {
   describe("update", () => {
     it("should update a course", async () => {
       const updateCourseDto: UpdateCourseDto = {
-        name: "Updated Course Name",
+        translations: [
+          { languageCode: "en", name: "Updated Course Name", acronym: "CS" },
+        ],
       };
-      const updatedCourse = { ...mockCourse, ...updateCourseDto };
+      const updatedCourse = { ...mockCourse };
       mockCoursesService.update.mockResolvedValue(updatedCourse);
 
       const result = await controller.update(1, updateCourseDto);
@@ -112,7 +124,9 @@ describe("CoursesController", () => {
 
     it("should throw NotFoundException if course not found", async () => {
       const updateCourseDto: UpdateCourseDto = {
-        name: "Updated Course Name",
+        translations: [
+          { languageCode: "en", name: "Updated Course Name", acronym: "CS" },
+        ],
       };
       mockCoursesService.update.mockRejectedValue(new NotFoundException());
 

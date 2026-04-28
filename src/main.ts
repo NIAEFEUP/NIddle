@@ -18,6 +18,15 @@ async function bootstrap() {
       { type: "http", scheme: "bearer", bearerFormat: "JWT" },
       "access-token",
     )
+    .addGlobalParameters({
+      name: "accept-language",
+      in: "header",
+      description: "The language of the response",
+      schema: {
+        default: "en",
+        enum: ["en", "pt"],
+      },
+    })
     .build();
   const documentFactory = () => SwaggerModule.createDocument(app, config);
   SwaggerModule.setup("docs", app, documentFactory);

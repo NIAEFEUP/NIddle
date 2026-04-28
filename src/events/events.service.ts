@@ -4,6 +4,7 @@ import { Repository } from "typeorm";
 import { validateAndGetRelations } from "@/common/utils/entity-relation.utils";
 import { Course } from "@/courses/entities/course.entity";
 import { Faculty } from "@/faculties/entities/faculty.entity";
+import { EventTranslation } from "@/i18n/entities";
 import { CreateEventDto } from "./dto/create-event.dto";
 import { EventFilterDto } from "./dto/event-filter.dto";
 import { UpdateEventDto } from "./dto/update-event.dto";
@@ -21,8 +22,19 @@ export class EventsService {
   ) {}
 
   async create(createEventDto: CreateEventDto): Promise<Event> {
-    const { facultyId, courseIds, ...eventData } = createEventDto;
-    const event = this.eventRepository.create(eventData);
+    const { facultyId, courseIds, translations } = createEventDto;
+    const event = new Event();
+    event.defaultLanguage = "en";
+
+    if (translations && translations.length > 0) {
+      event.translations = translations.map((t) => {
+        const translation = new EventTranslation();
+        translation.languageCode = t.languageCode;
+        translation.name = t.name;
+        translation.description = t.description ?? null;
+        return translation;
+      });
+    }
 
     if (facultyId !== undefined) {
       event.faculty = await this.facultyRepository.findOneByOrFail({
@@ -50,22 +62,21 @@ export class EventsService {
         ...(facultyId && { faculty: { id: facultyId } }),
         ...(courseId && { courses: { id: courseId } }),
       },
-      relations: ["faculty", "courses"],
+      relations: ["translations", "faculty", "courses"],
     });
   }
 
   findOne(id: number): Promise<Event> {
     return this.eventRepository.findOneOrFail({
       where: { id },
-      relations: ["faculty", "courses"],
+      relations: ["translations", "faculty", "courses"],
     });
   }
 
   async update(id: number, updateEventDto: UpdateEventDto): Promise<Event> {
-    const { facultyId, courseIds, ...eventData } = updateEventDto;
+    const { facultyId, courseIds } = updateEventDto;
 
     const event = await this.eventRepository.findOneByOrFail({ id });
-    this.eventRepository.merge(event, eventData);
 
     if (facultyId !== undefined) {
       event.faculty = await this.facultyRepository.findOneByOrFail({

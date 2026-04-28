@@ -31,8 +31,10 @@ describe("FacultyFactory", () => {
     const faculty = factory.factoryFn();
 
     expect(faculty).toBeInstanceOf(Faculty);
-    expect(faculty.name).toBeTruthy();
-    expect(faculty.acronym).toBeTruthy();
-    expect(faculty.acronym).toMatch(/U/);
+    expect(faculty.translations).toBeDefined();
+    expect(faculty.translations.length).toBeGreaterThan(0);
+    expect(faculty.translations[0].name).toBeTruthy();
+    expect(faculty.translations[0].acronym).toBeTruthy();
+    expect(faculty.translations[0].acronym).toMatch(/U/);
   });
 });

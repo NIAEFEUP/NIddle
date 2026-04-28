@@ -1,6 +1,13 @@
-import { Column, Entity, ManyToMany, PrimaryGeneratedColumn } from "typeorm";
+import {
+  Column,
+  Entity,
+  ManyToMany,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from "typeorm";
 import { Event } from "@/events/entities/event.entity";
 import { Faculty } from "@/faculties/entities/faculty.entity";
+import { CourseTranslation } from "@/i18n/entities";
 
 @Entity()
 export class Course {
@@ -12,22 +19,24 @@ export class Course {
   id: number;
 
   /**
-   * The name of the course.
-   * @example 'Bachelor in Informatics and Computing Engineering'
+   * The default language for this course's translations.
+   * @example "en"
    */
-  @Column()
-  name: string;
+  @Column({ name: "default_language", length: 10, default: "en" })
+  defaultLanguage: string;
 
   /**
-   * The acronym of the course.
-   * @example 'LEIC'
+   * Translations for the course name and acronym.
    */
-  @Column()
-  acronym: string;
+  @OneToMany(
+    () => CourseTranslation,
+    (translation) => translation.course,
+    { cascade: true },
+  )
+  translations: CourseTranslation[];
 
   /**
-   * The faculties associated with the course.
-   * @example [{ id: 1, name: 'Faculty of Engineering', acronym: 'FEUP' }]
+   * The faculties associated with this course.
    */
   @ManyToMany(
     () => Faculty,
