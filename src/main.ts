@@ -13,7 +13,7 @@ async function bootstrap() {
   const config = new DocumentBuilder()
     .setTitle("NIddle")
     .setDescription("NIddle API description")
-    .addServer(`http://localhost:${port}`, "Local Development Server")
+    .addServer("/", "Default")
     .addBearerAuth(
       { type: "http", scheme: "bearer", bearerFormat: "JWT" },
       "access-token",

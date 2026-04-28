@@ -29,5 +29,14 @@ RUN npm ci --omit=dev && npm cache clean --force
 # Copy built artifacts
 COPY --from=build /usr/src/app/dist ./dist
 
+# Copy the entrypoint script into the image
+COPY docker-entrypoint.sh /usr/local/bin/
+
+# Make the script executable
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+
+# Set the entrypoint
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
+
 USER node
 CMD ["node", "dist/main"]

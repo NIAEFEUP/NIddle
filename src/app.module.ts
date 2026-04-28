@@ -9,6 +9,7 @@ import { DatabaseModule } from "./database/database.module";
 import { EventsModule } from "./events/events.module";
 import { FacultiesModule } from "./faculties/faculties.module";
 import { I18nModule } from "./i18n/i18n.module";
+import { ServicesModule } from "./services/services.module";
 import { UsersModule } from "./users/users.module";
 
 @Module({
@@ -21,6 +22,7 @@ import { UsersModule } from "./users/users.module";
     FacultiesModule,
     UsersModule,
     AuthModule,
+    ServicesModule,
     EventsModule,
     CoursesModule,
   ],

@@ -64,6 +64,8 @@ These instructions will get you a copy of the project up and running on your loc
 
     Now, open `.env.local` and fill in the required variables.
 
+    If you want schema synchronization on a non-production deployment such as staging, set `DATABASE_SYNCHRONIZE=true` there. Leave it unset or `false` for production.
+
 3.  **Start the database**
 
     NIddle requires a PostgreSQL database. Use Docker Compose to start a local instance:
