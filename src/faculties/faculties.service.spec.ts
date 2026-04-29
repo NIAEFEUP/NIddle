@@ -136,6 +136,28 @@ describe("FacultiesService", () => {
       expect(mockFacultyRepository.save).toHaveBeenCalled();
     });
 
+    it("should create a faculty without translations", async () => {
+      const createFacultyDto: CreateFacultyDto = {} as CreateFacultyDto;
+      mockFacultyRepository.save.mockResolvedValue(mockFaculty);
+
+      const result = await service.create(createFacultyDto);
+
+      expect(result).toEqual(mockFaculty);
+      expect(mockFacultyRepository.save).toHaveBeenCalled();
+    });
+
+    it("should create a faculty with empty translations array", async () => {
+      const createFacultyDto: CreateFacultyDto = {
+        translations: [],
+      };
+      mockFacultyRepository.save.mockResolvedValue(mockFaculty);
+
+      const result = await service.create(createFacultyDto);
+
+      expect(result).toEqual(mockFaculty);
+      expect(mockFacultyRepository.save).toHaveBeenCalled();
+    });
+
     it("should create a faculty with valid courses", async () => {
       const createFacultyDto: CreateFacultyDto = {
         translations: [

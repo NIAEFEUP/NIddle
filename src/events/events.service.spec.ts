@@ -272,6 +272,19 @@ describe("EventsService", () => {
       expect(mockEventRepository.save).toHaveBeenCalled();
     });
 
+    it("should create an event with empty translations array", async () => {
+      const createEventDto: CreateEventDto = {
+        translations: [],
+        year: 2025,
+      };
+      mockEventRepository.save.mockResolvedValue(mockEvent);
+
+      const result = await service.create(createEventDto);
+
+      expect(result).toEqual(mockEvent);
+      expect(mockEventRepository.save).toHaveBeenCalled();
+    });
+
     it("should create an event with valid faculty", async () => {
       const createEventDto: CreateEventDto = {
         translations: [
@@ -299,6 +312,24 @@ describe("EventsService", () => {
       expect(mockFacultyRepository.findOneByOrFail).toHaveBeenCalledWith({
         id: 1,
       });
+    });
+
+    it("should create an event with translation without description", async () => {
+      const createEventDto: CreateEventDto = {
+        translations: [
+          {
+            languageCode: "en",
+            name: "FEUP Week",
+          },
+        ],
+        year: 2025,
+      };
+      mockEventRepository.save.mockResolvedValue(mockEvent);
+
+      const result = await service.create(createEventDto);
+
+      expect(result).toEqual(mockEvent);
+      expect(mockEventRepository.save).toHaveBeenCalled();
     });
 
     it("should throw NotFoundException if faculty is not found", async () => {

@@ -136,6 +136,28 @@ describe("CoursesService", () => {
       expect(mockCourseRepository.save).toHaveBeenCalled();
     });
 
+    it("should create a course without translations", async () => {
+      const createCourseDto: CreateCourseDto = {} as CreateCourseDto;
+      mockCourseRepository.save.mockResolvedValue(mockCourse);
+
+      const result = await service.create(createCourseDto);
+
+      expect(result).toEqual(mockCourse);
+      expect(mockCourseRepository.save).toHaveBeenCalled();
+    });
+
+    it("should create a course with empty translations array", async () => {
+      const createCourseDto: CreateCourseDto = {
+        translations: [],
+      };
+      mockCourseRepository.save.mockResolvedValue(mockCourse);
+
+      const result = await service.create(createCourseDto);
+
+      expect(result).toEqual(mockCourse);
+      expect(mockCourseRepository.save).toHaveBeenCalled();
+    });
+
     it("should create a course with valid faculties", async () => {
       const createCourseDto: CreateCourseDto = {
         translations: [
