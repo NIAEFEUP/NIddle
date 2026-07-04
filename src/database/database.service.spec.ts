@@ -9,6 +9,12 @@ describe("DatabaseService", () => {
   let module: TestingModule;
 
   beforeEach(async () => {
+    process.env.DATABASE_MASTER = "test-master";
+    process.env.DATABASE_SLAVE = "test-slave";
+    process.env.DATABASE_USER = "test-user";
+    process.env.DATABASE_PASSWORD = "test-password";
+    process.env.DATABASE_NAME = "test-db";
+
     mockDataSource = {
       isInitialized: true,
       options: { type: "sqlite", database: ":memory:" },
@@ -28,6 +34,11 @@ describe("DatabaseService", () => {
   });
 
   afterEach(async () => {
+    delete process.env.DATABASE_MASTER;
+    delete process.env.DATABASE_SLAVE;
+    delete process.env.DATABASE_USER;
+    delete process.env.DATABASE_PASSWORD;
+    delete process.env.DATABASE_NAME;
     await module.close();
   });
 
@@ -52,8 +63,25 @@ describe("DatabaseService", () => {
 
     const options = service.createTypeOrmOptions();
     expect(options.type).toBe("postgres");
-    expect(options.database).toBe("niddle_db");
+    expect(
+      (options as { replication: { master: { database: string } } })
+        .replication.master.database,
+    ).toBe("test-db");
     expect(options.synchronize).toBe(true);
+
+    process.env.NODE_ENV = originalEnv;
+  });
+
+  it("should create a single-host connection when DATABASE_SLAVE is not set", () => {
+    const originalEnv = process.env.NODE_ENV;
+    process.env.NODE_ENV = "development";
+    delete process.env.DATABASE_SLAVE;
+
+    const options = service.createTypeOrmOptions();
+    expect(options.type).toBe("postgres");
+    expect(options).not.toHaveProperty("replication");
+    expect((options as { host: string }).host).toBe("test-master");
+    expect((options as { database: string }).database).toBe("test-db");
 
     process.env.NODE_ENV = originalEnv;
   });
@@ -79,7 +107,10 @@ describe("DatabaseService", () => {
 
     const options = service.createTypeOrmOptions();
     expect(options.type).toBe("postgres");
-    expect(options.database).toBe("niddle_db");
+    expect(
+      (options as { replication: { master: { database: string } } })
+        .replication.master.database,
+    ).toBe("test-db");
     expect(options.synchronize).toBe(false);
 
     process.env.NODE_ENV = originalEnv;

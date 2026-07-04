@@ -18,7 +18,13 @@ describe("createSchema", () => {
   const OLD_ENV = process.env;
   beforeEach(() => {
     jest.resetModules();
-    process.env = { ...OLD_ENV };
+    process.env = {
+      ...OLD_ENV,
+      DATABASE_MASTER: "test-master",
+      DATABASE_USER: "test-user",
+      DATABASE_PASSWORD: "test-password",
+      DATABASE_NAME: "test-db",
+    };
   });
   afterEach(() => {
     process.env = OLD_ENV;
