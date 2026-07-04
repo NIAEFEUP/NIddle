@@ -64,8 +64,8 @@ describe("DatabaseService", () => {
     const options = service.createTypeOrmOptions();
     expect(options.type).toBe("postgres");
     expect(
-      (options as { replication: { master: { database: string } } })
-        .replication.master.database,
+      (options as { replication: { master: { database: string } } }).replication
+        .master.database,
     ).toBe("test-db");
     expect(options.synchronize).toBe(true);
 
@@ -108,8 +108,8 @@ describe("DatabaseService", () => {
     const options = service.createTypeOrmOptions();
     expect(options.type).toBe("postgres");
     expect(
-      (options as { replication: { master: { database: string } } })
-        .replication.master.database,
+      (options as { replication: { master: { database: string } } }).replication
+        .master.database,
     ).toBe("test-db");
     expect(options.synchronize).toBe(false);
 

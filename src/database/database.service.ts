@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { TypeOrmModuleOptions, TypeOrmOptionsFactory } from "@nestjs/typeorm";
-import { getDatabaseSynchronize } from "./synchronize";
 import { requiredEnv } from "./helpers/required-env";
+import { getDatabaseSynchronize } from "./synchronize";
 
 @Injectable()
 export class DatabaseService implements TypeOrmOptionsFactory {
@@ -25,26 +25,24 @@ export class DatabaseService implements TypeOrmOptionsFactory {
     const slaveHost = process.env.DATABASE_SLAVE;
 
     const connection = { host, port, username, password, database };
-    
+
     return {
       type: "postgres",
-      ...(
-        slaveHost ? 
-          {
+      ...(slaveHost
+        ? {
             replication: {
-          master: {
-            ...connection,
-          },
-          slaves: [
-            {
-              ...connection,
-              host: slaveHost,
-            }
-          ],
-        },
-      } : 
-        connection
-      ),
+              master: {
+                ...connection,
+              },
+              slaves: [
+                {
+                  ...connection,
+                  host: slaveHost,
+                },
+              ],
+            },
+          }
+        : connection),
       autoLoadEntities: true,
       synchronize: getDatabaseSynchronize(),
     };

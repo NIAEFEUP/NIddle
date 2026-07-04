@@ -5,8 +5,8 @@ import { Faculty } from "@/faculties/entities/faculty.entity";
 import { Schedule } from "@/services/entity/schedule.entity";
 import { Service } from "@/services/entity/service.entity";
 import { User } from "@/users/entities/user.entity";
-import { getDatabaseSynchronize } from "./synchronize";
 import { requiredEnv } from "./helpers/required-env";
+import { getDatabaseSynchronize } from "./synchronize";
 
 export const createSchema = async () => {
   const synchronize = getDatabaseSynchronize();
