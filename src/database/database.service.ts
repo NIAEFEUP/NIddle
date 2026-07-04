@@ -1,6 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { TypeOrmModuleOptions, TypeOrmOptionsFactory } from "@nestjs/typeorm";
 import { getDatabaseSynchronize } from "./synchronize";
+import { requiredEnv } from "./helpers/required-env";
 
 @Injectable()
 export class DatabaseService implements TypeOrmOptionsFactory {
@@ -16,13 +17,30 @@ export class DatabaseService implements TypeOrmOptionsFactory {
       };
     }
 
+    const port = parseInt(process.env.DATABASE_PORT || "5432", 10);
+    const username = requiredEnv("DATABASE_USER");
+    const password = requiredEnv("DATABASE_PASSWORD");
+    const database = requiredEnv("DATABASE_NAME");
     return {
       type: "postgres",
-      host: process.env.DATABASE_HOST || "localhost",
-      port: parseInt(process.env.DATABASE_PORT || "5432", 10),
-      username: process.env.DATABASE_USER || "niddle",
-      password: process.env.DATABASE_PASSWORD || "niddle",
-      database: process.env.DATABASE_NAME || "niddle_db",
+      replication: {
+        master: {
+          host: requiredEnv("DATABASE_MASTER"),
+          port: port,
+          username: username,
+          password: password,
+          database: database,
+        },
+        slaves: [
+          {
+            host: requiredEnv("DATABASE_SLAVE"),
+            port: port,
+            username: username,
+            password: password,
+            database: database,
+          }
+        ],
+      },
       autoLoadEntities: true,
       synchronize: getDatabaseSynchronize(),
     };

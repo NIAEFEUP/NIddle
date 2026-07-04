@@ -6,15 +6,16 @@ import { Faculty } from "@/faculties/entities/faculty.entity";
 import { Schedule } from "@/services/entity/schedule.entity";
 import { Service } from "@/services/entity/service.entity";
 import { User } from "@/users/entities/user.entity";
+import { requiredEnv } from "./helpers/required-env";
 
 export const seed = async () => {
   const options: DataSourceOptions & SeederOptions = {
     type: "postgres",
-    host: process.env.DATABASE_HOST || "localhost",
+    host: requiredEnv("DATABASE_MASTER"),
     port: parseInt(process.env.DATABASE_PORT || "5432", 10),
-    username: process.env.DATABASE_USER || "niddle",
-    password: process.env.DATABASE_PASSWORD || "niddle",
-    database: process.env.DATABASE_NAME || "niddle_db",
+    username: requiredEnv("DATABASE_USER"),
+    password: requiredEnv("DATABASE_PASSWORD"),
+    database: requiredEnv("DATABASE_NAME"),
     synchronize: true,
     dropSchema: true,
     schema: "public",
