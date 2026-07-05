@@ -27,6 +27,13 @@ export class Association {
   name: string;
 
   /**
+   * The acronym of the association.
+   * @example 'CC'
+   */
+  @Column({ nullable: true })
+  acronym: string;
+
+  /**
    * The user (owner) of the association.
    */
   @OneToOne(() => User, { cascade: true, onDelete: "CASCADE" })

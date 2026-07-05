@@ -43,6 +43,7 @@ describe("AssociationsController", () => {
   it("creates an association", async () => {
     const createDto: CreateAssociationDto = {
       name: "Chess Club",
+      acronym: "CC",
       userId: 1,
     };
     const expected = { id: 1, ...createDto };
@@ -55,7 +56,7 @@ describe("AssociationsController", () => {
   });
 
   it("finds all associations", async () => {
-    const expected = [{ id: 1, name: "Chess Club" }];
+    const expected = [{ id: 1, name: "Chess Club", acronym: "CC" }];
     service.findAll.mockResolvedValue(expected);
 
     const result = await controller.findAll();
@@ -65,7 +66,7 @@ describe("AssociationsController", () => {
   });
 
   it("finds one association by id", async () => {
-    const expected = { id: 3, name: "Drama" };
+    const expected = { id: 3, name: "Drama", acronym: "DR" };
     service.findOne.mockResolvedValue(expected);
 
     const result = await controller.findOne(3);
@@ -75,8 +76,11 @@ describe("AssociationsController", () => {
   });
 
   it("updates an association", async () => {
-    const updateDto: UpdateAssociationDto = { name: "Drama Club" };
-    const expected = { id: 3, name: "Drama Club" };
+    const updateDto: UpdateAssociationDto = {
+      name: "Drama Club",
+      acronym: "DC",
+    };
+    const expected = { id: 3, name: "Drama Club", acronym: "DC" };
     service.update.mockResolvedValue(expected);
 
     const result = await controller.update(3, updateDto);
@@ -86,7 +90,7 @@ describe("AssociationsController", () => {
   });
 
   it("removes an association", async () => {
-    const expected = { id: 3, name: "Drama" };
+    const expected = { id: 3, name: "Drama", acronym: "DR" };
     service.remove.mockResolvedValue(expected);
 
     const result = await controller.remove(3);

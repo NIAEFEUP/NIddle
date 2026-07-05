@@ -33,5 +33,7 @@ describe("AssociationFactory", () => {
     expect(association).toBeInstanceOf(Association);
     expect(association.name).toBeTruthy();
     expect(typeof association.name).toBe("string");
+    expect(association.acronym).toBeTruthy();
+    expect(typeof association.acronym).toBe("string");
   });
 });

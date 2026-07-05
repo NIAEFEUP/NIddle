@@ -17,6 +17,7 @@ describe("CreateAssociationDto", () => {
     it("should accept complete valid payload using plainToInstance", async () => {
       const plain = {
         name: "Photography Club",
+        acronym: "PC",
         userId: 10,
       };
 
@@ -25,7 +26,18 @@ describe("CreateAssociationDto", () => {
 
       expect(errors).toHaveLength(0);
       expect(dto.name).toBe("Photography Club");
+      expect(dto.acronym).toBe("PC");
       expect(dto.userId).toBe(10);
+    });
+
+    it("should accept DTO without optional acronym", async () => {
+      const dto = new CreateAssociationDto();
+      dto.name = "Chess Club";
+      dto.userId = 5;
+
+      const errors = await validate(dto);
+
+      expect(errors.some((e) => e.property === "acronym")).toBe(false);
     });
   });
 
@@ -68,6 +80,17 @@ describe("CreateAssociationDto", () => {
       const errors = await validate(dto);
 
       expect(errors.some((e) => e.property === "name")).toBe(true);
+    });
+
+    it("should reject non-string acronym when provided", async () => {
+      const dto = new CreateAssociationDto();
+      dto.name = "Chess Club";
+      dto.acronym = 123 as any;
+      dto.userId = 5;
+
+      const errors = await validate(dto);
+
+      expect(errors.some((e) => e.property === "acronym")).toBe(true);
     });
 
     it("should reject non-integer userId", async () => {
@@ -121,6 +144,17 @@ describe("CreateAssociationDto", () => {
       const errors = await validate(dto);
 
       expect(errors.some((e) => e.property === "name")).toBe(false);
+    });
+
+    it("should accept long acronym when provided", async () => {
+      const dto = new CreateAssociationDto();
+      dto.name = "Chess Club";
+      dto.acronym = "A".repeat(500);
+      dto.userId = 5;
+
+      const errors = await validate(dto);
+
+      expect(errors.some((e) => e.property === "acronym")).toBe(false);
     });
 
     it("should accept whitespace-only name as not empty", async () => {

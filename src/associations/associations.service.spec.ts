@@ -19,6 +19,7 @@ describe("AssociationsService", () => {
   const mockAssociation: Association = {
     id: 1,
     name: "Chess Club",
+    acronym: "CC",
     user: mockUser,
     events: [],
     services: [],
@@ -68,6 +69,7 @@ describe("AssociationsService", () => {
     it("should create an association", async () => {
       const createDto: CreateAssociationDto = {
         name: "Chess Club",
+        acronym: "CC",
         userId: 1,
       };
       mockAssociationRepository.create.mockReturnValue({ ...mockAssociation });
@@ -79,6 +81,7 @@ describe("AssociationsService", () => {
       expect(result).toEqual(mockAssociation);
       expect(mockAssociationRepository.create).toHaveBeenCalledWith({
         name: "Chess Club",
+        acronym: "CC",
       });
       expect(mockUserRepository.findOneByOrFail).toHaveBeenCalledWith({
         id: 1,
@@ -89,6 +92,7 @@ describe("AssociationsService", () => {
     it("should throw if user not found", async () => {
       const createDto: CreateAssociationDto = {
         name: "Chess Club",
+        acronym: "CC",
         userId: 999,
       };
       mockAssociationRepository.create.mockReturnValue({ ...mockAssociation });
