@@ -1,3 +1,4 @@
+import { config } from "dotenv";
 import { DataSource, DataSourceOptions } from "typeorm";
 import { Course } from "@/courses/entities/course.entity";
 import { Event } from "@/events/entities/event.entity";
@@ -7,6 +8,10 @@ import { Service } from "@/services/entity/service.entity";
 import { User } from "@/users/entities/user.entity";
 import { requiredEnv } from "./helpers/required-env";
 import { getDatabaseSynchronize } from "./synchronize";
+
+if (process.env.NODE_ENV !== "test") {
+  config({ path: ".env.local" });
+}
 
 export const createSchema = async () => {
   const synchronize = getDatabaseSynchronize();

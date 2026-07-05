@@ -1,3 +1,4 @@
+import { config } from "dotenv";
 import { DataSource, DataSourceOptions } from "typeorm";
 import { runSeeders, SeederOptions } from "typeorm-extension";
 import { Course } from "@/courses/entities/course.entity";
@@ -7,6 +8,10 @@ import { Schedule } from "@/services/entity/schedule.entity";
 import { Service } from "@/services/entity/service.entity";
 import { User } from "@/users/entities/user.entity";
 import { requiredEnv } from "./helpers/required-env";
+
+if (process.env.NODE_ENV !== "test") {
+  config({ path: ".env.local" });
+}
 
 export const seed = async () => {
   const options: DataSourceOptions & SeederOptions = {
