@@ -1,6 +1,10 @@
 import { DataSource } from "typeorm";
 import { createSchema, handleMain } from "./schema";
 
+jest.mock("dotenv", () => ({
+  config: jest.fn(),
+}));
+
 jest.mock("typeorm", () => {
   const actual = jest.requireActual("typeorm");
   return {
@@ -94,6 +98,37 @@ describe("createSchema", () => {
     expect(errorSpy.mock.calls[0][1]).toBeInstanceOf(Error);
     errorSpy.mockRestore();
     exitSpy.mockRestore();
+  });
+
+  describe("environment loading", () => {
+    afterEach(() => {
+      jest.resetModules();
+      jest.clearAllMocks();
+    });
+
+    it("loads .env.local when NOT running in test mode", async () => {
+      process.env.NODE_ENV = "development";
+      let dotenvConfig: jest.Mock = jest.fn();
+
+      await jest.isolateModulesAsync(async () => {
+        require("./schema");
+        dotenvConfig = (require("dotenv") as { config: jest.Mock }).config;
+      });
+
+      expect(dotenvConfig).toHaveBeenCalledWith({ path: ".env.local" });
+    });
+
+    it("does NOT load .env.local when running in test mode", async () => {
+      process.env.NODE_ENV = "test";
+      let dotenvConfig: jest.Mock = jest.fn();
+
+      await jest.isolateModulesAsync(async () => {
+        require("./schema");
+        dotenvConfig = (require("dotenv") as { config: jest.Mock }).config;
+      });
+
+      expect(dotenvConfig).not.toHaveBeenCalled();
+    });
   });
 
   describe("handleMain", () => {

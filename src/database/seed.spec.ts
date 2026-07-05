@@ -6,6 +6,10 @@ interface MockDataSource {
   initialize: jest.Mock<Promise<void>>;
 }
 
+jest.mock("dotenv", () => ({
+  config: jest.fn(),
+}));
+
 jest.mock("typeorm", () => {
   const actual = jest.requireActual<typeof import("typeorm")>("typeorm");
   return {
@@ -56,6 +60,37 @@ describe("Seed Script", () => {
 
     expect(mockDataSourceInstance.initialize).toHaveBeenCalled();
     expect(runSeeders).toHaveBeenCalledWith(mockDataSourceInstance);
+  });
+
+  describe("environment loading", () => {
+    afterEach(() => {
+      jest.resetModules();
+      jest.clearAllMocks();
+    });
+
+    it("loads .env.local when NOT running in test mode", async () => {
+      process.env.NODE_ENV = "development";
+      let dotenvConfig: jest.Mock = jest.fn();
+
+      await jest.isolateModulesAsync(async () => {
+        require("./seed");
+        dotenvConfig = (require("dotenv") as { config: jest.Mock }).config;
+      });
+
+      expect(dotenvConfig).toHaveBeenCalledWith({ path: ".env.local" });
+    });
+
+    it("does NOT load .env.local when running in test mode", async () => {
+      process.env.NODE_ENV = "test";
+      let dotenvConfig: jest.Mock = jest.fn();
+
+      await jest.isolateModulesAsync(async () => {
+        require("./seed");
+        dotenvConfig = (require("dotenv") as { config: jest.Mock }).config;
+      });
+
+      expect(dotenvConfig).not.toHaveBeenCalled();
+    });
   });
 
   describe("handleMain", () => {
