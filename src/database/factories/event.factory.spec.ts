@@ -29,8 +29,10 @@ describe("EventFactory", () => {
       const event = factory.factoryFn();
 
       expect(event).toBeInstanceOf(Event);
-      expect(event.name).toBeTruthy();
-      expect(event.description).toBeTruthy();
+      expect(event.translations).toBeDefined();
+      expect(event.translations.length).toBeGreaterThan(0);
+      expect(event.translations[0].name).toBeTruthy();
+      expect(event.translations[0].description).toBeTruthy();
 
       if (event.startDate) {
         expect(event.startDate).toBeInstanceOf(Date);

@@ -28,8 +28,10 @@ describe("CourseFactory", () => {
     const course = factory.factoryFn();
 
     expect(course).toBeInstanceOf(Course);
-    expect(course.name).toBeTruthy();
-    expect(course.acronym).toBeTruthy();
-    expect(course.acronym.length).toBeGreaterThanOrEqual(2);
+    expect(course.translations).toBeDefined();
+    expect(course.translations.length).toBeGreaterThan(0);
+    expect(course.translations[0].name).toBeTruthy();
+    expect(course.translations[0].acronym).toBeTruthy();
+    expect(course.translations[0].acronym.length).toBeGreaterThanOrEqual(2);
   });
 });

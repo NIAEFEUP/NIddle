@@ -11,8 +11,17 @@ describe("FacultiesController", () => {
 
   const mockFaculty: Faculty = {
     id: 1,
-    name: "Engineering Faculty",
-    acronym: "FEUP",
+    defaultLanguage: "en",
+    translations: [
+      {
+        id: 1,
+        facultyId: 1,
+        languageCode: "en",
+        name: "Engineering Faculty",
+        acronym: "FEUP",
+        faculty: undefined as any,
+      },
+    ],
     courses: [],
     events: [],
   };
@@ -80,8 +89,9 @@ describe("FacultiesController", () => {
   describe("create", () => {
     it("should create a new faculty", async () => {
       const createFacultyDto: CreateFacultyDto = {
-        name: "Engineering Faculty",
-        acronym: "FEUP",
+        translations: [
+          { languageCode: "en", name: "Engineering Faculty", acronym: "FEUP" },
+        ],
         courseIds: [1, 2],
       };
       mockFacultiesService.create.mockResolvedValue(mockFaculty);
@@ -98,9 +108,11 @@ describe("FacultiesController", () => {
   describe("update", () => {
     it("should update a faculty", async () => {
       const updateFacultyDto: UpdateFacultyDto = {
-        name: "Updated Faculty Name",
+        translations: [
+          { languageCode: "en", name: "Updated Faculty Name", acronym: "FEUP" },
+        ],
       };
-      const updatedFaculty = { ...mockFaculty, ...updateFacultyDto };
+      const updatedFaculty = { ...mockFaculty };
       mockFacultiesService.update.mockResolvedValue(updatedFaculty);
 
       const result = await controller.update(1, updateFacultyDto);
@@ -114,7 +126,9 @@ describe("FacultiesController", () => {
 
     it("should throw NotFoundException if faculty not found", async () => {
       const updateFacultyDto: UpdateFacultyDto = {
-        name: "Updated Faculty Name",
+        translations: [
+          { languageCode: "en", name: "Updated Faculty Name", acronym: "FEUP" },
+        ],
       };
       mockFacultiesService.update.mockRejectedValue(new NotFoundException());
 

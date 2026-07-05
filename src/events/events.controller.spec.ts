@@ -12,8 +12,17 @@ describe("EventsController", () => {
 
   const mockEvent: Event = {
     id: 1,
-    name: "FEUP Week",
-    description: "Annual FEUP event",
+    defaultLanguage: "en",
+    translations: [
+      {
+        id: 1,
+        eventId: 1,
+        languageCode: "en",
+        name: "FEUP Week",
+        description: "Annual FEUP event",
+        event: undefined as any,
+      },
+    ],
     year: 2025,
     startDate: new Date("2025-12-26T09:00:00Z"),
     endDate: new Date("2025-12-27T18:00:00Z"),
@@ -85,8 +94,13 @@ describe("EventsController", () => {
   describe("create", () => {
     it("should create a new event", async () => {
       const createEventDto: CreateEventDto = {
-        name: "FEUP Week",
-        description: "Annual FEUP event",
+        translations: [
+          {
+            languageCode: "en",
+            name: "FEUP Week",
+            description: "Annual FEUP event",
+          },
+        ],
         year: 2025,
         startDate: "2025-12-26T09:00:00Z",
         endDate: "2025-12-27T18:00:00Z",
@@ -104,9 +118,15 @@ describe("EventsController", () => {
   describe("update", () => {
     it("should update an event", async () => {
       const updateEventDto: UpdateEventDto = {
-        name: "Updated Event Name",
+        translations: [
+          {
+            languageCode: "en",
+            name: "Updated Event Name",
+            description: "Annual FEUP event",
+          },
+        ],
       };
-      const updatedEvent = { ...mockEvent, ...updateEventDto };
+      const updatedEvent = { ...mockEvent };
       mockEventsService.update.mockResolvedValue(updatedEvent);
 
       const result = await controller.update(1, updateEventDto);
@@ -117,7 +137,13 @@ describe("EventsController", () => {
 
     it("should throw NotFoundException if event not found", async () => {
       const updateEventDto: UpdateEventDto = {
-        name: "Updated Event Name",
+        translations: [
+          {
+            languageCode: "en",
+            name: "Updated Event Name",
+            description: "Annual FEUP event",
+          },
+        ],
       };
       mockEventsService.update.mockRejectedValue(new NotFoundException());
 

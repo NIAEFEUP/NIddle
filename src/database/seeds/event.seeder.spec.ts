@@ -13,15 +13,33 @@ describe("EventSeeder", () => {
   const mockFaculties: Faculty[] = [
     {
       id: 1,
-      name: "Engineering Faculty",
-      acronym: "FEUP",
+      defaultLanguage: "en",
+      translations: [
+        {
+          id: 1,
+          facultyId: 1,
+          languageCode: "en",
+          name: "Engineering Faculty",
+          acronym: "FEUP",
+          faculty: undefined as any,
+        },
+      ],
       courses: [],
       events: [],
     },
     {
       id: 2,
-      name: "Science Faculty",
-      acronym: "FCUP",
+      defaultLanguage: "en",
+      translations: [
+        {
+          id: 2,
+          facultyId: 2,
+          languageCode: "en",
+          name: "Science Faculty",
+          acronym: "FCUP",
+          faculty: undefined as any,
+        },
+      ],
       courses: [],
       events: [],
     },
@@ -30,15 +48,33 @@ describe("EventSeeder", () => {
   const mockCourses: Course[] = [
     {
       id: 1,
-      name: "Computer Science",
-      acronym: "CS",
+      defaultLanguage: "en",
+      translations: [
+        {
+          id: 1,
+          courseId: 1,
+          languageCode: "en",
+          name: "Computer Science",
+          acronym: "CS",
+          course: undefined as any,
+        },
+      ],
       faculties: [],
       events: [],
     },
     {
       id: 2,
-      name: "Engineering",
-      acronym: "ENG",
+      defaultLanguage: "en",
+      translations: [
+        {
+          id: 2,
+          courseId: 2,
+          languageCode: "en",
+          name: "Engineering",
+          acronym: "ENG",
+          course: undefined as any,
+        },
+      ],
       faculties: [],
       events: [],
     },
@@ -46,8 +82,17 @@ describe("EventSeeder", () => {
 
   const mockEvent: Event = {
     id: 1,
-    name: "FEUP Week",
-    description: "Annual FEUP event",
+    defaultLanguage: "en",
+    translations: [
+      {
+        id: 1,
+        eventId: 1,
+        languageCode: "en",
+        name: "FEUP Week",
+        description: "Annual FEUP event",
+        event: undefined as any,
+      },
+    ],
     year: 2025,
     startDate: new Date("2025-12-26T09:00:00Z"),
     endDate: new Date("2025-12-27T18:00:00Z"),

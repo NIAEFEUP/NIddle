@@ -3,6 +3,11 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { Course } from "@/courses/entities/course.entity";
 import { Event } from "@/events/entities/event.entity";
 import { Faculty } from "@/faculties/entities/faculty.entity";
+import {
+  CourseTranslation,
+  EventTranslation,
+  FacultyTranslation,
+} from "@/i18n/entities";
 import { EventsController } from "./events.controller";
 import { EventsModule } from "./events.module";
 import { EventsService } from "./events.service";
@@ -16,7 +21,14 @@ describe("EventsModule", () => {
         TypeOrmModule.forRoot({
           type: "sqlite",
           database: ":memory:",
-          entities: [Course, Faculty, Event],
+          entities: [
+            Course,
+            CourseTranslation,
+            Event,
+            EventTranslation,
+            Faculty,
+            FacultyTranslation,
+          ],
           synchronize: true,
         }),
         EventsModule,

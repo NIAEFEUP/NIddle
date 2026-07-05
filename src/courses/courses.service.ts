@@ -3,6 +3,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { validateAndGetRelations } from "@/common/utils/entity-relation.utils";
 import { Faculty } from "@/faculties/entities/faculty.entity";
+import { CourseTranslation } from "@/i18n/entities";
 import { CreateCourseDto } from "./dto/create-course.dto";
 import { UpdateCourseDto } from "./dto/update-course.dto";
 import { Course } from "./entities/course.entity";
@@ -17,8 +18,19 @@ export class CoursesService {
   ) {}
 
   async create(createCourseDto: CreateCourseDto): Promise<Course> {
-    const { facultyIds, ...courseData } = createCourseDto;
-    const course = this.courseRepository.create(courseData);
+    const { facultyIds, translations } = createCourseDto;
+    const course = new Course();
+    course.defaultLanguage = "en";
+
+    if (translations && translations.length > 0) {
+      course.translations = translations.map((t) => {
+        const translation = new CourseTranslation();
+        translation.languageCode = t.languageCode;
+        translation.name = t.name;
+        translation.acronym = t.acronym;
+        return translation;
+      });
+    }
 
     if (facultyIds !== undefined) {
       course.faculties = await validateAndGetRelations(
@@ -32,22 +44,22 @@ export class CoursesService {
   }
 
   findAll(): Promise<Course[]> {
-    return this.courseRepository.find({ relations: ["faculties"] });
+    return this.courseRepository.find({
+      relations: ["translations", "faculties"],
+    });
   }
 
   findOne(id: number): Promise<Course> {
     return this.courseRepository.findOneOrFail({
       where: { id },
-      relations: ["faculties"],
+      relations: ["translations", "faculties"],
     });
   }
 
   async update(id: number, updateCourseDto: UpdateCourseDto): Promise<Course> {
-    const { facultyIds, ...courseData } = updateCourseDto;
+    const { facultyIds } = updateCourseDto;
 
     const course = await this.courseRepository.findOneByOrFail({ id });
-
-    this.courseRepository.merge(course, courseData);
 
     if (facultyIds !== undefined) {
       course.faculties = await validateAndGetRelations(

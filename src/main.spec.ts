@@ -13,6 +13,7 @@ const mockDocumentBuilderInstance = {
   setDescription: jest.fn().mockReturnThis(),
   addServer: jest.fn().mockReturnThis(),
   addBearerAuth: jest.fn().mockReturnThis(),
+  addGlobalParameters: jest.fn().mockReturnThis(),
   build: jest.fn().mockReturnValue({}),
 };
 
@@ -23,6 +24,7 @@ const mockSwaggerModule = {
 
 jest.mock("@nestjs/core", () => ({
   NestFactory: mockNestFactory,
+  APP_INTERCEPTOR: "APP_INTERCEPTOR",
 }));
 
 jest.mock("@nestjs/swagger", () => ({
@@ -38,11 +40,15 @@ jest.mock("./filters/entity-not-found.filter", () => ({
   EntityNotFoundFilter: class MockFilter {},
 }));
 
+jest.mock("./common/interceptors/translation.interceptor", () => ({
+  TranslationInterceptor: class MockInterceptor {},
+}));
+
 jest.mock("@nestjs/common", () => {
   const actual = jest.requireActual("@nestjs/common");
   return {
     ...actual,
-    ValidationPipe: jest.fn(),
+    ValidationPipe: class MockValidationPipe {},
   };
 });
 

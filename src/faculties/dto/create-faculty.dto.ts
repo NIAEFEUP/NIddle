@@ -1,32 +1,29 @@
+import { Type } from "class-transformer";
 import {
   IsArray,
-  IsNotEmpty,
   IsNumber,
   IsOptional,
   IsString,
+  ValidateNested,
 } from "class-validator";
 
-export class CreateFacultyDto {
-  /**
-   * The name of the faculty.
-   * @example 'Faculty of Engineering'
-   */
+export class FacultyTranslationDto {
   @IsString()
-  @IsNotEmpty()
+  languageCode: string;
+
+  @IsString()
   name: string;
 
-  /**
-   * The acronym of the faculty.
-   * @example 'FEUP'
-   */
   @IsString()
-  @IsNotEmpty()
   acronym: string;
+}
 
-  /**
-   * The IDs of the courses associated with the faculty.
-   * @example [1, 2]
-   */
+export class CreateFacultyDto {
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => FacultyTranslationDto)
+  translations: FacultyTranslationDto[];
+
   @IsArray()
   @IsNumber({}, { each: true })
   @IsOptional()
