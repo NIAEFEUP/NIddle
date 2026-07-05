@@ -31,7 +31,7 @@ export class Association {
    * @example 'CC'
    */
   @Column({ nullable: true })
-  acronym: string;
+  acronym?: string;
 
   /**
    * The user (owner) of the association.
