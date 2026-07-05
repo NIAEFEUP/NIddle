@@ -1,6 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
+import { Association } from "@/associations/entities/association.entity";
 import { validateAndGetRelations } from "@/common/utils/entity-relation.utils";
 import { Course } from "@/courses/entities/course.entity";
 import { Faculty } from "@/faculties/entities/faculty.entity";
@@ -18,13 +19,15 @@ export class EventsService {
     private facultyRepository: Repository<Faculty>,
     @InjectRepository(Course)
     private courseRepository: Repository<Course>,
+    @InjectRepository(Association)
+    private associationRepository: Repository<Association>,
   ) {}
 
   async create(createEventDto: CreateEventDto): Promise<Event> {
-    const { facultyId, courseIds, ...eventData } = createEventDto;
+    const { facultyId, courseIds, createdById, ...eventData } = createEventDto;
     const event = this.eventRepository.create(eventData);
 
-    if (facultyId !== undefined) {
+    if (facultyId) {
       event.faculty = await this.facultyRepository.findOneByOrFail({
         id: facultyId,
       });
@@ -37,6 +40,10 @@ export class EventsService {
         "courses",
       );
     }
+
+    event.createdBy = await this.associationRepository.findOneByOrFail({
+      id: createdById,
+    });
 
     return this.eventRepository.save(event);
   }
@@ -50,27 +57,34 @@ export class EventsService {
         ...(facultyId && { faculty: { id: facultyId } }),
         ...(courseId && { courses: { id: courseId } }),
       },
-      relations: ["faculty", "courses"],
+      relations: ["faculty", "courses", "createdBy"],
     });
   }
 
   findOne(id: number): Promise<Event> {
     return this.eventRepository.findOneOrFail({
       where: { id },
-      relations: ["faculty", "courses"],
+      relations: ["faculty", "courses", "createdBy"],
     });
   }
 
   async update(id: number, updateEventDto: UpdateEventDto): Promise<Event> {
-    const { facultyId, courseIds, ...eventData } = updateEventDto;
+    const { facultyId, courseIds, createdById, ...eventData } = updateEventDto;
 
-    const event = await this.eventRepository.findOneByOrFail({ id });
+    const event = await this.eventRepository.findOneOrFail({
+      where: { id },
+      relations: ["faculty", "courses", "createdBy"],
+    });
     this.eventRepository.merge(event, eventData);
 
     if (facultyId !== undefined) {
-      event.faculty = await this.facultyRepository.findOneByOrFail({
-        id: facultyId,
-      });
+      if (facultyId === null) {
+        event.faculty = undefined;
+      } else {
+        event.faculty = await this.facultyRepository.findOneByOrFail({
+          id: facultyId,
+        });
+      }
     }
 
     if (courseIds !== undefined) {
@@ -79,6 +93,12 @@ export class EventsService {
         courseIds,
         "courses",
       );
+    }
+
+    if (createdById !== undefined) {
+      event.createdBy = await this.associationRepository.findOneByOrFail({
+        id: createdById,
+      });
     }
 
     return this.eventRepository.save(event);

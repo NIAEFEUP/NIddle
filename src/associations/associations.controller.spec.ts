@@ -1,7 +1,6 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { AssociationsController } from "./associations.controller";
 import { AssociationsService } from "./associations.service";
-import { AssociationFilterDto } from "./dto/association-filter.dto";
 import { CreateAssociationDto } from "./dto/create-association.dto";
 import { UpdateAssociationDto } from "./dto/update-association.dto";
 
@@ -44,7 +43,6 @@ describe("AssociationsController", () => {
   it("creates an association", async () => {
     const createDto: CreateAssociationDto = {
       name: "Chess Club",
-      facultyId: 1,
       userId: 1,
     };
     const expected = { id: 1, ...createDto };
@@ -56,25 +54,13 @@ describe("AssociationsController", () => {
     expect(result).toBe(expected);
   });
 
-  it("finds all associations without faculty filter", async () => {
+  it("finds all associations", async () => {
     const expected = [{ id: 1, name: "Chess Club" }];
-    const filters: AssociationFilterDto = {};
     service.findAll.mockResolvedValue(expected);
 
-    const result = await controller.findAll(filters);
+    const result = await controller.findAll();
 
-    expect(service.findAll).toHaveBeenCalledWith(filters);
-    expect(result).toBe(expected);
-  });
-
-  it("finds all associations for a faculty", async () => {
-    const expected = [{ id: 2, name: "Robotics" }];
-    const filters: AssociationFilterDto = { facultyId: 12 };
-    service.findAll.mockResolvedValue(expected);
-
-    const result = await controller.findAll(filters);
-
-    expect(service.findAll).toHaveBeenCalledWith(filters);
+    expect(service.findAll).toHaveBeenCalled();
     expect(result).toBe(expected);
   });
 

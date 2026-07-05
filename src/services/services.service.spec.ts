@@ -1,6 +1,7 @@
 import { BadRequestException } from "@nestjs/common";
 import { Test, TestingModule } from "@nestjs/testing";
 import { getRepositoryToken } from "@nestjs/typeorm";
+import { Association } from "@/associations/entities/association.entity";
 import { Course } from "@/courses/entities/course.entity";
 import { Faculty } from "@/faculties/entities/faculty.entity";
 import { CreateServiceDto } from "./dto/create-service.dto";
@@ -12,13 +13,20 @@ import { ServicesService } from "./services.service";
 describe("ServicesService", () => {
   let service: ServicesService;
 
+  const mockAssociation: Association = {
+    id: 1,
+    name: "Chess Club",
+    user: null as any,
+    events: [],
+    services: [],
+  };
+
   const mockFaculty: Faculty = {
     id: 1,
     name: "Engineering Faculty",
     acronym: "FEUP",
     events: [],
     courses: [],
-    associations: [],
   };
 
   const mockCourse: Course = {
@@ -27,7 +35,6 @@ describe("ServicesService", () => {
     acronym: "CS",
     faculties: [],
     events: [],
-    association: null,
   };
 
   const mockSchedule: Schedule[] = [];
@@ -41,8 +48,7 @@ describe("ServicesService", () => {
     schedule: mockSchedule,
     faculty: mockFaculty,
     course: null,
-    ownedAssociation: null,
-    managedAssociation: null,
+    createdBy: mockAssociation,
     validateFacultyAndCourses() {},
   };
 
@@ -81,6 +87,10 @@ describe("ServicesService", () => {
     findOneByOrFail: jest.fn(),
   };
 
+  const mockAssociationRepository = {
+    findOneByOrFail: jest.fn(),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -97,10 +107,17 @@ describe("ServicesService", () => {
           provide: getRepositoryToken(Course),
           useValue: mockCourseRepository,
         },
+        {
+          provide: getRepositoryToken(Association),
+          useValue: mockAssociationRepository,
+        },
       ],
     }).compile();
 
     service = module.get<ServicesService>(ServicesService);
+    mockAssociationRepository.findOneByOrFail.mockResolvedValue(
+      mockAssociation,
+    );
   });
 
   afterEach(() => {
@@ -121,7 +138,7 @@ describe("ServicesService", () => {
       expect(result).toEqual(services);
       expect(mockServiceRepository.find).toHaveBeenCalledWith({
         where: {},
-        relations: ["schedule", "faculty", "course"],
+        relations: ["schedule", "faculty", "course", "createdBy"],
       });
     });
 
@@ -136,7 +153,7 @@ describe("ServicesService", () => {
         where: {
           faculty: { id: 1 },
         },
-        relations: ["schedule", "faculty", "course"],
+        relations: ["schedule", "faculty", "course", "createdBy"],
       });
     });
 
@@ -151,7 +168,7 @@ describe("ServicesService", () => {
         where: {
           course: { id: 2 },
         },
-        relations: ["schedule", "faculty", "course"],
+        relations: ["schedule", "faculty", "course", "createdBy"],
       });
     });
 
@@ -167,7 +184,7 @@ describe("ServicesService", () => {
           faculty: { id: 1 },
           course: { id: 2 },
         },
-        relations: ["schedule", "faculty", "course"],
+        relations: ["schedule", "faculty", "course", "createdBy"],
       });
     });
   });
@@ -181,7 +198,7 @@ describe("ServicesService", () => {
       expect(result).toEqual(mockService);
       expect(mockServiceRepository.findOneOrFail).toHaveBeenCalledWith({
         where: { id: 1 },
-        relations: ["schedule", "faculty", "course"],
+        relations: ["schedule", "faculty", "course", "createdBy"],
       });
     });
 
@@ -205,6 +222,7 @@ describe("ServicesService", () => {
         phoneNumber: "+315 999999999",
         schedule: mockSchedule,
         courseId: 1,
+        createdById: 1,
       };
 
       const newService = {
@@ -236,6 +254,7 @@ describe("ServicesService", () => {
         phoneNumber: "+315 999999999",
         schedule: mockSchedule,
         courseId: 1,
+        createdById: 1,
       };
 
       const newService = {
@@ -266,6 +285,7 @@ describe("ServicesService", () => {
         phoneNumber: "+315 999999999",
         schedule: mockSchedule,
         facultyId: 1,
+        createdById: 1,
       };
 
       const newService = {
@@ -297,6 +317,7 @@ describe("ServicesService", () => {
         schedule: mockSchedule,
         facultyId: 1,
         courseId: 1,
+        createdById: 1,
       };
 
       await expect(service.create(createServiceDto)).rejects.toThrow(
@@ -311,6 +332,7 @@ describe("ServicesService", () => {
         email: "PdB@gmail.com",
         phoneNumber: "+315 999999999",
         schedule: mockSchedule,
+        createdById: 1,
       };
 
       const newService = {
@@ -531,6 +553,28 @@ describe("ServicesService", () => {
       await expect(service.update(1, updateDto)).rejects.toThrow(
         BadRequestException,
       );
+    });
+
+    it("should update service with createdById", async () => {
+      const updateDto: UpdateServiceDto = {
+        createdById: 1,
+      };
+
+      mockServiceRepository.findOneOrFail.mockResolvedValue({ ...mockService });
+      mockServiceRepository.merge.mockImplementation((s, d) =>
+        Object.assign(s, d),
+      );
+      mockAssociationRepository.findOneByOrFail.mockResolvedValue(
+        mockAssociation,
+      );
+      mockServiceRepository.save.mockImplementation(async (s) => s);
+
+      const result = await service.update(1, updateDto);
+
+      expect(mockAssociationRepository.findOneByOrFail).toHaveBeenCalledWith({
+        id: 1,
+      });
+      expect(result.createdBy).toEqual(mockAssociation);
     });
   });
 

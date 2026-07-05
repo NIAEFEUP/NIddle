@@ -6,7 +6,6 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from "typeorm";
-import { Association } from "@/associations/entities/association.entity";
 import { Course } from "@/courses/entities/course.entity";
 import { Event } from "@/events/entities/event.entity";
 
@@ -55,10 +54,4 @@ export class Faculty {
     (event) => event.faculty,
   )
   events: Event[];
-
-  @OneToMany(
-    () => Association,
-    (association) => association.faculty,
-  )
-  associations: Association[];
 }

@@ -71,14 +71,6 @@ export class Event {
   )
   faculty?: Faculty;
 
-  @ManyToOne(
-    () => Association,
-    (association) => association.events,
-    { nullable: true },
-  )
-  @JoinColumn()
-  association?: Association | null;
-
   /**
    * The courses associated with the event.
    */
@@ -89,4 +81,12 @@ export class Event {
   )
   @JoinTable()
   courses: Course[];
+
+  @ManyToOne(
+    () => Association,
+    (association) => association.events,
+    { nullable: false, onDelete: "CASCADE" },
+  )
+  @JoinColumn()
+  createdBy: Association;
 }

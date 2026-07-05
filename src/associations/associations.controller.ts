@@ -8,7 +8,6 @@ import {
   ParseIntPipe,
   Patch,
   Post,
-  Query,
   UseGuards,
   UseInterceptors,
   ValidationPipe,
@@ -16,7 +15,6 @@ import {
 import { ApiBearerAuth, ApiOperation, ApiResponse } from "@nestjs/swagger";
 import { JwtAuthGuard } from "@/auth/guards/jwt-auth.guard";
 import { AssociationsService } from "./associations.service";
-import { AssociationFilterDto } from "./dto/association-filter.dto";
 import { CreateAssociationDto } from "./dto/create-association.dto";
 import { UpdateAssociationDto } from "./dto/update-association.dto";
 import { Association } from "./entities/association.entity";
@@ -29,8 +27,8 @@ export class AssociationsController {
   @ApiOperation({ summary: "Get all associations" })
   @ApiResponse({ status: 200, description: "List of associations returned." })
   @Get()
-  findAll(@Query() filters: AssociationFilterDto): Promise<Association[]> {
-    return this.associationsService.findAll(filters);
+  findAll(): Promise<Association[]> {
+    return this.associationsService.findAll();
   }
 
   @UseInterceptors(ClassSerializerInterceptor)

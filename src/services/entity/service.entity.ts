@@ -75,23 +75,14 @@ export class Service {
 
   @ManyToOne(
     () => Association,
-    (association) => association.ownerServices,
+    (association) => association.services,
     {
-      nullable: true,
+      nullable: false,
+      onDelete: "CASCADE",
     },
   )
   @JoinColumn()
-  ownedAssociation: Association | null;
-
-  @ManyToOne(
-    () => Association,
-    (association) => association.managerServices,
-    {
-      nullable: true,
-    },
-  )
-  @JoinColumn()
-  managedAssociation: Association | null;
+  createdBy: Association;
 
   @BeforeInsert()
   @BeforeUpdate()

@@ -1,14 +1,22 @@
 import { DataSource, EntityTarget, Repository } from "typeorm";
 import { SeederFactoryManager } from "typeorm-extension";
+import { Association } from "@/associations/entities/association.entity";
 import { Course } from "@/courses/entities/course.entity";
 import { Event } from "@/events/entities/event.entity";
 import { Faculty } from "@/faculties/entities/faculty.entity";
-import EventSeeder from "./4-event.seeder";
+import EventSeeder from "./5-event.seeder";
 
 describe("EventSeeder", () => {
   let seeder: EventSeeder;
   let dataSource: DataSource;
   let factoryManager: SeederFactoryManager;
+
+  const mockAssociations: any[] = [
+    {
+      id: 1,
+      name: "Chess Club",
+    },
+  ];
 
   const mockFaculties: Faculty[] = [
     {
@@ -17,7 +25,6 @@ describe("EventSeeder", () => {
       acronym: "FEUP",
       courses: [],
       events: [],
-      associations: [],
     },
     {
       id: 2,
@@ -25,7 +32,6 @@ describe("EventSeeder", () => {
       acronym: "FCUP",
       courses: [],
       events: [],
-      associations: [],
     },
   ];
 
@@ -36,7 +42,6 @@ describe("EventSeeder", () => {
       acronym: "CS",
       faculties: [],
       events: [],
-      association: null,
     },
     {
       id: 2,
@@ -44,7 +49,6 @@ describe("EventSeeder", () => {
       acronym: "ENG",
       faculties: [],
       events: [],
-      association: null,
     },
   ];
 
@@ -57,6 +61,7 @@ describe("EventSeeder", () => {
     endDate: new Date("2025-12-27T18:00:00Z"),
     faculty: undefined,
     courses: [],
+    createdBy: null as any,
   };
 
   const mockFactory = {
@@ -75,11 +80,16 @@ describe("EventSeeder", () => {
     find: jest.fn().mockResolvedValue(mockCourses),
   };
 
+  const mockAssociationRepository = {
+    find: jest.fn().mockResolvedValue(mockAssociations),
+  };
+
   const mockGet = jest.fn().mockReturnValue(mockFactory);
   const mockGetRepository = jest.fn((entity: any) => {
     if (entity === Event) return mockEventRepository;
     if (entity === Faculty) return mockFacultyRepository;
     if (entity === Course) return mockCourseRepository;
+    if (entity === Association) return mockAssociationRepository;
     return {} as Repository<any>;
   });
 
@@ -97,11 +107,13 @@ describe("EventSeeder", () => {
     mockEventRepository.save.mockClear();
     mockFacultyRepository.find.mockClear();
     mockCourseRepository.find.mockClear();
+    mockAssociationRepository.find.mockClear();
     mockGetRepository.mockClear();
 
     mockFactory.make.mockResolvedValue({ ...mockEvent });
     mockFacultyRepository.find.mockResolvedValue(mockFaculties);
     mockCourseRepository.find.mockResolvedValue(mockCourses);
+    mockAssociationRepository.find.mockResolvedValue(mockAssociations);
   });
 
   it("should be defined", () => {
@@ -114,6 +126,7 @@ describe("EventSeeder", () => {
     expect(mockGet).toHaveBeenCalledWith(Event);
     expect(mockFacultyRepository.find).toHaveBeenCalled();
     expect(mockCourseRepository.find).toHaveBeenCalled();
+    expect(mockAssociationRepository.find).toHaveBeenCalled();
     expect(mockFactory.make).toHaveBeenCalledTimes(50);
     expect(mockEventRepository.save).toHaveBeenCalled();
   });
@@ -141,27 +154,31 @@ describe("EventSeeder", () => {
       return Promise.resolve(events);
     });
 
+    const randomSpy = jest.spyOn(Math, "random").mockReturnValue(0.1);
     await seeder.run(dataSource, factoryManager);
+    randomSpy.mockRestore();
 
     expect(savedEvents.length).toBe(50);
     const eventsWithFaculty = savedEvents.filter((event) => event.faculty);
     expect(eventsWithFaculty.length).toBeGreaterThan(0);
   });
 
-  it("should assign courses to some events", async () => {
+  it("should assign course to some events", async () => {
     const savedEvents: Event[] = [];
     mockEventRepository.save.mockImplementation((events: Event[]) => {
       savedEvents.push(...events);
       return Promise.resolve(events);
     });
 
+    const randomSpy = jest.spyOn(Math, "random").mockReturnValue(0.9);
     await seeder.run(dataSource, factoryManager);
+    randomSpy.mockRestore();
 
     expect(savedEvents.length).toBe(50);
-    const eventsWithCourses = savedEvents.filter(
+    const eventsWithCourse = savedEvents.filter(
       (event) => event.courses && event.courses.length > 0,
     );
-    expect(eventsWithCourses.length).toBeGreaterThan(0);
+    expect(eventsWithCourse.length).toBeGreaterThan(0);
   });
 
   it("should use current year if startDate is not a Date instance", async () => {
@@ -178,6 +195,128 @@ describe("EventSeeder", () => {
 
     savedEvents.forEach((event) => {
       expect(event.year).toBe(currentYear);
+    });
+  });
+
+  it("should not assign createdBy if no associations exist", async () => {
+    const savedEvents: Event[] = [];
+    mockEventRepository.save.mockImplementation((events: Event[]) => {
+      savedEvents.push(...events);
+      return Promise.resolve(events);
+    });
+
+    const getRepositoryMock = jest.fn((entity: EntityTarget<any>) => {
+      if (entity === Event) {
+        return mockEventRepository;
+      } else if (entity === Faculty) {
+        return { find: jest.fn().mockResolvedValue(mockFaculties) };
+      } else if (entity === Course) {
+        return { find: jest.fn().mockResolvedValue(mockCourses) };
+      } else if (entity === Association) {
+        return { find: jest.fn().mockResolvedValue([]) };
+      }
+    });
+
+    dataSource = {
+      getRepository: getRepositoryMock,
+    } as unknown as DataSource;
+
+    await seeder.run(dataSource, factoryManager);
+
+    savedEvents.forEach((event) => {
+      expect(event.createdBy).toBeNull();
+    });
+  });
+
+  it("should not assign courses if no courses exist", async () => {
+    const savedEvents: Event[] = [];
+    mockEventRepository.save.mockImplementation((events: Event[]) => {
+      savedEvents.push(...events);
+      return Promise.resolve(events);
+    });
+
+    const getRepositoryMock = jest.fn((entity: EntityTarget<any>) => {
+      if (entity === Event) {
+        return mockEventRepository;
+      } else if (entity === Faculty) {
+        return { find: jest.fn().mockResolvedValue(mockFaculties) };
+      } else if (entity === Course) {
+        return { find: jest.fn().mockResolvedValue([]) };
+      } else if (entity === Association) {
+        return { find: jest.fn().mockResolvedValue(mockAssociations) };
+      }
+    });
+
+    dataSource = {
+      getRepository: getRepositoryMock,
+    } as unknown as DataSource;
+
+    await seeder.run(dataSource, factoryManager);
+
+    const eventsWithCourse = savedEvents.filter(
+      (event) => event.courses && event.courses.length > 0,
+    );
+    expect(eventsWithCourse.length).toBe(0);
+  });
+
+  it("should not assign faculty if no faculties exist", async () => {
+    const savedEvents: Event[] = [];
+    mockEventRepository.save.mockImplementation((events: Event[]) => {
+      savedEvents.push(...events);
+      return Promise.resolve(events);
+    });
+
+    const getRepositoryMock = jest.fn((entity: EntityTarget<any>) => {
+      if (entity === Event) {
+        return mockEventRepository;
+      } else if (entity === Faculty) {
+        return { find: jest.fn().mockResolvedValue([]) };
+      } else if (entity === Course) {
+        return { find: jest.fn().mockResolvedValue(mockCourses) };
+      } else if (entity === Association) {
+        return { find: jest.fn().mockResolvedValue(mockAssociations) };
+      }
+    });
+
+    dataSource = {
+      getRepository: getRepositoryMock,
+    } as unknown as DataSource;
+
+    await seeder.run(dataSource, factoryManager);
+
+    savedEvents.forEach((event) => {
+      expect(event.faculty).toBeUndefined();
+    });
+  });
+
+  it("should do nothing if neither faculties nor courses exist", async () => {
+    const savedEvents: Event[] = [];
+    mockEventRepository.save.mockImplementation((events: Event[]) => {
+      savedEvents.push(...events);
+      return Promise.resolve(events);
+    });
+
+    const getRepositoryMock = jest.fn((entity: EntityTarget<any>) => {
+      if (entity === Event) {
+        return mockEventRepository;
+      } else if (entity === Faculty) {
+        return { find: jest.fn().mockResolvedValue([]) };
+      } else if (entity === Course) {
+        return { find: jest.fn().mockResolvedValue([]) };
+      } else if (entity === Association) {
+        return { find: jest.fn().mockResolvedValue(mockAssociations) };
+      }
+    });
+
+    dataSource = {
+      getRepository: getRepositoryMock,
+    } as unknown as DataSource;
+
+    await seeder.run(dataSource, factoryManager);
+
+    savedEvents.forEach((event) => {
+      expect(event.faculty).toBeUndefined();
+      expect(event.courses).toEqual([]);
     });
   });
 });

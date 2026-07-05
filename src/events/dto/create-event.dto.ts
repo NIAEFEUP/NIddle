@@ -57,11 +57,19 @@ export class CreateEventDto {
   facultyId?: number;
 
   /**
-   * The course IDs associated with this event.
-   * @example [1, 2]
+   * The IDs of the courses associated with the event.
+   * @example [1]
    */
   @IsArray()
   @IsInt({ each: true })
   @IsOptional()
   courseIds?: number[];
+
+  /**
+   * The association ID that created this event.
+   * @example 1
+   */
+  @IsInt()
+  @IsNotEmpty()
+  createdById: number;
 }

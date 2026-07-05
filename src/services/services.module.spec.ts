@@ -1,5 +1,6 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { getRepositoryToken } from "@nestjs/typeorm";
+import { Association } from "@/associations/entities/association.entity";
 import { Course } from "@/courses/entities/course.entity";
 import { Faculty } from "@/faculties/entities/faculty.entity";
 import { Schedule } from "./entity/schedule.entity";
@@ -20,6 +21,8 @@ describe("ServicesModule", () => {
       .overrideProvider(getRepositoryToken(Faculty))
       .useValue({})
       .overrideProvider(getRepositoryToken(Course))
+      .useValue({})
+      .overrideProvider(getRepositoryToken(Association))
       .useValue({})
       .compile();
 
