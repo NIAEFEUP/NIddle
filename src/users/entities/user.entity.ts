@@ -33,6 +33,9 @@ export class User {
   @Column()
   password: string;
 
+  @Column({ default: false })
+  isAdmin: boolean;
+
   /**
    * Associations the user has access to.
    */
