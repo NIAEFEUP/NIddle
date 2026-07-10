@@ -1,6 +1,8 @@
 import {
-  IsEmail,
-  IsNotEmpty,
+  IsArray,
+  IsBoolean,
+  IsEmail, IsInt,
+  IsNotEmpty, IsOptional,
   IsString,
   IsStrongPassword,
   MaxLength,
@@ -18,7 +20,7 @@ export class CreateUserDto {
       "Name is too long. Maximal length is $constraint1 characters, but actual is $value.",
   })
   /**
-   * The user name.
+   * The user's name.
    * @example 'Cristiano Ronaldo dos Santos Aveiro'
    */
   name: string;
@@ -50,4 +52,13 @@ export class CreateUserDto {
    * @example 'Password#123'
    */
   password: string;
+
+  @IsOptional()
+  @IsBoolean()
+  isAdmin?: boolean;
+
+  @IsOptional()
+  @IsArray()
+  @IsInt({ each: true })
+  associationIds?: number[];
 }
