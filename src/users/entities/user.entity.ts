@@ -1,5 +1,5 @@
 import { Exclude } from "class-transformer";
-import {Column, Entity, ManyToMany, PrimaryGeneratedColumn} from "typeorm";
+import { Column, Entity, ManyToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Association } from "@/associations/entities/association.entity";
 
 @Entity()
@@ -37,8 +37,8 @@ export class User {
    * Associations the user has access to.
    */
   @ManyToMany(
-      () => Association,
-      (association) => association.users,
+    () => Association,
+    (association) => association.users,
   )
   associations: Association[];
 

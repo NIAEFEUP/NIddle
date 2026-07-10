@@ -1,7 +1,8 @@
 import {
   Column,
   Entity,
-  JoinTable, ManyToMany,
+  JoinTable,
+  ManyToMany,
   OneToMany,
   PrimaryGeneratedColumn,
 } from "typeorm";
@@ -35,7 +36,11 @@ export class Association {
   /**
    * Users that belong to the association.
    */
-  @ManyToMany(() => User, { cascade: true, onDelete: "CASCADE" })
+  @ManyToMany(
+    () => User,
+    (user) => user.associations,
+    { cascade: true, onDelete: "CASCADE" },
+  )
   @JoinTable()
   users: User[];
 
