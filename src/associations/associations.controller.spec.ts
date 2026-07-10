@@ -44,7 +44,6 @@ describe("AssociationsController", () => {
     const createDto: CreateAssociationDto = {
       name: "Chess Club",
       acronym: "CC",
-      userId: 1,
     };
     const expected = { id: 1, ...createDto };
     service.create.mockResolvedValue(expected);

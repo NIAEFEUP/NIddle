@@ -14,7 +14,7 @@ describe("UsersModule", () => {
         TypeOrmModule.forRoot({
           type: "sqlite",
           database: ":memory:",
-          entities: [User],
+          entities: [__dirname + "/../**/*.entity{.ts,.js}"],
           synchronize: true,
         }),
         UsersModule,

@@ -17,6 +17,7 @@ describe("AuthService", () => {
     name: "Test User",
     email: "test@example.com",
     password: "hashedPassword",
+    associations: [],
   };
 
   const mockUsersService = {

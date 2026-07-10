@@ -12,6 +12,7 @@ describe("UsersController", () => {
     name: "John Doe",
     email: "john@example.com",
     password: "password",
+    associations: [],
   };
 
   const mockUsersService = {

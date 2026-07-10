@@ -15,7 +15,7 @@ describe("EventsService", () => {
   const mockAssociation: Association = {
     id: 1,
     name: "Chess Club",
-    user: null as any,
+    users: [],
     events: [],
     services: [],
   };

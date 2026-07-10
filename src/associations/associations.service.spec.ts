@@ -14,13 +14,14 @@ describe("AssociationsService", () => {
     name: "Chess Club Admin",
     email: "chess@example.com",
     password: "hashedpassword",
+    associations: [],
   };
 
   const mockAssociation: Association = {
     id: 1,
     name: "Chess Club",
     acronym: "CC",
-    user: mockUser,
+    users: [mockUser],
     events: [],
     services: [],
   };
@@ -35,10 +36,6 @@ describe("AssociationsService", () => {
     delete: jest.fn(),
   };
 
-  const mockUserRepository = {
-    findOneByOrFail: jest.fn(),
-  };
-
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -46,10 +43,6 @@ describe("AssociationsService", () => {
         {
           provide: getRepositoryToken(Association),
           useValue: mockAssociationRepository,
-        },
-        {
-          provide: getRepositoryToken(User),
-          useValue: mockUserRepository,
         },
       ],
     }).compile();
@@ -70,10 +63,8 @@ describe("AssociationsService", () => {
       const createDto: CreateAssociationDto = {
         name: "Chess Club",
         acronym: "CC",
-        userId: 1,
       };
       mockAssociationRepository.create.mockReturnValue({ ...mockAssociation });
-      mockUserRepository.findOneByOrFail.mockResolvedValue(mockUser);
       mockAssociationRepository.save.mockResolvedValue(mockAssociation);
 
       const result = await service.create(createDto);
@@ -83,24 +74,7 @@ describe("AssociationsService", () => {
         name: "Chess Club",
         acronym: "CC",
       });
-      expect(mockUserRepository.findOneByOrFail).toHaveBeenCalledWith({
-        id: 1,
-      });
       expect(mockAssociationRepository.save).toHaveBeenCalled();
-    });
-
-    it("should throw if user not found", async () => {
-      const createDto: CreateAssociationDto = {
-        name: "Chess Club",
-        acronym: "CC",
-        userId: 999,
-      };
-      mockAssociationRepository.create.mockReturnValue({ ...mockAssociation });
-      mockUserRepository.findOneByOrFail.mockRejectedValue(
-        new Error("Not found"),
-      );
-
-      await expect(service.create(createDto)).rejects.toThrow("Not found");
     });
   });
 
@@ -112,7 +86,7 @@ describe("AssociationsService", () => {
 
       expect(result).toEqual([mockAssociation]);
       expect(mockAssociationRepository.find).toHaveBeenCalledWith({
-        relations: ["user"],
+        relations: ["users"],
       });
     });
   });
@@ -128,7 +102,7 @@ describe("AssociationsService", () => {
       expect(result).toEqual(mockAssociation);
       expect(mockAssociationRepository.findOneOrFail).toHaveBeenCalledWith({
         where: { id: 1 },
-        relations: ["user"],
+        relations: ["users"],
       });
     });
 
@@ -162,31 +136,9 @@ describe("AssociationsService", () => {
       expect(result.name).toEqual("New Name");
       expect(mockAssociationRepository.findOneOrFail).toHaveBeenCalledWith({
         where: { id: 1 },
-        relations: ["user"],
+        relations: ["users"],
       });
       expect(mockAssociationRepository.save).toHaveBeenCalled();
-    });
-
-    it("should update association user relation", async () => {
-      const updateDto: UpdateAssociationDto = {
-        userId: 2,
-      };
-      const newUser = { ...mockUser, id: 2, name: "New Admin" };
-      mockAssociationRepository.findOneOrFail.mockResolvedValue({
-        ...mockAssociation,
-      });
-      mockUserRepository.findOneByOrFail.mockResolvedValue(newUser);
-      mockAssociationRepository.save.mockResolvedValue({
-        ...mockAssociation,
-        user: newUser,
-      });
-
-      const result = await service.update(1, updateDto);
-
-      expect(result.user).toEqual(newUser);
-      expect(mockUserRepository.findOneByOrFail).toHaveBeenCalledWith({
-        id: 2,
-      });
     });
   });
 
