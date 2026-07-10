@@ -69,4 +69,13 @@ export class CreateServiceDto {
   @IsOptional()
   @Type(() => Number)
   courseId?: number;
+
+  /**
+   * The association ID that created this service.
+   * @example 1
+   */
+  @IsInt()
+  @IsNotEmpty()
+  @Type(() => Number)
+  createdById: number;
 }

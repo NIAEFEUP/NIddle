@@ -1,11 +1,13 @@
 import {
   Column,
   Entity,
+  JoinColumn,
   JoinTable,
   ManyToMany,
   ManyToOne,
   PrimaryGeneratedColumn,
 } from "typeorm";
+import { Association } from "@/associations/entities/association.entity";
 import { Course } from "@/courses/entities/course.entity";
 import { Faculty } from "@/faculties/entities/faculty.entity";
 
@@ -79,4 +81,12 @@ export class Event {
   )
   @JoinTable()
   courses: Course[];
+
+  @ManyToOne(
+    () => Association,
+    (association) => association.events,
+    { nullable: false, onDelete: "CASCADE" },
+  )
+  @JoinColumn()
+  createdBy: Association;
 }

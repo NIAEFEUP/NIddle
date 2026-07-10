@@ -1,4 +1,5 @@
 import { DataSource, DataSourceOptions } from "typeorm";
+import { Association } from "@/associations/entities/association.entity";
 import { Course } from "@/courses/entities/course.entity";
 import { Event } from "@/events/entities/event.entity";
 import { Faculty } from "@/faculties/entities/faculty.entity";
@@ -20,7 +21,7 @@ export const createSchema = async () => {
     synchronize,
     dropSchema: false,
     schema: "public",
-    entities: [Course, Faculty, User, Event, Service, Schedule],
+    entities: [Association, Course, Faculty, User, Event, Service, Schedule],
   };
 
   const dataSource = new DataSource(options);

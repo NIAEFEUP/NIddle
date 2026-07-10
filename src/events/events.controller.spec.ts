@@ -19,6 +19,7 @@ describe("EventsController", () => {
     endDate: new Date("2025-12-27T18:00:00Z"),
     faculty: undefined,
     courses: [],
+    createdBy: null as any,
   };
 
   const mockEventsService = {
@@ -91,6 +92,7 @@ describe("EventsController", () => {
         startDate: "2025-12-26T09:00:00Z",
         endDate: "2025-12-27T18:00:00Z",
         facultyId: 1,
+        createdById: 1,
       };
       mockEventsService.create.mockResolvedValue(mockEvent);
 

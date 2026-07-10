@@ -1,6 +1,7 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
+import { Association } from "@/associations/entities/association.entity";
 import { Course } from "@/courses/entities/course.entity";
 import { Faculty } from "@/faculties/entities/faculty.entity";
 import { CreateServiceDto } from "./dto/create-service.dto";
@@ -17,10 +18,13 @@ export class ServicesService {
     private facultyRepository: Repository<Faculty>,
     @InjectRepository(Course)
     private courseRepository: Repository<Course>,
+    @InjectRepository(Association)
+    private associationRepository: Repository<Association>,
   ) {}
 
   async create(createServiceDto: CreateServiceDto): Promise<Service> {
-    const { facultyId, courseId, ...serviceData } = createServiceDto;
+    const { facultyId, courseId, createdById, ...serviceData } =
+      createServiceDto;
 
     const service = this.serviceRepository.create(serviceData);
 
@@ -48,6 +52,10 @@ export class ServicesService {
       });
     }
 
+    service.createdBy = await this.associationRepository.findOneByOrFail({
+      id: createdById,
+    });
+
     return await this.serviceRepository.save(service);
   }
 
@@ -59,14 +67,14 @@ export class ServicesService {
         ...(facultyId && { faculty: { id: facultyId } }),
         ...(courseId && { course: { id: courseId } }),
       },
-      relations: ["schedule", "faculty", "course"],
+      relations: ["schedule", "faculty", "course", "createdBy"],
     });
   }
 
   async findOne(id: number): Promise<Service> {
     const service = await this.serviceRepository.findOneOrFail({
       where: { id },
-      relations: ["schedule", "faculty", "course"],
+      relations: ["schedule", "faculty", "course", "createdBy"],
     });
     return service;
   }
@@ -75,11 +83,12 @@ export class ServicesService {
     id: number,
     updateServiceDto: UpdateServiceDto,
   ): Promise<Service> {
-    const { facultyId, courseId, ...serviceData } = updateServiceDto;
+    const { facultyId, courseId, createdById, ...serviceData } =
+      updateServiceDto;
 
     const service = await this.serviceRepository.findOneOrFail({
       where: { id },
-      relations: ["faculty", "course"],
+      relations: ["faculty", "course", "createdBy"],
     });
 
     this.serviceRepository.merge(service, serviceData);
@@ -110,6 +119,12 @@ export class ServicesService {
         });
         service.faculty = null;
       }
+    }
+
+    if (createdById !== undefined) {
+      service.createdBy = await this.associationRepository.findOneByOrFail({
+        id: createdById,
+      });
     }
 
     if (!service.faculty && !service.course) {

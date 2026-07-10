@@ -10,22 +10,25 @@ describe("CreateServiceDto validation", () => {
     dto.schedule = [];
     dto.email = "a@b.com";
     dto.phoneNumber = "+123";
+    dto.createdById = 1;
 
     const errors = await validate(dto);
     // ensure required fields are valid
     expect(errors.some((e) => e.property === "name")).toBe(false);
     expect(errors.some((e) => e.property === "location")).toBe(false);
+    expect(errors.some((e) => e.property === "createdById")).toBe(false);
   });
 
   it("missing required fields should return validation errors", async () => {
     const dto = new CreateServiceDto();
-    // missing name
+    // missing name and createdById
     dto.location = "B-142";
     dto.schedule = [];
 
     const errors = await validate(dto);
-    // should include an error for name
+    // should include an error for name and createdById
     expect(errors.some((e) => e.property === "name")).toBe(true);
+    expect(errors.some((e) => e.property === "createdById")).toBe(true);
   });
 
   it("should transform plain schedule object into Schedule instance using Type decorator", () => {
@@ -33,6 +36,7 @@ describe("CreateServiceDto validation", () => {
       name: "Papelaria",
       location: "B-142",
       schedule: [],
+      createdById: 1,
     };
 
     const dto = plainToInstance(CreateServiceDto, plain);
@@ -48,6 +52,7 @@ describe("CreateServiceDto validation", () => {
       location: "B-142",
       schedule: [],
       courseId: "1",
+      createdById: 1,
     };
 
     const dto = plainToInstance(CreateServiceDto, plain);
@@ -63,6 +68,7 @@ describe("CreateServiceDto validation", () => {
     dto.name = "Service";
     dto.location = "B-142";
     dto.schedule = [];
+    dto.createdById = 1;
 
     expect(dto.email).toBeUndefined();
     expect(dto.phoneNumber).toBeUndefined();
@@ -75,6 +81,7 @@ describe("CreateServiceDto validation", () => {
       const dto = new CreateServiceDto();
       dto.name = "Service";
       dto.schedule = [];
+      dto.createdById = 1;
 
       const errors = await validate(dto);
 
@@ -85,6 +92,7 @@ describe("CreateServiceDto validation", () => {
       const dto = new CreateServiceDto();
       dto.name = "Service";
       dto.location = "B-142";
+      dto.createdById = 1;
 
       const errors = await validate(dto);
 
@@ -96,6 +104,7 @@ describe("CreateServiceDto validation", () => {
       dto.name = 123 as any;
       dto.location = "B-142";
       dto.schedule = [];
+      dto.createdById = 1;
 
       const errors = await validate(dto);
 
@@ -107,6 +116,7 @@ describe("CreateServiceDto validation", () => {
       dto.name = "Service";
       dto.location = 123 as any;
       dto.schedule = [];
+      dto.createdById = 1;
 
       const errors = await validate(dto);
 
@@ -121,6 +131,7 @@ describe("CreateServiceDto validation", () => {
       dto.location = "B-142";
       dto.schedule = [];
       dto.email = "invalid-email";
+      dto.createdById = 1;
 
       const errors = await validate(dto);
 
@@ -133,6 +144,7 @@ describe("CreateServiceDto validation", () => {
       dto.location = "B-142";
       dto.schedule = [];
       dto.email = "valid@example.com";
+      dto.createdById = 1;
 
       const errors = await validate(dto);
 
@@ -144,6 +156,7 @@ describe("CreateServiceDto validation", () => {
       dto.name = "Service";
       dto.location = "B-142";
       dto.schedule = [];
+      dto.createdById = 1;
 
       const errors = await validate(dto);
 
@@ -158,6 +171,7 @@ describe("CreateServiceDto validation", () => {
       dto.location = "B-142";
       dto.schedule = [];
       dto.phoneNumber = 123 as any;
+      dto.createdById = 1;
 
       const errors = await validate(dto);
 
@@ -170,6 +184,7 @@ describe("CreateServiceDto validation", () => {
       dto.location = "B-142";
       dto.schedule = [];
       dto.phoneNumber = "+1-555-0123";
+      dto.createdById = 1;
 
       const errors = await validate(dto);
 
@@ -184,6 +199,7 @@ describe("CreateServiceDto validation", () => {
         location: "B-142",
         schedule: [],
         courseId: 100,
+        createdById: 1,
       };
 
       const dto = plainToInstance(CreateServiceDto, plain);
@@ -199,6 +215,7 @@ describe("CreateServiceDto validation", () => {
       dto.location = "B-142";
       dto.schedule = [];
       dto.facultyId = 1;
+      dto.createdById = 1;
 
       const errors = await validate(dto);
 
@@ -210,6 +227,7 @@ describe("CreateServiceDto validation", () => {
       dto.name = "Service";
       dto.location = "B-142";
       dto.schedule = [];
+      dto.createdById = 1;
 
       const errors = await validate(dto);
 
@@ -226,6 +244,7 @@ describe("CreateServiceDto validation", () => {
         phoneNumber: "+1-555-0123",
         schedule: [],
         courseId: 12,
+        createdById: 1,
       };
 
       const dto = plainToInstance(CreateServiceDto, plain);
@@ -237,6 +256,7 @@ describe("CreateServiceDto validation", () => {
       expect(dto.email).toBe("pbeatriz@example.com");
       expect(dto.phoneNumber).toBe("+1-555-0123");
       expect(dto.courseId).toEqual(12);
+      expect(dto.createdById).toEqual(1);
     });
   });
 });
