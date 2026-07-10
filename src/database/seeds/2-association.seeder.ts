@@ -18,7 +18,7 @@ export default class AssociationSeeder implements Seeder {
       const association = await associationFactory.make();
 
       const user = await userFactory.save();
-      association.user = user;
+      association.users = [user];
 
       associations.push(association);
     }
