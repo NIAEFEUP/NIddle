@@ -6,7 +6,6 @@ import {
 import { JwtService } from "@nestjs/jwt";
 import * as bcrypt from "bcrypt";
 import { EntityNotFoundError } from "typeorm";
-import { CreateUserDto } from "@/users/dto/create-user.dto";
 import { User } from "@/users/entities/user.entity";
 import { UsersService } from "@/users/users.service";
 import { SignInDto } from "./dto/signin.dto";
@@ -17,22 +16,6 @@ export class AuthService {
     private usersService: UsersService,
     private jwtService: JwtService,
   ) {}
-
-  async register(createUserDto: CreateUserDto) {
-    try {
-      await this.usersService.findOneByEmail(createUserDto.email);
-      throw new ConflictException("Email is already in use.");
-    } catch (error) {
-      if (!(error instanceof EntityNotFoundError)) {
-        throw error;
-      }
-    }
-
-    const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
-    const newUserDto = { ...createUserDto, password: hashedPassword };
-
-    return this.usersService.create(newUserDto);
-  }
 
   async signIn(signInDto: SignInDto) {
     let user: User | null = null;
@@ -57,7 +40,12 @@ export class AuthService {
       throw new UnauthorizedException("Invalid credentials");
     }
 
-    const payload = { sub: user.id, email: user.email, name: user.name, isAdmin: user.isAdmin };
+    const payload = {
+      sub: user.id,
+      email: user.email,
+      name: user.name,
+      isAdmin: user.isAdmin,
+    };
     return {
       access_token: await this.jwtService.signAsync(payload),
     };

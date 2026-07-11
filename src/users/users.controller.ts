@@ -1,19 +1,24 @@
 import {
   Body,
   ClassSerializerInterceptor,
-  Controller, Delete,
+  Controller,
+  Delete,
   Get,
   Param,
-  ParseIntPipe, Patch, Post, UseGuards,
-  UseInterceptors, ValidationPipe,
+  ParseIntPipe,
+  Patch,
+  Post,
+  UseGuards,
+  UseInterceptors,
+  ValidationPipe,
 } from "@nestjs/common";
 import { User } from "./entities/user.entity";
 import { UsersService } from "./users.service";
-import {CreateUserDto} from "@/users/dto/create-user.dto";
-import {JwtAuthGuard} from "@/auth/guards/jwt-auth.guard";
-import {ApiBearerAuth, ApiOperation} from "@nestjs/swagger";
-import {UpdateUserDto} from "@/users/dto/update-user.dto";
-import {AdminOnlyGuard} from "@/auth/guards/admin-only.guard";
+import { CreateUserDto } from "@/users/dto/create-user.dto";
+import { JwtAuthGuard } from "@/auth/guards/jwt-auth.guard";
+import { ApiBearerAuth, ApiOperation } from "@nestjs/swagger";
+import { UpdateUserDto } from "@/users/dto/update-user.dto";
+import { AdminOnlyGuard } from "@/auth/guards/admin-only.guard";
 
 @Controller("users")
 export class UsersController {
@@ -44,8 +49,8 @@ export class UsersController {
   @UseGuards(JwtAuthGuard, AdminOnlyGuard)
   @Patch(":id")
   update(
-      @Param("id", ParseIntPipe) id: number,
-      @Body(ValidationPipe) updateUserDto: UpdateUserDto,
+    @Param("id", ParseIntPipe) id: number,
+    @Body(ValidationPipe) updateUserDto: UpdateUserDto,
   ): Promise<User> {
     return this.usersService.update(id, updateUserDto);
   }

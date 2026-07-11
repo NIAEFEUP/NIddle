@@ -1,8 +1,10 @@
 import {
   IsArray,
   IsBoolean,
-  IsEmail, IsInt,
-  IsNotEmpty, IsOptional,
+  IsEmail,
+  IsInt,
+  IsNotEmpty,
+  IsOptional,
   IsString,
   IsStrongPassword,
   MaxLength,

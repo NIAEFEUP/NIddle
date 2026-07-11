@@ -39,17 +39,6 @@ export class AuthController {
     return req.user;
   }
 
-  @ApiOperation({ summary: "Register a new user" })
-  @ApiResponse({ status: 201, description: "User created successfully." })
-  @ApiResponse({
-    status: 409,
-    description: "Conflict: Email is already in use.",
-  })
-  @Post("register")
-  async register(@Body(ValidationPipe) createUserDto: CreateUserDto) {
-    return this.authService.register(createUserDto);
-  }
-
   @ApiOperation({ summary: "User login (JWT issuance)" })
   @ApiResponse({ status: 201, description: "Login successful, JWT returned." })
   @ApiResponse({
