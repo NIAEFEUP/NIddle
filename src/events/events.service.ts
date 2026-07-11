@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { ForbiddenException, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { Association } from "@/associations/entities/association.entity";
@@ -23,8 +23,11 @@ export class EventsService {
     private associationRepository: Repository<Association>,
   ) {}
 
-  async create(createEventDto: CreateEventDto): Promise<Event> {
-    const { facultyId, courseIds, createdById, ...eventData } = createEventDto;
+  async create(
+    createEventDto: CreateEventDto,
+    activeAssociationId: number,
+  ): Promise<Event> {
+    const { facultyId, courseIds, ...eventData } = createEventDto;
     const event = this.eventRepository.create(eventData);
 
     if (facultyId) {
@@ -42,7 +45,7 @@ export class EventsService {
     }
 
     event.createdBy = await this.associationRepository.findOneByOrFail({
-      id: createdById,
+      id: activeAssociationId,
     });
 
     return this.eventRepository.save(event);
@@ -68,13 +71,24 @@ export class EventsService {
     });
   }
 
-  async update(id: number, updateEventDto: UpdateEventDto): Promise<Event> {
-    const { facultyId, courseIds, createdById, ...eventData } = updateEventDto;
+  async update(
+    id: number,
+    updateEventDto: UpdateEventDto,
+    activeAssociationId: number,
+  ): Promise<Event> {
+    const { facultyId, courseIds, ...eventData } = updateEventDto;
 
     const event = await this.eventRepository.findOneOrFail({
       where: { id },
       relations: ["faculty", "courses", "createdBy"],
     });
+
+    if (event.createdBy.id !== activeAssociationId) {
+      throw new ForbiddenException(
+        "You do not have permission to update this event.",
+      );
+    }
+
     this.eventRepository.merge(event, eventData);
 
     if (facultyId !== undefined) {
@@ -95,17 +109,21 @@ export class EventsService {
       );
     }
 
-    if (createdById !== undefined) {
-      event.createdBy = await this.associationRepository.findOneByOrFail({
-        id: createdById,
-      });
-    }
-
     return this.eventRepository.save(event);
   }
 
-  async remove(id: number): Promise<Event> {
-    const event = await this.eventRepository.findOneByOrFail({ id });
+  async remove(id: number, activeAssociationId: number): Promise<Event> {
+    const event = await this.eventRepository.findOneOrFail({
+      where: { id },
+      relations: ["createdBy"],
+    });
+
+    if (event.createdBy.id !== activeAssociationId) {
+      throw new ForbiddenException(
+        "You do not have permission to delete this event.",
+      );
+    }
+
     await this.eventRepository.delete(id);
     return event;
   }

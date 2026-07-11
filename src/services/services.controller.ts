@@ -9,13 +9,14 @@ import {
   Patch,
   Post,
   Query,
+  Req,
   UseGuards,
   UseInterceptors,
   ValidationPipe,
 } from "@nestjs/common";
 import { ApiBearerAuth, ApiOperation, ApiResponse } from "@nestjs/swagger";
-import { JwtAuthGuard } from "@/auth/guards/jwt-auth.guard";
 import { ActiveAssociationGuard } from "@/auth/guards/active-association.guard";
+import { JwtAuthGuard } from "@/auth/guards/jwt-auth.guard";
 import { CreateServiceDto } from "./dto/create-service.dto";
 import { ServiceFilterDto } from "./dto/service-filter.dto";
 import { UpdateServiceDto } from "./dto/update-service.dto";
@@ -51,8 +52,12 @@ export class ServicesController {
   @Post()
   create(
     @Body(ValidationPipe) createServiceDto: CreateServiceDto,
+    @Req() req: { activeAssociationId: number },
   ): Promise<Service> {
-    return this.servicesService.create(createServiceDto);
+    return this.servicesService.create(
+      createServiceDto,
+      req.activeAssociationId,
+    );
   }
 
   @ApiBearerAuth("access-token")
@@ -65,8 +70,13 @@ export class ServicesController {
   update(
     @Param("id", ParseIntPipe) id: number,
     @Body(ValidationPipe) updateServiceDto: UpdateServiceDto,
+    @Req() req: { activeAssociationId: number },
   ): Promise<Service> {
-    return this.servicesService.update(id, updateServiceDto);
+    return this.servicesService.update(
+      id,
+      updateServiceDto,
+      req.activeAssociationId,
+    );
   }
 
   @ApiBearerAuth("access-token")
@@ -76,7 +86,10 @@ export class ServicesController {
   @ApiResponse({ status: 404, description: "Service not found." })
   @UseGuards(JwtAuthGuard, ActiveAssociationGuard)
   @Delete(":id")
-  remove(@Param("id", ParseIntPipe) id: number): Promise<Service> {
-    return this.servicesService.remove(id);
+  remove(
+    @Param("id", ParseIntPipe) id: number,
+    @Req() req: { activeAssociationId: number },
+  ): Promise<Service> {
+    return this.servicesService.remove(id, req.activeAssociationId);
   }
 }

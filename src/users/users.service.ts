@@ -39,10 +39,12 @@ export class UsersService implements OnApplicationBootstrap {
       return;
     }
 
+    const hashedPassword = await bcrypt.hash(adminPassword, 10);
+
     const admin: User = this.userRepository.create({
       name: "Admin",
       email: adminEmail,
-      password: adminPassword,
+      password: hashedPassword,
       isAdmin: true,
     });
 

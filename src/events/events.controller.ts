@@ -8,17 +8,18 @@ import {
   Patch,
   Post,
   Query,
+  Req,
   UseGuards,
   ValidationPipe,
 } from "@nestjs/common";
 import { ApiBearerAuth, ApiOperation, ApiResponse } from "@nestjs/swagger";
+import { ActiveAssociationGuard } from "@/auth/guards/active-association.guard";
 import { JwtAuthGuard } from "@/auth/guards/jwt-auth.guard";
 import { CreateEventDto } from "./dto/create-event.dto";
 import { EventFilterDto } from "./dto/event-filter.dto";
 import { UpdateEventDto } from "./dto/update-event.dto";
 import { Event } from "./entities/event.entity";
 import { EventsService } from "./events.service";
-import {ActiveAssociationGuard} from "@/auth/guards/active-association.guard";
 
 @Controller("events")
 export class EventsController {
@@ -45,8 +46,11 @@ export class EventsController {
   @ApiResponse({ status: 401, description: "Unauthorized." })
   @UseGuards(JwtAuthGuard, ActiveAssociationGuard)
   @Post()
-  create(@Body(ValidationPipe) createEventDto: CreateEventDto): Promise<Event> {
-    return this.eventsService.create(createEventDto);
+  create(
+    @Body(ValidationPipe) createEventDto: CreateEventDto,
+    @Req() req: { activeAssociationId: number },
+  ): Promise<Event> {
+    return this.eventsService.create(createEventDto, req.activeAssociationId);
   }
 
   @ApiBearerAuth("access-token")
@@ -59,8 +63,13 @@ export class EventsController {
   update(
     @Param("id", ParseIntPipe) id: number,
     @Body(ValidationPipe) updateEventDto: UpdateEventDto,
+    @Req() req: { activeAssociationId: number },
   ): Promise<Event> {
-    return this.eventsService.update(id, updateEventDto);
+    return this.eventsService.update(
+      id,
+      updateEventDto,
+      req.activeAssociationId,
+    );
   }
 
   @ApiBearerAuth("access-token")
@@ -70,7 +79,10 @@ export class EventsController {
   @ApiResponse({ status: 404, description: "Event not found." })
   @UseGuards(JwtAuthGuard, ActiveAssociationGuard)
   @Delete(":id")
-  remove(@Param("id", ParseIntPipe) id: number): Promise<Event> {
-    return this.eventsService.remove(id);
+  remove(
+    @Param("id", ParseIntPipe) id: number,
+    @Req() req: { activeAssociationId: number },
+  ): Promise<Event> {
+    return this.eventsService.remove(id, req.activeAssociationId);
   }
 }

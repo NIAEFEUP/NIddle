@@ -64,12 +64,4 @@ export class CreateEventDto {
   @IsInt({ each: true })
   @IsOptional()
   courseIds?: number[];
-
-  /**
-   * The association ID that created this event.
-   * @example 1
-   */
-  @IsInt()
-  @IsNotEmpty()
-  createdById: number;
 }
