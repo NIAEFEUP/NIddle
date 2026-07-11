@@ -1,13 +1,13 @@
 import { Injectable, Logger, OnApplicationBootstrap } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
 import { InjectRepository } from "@nestjs/typeorm";
+import * as bcrypt from "bcrypt";
 import { Repository } from "typeorm";
+import { Association } from "@/associations/entities/association.entity";
+import { validateAndGetRelations } from "@/common/utils/entity-relation.utils";
+import { UpdateUserDto } from "@/users/dto/update-user.dto";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { User } from "./entities/user.entity";
-import { validateAndGetRelations } from "@/common/utils/entity-relation.utils";
-import { Association } from "@/associations/entities/association.entity";
-import { UpdateUserDto } from "@/users/dto/update-user.dto";
-import { ConfigService } from "@nestjs/config";
-import * as bcrypt from "bcrypt";
 
 @Injectable()
 export class UsersService implements OnApplicationBootstrap {

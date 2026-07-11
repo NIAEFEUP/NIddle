@@ -7,7 +7,7 @@ import {
 } from "@nestjs/common";
 
 @Injectable()
-class ActiveAssociationGuard implements CanActivate {
+export class ActiveAssociationGuard implements CanActivate {
   canActivate(context: ExecutionContext): boolean {
     const request = context.switchToHttp().getRequest();
     const user = request.user;

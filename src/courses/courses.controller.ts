@@ -16,6 +16,7 @@ import { CoursesService } from "./courses.service";
 import { CreateCourseDto } from "./dto/create-course.dto";
 import { UpdateCourseDto } from "./dto/update-course.dto";
 import { Course } from "./entities/course.entity";
+import {AdminOnlyGuard} from "@/auth/guards/admin-only.guard";
 
 @Controller("courses")
 export class CoursesController {
@@ -40,7 +41,7 @@ export class CoursesController {
   @ApiOperation({ summary: "Create a new course" })
   @ApiResponse({ status: 201, description: "Course created." })
   @ApiResponse({ status: 401, description: "Unauthorized." })
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, AdminOnlyGuard)
   @Post()
   create(
     @Body(ValidationPipe) createCourseDto: CreateCourseDto,
@@ -53,7 +54,7 @@ export class CoursesController {
   @ApiResponse({ status: 200, description: "Course updated." })
   @ApiResponse({ status: 401, description: "Unauthorized." })
   @ApiResponse({ status: 404, description: "Course not found." })
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, AdminOnlyGuard)
   @Patch(":id")
   update(
     @Param("id", ParseIntPipe) id: number,
@@ -67,7 +68,7 @@ export class CoursesController {
   @ApiResponse({ status: 200, description: "Course deleted." })
   @ApiResponse({ status: 401, description: "Unauthorized." })
   @ApiResponse({ status: 404, description: "Course not found." })
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, AdminOnlyGuard)
   @Delete(":id")
   remove(@Param("id", ParseIntPipe) id: number): Promise<Course> {
     return this.coursesService.remove(id);

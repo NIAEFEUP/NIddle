@@ -12,13 +12,13 @@ import {
   UseInterceptors,
   ValidationPipe,
 } from "@nestjs/common";
+import { ApiBearerAuth, ApiOperation } from "@nestjs/swagger";
+import { AdminOnlyGuard } from "@/auth/guards/admin-only.guard";
+import { JwtAuthGuard } from "@/auth/guards/jwt-auth.guard";
+import { CreateUserDto } from "@/users/dto/create-user.dto";
+import { UpdateUserDto } from "@/users/dto/update-user.dto";
 import { User } from "./entities/user.entity";
 import { UsersService } from "./users.service";
-import { CreateUserDto } from "@/users/dto/create-user.dto";
-import { JwtAuthGuard } from "@/auth/guards/jwt-auth.guard";
-import { ApiBearerAuth, ApiOperation } from "@nestjs/swagger";
-import { UpdateUserDto } from "@/users/dto/update-user.dto";
-import { AdminOnlyGuard } from "@/auth/guards/admin-only.guard";
 
 @Controller("users")
 export class UsersController {

@@ -18,6 +18,7 @@ import { EventFilterDto } from "./dto/event-filter.dto";
 import { UpdateEventDto } from "./dto/update-event.dto";
 import { Event } from "./entities/event.entity";
 import { EventsService } from "./events.service";
+import {ActiveAssociationGuard} from "@/auth/guards/active-association.guard";
 
 @Controller("events")
 export class EventsController {
@@ -42,7 +43,7 @@ export class EventsController {
   @ApiOperation({ summary: "Create a new event" })
   @ApiResponse({ status: 201, description: "Event created." })
   @ApiResponse({ status: 401, description: "Unauthorized." })
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, ActiveAssociationGuard)
   @Post()
   create(@Body(ValidationPipe) createEventDto: CreateEventDto): Promise<Event> {
     return this.eventsService.create(createEventDto);
@@ -53,7 +54,7 @@ export class EventsController {
   @ApiResponse({ status: 200, description: "Event updated." })
   @ApiResponse({ status: 401, description: "Unauthorized." })
   @ApiResponse({ status: 404, description: "Event not found." })
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, ActiveAssociationGuard)
   @Patch(":id")
   update(
     @Param("id", ParseIntPipe) id: number,
@@ -67,7 +68,7 @@ export class EventsController {
   @ApiResponse({ status: 200, description: "Event deleted." })
   @ApiResponse({ status: 401, description: "Unauthorized." })
   @ApiResponse({ status: 404, description: "Event not found." })
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, ActiveAssociationGuard)
   @Delete(":id")
   remove(@Param("id", ParseIntPipe) id: number): Promise<Event> {
     return this.eventsService.remove(id);

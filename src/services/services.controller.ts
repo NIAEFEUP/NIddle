@@ -15,6 +15,7 @@ import {
 } from "@nestjs/common";
 import { ApiBearerAuth, ApiOperation, ApiResponse } from "@nestjs/swagger";
 import { JwtAuthGuard } from "@/auth/guards/jwt-auth.guard";
+import { ActiveAssociationGuard } from "@/auth/guards/active-association.guard";
 import { CreateServiceDto } from "./dto/create-service.dto";
 import { ServiceFilterDto } from "./dto/service-filter.dto";
 import { UpdateServiceDto } from "./dto/update-service.dto";
@@ -46,7 +47,7 @@ export class ServicesController {
   @ApiOperation({ summary: "Create a new service" })
   @ApiResponse({ status: 201, description: "Service created." })
   @ApiResponse({ status: 401, description: "Unauthorized." })
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, ActiveAssociationGuard)
   @Post()
   create(
     @Body(ValidationPipe) createServiceDto: CreateServiceDto,
@@ -59,7 +60,7 @@ export class ServicesController {
   @ApiResponse({ status: 200, description: "Service updated." })
   @ApiResponse({ status: 401, description: "Unauthorized." })
   @ApiResponse({ status: 404, description: "Service not found." })
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, ActiveAssociationGuard)
   @Patch(":id")
   update(
     @Param("id", ParseIntPipe) id: number,
@@ -73,7 +74,7 @@ export class ServicesController {
   @ApiResponse({ status: 200, description: "Service deleted." })
   @ApiResponse({ status: 401, description: "Unauthorized." })
   @ApiResponse({ status: 404, description: "Service not found." })
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, ActiveAssociationGuard)
   @Delete(":id")
   remove(@Param("id", ParseIntPipe) id: number): Promise<Service> {
     return this.servicesService.remove(id);

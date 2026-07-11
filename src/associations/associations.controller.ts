@@ -18,6 +18,7 @@ import { AssociationsService } from "./associations.service";
 import { CreateAssociationDto } from "./dto/create-association.dto";
 import { UpdateAssociationDto } from "./dto/update-association.dto";
 import { Association } from "./entities/association.entity";
+import {AdminOnlyGuard} from "@/auth/guards/admin-only.guard";
 
 @Controller("associations")
 export class AssociationsController {
@@ -44,7 +45,7 @@ export class AssociationsController {
   @ApiOperation({ summary: "Create a new association" })
   @ApiResponse({ status: 201, description: "Association created." })
   @ApiResponse({ status: 401, description: "Unauthorized." })
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, AdminOnlyGuard)
   @Post()
   create(
     @Body(ValidationPipe) createAssociationDto: CreateAssociationDto,
@@ -57,7 +58,7 @@ export class AssociationsController {
   @ApiResponse({ status: 200, description: "Association updated." })
   @ApiResponse({ status: 401, description: "Unauthorized." })
   @ApiResponse({ status: 404, description: "Association not found." })
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, AdminOnlyGuard)
   @Patch(":id")
   update(
     @Param("id", ParseIntPipe) id: number,
@@ -71,7 +72,7 @@ export class AssociationsController {
   @ApiResponse({ status: 200, description: "Association deleted." })
   @ApiResponse({ status: 401, description: "Unauthorized." })
   @ApiResponse({ status: 404, description: "Association not found." })
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, AdminOnlyGuard)
   @Delete(":id")
   remove(@Param("id", ParseIntPipe) id: number): Promise<Association> {
     return this.associationsService.remove(id);
