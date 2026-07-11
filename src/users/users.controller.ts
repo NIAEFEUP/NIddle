@@ -21,8 +21,7 @@ export class UsersController {
 
   @ApiBearerAuth("access-token")
   @ApiOperation({ summary: "Create a new user" })
-  @UseGuards(JwtAuthGuard)
-  @UseGuards(AdminOnlyGuard)
+  @UseGuards(JwtAuthGuard, AdminOnlyGuard)
   @Post()
   create(@Body(ValidationPipe) createUserDto: CreateUserDto): Promise<User> {
     return this.usersService.create(createUserDto);
@@ -42,8 +41,7 @@ export class UsersController {
 
   @ApiBearerAuth("access-token")
   @ApiOperation({ summary: "Update an user by ID" })
-  @UseGuards(JwtAuthGuard)
-  @UseGuards(AdminOnlyGuard)
+  @UseGuards(JwtAuthGuard, AdminOnlyGuard)
   @Patch(":id")
   update(
       @Param("id", ParseIntPipe) id: number,
@@ -54,8 +52,7 @@ export class UsersController {
 
   @ApiBearerAuth("access-token")
   @ApiOperation({ summary: "Delete an user by ID" })
-  @UseGuards(JwtAuthGuard)
-  @UseGuards(AdminOnlyGuard)
+  @UseGuards(JwtAuthGuard, AdminOnlyGuard)
   @Delete(":id")
   remove(@Param("id", ParseIntPipe) id: number): Promise<User> {
     return this.usersService.remove(id);
