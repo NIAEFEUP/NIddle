@@ -14,6 +14,7 @@ describe("AssociationsService", () => {
     name: "Chess Club Admin",
     email: "chess@example.com",
     password: "hashedpassword",
+    isAdmin: false,
     associations: [],
   };
 
