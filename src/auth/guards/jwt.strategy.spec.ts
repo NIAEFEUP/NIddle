@@ -39,6 +39,10 @@ describe("JwtStrategy", () => {
   it("should validate and return user payload", () => {
     const payload = { sub: 1, email: "test@example.com", isAdmin: false };
     const result = strategy.validate(payload);
-    expect(result).toEqual({ id: 1, email: "test@example.com", isAdmin: false });
+    expect(result).toEqual({
+      id: 1,
+      email: "test@example.com",
+      isAdmin: false,
+    });
   });
 });
