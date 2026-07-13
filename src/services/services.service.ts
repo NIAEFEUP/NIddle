@@ -1,13 +1,17 @@
-import {BadRequestException, ForbiddenException, Injectable,} from "@nestjs/common";
-import {InjectRepository} from "@nestjs/typeorm";
-import {Repository} from "typeorm";
-import {Association} from "@/associations/entities/association.entity";
-import {Course} from "@/courses/entities/course.entity";
-import {Faculty} from "@/faculties/entities/faculty.entity";
-import {CreateServiceDto} from "./dto/create-service.dto";
-import {ServiceFilterDto} from "./dto/service-filter.dto";
-import {UpdateServiceDto} from "./dto/update-service.dto";
-import {Service} from "./entity/service.entity";
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+} from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository } from "typeorm";
+import { Association } from "@/associations/entities/association.entity";
+import { Course } from "@/courses/entities/course.entity";
+import { Faculty } from "@/faculties/entities/faculty.entity";
+import { CreateServiceDto } from "./dto/create-service.dto";
+import { ServiceFilterDto } from "./dto/service-filter.dto";
+import { UpdateServiceDto } from "./dto/update-service.dto";
+import { Service } from "./entity/service.entity";
 
 @Injectable()
 export class ServicesService {
@@ -75,7 +79,7 @@ export class ServicesService {
 
   async findOne(id: number): Promise<Service> {
     return await this.serviceRepository.findOneOrFail({
-      where: {id},
+      where: { id },
       relations: ["schedule", "faculty", "course", "createdBy"],
     });
   }

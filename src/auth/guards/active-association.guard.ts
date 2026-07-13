@@ -24,7 +24,7 @@ export class ActiveAssociationGuard implements CanActivate {
 
     const activeAssociationId = parseInt(activeAssociationHeader as string, 10);
 
-    if (isNaN(activeAssociationId)) {
+    if (Number.isNaN(activeAssociationId)) {
       throw new BadRequestException(
         "Active Association header must be a valid integer.",
       );
