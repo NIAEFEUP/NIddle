@@ -6,6 +6,10 @@ interface MockDataSource {
   initialize: jest.Mock<Promise<void>>;
 }
 
+jest.mock("dotenv", () => ({
+  config: jest.fn(),
+}));
+
 jest.mock("typeorm", () => {
   const actual = jest.requireActual<typeof import("typeorm")>("typeorm");
   return {
@@ -21,13 +25,29 @@ jest.mock("typeorm-extension", () => ({
 }));
 
 describe("Seed Script", () => {
+  const OLD_ENV = process.env;
+
+  beforeEach(() => {
+    process.env = {
+      ...OLD_ENV,
+      DATABASE_MASTER: "test-master",
+      DATABASE_USER: "test-user",
+      DATABASE_PASSWORD: "test-password",
+      DATABASE_NAME: "test-db",
+    };
+  });
+
+  afterEach(() => {
+    process.env = OLD_ENV;
+  });
+
   it("should initialize data source and run seeders", async () => {
     await seed();
 
     expect(DataSource).toHaveBeenCalledWith(
       expect.objectContaining({
         type: "postgres",
-        database: "niddle_db",
+        database: "test-db",
         entities: expect.any(Array) as unknown as (() => unknown)[],
         seeds: expect.any(Array) as unknown as string[],
         factories: expect.any(Array) as unknown as string[],
@@ -40,6 +60,37 @@ describe("Seed Script", () => {
 
     expect(mockDataSourceInstance.initialize).toHaveBeenCalled();
     expect(runSeeders).toHaveBeenCalledWith(mockDataSourceInstance);
+  });
+
+  describe("environment loading", () => {
+    afterEach(() => {
+      jest.resetModules();
+      jest.clearAllMocks();
+    });
+
+    it("loads .env.local when NOT running in test mode", async () => {
+      process.env.NODE_ENV = "development";
+      let dotenvConfig: jest.Mock = jest.fn();
+
+      await jest.isolateModulesAsync(async () => {
+        require("./seed");
+        dotenvConfig = (require("dotenv") as { config: jest.Mock }).config;
+      });
+
+      expect(dotenvConfig).toHaveBeenCalledWith({ path: ".env.local" });
+    });
+
+    it("does NOT load .env.local when running in test mode", async () => {
+      process.env.NODE_ENV = "test";
+      let dotenvConfig: jest.Mock = jest.fn();
+
+      await jest.isolateModulesAsync(async () => {
+        require("./seed");
+        dotenvConfig = (require("dotenv") as { config: jest.Mock }).config;
+      });
+
+      expect(dotenvConfig).not.toHaveBeenCalled();
+    });
   });
 
   describe("handleMain", () => {
