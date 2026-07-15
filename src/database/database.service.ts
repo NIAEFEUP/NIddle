@@ -28,6 +28,7 @@ export class DatabaseService implements TypeOrmOptionsFactory {
 
     return {
       type: "postgres",
+      logging: true,
       ...(slaveHost
         ? {
             replication: {
