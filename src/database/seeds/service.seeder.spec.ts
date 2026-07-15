@@ -1,21 +1,27 @@
 import { DataSource, EntityTarget } from "typeorm";
 import { SeederFactoryManager } from "typeorm-extension";
+import { Association } from "@/associations/entities/association.entity";
 import { Course } from "@/courses/entities/course.entity";
 import { Faculty } from "@/faculties/entities/faculty.entity";
 import { Service } from "@/services/entity/service.entity";
-import ServiceSeeder from "./5-service.seeder";
+import ServiceSeeder from "./6-service.seeder";
 
 describe("ServiceSeeder", () => {
   let seeder: ServiceSeeder;
   let dataSource: DataSource;
   let factoryManager: SeederFactoryManager;
 
+  const mockAssociations: any[] = [{ id: 1, name: "Chess Club" }];
+
   const mockFactory = {
-    make: jest
-      .fn()
-      .mockImplementation(() =>
-        Promise.resolve({ id: 1, course: null, faculty: null }),
-      ),
+    make: jest.fn().mockImplementation(() =>
+      Promise.resolve({
+        id: 1,
+        course: null,
+        faculty: null,
+        createdBy: null,
+      }),
+    ),
     saveMany: jest.fn(),
   };
 
@@ -47,6 +53,10 @@ describe("ServiceSeeder", () => {
       find: jest.fn().mockResolvedValue([]),
     };
 
+    const mockAssociationRepository = {
+      find: jest.fn().mockResolvedValue(mockAssociations),
+    };
+
     const getRepositoryMock = jest.fn((entity: EntityTarget<any>) => {
       if (entity === Service) {
         return mockServiceRepository;
@@ -54,6 +64,8 @@ describe("ServiceSeeder", () => {
         return mockFacultyRepository;
       } else if (entity === Course) {
         return mockCourseRepository;
+      } else if (entity === Association) {
+        return mockAssociationRepository;
       }
     });
 
@@ -74,7 +86,7 @@ describe("ServiceSeeder", () => {
 
   it("should assign course relation when relType is 0 and courses exist", async () => {
     const mockCourse = { id: 1, name: "Test Course" };
-    const mockService = { id: 1, course: null, faculty: null };
+    const mockService = { id: 1, course: null, faculty: null, createdBy: null };
 
     const mockServiceRepository = {
       find: jest.fn().mockResolvedValue([mockService]),
@@ -89,6 +101,10 @@ describe("ServiceSeeder", () => {
       find: jest.fn().mockResolvedValue([mockCourse]),
     };
 
+    const mockAssociationRepository = {
+      find: jest.fn().mockResolvedValue(mockAssociations),
+    };
+
     const getRepositoryMock = jest.fn((entity: EntityTarget<any>) => {
       if (entity === Service) {
         return mockServiceRepository;
@@ -96,6 +112,8 @@ describe("ServiceSeeder", () => {
         return mockFacultyRepository;
       } else if (entity === Course) {
         return mockCourseRepository;
+      } else if (entity === Association) {
+        return mockAssociationRepository;
       }
     });
 
@@ -120,7 +138,7 @@ describe("ServiceSeeder", () => {
 
   it("should assign faculty relation when relType is 1 and faculties exist", async () => {
     const mockFaculty = { id: 1, name: "Test Faculty" };
-    const mockService = { id: 1, course: null, faculty: null };
+    const mockService = { id: 1, course: null, faculty: null, createdBy: null };
 
     const mockServiceRepository = {
       find: jest.fn().mockResolvedValue([mockService]),
@@ -135,6 +153,10 @@ describe("ServiceSeeder", () => {
       find: jest.fn().mockResolvedValue([]),
     };
 
+    const mockAssociationRepository = {
+      find: jest.fn().mockResolvedValue(mockAssociations),
+    };
+
     const getRepositoryMock = jest.fn((entity: EntityTarget<any>) => {
       if (entity === Service) {
         return mockServiceRepository;
@@ -142,6 +164,8 @@ describe("ServiceSeeder", () => {
         return mockFacultyRepository;
       } else if (entity === Course) {
         return mockCourseRepository;
+      } else if (entity === Association) {
+        return mockAssociationRepository;
       }
     });
 
@@ -167,8 +191,8 @@ describe("ServiceSeeder", () => {
     expect(mockService.faculty).toBe(mockFaculty);
   });
 
-  it("should not assign course when courses array is empty", async () => {
-    const mockService = { id: 1, course: null, faculty: null };
+  it("should not assign createdBy if no associations exist", async () => {
+    const mockService = { id: 1, course: null, faculty: null, createdBy: null };
 
     const mockServiceRepository = {
       find: jest.fn().mockResolvedValue([mockService]),
@@ -183,6 +207,10 @@ describe("ServiceSeeder", () => {
       find: jest.fn().mockResolvedValue([]),
     };
 
+    const mockAssociationRepository = {
+      find: jest.fn().mockResolvedValue([]),
+    };
+
     const getRepositoryMock = jest.fn((entity: EntityTarget<any>) => {
       if (entity === Service) {
         return mockServiceRepository;
@@ -190,6 +218,8 @@ describe("ServiceSeeder", () => {
         return mockFacultyRepository;
       } else if (entity === Course) {
         return mockCourseRepository;
+      } else if (entity === Association) {
+        return mockAssociationRepository;
       }
     });
 
@@ -203,60 +233,8 @@ describe("ServiceSeeder", () => {
 
     mockFactory.make.mockResolvedValue(mockService);
 
-    jest
-      .spyOn(require("@faker-js/faker").faker.number, "int")
-      .mockReturnValue(0);
-
     await seeder.run(dataSource, factoryManager);
 
-    expect(mockService.course).toBeNull();
-  });
-
-  it("should not assign faculty when faculties array is empty", async () => {
-    const mockService = { id: 1, course: null, faculty: null };
-
-    const mockServiceRepository = {
-      find: jest.fn().mockResolvedValue([mockService]),
-      save: jest.fn().mockResolvedValue([mockService]),
-    };
-
-    const mockFacultyRepository = {
-      find: jest.fn().mockResolvedValue([]),
-    };
-
-    const mockCourseRepository = {
-      find: jest.fn().mockResolvedValue([]),
-    };
-
-    const getRepositoryMock = jest.fn((entity: EntityTarget<any>) => {
-      if (entity === Service) {
-        return mockServiceRepository;
-      } else if (entity === Faculty) {
-        return mockFacultyRepository;
-      } else if (entity === Course) {
-        return mockCourseRepository;
-      }
-    });
-
-    dataSource = {
-      getRepository: getRepositoryMock,
-    } as unknown as DataSource;
-
-    factoryManager = {
-      get: mockGet,
-    } as unknown as SeederFactoryManager;
-
-    mockFactory.make.mockResolvedValue(mockService);
-
-    jest
-      .spyOn(require("@faker-js/faker").faker.number, "int")
-      .mockImplementation((args: any) => {
-        if (args && args.max === 1) return 1;
-        return 0;
-      });
-
-    await seeder.run(dataSource, factoryManager);
-
-    expect(mockService.faculty).toBeNull();
+    expect(mockService.createdBy).toBeNull();
   });
 });

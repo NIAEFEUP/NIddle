@@ -1,7 +1,7 @@
 import { DataSource, EntityTarget } from "typeorm";
 import { SeederFactoryManager } from "typeorm-extension";
 import { Course } from "@/courses/entities/course.entity";
-import CourseSeeder from "./3-course.seeder";
+import CourseSeeder from "./4-course.seeder";
 
 describe("CourseSeeder", () => {
   let seeder: CourseSeeder;

@@ -9,6 +9,7 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from "typeorm";
+import { Association } from "@/associations/entities/association.entity";
 import { Course } from "@/courses/entities/course.entity";
 import { Faculty } from "@/faculties/entities/faculty.entity";
 import { Schedule } from "./schedule.entity";
@@ -71,6 +72,17 @@ export class Service {
   @ManyToOne(() => Course, { nullable: true })
   @JoinColumn()
   course: Course | null;
+
+  @ManyToOne(
+    () => Association,
+    (association) => association.services,
+    {
+      nullable: false,
+      onDelete: "CASCADE",
+    },
+  )
+  @JoinColumn()
+  createdBy: Association;
 
   @BeforeInsert()
   @BeforeUpdate()

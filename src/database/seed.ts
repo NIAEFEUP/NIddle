@@ -1,6 +1,7 @@
 import { config } from "dotenv";
 import { DataSource, DataSourceOptions } from "typeorm";
 import { runSeeders, SeederOptions } from "typeorm-extension";
+import { Association } from "@/associations/entities/association.entity";
 import { Course } from "@/courses/entities/course.entity";
 import { Event } from "@/events/entities/event.entity";
 import { Faculty } from "@/faculties/entities/faculty.entity";
@@ -24,7 +25,7 @@ export const seed = async () => {
     synchronize: true,
     dropSchema: true,
     schema: "public",
-    entities: [Course, Faculty, User, Service, Schedule, Event],
+    entities: [Association, Course, Faculty, User, Service, Schedule, Event],
     seeds: ["src/database/seeds/*.seeder.{ts,js}"],
     factories: ["src/database/factories/*.factory.{ts,js}"],
   };

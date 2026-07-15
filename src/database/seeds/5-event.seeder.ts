@@ -1,5 +1,6 @@
 import { DataSource } from "typeorm";
 import { Seeder, SeederFactoryManager } from "typeorm-extension";
+import { Association } from "@/associations/entities/association.entity";
 import { Course } from "@/courses/entities/course.entity";
 import { Event } from "@/events/entities/event.entity";
 import { Faculty } from "@/faculties/entities/faculty.entity";
@@ -12,8 +13,11 @@ export default class EventSeeder implements Seeder {
     const eventFactory = factoryManager.get(Event);
     const facultyRepo = dataSource.getRepository(Faculty);
     const courseRepo = dataSource.getRepository(Course);
+    const associationRepo = dataSource.getRepository(Association);
+
     const faculties = await facultyRepo.find();
     const courses = await courseRepo.find();
+    const associations = await associationRepo.find();
 
     const events: Event[] = [];
     const currentYear = new Date().getFullYear();
@@ -25,21 +29,20 @@ export default class EventSeeder implements Seeder {
           : currentYear;
       event.year = eventYear;
 
-      if (faculties.length > 0 && Math.random() < 0.8) {
-        const faculty = faculties[Math.floor(Math.random() * faculties.length)];
-        event.faculty = faculty;
+      if (associations.length > 0) {
+        event.createdBy =
+          associations[Math.floor(Math.random() * associations.length)];
       }
 
-      if (courses.length > 0 && Math.random() < 0.7) {
-        const numCourses = Math.floor(Math.random() * 3) + 1;
-        const selectedCourses: Course[] = [];
-        for (let j = 0; j < numCourses; j++) {
-          const course = courses[Math.floor(Math.random() * courses.length)];
-          if (!selectedCourses.includes(course)) {
-            selectedCourses.push(course);
-          }
-        }
-        event.courses = selectedCourses;
+      const assignFaculty =
+        faculties.length > 0 && (courses.length === 0 || Math.random() < 0.5);
+
+      if (assignFaculty) {
+        event.faculty = faculties[Math.floor(Math.random() * faculties.length)];
+        event.courses = [];
+      } else if (courses.length > 0) {
+        event.courses = [courses[Math.floor(Math.random() * courses.length)]];
+        event.faculty = undefined;
       }
 
       events.push(event);

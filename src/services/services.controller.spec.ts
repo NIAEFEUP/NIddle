@@ -64,6 +64,7 @@ describe("ServicesController", () => {
         name: "a",
         location: "b",
         schedule: [] as Schedule[],
+        createdById: 1,
       };
       mockService.create.mockResolvedValue(svc);
       const res = await controller.create(dto);
