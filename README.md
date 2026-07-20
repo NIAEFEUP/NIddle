@@ -30,7 +30,7 @@ The primary goal of NIddle is to provide a reliable and easily maintainable API 
 NIddle comes with built-in API documentation using Swagger. Once the application is running, you can access the documentation at:
 
 ```
-http://localhost:3000/docs
+http://localhost:3000/api/docs
 ```
 
 This provides an interactive interface to explore and test the available endpoints.
