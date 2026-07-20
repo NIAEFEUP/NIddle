@@ -1,6 +1,7 @@
 const mockApp = {
   useGlobalPipes: jest.fn(),
   useGlobalFilters: jest.fn(),
+  setGlobalPrefix: jest.fn(),
   listen: jest.fn(),
 };
 
@@ -70,11 +71,13 @@ describe("Main (bootstrap)", () => {
     await jest.isolateModules(async () => {
       require("./main");
     });
+    await new Promise((resolve) => setImmediate(resolve));
 
     expect(mockSwaggerModule.setup).toHaveBeenCalledWith(
       "docs",
       mockApp,
       expect.any(Function),
+      { useGlobalPrefix: true },
     );
 
     const documentFactory = mockSwaggerModule.setup.mock.calls[0][2];
@@ -90,6 +93,7 @@ describe("Main (bootstrap)", () => {
     await jest.isolateModules(async () => {
       require("./main");
     });
+    await new Promise((resolve) => setImmediate(resolve));
 
     expect(mockApp.listen).toHaveBeenCalledWith("8080");
 
