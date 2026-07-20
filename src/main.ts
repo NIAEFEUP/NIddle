@@ -19,8 +19,11 @@ async function bootstrap() {
       "access-token",
     )
     .build();
+
+  app.setGlobalPrefix("api");
+
   const documentFactory = () => SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup("docs", app, documentFactory);
+  SwaggerModule.setup("docs", app, documentFactory, { useGlobalPrefix: true });
 
   await app.listen(port);
 }
