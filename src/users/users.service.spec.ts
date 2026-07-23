@@ -233,6 +233,30 @@ describe("UsersService", () => {
     });
   });
 
+  describe("findOneWithAssociations", () => {
+    it("should return a user with associations by ID", async () => {
+      mockUserRepository.findOneOrFail.mockResolvedValue(mockUser);
+
+      const result = await service.findOneWithAssociations(1);
+
+      expect(result).toEqual(mockUser);
+      expect(mockUserRepository.findOneOrFail).toHaveBeenCalledWith({
+        where: { id: 1 },
+        relations: ["associations"],
+      });
+    });
+
+    it("should throw if user with associations not found", async () => {
+      mockUserRepository.findOneOrFail.mockRejectedValue(
+        new Error("Not found"),
+      );
+
+      await expect(service.findOneWithAssociations(1)).rejects.toThrow(
+        "Not found",
+      );
+    });
+  });
+
   describe("findOneByEmail", () => {
     it("should return a user by email", async () => {
       mockUserRepository.findOneByOrFail.mockResolvedValue(mockUser);

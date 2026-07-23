@@ -61,4 +61,15 @@ describe("JwtStrategy", () => {
     expect(result).toEqual(mockUser);
     expect(usersService.findOneWithAssociations).toHaveBeenCalledWith(1);
   });
+
+  it("should return null if user validation throws an error", async () => {
+    jest
+      .spyOn(usersService, "findOneWithAssociations")
+      .mockRejectedValue(new Error("User not found"));
+
+    const payload = { sub: 1, email: "test@example.com", isAdmin: false };
+    const result = await strategy.validate(payload);
+    expect(result).toBeNull();
+    expect(usersService.findOneWithAssociations).toHaveBeenCalledWith(1);
+  });
 });
