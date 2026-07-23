@@ -20,6 +20,7 @@ import { UpdateUserDto } from "@/users/dto/update-user.dto";
 import { User } from "./entities/user.entity";
 import { UsersService } from "./users.service";
 
+@UseInterceptors(ClassSerializerInterceptor)
 @Controller("users")
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
@@ -32,13 +33,11 @@ export class UsersController {
     return this.usersService.create(createUserDto);
   }
 
-  @UseInterceptors(ClassSerializerInterceptor)
   @Get()
   findAll(): Promise<User[]> {
     return this.usersService.findAll();
   }
 
-  @UseInterceptors(ClassSerializerInterceptor)
   @Get(":id")
   findOne(@Param("id", ParseIntPipe) id: number): Promise<User> {
     return this.usersService.findOne(id);

@@ -1,5 +1,6 @@
 import {
   Body,
+  ClassSerializerInterceptor,
   Controller,
   Delete,
   Get,
@@ -10,9 +11,10 @@ import {
   Query,
   Req,
   UseGuards,
+  UseInterceptors,
   ValidationPipe,
 } from "@nestjs/common";
-import { ApiBearerAuth, ApiOperation, ApiResponse } from "@nestjs/swagger";
+import { ApiBearerAuth, ApiHeader, ApiOperation, ApiResponse } from "@nestjs/swagger";
 import { ActiveAssociationGuard } from "@/auth/guards/active-association.guard";
 import { JwtAuthGuard } from "@/auth/guards/jwt-auth.guard";
 import { CreateEventDto } from "./dto/create-event.dto";
@@ -21,6 +23,7 @@ import { UpdateEventDto } from "./dto/update-event.dto";
 import { Event } from "./entities/event.entity";
 import { EventsService } from "./events.service";
 
+@UseInterceptors(ClassSerializerInterceptor)
 @Controller("events")
 export class EventsController {
   constructor(private readonly eventsService: EventsService) {}
@@ -41,6 +44,11 @@ export class EventsController {
   }
 
   @ApiBearerAuth("access-token")
+  @ApiHeader({
+    name: "x-active-association",
+    description: "The ID of the association the user is acting on",
+    required: true,
+  })
   @ApiOperation({ summary: "Create a new event" })
   @ApiResponse({ status: 201, description: "Event created." })
   @ApiResponse({ status: 401, description: "Unauthorized." })
@@ -54,6 +62,11 @@ export class EventsController {
   }
 
   @ApiBearerAuth("access-token")
+  @ApiHeader({
+    name: "x-active-association",
+    description: "The ID of the association the user is acting on",
+    required: true,
+  })
   @ApiOperation({ summary: "Update an event by ID" })
   @ApiResponse({ status: 200, description: "Event updated." })
   @ApiResponse({ status: 401, description: "Unauthorized." })
@@ -73,6 +86,11 @@ export class EventsController {
   }
 
   @ApiBearerAuth("access-token")
+  @ApiHeader({
+    name: "x-active-association",
+    description: "The ID of the association the user is acting on",
+    required: true,
+  })
   @ApiOperation({ summary: "Delete an event by ID" })
   @ApiResponse({ status: 200, description: "Event deleted." })
   @ApiResponse({ status: 401, description: "Unauthorized." })

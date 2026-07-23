@@ -14,7 +14,7 @@ import {
   UseInterceptors,
   ValidationPipe,
 } from "@nestjs/common";
-import { ApiBearerAuth, ApiOperation, ApiResponse } from "@nestjs/swagger";
+import { ApiBearerAuth, ApiHeader, ApiOperation, ApiResponse } from "@nestjs/swagger";
 import { ActiveAssociationGuard } from "@/auth/guards/active-association.guard";
 import { JwtAuthGuard } from "@/auth/guards/jwt-auth.guard";
 import { CreateServiceDto } from "./dto/create-service.dto";
@@ -23,11 +23,11 @@ import { UpdateServiceDto } from "./dto/update-service.dto";
 import { Service } from "./entity/service.entity";
 import { ServicesService } from "./services.service";
 
+@UseInterceptors(ClassSerializerInterceptor)
 @Controller("services")
 export class ServicesController {
   constructor(private readonly servicesService: ServicesService) {}
 
-  @UseInterceptors(ClassSerializerInterceptor)
   @ApiOperation({ summary: "Get all services" })
   @ApiResponse({ status: 200, description: "List of services returned." })
   @Get()
@@ -35,7 +35,6 @@ export class ServicesController {
     return this.servicesService.findAll(filters);
   }
 
-  @UseInterceptors(ClassSerializerInterceptor)
   @ApiOperation({ summary: "Get service by ID" })
   @ApiResponse({ status: 200, description: "Service found." })
   @ApiResponse({ status: 404, description: "Service not found" })
@@ -45,6 +44,11 @@ export class ServicesController {
   }
 
   @ApiBearerAuth("access-token")
+  @ApiHeader({
+    name: "x-active-association",
+    description: "The ID of the association the user is acting on",
+    required: true,
+  })
   @ApiOperation({ summary: "Create a new service" })
   @ApiResponse({ status: 201, description: "Service created." })
   @ApiResponse({ status: 401, description: "Unauthorized." })
@@ -61,6 +65,11 @@ export class ServicesController {
   }
 
   @ApiBearerAuth("access-token")
+  @ApiHeader({
+    name: "x-active-association",
+    description: "The ID of the association the user is acting on",
+    required: true,
+  })
   @ApiOperation({ summary: "Update a service by ID" })
   @ApiResponse({ status: 200, description: "Service updated." })
   @ApiResponse({ status: 401, description: "Unauthorized." })
@@ -80,6 +89,11 @@ export class ServicesController {
   }
 
   @ApiBearerAuth("access-token")
+  @ApiHeader({
+    name: "x-active-association",
+    description: "The ID of the association the user is acting on",
+    required: true,
+  })
   @ApiOperation({ summary: "Delete a service by ID" })
   @ApiResponse({ status: 200, description: "Service deleted." })
   @ApiResponse({ status: 401, description: "Unauthorized." })

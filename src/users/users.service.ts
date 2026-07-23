@@ -76,6 +76,13 @@ export class UsersService implements OnApplicationBootstrap {
     return this.userRepository.findOneOrFail({ where: { id } });
   }
 
+  async findOneWithAssociations(id: number): Promise<User> {
+    return this.userRepository.findOneOrFail({
+      where: { id },
+      relations: ["associations"],
+    });
+  }
+
   findOneByEmail(email: string): Promise<User> {
     return this.userRepository.findOneByOrFail({ email: email });
   }

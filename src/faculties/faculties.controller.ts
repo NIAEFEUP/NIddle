@@ -1,5 +1,6 @@
 import {
   Body,
+  ClassSerializerInterceptor,
   Controller,
   Delete,
   Get,
@@ -8,6 +9,7 @@ import {
   Patch,
   Post,
   UseGuards,
+  UseInterceptors,
   ValidationPipe,
 } from "@nestjs/common";
 import { ApiBearerAuth, ApiOperation, ApiResponse } from "@nestjs/swagger";
@@ -18,6 +20,7 @@ import { UpdateFacultyDto } from "./dto/update-faculty.dto";
 import { Faculty } from "./entities/faculty.entity";
 import { FacultiesService } from "./faculties.service";
 
+@UseInterceptors(ClassSerializerInterceptor)
 @Controller("faculties")
 export class FacultiesController {
   constructor(private readonly facultiesService: FacultiesService) {}
