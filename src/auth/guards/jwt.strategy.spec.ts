@@ -1,5 +1,7 @@
 import { ConfigService } from "@nestjs/config";
 import { Test, TestingModule } from "@nestjs/testing";
+import { EntityNotFoundError } from "typeorm";
+import { User } from "@/users/entities/user.entity";
 import { UsersService } from "@/users/users.service";
 import { JwtStrategy } from "./jwt.strategy";
 
@@ -62,14 +64,25 @@ describe("JwtStrategy", () => {
     expect(usersService.findOneWithAssociations).toHaveBeenCalledWith(1);
   });
 
-  it("should return null if user validation throws an error", async () => {
+  it("should return null if user is not found (EntityNotFoundError)", async () => {
     jest
       .spyOn(usersService, "findOneWithAssociations")
-      .mockRejectedValue(new Error("User not found"));
+      .mockRejectedValue(new EntityNotFoundError(User, {}));
 
     const payload = { sub: 1, email: "test@example.com", isAdmin: false };
     const result = await strategy.validate(payload);
     expect(result).toBeNull();
+    expect(usersService.findOneWithAssociations).toHaveBeenCalledWith(1);
+  });
+
+  it("should rethrow unexpected errors", async () => {
+    const dbError = new Error("Database outage");
+    jest
+      .spyOn(usersService, "findOneWithAssociations")
+      .mockRejectedValue(dbError);
+
+    const payload = { sub: 1, email: "test@example.com", isAdmin: false };
+    await expect(strategy.validate(payload)).rejects.toThrow(dbError);
     expect(usersService.findOneWithAssociations).toHaveBeenCalledWith(1);
   });
 });

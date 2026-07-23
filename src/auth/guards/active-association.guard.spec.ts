@@ -24,7 +24,7 @@ describe("ActiveAssociationGuard", () => {
     expect(() => guard.canActivate(context)).toThrow(ForbiddenException);
   });
 
-  it("should throw ForbiddenException if x-active-association header is missing", () => {
+  it("should throw BadRequestException if x-active-association header is missing", () => {
     const context = {
       switchToHttp: () => ({
         getRequest: () => ({
@@ -34,7 +34,7 @@ describe("ActiveAssociationGuard", () => {
       }),
     } as any;
 
-    expect(() => guard.canActivate(context)).toThrow(ForbiddenException);
+    expect(() => guard.canActivate(context)).toThrow(BadRequestException);
   });
 
   it("should throw BadRequestException if x-active-association is not a valid integer", () => {

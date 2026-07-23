@@ -57,7 +57,7 @@ export class UsersService implements OnApplicationBootstrap {
 
     user.password = await bcrypt.hash(password, 10);
 
-    if (associationIds !== undefined) {
+    if (associationIds !== undefined && associationIds !== null) {
       user.associations = await validateAndGetRelations(
         this.associationRepository,
         associationIds,
@@ -98,7 +98,7 @@ export class UsersService implements OnApplicationBootstrap {
       user.password = await bcrypt.hash(password, 10);
     }
 
-    if (associationIds !== undefined) {
+    if (associationIds !== undefined && associationIds !== null) {
       user.associations = await validateAndGetRelations(
         this.associationRepository,
         associationIds,

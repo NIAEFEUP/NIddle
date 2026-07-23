@@ -19,7 +19,7 @@ export class ActiveAssociationGuard implements CanActivate {
     const activeAssociationHeader = request.headers["x-active-association"];
 
     if (!activeAssociationHeader) {
-      throw new ForbiddenException("Active Association header is required.");
+      throw new BadRequestException("Active Association header is required.");
     }
 
     const activeAssociationId = parseInt(activeAssociationHeader as string, 10);

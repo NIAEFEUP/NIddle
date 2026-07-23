@@ -2,6 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { PassportStrategy } from "@nestjs/passport";
 import { ExtractJwt, Strategy } from "passport-jwt";
+import { EntityNotFoundError } from "typeorm";
 import { UsersService } from "@/users/users.service";
 
 @Injectable()
@@ -23,8 +24,11 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     try {
       const user = await this.usersService.findOneWithAssociations(payload.sub);
       return user;
-    } catch (_error) {
-      return null;
+    } catch (error) {
+      if (error instanceof EntityNotFoundError) {
+        return null;
+      }
+      throw error;
     }
   }
 }

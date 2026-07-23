@@ -198,6 +198,24 @@ describe("UsersService", () => {
       });
       expect(mockAssociationRepository.findBy).toHaveBeenCalled();
     });
+
+    it("should ignore null associationIds", async () => {
+      const createUserDto: CreateUserDto = {
+        name: "John Doe",
+        email: "john@example.com",
+        password: "Password#123",
+        associationIds: null as any,
+      };
+      mockUserRepository.create.mockReturnValue(mockUser);
+      (bcrypt.hash as jest.Mock).mockResolvedValue("hashedPassword");
+      mockUserRepository.save.mockResolvedValue(mockUser);
+
+      const result = await service.create(createUserDto);
+
+      expect(result).toEqual(mockUser);
+      expect(mockAssociationRepository.findBy).not.toHaveBeenCalled();
+      expect(mockUserRepository.save).toHaveBeenCalled();
+    });
   });
 
   describe("findAll", () => {
@@ -333,6 +351,20 @@ describe("UsersService", () => {
       await service.update(1, updateUserDto);
 
       expect(mockAssociationRepository.findBy).toHaveBeenCalled();
+      expect(mockUserRepository.save).toHaveBeenCalled();
+    });
+
+    it("should ignore null associationIds on update", async () => {
+      const updateUserDto: UpdateUserDto = { associationIds: null as any };
+      mockUserRepository.findOneOrFail.mockResolvedValue(mockUser);
+      mockUserRepository.merge.mockImplementation((target, source) => {
+        Object.assign(target, source);
+      });
+      mockUserRepository.save.mockResolvedValue(mockUser);
+
+      await service.update(1, updateUserDto);
+
+      expect(mockAssociationRepository.findBy).not.toHaveBeenCalled();
       expect(mockUserRepository.save).toHaveBeenCalled();
     });
   });
