@@ -14,7 +14,12 @@ import {
   UseInterceptors,
   ValidationPipe,
 } from "@nestjs/common";
-import { ApiBearerAuth, ApiHeader, ApiOperation, ApiResponse } from "@nestjs/swagger";
+import {
+  ApiBearerAuth,
+  ApiHeader,
+  ApiOperation,
+  ApiResponse,
+} from "@nestjs/swagger";
 import { ActiveAssociationGuard } from "@/auth/guards/active-association.guard";
 import { JwtAuthGuard } from "@/auth/guards/jwt-auth.guard";
 import { CreateEventDto } from "./dto/create-event.dto";

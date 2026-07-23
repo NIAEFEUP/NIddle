@@ -1,7 +1,7 @@
 import { ConfigService } from "@nestjs/config";
 import { Test, TestingModule } from "@nestjs/testing";
-import { JwtStrategy } from "./jwt.strategy";
 import { UsersService } from "@/users/users.service";
+import { JwtStrategy } from "./jwt.strategy";
 
 describe("JwtStrategy", () => {
   let strategy: JwtStrategy;
