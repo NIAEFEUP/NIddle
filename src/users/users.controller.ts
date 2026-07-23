@@ -23,7 +23,13 @@ import { UsersService } from "./users.service";
 @UseInterceptors(ClassSerializerInterceptor)
 @Controller("users")
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(private readonly usersService: UsersService) { }
+
+  @Get()
+  @ApiOperation({ summary: "Get all users" })
+  findAll(): Promise<User[]> {
+    return this.usersService.findAll();
+  }
 
   @ApiBearerAuth("access-token")
   @ApiOperation({ summary: "Create a new user" })
@@ -33,12 +39,8 @@ export class UsersController {
     return this.usersService.create(createUserDto);
   }
 
-  @Get()
-  findAll(): Promise<User[]> {
-    return this.usersService.findAll();
-  }
-
   @Get(":id")
+  @ApiOperation({ summary: "Get user by ID" })
   findOne(@Param("id", ParseIntPipe) id: number): Promise<User> {
     return this.usersService.findOne(id);
   }
