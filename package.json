@@ -9,7 +9,7 @@
   "scripts": {
     "dev:api": "npm run start:dev -w apps/api",
     "dev:web": "npm run dev -w apps/web",
-    "dev": "concurrently -n api,web -c blue,magenta \"npm run dev:api\" \"npm run dev:web\"",
+    "dev": "concurrently -n api,web -c blue,magenta \"npm run dev:api\" \"node -e \\\"const net = require('node:net'); const check = () => { const s = net.createConnection(3001, 'localhost', () => { s.end(); process.exit(0); }); s.on('error', () => setTimeout(check, 200)); }; check();\\\" && npm run dev:web\"",
     "build:api": "npm run build -w apps/api",
     "build:web": "npm run build -w apps/web",
     "build": "npm run build:api && npm run build:web",

@@ -6,9 +6,9 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "start": "sirv dist --port 3000 --host --single",
-    "lint": "eslint .",
-    "format": "prettier --write \"**/*.{ts,tsx}\"",
+    "start": "node server.js",
+    "lint": "biome lint .",
+    "format": "biome format --write .",
     "typecheck": "tsc --noEmit",
     "preview": "vite preview"
   },
@@ -18,29 +18,22 @@
     "@tailwindcss/vite": "^4",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "express": "^4.21.0",
+    "http-proxy-middleware": "^3.0.3",
     "lucide-react": "^1.27.0",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
     "shadcn": "^4.15.0",
-    "sirv-cli": "^3.0.0",
     "tailwind-merge": "^3.6.0",
     "tailwindcss": "^4",
     "tw-animate-css": "^1.4.0"
   },
   "devDependencies": {
-    "@eslint/js": "^10",
     "@types/node": "^24",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@vitejs/plugin-react": "^6",
-    "eslint": "^10",
-    "eslint-plugin-react-hooks": "^7.1.1",
-    "eslint-plugin-react-refresh": "^0.5.2",
-    "globals": "^17",
-    "prettier": "^3.8.3",
-    "prettier-plugin-tailwindcss": "^0.8.0",
     "typescript": "~6",
-    "typescript-eslint": "^8",
     "vite": "^8"
   }
 }
