@@ -9,7 +9,7 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe());
   app.useGlobalFilters(new EntityNotFoundFilter());
 
-  const port = process.env.PORT ?? 3000;
+  const port = process.env.PORT ?? 3001;
   const config = new DocumentBuilder()
     .setTitle("NIddle")
     .setDescription("NIddle API description")

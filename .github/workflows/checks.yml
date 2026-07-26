@@ -23,7 +23,7 @@ jobs:
         with:
           version: "2.3.14"
       - name: Run Biome CI
-        run: biome ci ./src ./test
+        run: biome ci ./apps
 
   test:
     name: Test and Collect Coverage
@@ -47,7 +47,7 @@ jobs:
       uses: codecov/codecov-action@v5
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
-        files: ./coverage/lcov.info
+        files: ./apps/api/coverage/lcov.info
         fail_ci_if_error: true
 
   build:

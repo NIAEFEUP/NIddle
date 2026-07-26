@@ -1,42 +1,45 @@
-# ---- Base deps ----
+FROM node:22-alpine AS deps
+RUN apk add --no-cache libc6-compat python3 make g++ gcc build-base
+WORKDIR /app
 
-FROM docker.io/library/node:22-alpine AS deps
-WORKDIR /usr/src/app
+COPY package.json package-lock.json ./
+COPY apps/api/package.json ./apps/api/package.json
+COPY apps/web/package.json ./apps/web/package.json
 
-# Install deps
-COPY package*.json ./
 RUN npm ci
 
-# ---- Build stage ----
-FROM docker.io/library/node:22-alpine AS build
-WORKDIR /usr/src/app
+FROM node:22-alpine AS builder
+WORKDIR /app
 
-COPY --from=deps /usr/src/app/node_modules ./node_modules
+COPY --from=deps /app /app
+
 COPY . .
 
 RUN npm run build
 
-# ---- Production runtime ----
-FROM docker.io/library/node:22-alpine AS production
-WORKDIR /usr/src/app
+RUN npm prune --omit=dev
+
+FROM node:22-alpine AS runner
+WORKDIR /app
 
 ENV NODE_ENV=production
 
-# Install only prod deps
-COPY package*.json ./
-RUN npm ci --omit=dev && npm cache clean --force
+COPY --from=builder /app/package.json ./package.json
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/apps/api/package.json ./apps/api/package.json
+COPY --from=builder /app/apps/api/dist ./apps/api/dist
+COPY --from=builder /app/apps/web/package.json ./apps/web/package.json
+COPY --from=builder /app/apps/web/.next/standalone ./apps/web/.next/standalone
+COPY --from=builder /app/apps/web/.next/static ./apps/web/.next/standalone/apps/web/.next/static
+COPY --from=builder /app/apps/web/public ./apps/web/.next/standalone/apps/web/public
 
-# Copy built artifacts
-COPY --from=build /usr/src/app/dist ./dist
-
-# Copy the entrypoint script into the image
-COPY docker-entrypoint.sh /usr/local/bin/
-
-# Make the script executable
+COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
-# Set the entrypoint
-ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
+COPY start.sh /app/start.sh
+RUN chmod +x /app/start.sh
 
-USER node
-CMD ["node", "dist/main"]
+EXPOSE 3000
+
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
+CMD ["/app/start.sh"]
