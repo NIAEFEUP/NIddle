@@ -29,9 +29,7 @@ COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/apps/api/package.json ./apps/api/package.json
 COPY --from=builder /app/apps/api/dist ./apps/api/dist
 COPY --from=builder /app/apps/web/package.json ./apps/web/package.json
-COPY --from=builder /app/apps/web/.next/standalone ./apps/web/.next/standalone
-COPY --from=builder /app/apps/web/.next/static ./apps/web/.next/standalone/apps/web/.next/static
-COPY --from=builder /app/apps/web/public ./apps/web/.next/standalone/apps/web/public
+COPY --from=builder /app/apps/web/dist ./apps/web/dist
 
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh

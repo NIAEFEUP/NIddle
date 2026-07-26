@@ -5,7 +5,7 @@ node apps/api/dist/main.js &
 API_PID=$!
 
 echo "Starting NIddle Web Dashboard..."
-PORT=3000 node apps/web/.next/standalone/apps/web/server.js &
+npm run start -w apps/web &
 WEB_PID=$!
 
 trap 'kill -TERM $API_PID $WEB_PID' TERM INT

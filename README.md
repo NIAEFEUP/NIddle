@@ -113,7 +113,7 @@ This ensures a consistent development environment across different machines.
 
 ## Docker
 
-NIddle is fully containerized and can be easily built and run as a Docker image. The production image runs both the NestJS API and Next.js frontend standalone server concurrently in a single lightweight container.
+NIddle is fully containerized and can be easily built and run as a Docker image. The production image runs both the NestJS API and Vite frontend server concurrently in a single lightweight container.
 
 ### Building the Image
 
@@ -137,10 +137,10 @@ docker run --name niddle --network niddle-network -p 3000:3000 --env-file apps/a
 
 - `npm run dev`: Starts both the backend API and frontend web apps concurrently in development mode.
 - `npm run dev:api`: Starts the NestJS backend API in development mode.
-- `npm run dev:web`: Starts the Next.js frontend web app in development mode.
+- `npm run dev:web`: Starts the Vite frontend web app in development mode.
 - `npm run build`: Builds both the API and Frontend web apps for production.
 - `npm run build:api`: Builds the NestJS API.
-- `npm run build:web`: Builds the Next.js frontend.
+- `npm run build:web`: Builds the Vite frontend.
 - `npm run seed`: Seeds the database with sample data (proxied to `@niddle/api`).
 - `npm run schema:create`: Generates the database schema (proxied to `@niddle/api`).
 

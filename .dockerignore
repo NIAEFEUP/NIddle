@@ -4,7 +4,7 @@ apps/web/node_modules
 dist
 apps/api/dist
 .next
-apps/web/.next
+apps/web/dist
 .env
 .env.local
 .env.docker
