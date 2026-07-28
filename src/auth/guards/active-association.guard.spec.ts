@@ -1,4 +1,4 @@
-import { BadRequestException, ForbiddenException } from "@nestjs/common";
+import { BadRequestException, ForbiddenException, UnauthorizedException } from "@nestjs/common";
 import { ActiveAssociationGuard } from "./active-association.guard";
 
 describe("ActiveAssociationGuard", () => {
@@ -12,7 +12,7 @@ describe("ActiveAssociationGuard", () => {
     expect(guard).toBeDefined();
   });
 
-  it("should throw ForbiddenException if user is not present", () => {
+  it("should throw UnauthorizedException if user is not present", () => {
     const context = {
       switchToHttp: () => ({
         getRequest: () => ({
@@ -21,7 +21,7 @@ describe("ActiveAssociationGuard", () => {
       }),
     } as any;
 
-    expect(() => guard.canActivate(context)).toThrow(ForbiddenException);
+    expect(() => guard.canActivate(context)).toThrow(UnauthorizedException);
   });
 
   it("should throw BadRequestException if x-active-association header is missing", () => {

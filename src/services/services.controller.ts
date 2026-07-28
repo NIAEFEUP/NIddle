@@ -42,7 +42,7 @@ export class ServicesController {
 
   @ApiOperation({ summary: "Get service by ID" })
   @ApiResponse({ status: 200, description: "Service found." })
-  @ApiResponse({ status: 404, description: "Service not found" })
+  @ApiResponse({ status: 204, description: "Service not found" })
   @Get(":id")
   findOne(@Param("id", ParseIntPipe) id: number): Promise<Service> {
     return this.servicesService.findOne(id);
@@ -57,6 +57,7 @@ export class ServicesController {
   @ApiOperation({ summary: "Create a new service" })
   @ApiResponse({ status: 201, description: "Service created." })
   @ApiResponse({ status: 401, description: "Unauthorized." })
+  @ApiResponse({ status: 403, description: "Forbidden." })
   @UseGuards(JwtAuthGuard, ActiveAssociationGuard)
   @Post()
   create(
@@ -77,8 +78,9 @@ export class ServicesController {
   })
   @ApiOperation({ summary: "Update a service by ID" })
   @ApiResponse({ status: 200, description: "Service updated." })
+  @ApiResponse({ status: 204, description: "Service not found." })
   @ApiResponse({ status: 401, description: "Unauthorized." })
-  @ApiResponse({ status: 404, description: "Service not found." })
+  @ApiResponse({ status: 403, description: "Forbidden." })
   @UseGuards(JwtAuthGuard, ActiveAssociationGuard)
   @Patch(":id")
   update(
@@ -101,8 +103,9 @@ export class ServicesController {
   })
   @ApiOperation({ summary: "Delete a service by ID" })
   @ApiResponse({ status: 200, description: "Service deleted." })
+  @ApiResponse({ status: 204, description: "Service not found." })
   @ApiResponse({ status: 401, description: "Unauthorized." })
-  @ApiResponse({ status: 404, description: "Service not found." })
+  @ApiResponse({ status: 403, description: "Forbidden." })
   @UseGuards(JwtAuthGuard, ActiveAssociationGuard)
   @Delete(":id")
   remove(

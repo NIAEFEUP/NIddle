@@ -4,6 +4,7 @@ import {
   ExecutionContext,
   ForbiddenException,
   Injectable,
+  UnauthorizedException,
 } from "@nestjs/common";
 
 @Injectable()
@@ -13,7 +14,7 @@ export class ActiveAssociationGuard implements CanActivate {
     const user = request.user;
 
     if (!user) {
-      throw new ForbiddenException("User must be authenticated.");
+      throw new UnauthorizedException("User must be authenticated.");
     }
 
     const activeAssociationHeader = request.headers["x-active-association"];

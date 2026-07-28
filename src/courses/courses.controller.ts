@@ -34,7 +34,7 @@ export class CoursesController {
 
   @ApiOperation({ summary: "Get course by ID" })
   @ApiResponse({ status: 200, description: "Course found." })
-  @ApiResponse({ status: 404, description: "Course not found." })
+  @ApiResponse({ status: 204, description: "Course not found." })
   @Get(":id")
   findOne(@Param("id", ParseIntPipe) id: number): Promise<Course> {
     return this.coursesService.findOne(id);
@@ -44,6 +44,7 @@ export class CoursesController {
   @ApiOperation({ summary: "Create a new course" })
   @ApiResponse({ status: 201, description: "Course created." })
   @ApiResponse({ status: 401, description: "Unauthorized." })
+  @ApiResponse({ status: 403, description: "Forbidden." })
   @UseGuards(JwtAuthGuard, AdminOnlyGuard)
   @Post()
   create(
@@ -55,8 +56,9 @@ export class CoursesController {
   @ApiBearerAuth("access-token")
   @ApiOperation({ summary: "Update a course by ID" })
   @ApiResponse({ status: 200, description: "Course updated." })
+  @ApiResponse({ status: 204, description: "Course not found." })
   @ApiResponse({ status: 401, description: "Unauthorized." })
-  @ApiResponse({ status: 404, description: "Course not found." })
+  @ApiResponse({ status: 403, description: "Forbidden." })
   @UseGuards(JwtAuthGuard, AdminOnlyGuard)
   @Patch(":id")
   update(
@@ -69,8 +71,9 @@ export class CoursesController {
   @ApiBearerAuth("access-token")
   @ApiOperation({ summary: "Delete a course by ID" })
   @ApiResponse({ status: 200, description: "Course deleted." })
+  @ApiResponse({ status: 204, description: "Course not found." })
   @ApiResponse({ status: 401, description: "Unauthorized." })
-  @ApiResponse({ status: 404, description: "Course not found." })
+  @ApiResponse({ status: 403, description: "Forbidden." })
   @UseGuards(JwtAuthGuard, AdminOnlyGuard)
   @Delete(":id")
   remove(@Param("id", ParseIntPipe) id: number): Promise<Course> {
