@@ -76,7 +76,6 @@ describe("AuthService", () => {
         sub: mockUser.id,
         email: mockUser.email,
         name: mockUser.name,
-        isAdmin: mockUser.isAdmin,
       });
     });
 
