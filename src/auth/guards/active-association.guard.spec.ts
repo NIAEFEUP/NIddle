@@ -1,4 +1,8 @@
-import { BadRequestException, ForbiddenException, UnauthorizedException } from "@nestjs/common";
+import {
+  BadRequestException,
+  ForbiddenException,
+  UnauthorizedException,
+} from "@nestjs/common";
 import { ActiveAssociationGuard } from "./active-association.guard";
 
 describe("ActiveAssociationGuard", () => {
