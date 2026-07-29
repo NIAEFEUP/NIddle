@@ -34,7 +34,7 @@ export class AssociationsController {
 
   @ApiOperation({ summary: "Get association by ID" })
   @ApiResponse({ status: 200, description: "Association found." })
-  @ApiResponse({ status: 404, description: "Association not found." })
+  @ApiResponse({ status: 204, description: "Association not found." })
   @Get(":id")
   findOne(@Param("id", ParseIntPipe) id: number): Promise<Association> {
     return this.associationsService.findOne(id);
@@ -44,6 +44,7 @@ export class AssociationsController {
   @ApiOperation({ summary: "Create a new association" })
   @ApiResponse({ status: 201, description: "Association created." })
   @ApiResponse({ status: 401, description: "Unauthorized." })
+  @ApiResponse({ status: 403, description: "Forbidden." })
   @UseGuards(JwtAuthGuard, AdminOnlyGuard)
   @Post()
   create(
@@ -55,8 +56,9 @@ export class AssociationsController {
   @ApiBearerAuth("access-token")
   @ApiOperation({ summary: "Update an association by ID" })
   @ApiResponse({ status: 200, description: "Association updated." })
+  @ApiResponse({ status: 204, description: "Association not found." })
   @ApiResponse({ status: 401, description: "Unauthorized." })
-  @ApiResponse({ status: 404, description: "Association not found." })
+  @ApiResponse({ status: 403, description: "Forbidden." })
   @UseGuards(JwtAuthGuard, AdminOnlyGuard)
   @Patch(":id")
   update(
@@ -69,8 +71,9 @@ export class AssociationsController {
   @ApiBearerAuth("access-token")
   @ApiOperation({ summary: "Delete an association by ID" })
   @ApiResponse({ status: 200, description: "Association deleted." })
+  @ApiResponse({ status: 204, description: "Association not found." })
   @ApiResponse({ status: 401, description: "Unauthorized." })
-  @ApiResponse({ status: 404, description: "Association not found." })
+  @ApiResponse({ status: 403, description: "Forbidden." })
   @UseGuards(JwtAuthGuard, AdminOnlyGuard)
   @Delete(":id")
   remove(@Param("id", ParseIntPipe) id: number): Promise<Association> {

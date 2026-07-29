@@ -42,7 +42,7 @@ export class EventsController {
 
   @ApiOperation({ summary: "Get event by ID" })
   @ApiResponse({ status: 200, description: "Event found." })
-  @ApiResponse({ status: 404, description: "Event not found." })
+  @ApiResponse({ status: 204, description: "Event not found." })
   @Get(":id")
   findOne(@Param("id", ParseIntPipe) id: number): Promise<Event> {
     return this.eventsService.findOne(id);
@@ -57,6 +57,7 @@ export class EventsController {
   @ApiOperation({ summary: "Create a new event" })
   @ApiResponse({ status: 201, description: "Event created." })
   @ApiResponse({ status: 401, description: "Unauthorized." })
+  @ApiResponse({ status: 403, description: "Forbidden." })
   @UseGuards(JwtAuthGuard, ActiveAssociationGuard)
   @Post()
   create(
@@ -74,8 +75,9 @@ export class EventsController {
   })
   @ApiOperation({ summary: "Update an event by ID" })
   @ApiResponse({ status: 200, description: "Event updated." })
+  @ApiResponse({ status: 204, description: "Event not found." })
   @ApiResponse({ status: 401, description: "Unauthorized." })
-  @ApiResponse({ status: 404, description: "Event not found." })
+  @ApiResponse({ status: 403, description: "Forbidden." })
   @UseGuards(JwtAuthGuard, ActiveAssociationGuard)
   @Patch(":id")
   update(
@@ -98,8 +100,9 @@ export class EventsController {
   })
   @ApiOperation({ summary: "Delete an event by ID" })
   @ApiResponse({ status: 200, description: "Event deleted." })
+  @ApiResponse({ status: 204, description: "Event not found." })
   @ApiResponse({ status: 401, description: "Unauthorized." })
-  @ApiResponse({ status: 404, description: "Event not found." })
+  @ApiResponse({ status: 403, description: "Forbidden." })
   @UseGuards(JwtAuthGuard, ActiveAssociationGuard)
   @Delete(":id")
   remove(

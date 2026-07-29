@@ -1,4 +1,4 @@
-import { ForbiddenException } from "@nestjs/common";
+import { ForbiddenException, UnauthorizedException } from "@nestjs/common";
 import { AdminOnlyGuard } from "./admin-only.guard";
 
 describe("AdminOnlyGuard", () => {
@@ -12,14 +12,14 @@ describe("AdminOnlyGuard", () => {
     expect(guard).toBeDefined();
   });
 
-  it("should throw ForbiddenException if user is not present", () => {
+  it("should throw UnauthorizedException if user is not present", () => {
     const context = {
       switchToHttp: () => ({
         getRequest: () => ({}),
       }),
     } as any;
 
-    expect(() => guard.canActivate(context)).toThrow(ForbiddenException);
+    expect(() => guard.canActivate(context)).toThrow(UnauthorizedException);
   });
 
   it("should throw ForbiddenException if user is not admin", () => {
