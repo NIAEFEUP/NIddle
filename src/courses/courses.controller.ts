@@ -1,5 +1,6 @@
 import {
   Body,
+  ClassSerializerInterceptor,
   Controller,
   Delete,
   Get,
@@ -8,15 +9,18 @@ import {
   Patch,
   Post,
   UseGuards,
+  UseInterceptors,
   ValidationPipe,
 } from "@nestjs/common";
 import { ApiBearerAuth, ApiOperation, ApiResponse } from "@nestjs/swagger";
+import { AdminOnlyGuard } from "@/auth/guards/admin-only.guard";
 import { JwtAuthGuard } from "@/auth/guards/jwt-auth.guard";
 import { CoursesService } from "./courses.service";
 import { CreateCourseDto } from "./dto/create-course.dto";
 import { UpdateCourseDto } from "./dto/update-course.dto";
 import { Course } from "./entities/course.entity";
 
+@UseInterceptors(ClassSerializerInterceptor)
 @Controller("courses")
 export class CoursesController {
   constructor(private readonly coursesService: CoursesService) {}
@@ -30,7 +34,7 @@ export class CoursesController {
 
   @ApiOperation({ summary: "Get course by ID" })
   @ApiResponse({ status: 200, description: "Course found." })
-  @ApiResponse({ status: 404, description: "Course not found." })
+  @ApiResponse({ status: 204, description: "Course not found." })
   @Get(":id")
   findOne(@Param("id", ParseIntPipe) id: number): Promise<Course> {
     return this.coursesService.findOne(id);
@@ -40,7 +44,8 @@ export class CoursesController {
   @ApiOperation({ summary: "Create a new course" })
   @ApiResponse({ status: 201, description: "Course created." })
   @ApiResponse({ status: 401, description: "Unauthorized." })
-  @UseGuards(JwtAuthGuard)
+  @ApiResponse({ status: 403, description: "Forbidden." })
+  @UseGuards(JwtAuthGuard, AdminOnlyGuard)
   @Post()
   create(
     @Body(ValidationPipe) createCourseDto: CreateCourseDto,
@@ -51,9 +56,10 @@ export class CoursesController {
   @ApiBearerAuth("access-token")
   @ApiOperation({ summary: "Update a course by ID" })
   @ApiResponse({ status: 200, description: "Course updated." })
+  @ApiResponse({ status: 204, description: "Course not found." })
   @ApiResponse({ status: 401, description: "Unauthorized." })
-  @ApiResponse({ status: 404, description: "Course not found." })
-  @UseGuards(JwtAuthGuard)
+  @ApiResponse({ status: 403, description: "Forbidden." })
+  @UseGuards(JwtAuthGuard, AdminOnlyGuard)
   @Patch(":id")
   update(
     @Param("id", ParseIntPipe) id: number,
@@ -65,9 +71,10 @@ export class CoursesController {
   @ApiBearerAuth("access-token")
   @ApiOperation({ summary: "Delete a course by ID" })
   @ApiResponse({ status: 200, description: "Course deleted." })
+  @ApiResponse({ status: 204, description: "Course not found." })
   @ApiResponse({ status: 401, description: "Unauthorized." })
-  @ApiResponse({ status: 404, description: "Course not found." })
-  @UseGuards(JwtAuthGuard)
+  @ApiResponse({ status: 403, description: "Forbidden." })
+  @UseGuards(JwtAuthGuard, AdminOnlyGuard)
   @Delete(":id")
   remove(@Param("id", ParseIntPipe) id: number): Promise<Course> {
     return this.coursesService.remove(id);

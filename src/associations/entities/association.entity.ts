@@ -1,9 +1,9 @@
 import {
   Column,
   Entity,
-  JoinColumn,
+  JoinTable,
+  ManyToMany,
   OneToMany,
-  OneToOne,
   PrimaryGeneratedColumn,
 } from "typeorm";
 import { Event } from "@/events/entities/event.entity";
@@ -34,11 +34,15 @@ export class Association {
   acronym?: string;
 
   /**
-   * The user (owner) of the association.
+   * Users that belong to the association.
    */
-  @OneToOne(() => User, { cascade: true, onDelete: "CASCADE" })
-  @JoinColumn()
-  user: User;
+  @ManyToMany(
+    () => User,
+    (user) => user.associations,
+    { cascade: true, onDelete: "CASCADE" },
+  )
+  @JoinTable()
+  users: User[];
 
   /**
    * The events organized by this association.

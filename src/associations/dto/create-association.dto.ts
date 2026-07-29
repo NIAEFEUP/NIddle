@@ -1,4 +1,4 @@
-import { IsInt, IsNotEmpty, IsOptional, IsString } from "class-validator";
+import { IsNotEmpty, IsOptional, IsString } from "class-validator";
 
 export class CreateAssociationDto {
   /**
@@ -16,12 +16,4 @@ export class CreateAssociationDto {
   @IsOptional()
   @IsString()
   acronym: string;
-
-  /**
-   * The user ID (owner) of the association.
-   * @example 5
-   */
-  @IsInt()
-  @IsNotEmpty()
-  userId: number;
 }

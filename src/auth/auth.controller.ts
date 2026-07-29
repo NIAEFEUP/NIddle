@@ -10,7 +10,6 @@ import {
   ValidationPipe,
 } from "@nestjs/common";
 import { ApiBearerAuth, ApiOperation, ApiResponse } from "@nestjs/swagger";
-import { CreateUserDto } from "@/users/dto/create-user.dto";
 import { AuthService } from "./auth.service";
 import { SignInDto } from "./dto/signin.dto";
 import { JwtAuthGuard } from "./guards/jwt-auth.guard";
@@ -37,17 +36,6 @@ export class AuthController {
     @Request() req: { user: { id: number; name: string; email: string } },
   ) {
     return req.user;
-  }
-
-  @ApiOperation({ summary: "Register a new user" })
-  @ApiResponse({ status: 201, description: "User created successfully." })
-  @ApiResponse({
-    status: 409,
-    description: "Conflict: Email is already in use.",
-  })
-  @Post("register")
-  async register(@Body(ValidationPipe) createUserDto: CreateUserDto) {
-    return this.authService.register(createUserDto);
   }
 
   @ApiOperation({ summary: "User login (JWT issuance)" })

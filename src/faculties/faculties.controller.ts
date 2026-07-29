@@ -1,5 +1,6 @@
 import {
   Body,
+  ClassSerializerInterceptor,
   Controller,
   Delete,
   Get,
@@ -8,15 +9,18 @@ import {
   Patch,
   Post,
   UseGuards,
+  UseInterceptors,
   ValidationPipe,
 } from "@nestjs/common";
 import { ApiBearerAuth, ApiOperation, ApiResponse } from "@nestjs/swagger";
+import { AdminOnlyGuard } from "@/auth/guards/admin-only.guard";
 import { JwtAuthGuard } from "@/auth/guards/jwt-auth.guard";
 import { CreateFacultyDto } from "./dto/create-faculty.dto";
 import { UpdateFacultyDto } from "./dto/update-faculty.dto";
 import { Faculty } from "./entities/faculty.entity";
 import { FacultiesService } from "./faculties.service";
 
+@UseInterceptors(ClassSerializerInterceptor)
 @Controller("faculties")
 export class FacultiesController {
   constructor(private readonly facultiesService: FacultiesService) {}
@@ -30,7 +34,7 @@ export class FacultiesController {
 
   @ApiOperation({ summary: "Get faculty by ID" })
   @ApiResponse({ status: 200, description: "Faculty found." })
-  @ApiResponse({ status: 404, description: "Faculty not found." })
+  @ApiResponse({ status: 204, description: "Faculty not found." })
   @Get(":id")
   findOne(@Param("id", ParseIntPipe) id: number): Promise<Faculty> {
     return this.facultiesService.findOne(id);
@@ -40,7 +44,8 @@ export class FacultiesController {
   @ApiOperation({ summary: "Create a new faculty" })
   @ApiResponse({ status: 201, description: "Faculty created." })
   @ApiResponse({ status: 401, description: "Unauthorized." })
-  @UseGuards(JwtAuthGuard)
+  @ApiResponse({ status: 403, description: "Forbidden." })
+  @UseGuards(JwtAuthGuard, AdminOnlyGuard)
   @Post()
   create(
     @Body(ValidationPipe) createFacultyDto: CreateFacultyDto,
@@ -51,9 +56,10 @@ export class FacultiesController {
   @ApiBearerAuth("access-token")
   @ApiOperation({ summary: "Update a faculty by ID" })
   @ApiResponse({ status: 200, description: "Faculty updated." })
+  @ApiResponse({ status: 204, description: "Faculty not found." })
   @ApiResponse({ status: 401, description: "Unauthorized." })
-  @ApiResponse({ status: 404, description: "Faculty not found." })
-  @UseGuards(JwtAuthGuard)
+  @ApiResponse({ status: 403, description: "Forbidden." })
+  @UseGuards(JwtAuthGuard, AdminOnlyGuard)
   @Patch(":id")
   update(
     @Param("id", ParseIntPipe) id: number,
@@ -65,9 +71,10 @@ export class FacultiesController {
   @ApiBearerAuth("access-token")
   @ApiOperation({ summary: "Delete a faculty by ID" })
   @ApiResponse({ status: 200, description: "Faculty deleted." })
+  @ApiResponse({ status: 204, description: "Faculty not found." })
   @ApiResponse({ status: 401, description: "Unauthorized." })
-  @ApiResponse({ status: 404, description: "Faculty not found." })
-  @UseGuards(JwtAuthGuard)
+  @ApiResponse({ status: 403, description: "Forbidden." })
+  @UseGuards(JwtAuthGuard, AdminOnlyGuard)
   @Delete(":id")
   remove(@Param("id", ParseIntPipe) id: number): Promise<Faculty> {
     return this.facultiesService.remove(id);

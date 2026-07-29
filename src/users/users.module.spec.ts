@@ -1,6 +1,5 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { TypeOrmModule } from "@nestjs/typeorm";
-import { User } from "./entities/user.entity";
 import { UsersController } from "./users.controller";
 import { UsersModule } from "./users.module";
 import { UsersService } from "./users.service";
@@ -14,7 +13,7 @@ describe("UsersModule", () => {
         TypeOrmModule.forRoot({
           type: "sqlite",
           database: ":memory:",
-          entities: [User],
+          entities: [`${__dirname}/../**/*.entity{.ts,.js}`],
           synchronize: true,
         }),
         UsersModule,

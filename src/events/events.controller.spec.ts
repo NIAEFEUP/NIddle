@@ -92,14 +92,15 @@ describe("EventsController", () => {
         startDate: "2025-12-26T09:00:00Z",
         endDate: "2025-12-27T18:00:00Z",
         facultyId: 1,
-        createdById: 1,
       };
       mockEventsService.create.mockResolvedValue(mockEvent);
 
-      const result = await controller.create(createEventDto);
+      const result = await controller.create(createEventDto, {
+        activeAssociationId: 1,
+      });
 
       expect(result).toEqual(mockEvent);
-      expect(mockEventsService.create).toHaveBeenCalledWith(createEventDto);
+      expect(mockEventsService.create).toHaveBeenCalledWith(createEventDto, 1);
     });
   });
 
@@ -111,10 +112,16 @@ describe("EventsController", () => {
       const updatedEvent = { ...mockEvent, ...updateEventDto };
       mockEventsService.update.mockResolvedValue(updatedEvent);
 
-      const result = await controller.update(1, updateEventDto);
+      const result = await controller.update(1, updateEventDto, {
+        activeAssociationId: 1,
+      });
 
       expect(result).toEqual(updatedEvent);
-      expect(mockEventsService.update).toHaveBeenCalledWith(1, updateEventDto);
+      expect(mockEventsService.update).toHaveBeenCalledWith(
+        1,
+        updateEventDto,
+        1,
+      );
     });
 
     it("should throw NotFoundException if event not found", async () => {
@@ -123,10 +130,14 @@ describe("EventsController", () => {
       };
       mockEventsService.update.mockRejectedValue(new NotFoundException());
 
-      await expect(controller.update(1, updateEventDto)).rejects.toThrow(
-        NotFoundException,
+      await expect(
+        controller.update(1, updateEventDto, { activeAssociationId: 1 }),
+      ).rejects.toThrow(NotFoundException);
+      expect(mockEventsService.update).toHaveBeenCalledWith(
+        1,
+        updateEventDto,
+        1,
       );
-      expect(mockEventsService.update).toHaveBeenCalledWith(1, updateEventDto);
     });
   });
 
@@ -134,17 +145,19 @@ describe("EventsController", () => {
     it("should remove an event", async () => {
       mockEventsService.remove.mockResolvedValue(mockEvent);
 
-      const result = await controller.remove(1);
+      const result = await controller.remove(1, { activeAssociationId: 1 });
 
       expect(result).toEqual(mockEvent);
-      expect(mockEventsService.remove).toHaveBeenCalledWith(1);
+      expect(mockEventsService.remove).toHaveBeenCalledWith(1, 1);
     });
 
     it("should throw NotFoundException if event not found", async () => {
       mockEventsService.remove.mockRejectedValue(new NotFoundException());
 
-      await expect(controller.remove(1)).rejects.toThrow(NotFoundException);
-      expect(mockEventsService.remove).toHaveBeenCalledWith(1);
+      await expect(
+        controller.remove(1, { activeAssociationId: 1 }),
+      ).rejects.toThrow(NotFoundException);
+      expect(mockEventsService.remove).toHaveBeenCalledWith(1, 1);
     });
   });
 });

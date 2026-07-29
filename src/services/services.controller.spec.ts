@@ -64,26 +64,25 @@ describe("ServicesController", () => {
         name: "a",
         location: "b",
         schedule: [] as Schedule[],
-        createdById: 1,
       };
       mockService.create.mockResolvedValue(svc);
-      const res = await controller.create(dto);
-      expect(mockService.create).toHaveBeenCalledWith(dto);
+      const res = await controller.create(dto, { activeAssociationId: 1 });
+      expect(mockService.create).toHaveBeenCalledWith(dto, 1);
       expect(res).toEqual(svc);
     });
 
     it("update should forward id and dto to service.update", async () => {
       const dto: UpdateServiceDto = { name: "updated" } as UpdateServiceDto;
       mockService.update.mockResolvedValue({ ...svc, ...dto });
-      const res = await controller.update(1, dto);
-      expect(mockService.update).toHaveBeenCalledWith(1, dto);
+      const res = await controller.update(1, dto, { activeAssociationId: 1 });
+      expect(mockService.update).toHaveBeenCalledWith(1, dto, 1);
       expect(res).toEqual({ ...svc, ...dto });
     });
 
     it("remove should call service.remove and return value", async () => {
       mockService.remove.mockResolvedValue(svc);
-      const res = await controller.remove(1);
-      expect(mockService.remove).toHaveBeenCalledWith(1);
+      const res = await controller.remove(1, { activeAssociationId: 1 });
+      expect(mockService.remove).toHaveBeenCalledWith(1, 1);
       expect(res).toEqual(svc);
     });
   });

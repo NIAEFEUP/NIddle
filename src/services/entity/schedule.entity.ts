@@ -45,5 +45,6 @@ export class Schedule {
     (service) => service.schedule,
   )
   @Type(() => Service)
+  @Exclude({ toPlainOnly: true })
   service: Service;
 }

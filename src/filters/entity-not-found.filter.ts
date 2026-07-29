@@ -21,10 +21,10 @@ export class EntityNotFoundFilter implements ExceptionFilter {
 
     const message = `${entityName} with id ${id} not found`;
 
-    response.status(HttpStatus.NOT_FOUND).json({
-      statusCode: HttpStatus.NOT_FOUND,
+    response.status(HttpStatus.NO_CONTENT).json({
+      statusCode: HttpStatus.NO_CONTENT,
       message: message,
-      error: "Not Found",
+      error: "No Content",
     });
   }
 }

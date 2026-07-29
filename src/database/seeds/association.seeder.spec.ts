@@ -12,7 +12,7 @@ describe("AssociationSeeder", () => {
   const mockAssociationFactory = {
     make: jest
       .fn()
-      .mockImplementation(() => Promise.resolve({ id: 1, user: null })),
+      .mockImplementation(() => Promise.resolve({ id: 1, users: [] })),
   };
 
   const mockUserFactory = {

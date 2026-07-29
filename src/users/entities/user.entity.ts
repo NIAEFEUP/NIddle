@@ -1,5 +1,6 @@
 import { Exclude } from "class-transformer";
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, ManyToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Association } from "@/associations/entities/association.entity";
 
 @Entity()
 export class User {
@@ -31,6 +32,18 @@ export class User {
   @Exclude()
   @Column()
   password: string;
+
+  @Column({ default: false })
+  isAdmin: boolean;
+
+  /**
+   * Associations the user has access to.
+   */
+  @ManyToMany(
+    () => Association,
+    (association) => association.users,
+  )
+  associations: Association[];
 
   constructor(partial?: Partial<User>) {
     Object.assign(this, partial);

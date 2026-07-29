@@ -1,5 +1,4 @@
 import { Test, TestingModule } from "@nestjs/testing";
-import { CreateUserDto } from "@/users/dto/create-user.dto";
 import { User } from "@/users/entities/user.entity";
 import { AuthController } from "./auth.controller";
 import { AuthService } from "./auth.service";
@@ -13,6 +12,8 @@ describe("AuthController", () => {
     name: "Test User",
     email: "test@example.com",
     password: "hashedPassword",
+    isAdmin: false,
+    associations: [],
   };
 
   const mockAccessToken = {
@@ -20,7 +21,6 @@ describe("AuthController", () => {
   };
 
   const mockAuthService = {
-    register: jest.fn(),
     signIn: jest.fn(),
   };
 
@@ -53,23 +53,6 @@ describe("AuthController", () => {
       };
       const result = controller.getProfile(req);
       expect(result).toEqual(req.user);
-    });
-  });
-
-  describe("register", () => {
-    it("should register a new user", async () => {
-      const createUserDto: CreateUserDto = {
-        name: "Test User",
-        email: "test@example.com",
-        password: "password123",
-      };
-
-      mockAuthService.register.mockResolvedValue(mockUser);
-
-      const result = await controller.register(createUserDto);
-
-      expect(result).toEqual(mockUser);
-      expect(mockAuthService.register).toHaveBeenCalledWith(createUserDto);
     });
   });
 

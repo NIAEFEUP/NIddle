@@ -42,17 +42,6 @@ describe("UpdateAssociationDto", () => {
       expect(errors).toHaveLength(0);
       expect(dto.acronym).toBe("UCN");
     });
-
-    it("should allow updating only userId", async () => {
-      const dto = plainToInstance(UpdateAssociationDto, {
-        userId: 10,
-      });
-
-      const errors = await validate(dto);
-
-      expect(errors).toHaveLength(0);
-      expect(dto.userId).toBe(10);
-    });
   });
 
   describe("Updating multiple fields", () => {
@@ -60,7 +49,6 @@ describe("UpdateAssociationDto", () => {
       const dto = plainToInstance(UpdateAssociationDto, {
         name: "New Club Name",
         acronym: "NCN",
-        userId: 15,
       });
 
       const errors = await validate(dto);
@@ -68,7 +56,6 @@ describe("UpdateAssociationDto", () => {
       expect(errors).toHaveLength(0);
       expect(dto.name).toBe("New Club Name");
       expect(dto.acronym).toBe("NCN");
-      expect(dto.userId).toBe(15);
     });
   });
 
@@ -92,26 +79,6 @@ describe("UpdateAssociationDto", () => {
 
       expect(errors.some((e) => e.property === "acronym")).toBe(true);
     });
-
-    it("should reject non-integer userId when provided", async () => {
-      const dto = plainToInstance(UpdateAssociationDto, {
-        userId: "5",
-      });
-
-      const errors = await validate(dto);
-
-      expect(errors.some((e) => e.property === "userId")).toBe(true);
-    });
-
-    it("should reject float userId", async () => {
-      const dto = plainToInstance(UpdateAssociationDto, {
-        userId: 5.5,
-      });
-
-      const errors = await validate(dto);
-
-      expect(errors.some((e) => e.property === "userId")).toBe(true);
-    });
   });
 
   describe("Undefined and null handling", () => {
@@ -119,7 +86,6 @@ describe("UpdateAssociationDto", () => {
       const dto = plainToInstance(UpdateAssociationDto, {
         name: undefined,
         acronym: undefined,
-        userId: undefined,
       });
 
       const errors = await validate(dto);
@@ -132,7 +98,6 @@ describe("UpdateAssociationDto", () => {
 
       expect(dto.name).toBeUndefined();
       expect(dto.acronym).toBeUndefined();
-      expect(dto.userId).toBeUndefined();
     });
   });
 
@@ -155,26 +120,6 @@ describe("UpdateAssociationDto", () => {
       const errors = await validate(dto);
 
       expect(errors.some((e) => e.property === "acronym")).toBe(false);
-    });
-
-    it("should accept zero as valid integer for IDs", async () => {
-      const dto = plainToInstance(UpdateAssociationDto, {
-        userId: 0,
-      });
-
-      const errors = await validate(dto);
-
-      expect(errors).toHaveLength(0);
-    });
-
-    it("should accept negative integers for IDs", async () => {
-      const dto = plainToInstance(UpdateAssociationDto, {
-        userId: -1,
-      });
-
-      const errors = await validate(dto);
-
-      expect(errors).toHaveLength(0);
     });
   });
 });

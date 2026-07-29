@@ -1,4 +1,4 @@
-import { ConflictException, UnauthorizedException } from "@nestjs/common";
+import { UnauthorizedException } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { Test, TestingModule } from "@nestjs/testing";
 import * as bcrypt from "bcrypt";
@@ -17,11 +17,12 @@ describe("AuthService", () => {
     name: "Test User",
     email: "test@example.com",
     password: "hashedPassword",
+    isAdmin: false,
+    associations: [],
   };
 
   const mockUsersService = {
     findOneByEmail: jest.fn(),
-    create: jest.fn(),
   };
 
   const mockJwtService = {
@@ -48,50 +49,6 @@ describe("AuthService", () => {
 
   afterEach(() => {
     jest.clearAllMocks();
-  });
-
-  describe("register", () => {
-    const createUserDto = {
-      name: "Test User",
-      email: "test@example.com",
-      password: "password123",
-    };
-
-    it("should successfully register a new user", async () => {
-      mockUsersService.findOneByEmail.mockRejectedValue(
-        new EntityNotFoundError(User, {}),
-      );
-      (bcrypt.hash as jest.Mock).mockResolvedValue("hashedPassword");
-      mockUsersService.create.mockResolvedValue(mockUser);
-
-      const result = await service.register(createUserDto);
-
-      expect(result).toEqual(mockUser);
-      expect(mockUsersService.findOneByEmail).toHaveBeenCalledWith(
-        createUserDto.email,
-      );
-      expect(bcrypt.hash).toHaveBeenCalledWith(createUserDto.password, 10);
-      expect(mockUsersService.create).toHaveBeenCalledWith({
-        ...createUserDto,
-        password: "hashedPassword",
-      });
-    });
-
-    it("should throw ConflictException if email is already in use", async () => {
-      mockUsersService.findOneByEmail.mockResolvedValue(mockUser);
-
-      await expect(service.register(createUserDto)).rejects.toThrow(
-        ConflictException,
-      );
-      expect(mockUsersService.create).not.toHaveBeenCalled();
-    });
-
-    it("should rethrow other errors from findOneByEmail", async () => {
-      const error = new Error("Database connection failed");
-      mockUsersService.findOneByEmail.mockRejectedValue(error);
-
-      await expect(service.register(createUserDto)).rejects.toThrow(error);
-    });
   });
 
   describe("signIn", () => {

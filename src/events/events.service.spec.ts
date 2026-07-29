@@ -1,3 +1,4 @@
+import { ForbiddenException } from "@nestjs/common";
 import { Test, TestingModule } from "@nestjs/testing";
 import { getRepositoryToken } from "@nestjs/typeorm";
 import { Association } from "@/associations/entities/association.entity";
@@ -15,7 +16,7 @@ describe("EventsService", () => {
   const mockAssociation: Association = {
     id: 1,
     name: "Chess Club",
-    user: null as any,
+    users: [],
     events: [],
     services: [],
   };
@@ -189,14 +190,13 @@ describe("EventsService", () => {
         startDate: "2025-12-26T09:00:00Z",
         endDate: "2025-12-27T18:00:00Z",
         facultyId: 1,
-        createdById: 1,
       };
       const createdMock = { ...mockEvent, faculty: mockFaculty, courses: [] };
       mockEventRepository.create.mockReturnValue(createdMock);
       mockFacultyRepository.findOneByOrFail.mockResolvedValue(mockFaculty);
       mockEventRepository.save.mockResolvedValue(createdMock);
 
-      const result = await service.create(createEventDto);
+      const result = await service.create(createEventDto, 1);
 
       expect(result.faculty).toEqual(mockFaculty);
       expect(mockEventRepository.save).toHaveBeenCalled();
@@ -210,7 +210,6 @@ describe("EventsService", () => {
         startDate: "2025-12-26T09:00:00Z",
         endDate: "2025-12-27T18:00:00Z",
         courseIds: [1],
-        createdById: 1,
       };
       const createdMock = {
         ...mockEvent,
@@ -221,7 +220,7 @@ describe("EventsService", () => {
       mockCourseRepository.findBy.mockResolvedValue([mockCourse]);
       mockEventRepository.save.mockResolvedValue(createdMock);
 
-      const result = await service.create(createEventDto);
+      const result = await service.create(createEventDto, 1);
 
       expect(result.courses).toEqual([mockCourse]);
       expect(mockEventRepository.save).toHaveBeenCalled();
@@ -237,7 +236,7 @@ describe("EventsService", () => {
         name: "New Event Name",
       });
 
-      const result = await service.update(1, updateEventDto);
+      const result = await service.update(1, updateEventDto, 1);
 
       expect(result.name).toEqual("New Event Name");
       expect(mockEventRepository.save).toHaveBeenCalled();
@@ -253,7 +252,7 @@ describe("EventsService", () => {
         courses: [],
       });
 
-      const result = await service.update(1, updateEventDto);
+      const result = await service.update(1, updateEventDto, 1);
 
       expect(result.faculty).toEqual(mockFaculty);
     });
@@ -266,7 +265,7 @@ describe("EventsService", () => {
       });
       mockEventRepository.save.mockImplementation(async (e) => e);
 
-      const result = await service.update(1, updateEventDto);
+      const result = await service.update(1, updateEventDto, 1);
 
       expect(result.faculty).toBeUndefined();
     });
@@ -277,38 +276,41 @@ describe("EventsService", () => {
       mockCourseRepository.findBy.mockResolvedValue([mockCourse]);
       mockEventRepository.save.mockImplementation(async (e) => e);
 
-      const result = await service.update(1, updateEventDto);
+      const result = await service.update(1, updateEventDto, 1);
 
       expect(mockCourseRepository.findBy).toHaveBeenCalled();
       expect(result.courses).toEqual([mockCourse]);
     });
 
-    it("should update createdBy if createdById is provided", async () => {
-      const updateEventDto: UpdateEventDto = { createdById: 1 };
-      mockEventRepository.findOneOrFail.mockResolvedValue({ ...mockEvent });
-      mockAssociationRepository.findOneByOrFail.mockResolvedValue(
-        mockAssociation,
+    it("should throw ForbiddenException when user does not own the event", async () => {
+      const updateEventDto: UpdateEventDto = { name: "Hacked Event" };
+      const otherAssociation = { ...mockAssociation, id: 99 };
+      const eventOwnedByOther = { ...mockEvent, createdBy: otherAssociation };
+      mockEventRepository.findOneOrFail.mockResolvedValue(eventOwnedByOther);
+
+      await expect(service.update(1, updateEventDto, 1)).rejects.toThrow(
+        ForbiddenException,
       );
-      mockEventRepository.save.mockImplementation(async (e) => e);
-
-      const result = await service.update(1, updateEventDto);
-
-      expect(mockAssociationRepository.findOneByOrFail).toHaveBeenCalledWith({
-        id: 1,
-      });
-      expect(result.createdBy).toEqual(mockAssociation);
     });
   });
 
   describe("remove", () => {
     it("should remove an event", async () => {
-      mockEventRepository.findOneByOrFail.mockResolvedValue(mockEvent);
+      mockEventRepository.findOneOrFail.mockResolvedValue(mockEvent);
       mockEventRepository.delete.mockResolvedValue({ affected: 1 });
 
-      const result = await service.remove(1);
+      const result = await service.remove(1, 1);
 
       expect(result).toEqual(mockEvent);
       expect(mockEventRepository.delete).toHaveBeenCalledWith(1);
+    });
+
+    it("should throw ForbiddenException when user does not own the event", async () => {
+      const otherAssociation = { ...mockAssociation, id: 99 };
+      const eventOwnedByOther = { ...mockEvent, createdBy: otherAssociation };
+      mockEventRepository.findOneOrFail.mockResolvedValue(eventOwnedByOther);
+
+      await expect(service.remove(1, 1)).rejects.toThrow(ForbiddenException);
     });
   });
 });
