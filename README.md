@@ -90,12 +90,18 @@ These instructions will get you a copy of the project up and running on your loc
     npm run seed
     ```
 
-6.  **Run the application**
+6.  **Run the applications**
 
-    Run the frontend and backend concurrently in development mode:
+    Start the frontend and backend in separate terminal sessions:
 
+    To start the NestJS backend API:
     ```bash
-    npm run dev
+    npm run dev:api
+    ```
+
+    To start the Vite frontend web app:
+    ```bash
+    npm run dev:web
     ```
 
     The frontend will be running at `http://localhost:3000` and the API backend at `http://localhost:3001`.
@@ -135,7 +141,6 @@ docker run --name niddle --network niddle-network -p 3000:3000 --env-file apps/a
 
 ### Development & Build
 
-- `npm run dev`: Starts both the backend API and frontend web apps concurrently in development mode.
 - `npm run dev:api`: Starts the NestJS backend API in development mode.
 - `npm run dev:web`: Starts the Vite frontend web app in development mode.
 - `npm run build`: Builds both the API and Frontend web apps for production.
