@@ -6,6 +6,12 @@ import { EntityNotFoundFilter } from "./filters/entity-not-found.filter";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  const corsOrigin = process.env.CORS_ORIGIN || "http://localhost:3000";
+  app.enableCors({
+    origin: corsOrigin.includes(",") ? corsOrigin.split(",") : corsOrigin,
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+    credentials: true,
+  });
   app.useGlobalPipes(new ValidationPipe());
   app.useGlobalFilters(new EntityNotFoundFilter());
 

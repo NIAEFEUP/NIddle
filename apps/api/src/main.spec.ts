@@ -1,4 +1,5 @@
 const mockApp = {
+  enableCors: jest.fn(),
   useGlobalPipes: jest.fn(),
   useGlobalFilters: jest.fn(),
   setGlobalPrefix: jest.fn(),

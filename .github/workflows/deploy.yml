@@ -19,12 +19,24 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Upload to Registry
+      - name: Upload API to Registry
         uses: NIAEFEUP/push-to-niployments@v2.2
         with:
           docker_dockerfile: Dockerfile
           docker_context: .
-          docker_target: production
+          docker_target: api-runner
+          repository_name: niddle-api
+          NIPLOYMENTS_REGISTRY_URL: ${{ vars.NIPLOYMENTS_REGISTRY_URL }}
+          NIPLOYMENTS_REGISTRY_USERNAME: ${{ vars.NIPLOYMENTS_REGISTRY_USERNAME }}
+          NIPLOYMENTS_REGISTRY_PASSWORD: ${{ secrets.NIPLOYMENTS_REGISTRY_PASSWORD }}
+
+      - name: Upload Web to Registry
+        uses: NIAEFEUP/push-to-niployments@v2.2
+        with:
+          docker_dockerfile: Dockerfile
+          docker_context: .
+          docker_target: web-runner
+          repository_name: niddle-web
           NIPLOYMENTS_REGISTRY_URL: ${{ vars.NIPLOYMENTS_REGISTRY_URL }}
           NIPLOYMENTS_REGISTRY_USERNAME: ${{ vars.NIPLOYMENTS_REGISTRY_USERNAME }}
           NIPLOYMENTS_REGISTRY_PASSWORD: ${{ secrets.NIPLOYMENTS_REGISTRY_PASSWORD }}
