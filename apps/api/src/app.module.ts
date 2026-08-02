@@ -12,6 +12,7 @@ import { FacultiesModule } from "./faculties/faculties.module";
 import { EntityNotFoundFilter } from "./filters/entity-not-found.filter";
 import { ServicesModule } from "./services/services.module";
 import { UsersModule } from "./users/users.module";
+import { RequestsModule } from './requests/requests.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { UsersModule } from "./users/users.module";
     ServicesModule,
     EventsModule,
     CoursesModule,
+    RequestsModule,
   ],
   controllers: [AppController],
   providers: [
