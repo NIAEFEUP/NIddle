@@ -1,5 +1,11 @@
 import { Exclude } from "class-transformer";
-import { Column, Entity, ManyToMany, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import {
+  Column,
+  Entity,
+  ManyToMany,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from "typeorm";
 import { Association } from "@/associations/entities/association.entity";
 import { Request } from "@/requests/entities/request.entity";
 
