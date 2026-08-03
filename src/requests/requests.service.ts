@@ -54,7 +54,10 @@ export class RequestsService {
   ) : Promise<Request> {
     const { type, eventPayload, servicePayload} = updateRequestDto;
 
-    const request = await this.requestRepository.findOneByOrFail({ id });
+    const request = await this.requestRepository.findOneOrFail({
+      where: { id },
+      relations: { requestedBy : true },
+    });
 
     if (request.requestedBy?.id !== requestedBy.id) {
       throw new ForbiddenException(
