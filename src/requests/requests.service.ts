@@ -1,11 +1,12 @@
-import { Injectable } from "@nestjs/common";
+import { BadRequestException, ForbiddenException, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { Event } from "@/events/entities/event.entity";
-import { Request, RequestType } from "@/requests/entities/request.entity";
+import { Request, RequestStatus, RequestType } from "@/requests/entities/request.entity";
 import { Service } from "@/services/entity/service.entity";
 import { User } from "@/users/entities/user.entity";
 import { CreateRequestDto } from "./dto/create-request.dto";
+import { UpdateRequestDto } from "./dto/update-request.dto";
 
 @Injectable()
 export class RequestsService {
@@ -44,5 +45,44 @@ export class RequestsService {
     }
 
     return this.requestRepository.save(request);
+  }
+
+  async update(
+    id: string,
+    updateRequestDto: UpdateRequestDto,
+    requestedBy: User,
+  ) : Promise<Request> {
+    const { type, eventPayload, servicePayload} = updateRequestDto;
+
+    const request = await this.requestRepository.findOneByOrFail({ id });
+
+    if (request.requestedBy?.id !== requestedBy.id) {
+      throw new ForbiddenException(
+        "You are not authorized to update this request.",
+      );
+    }
+
+    if (request.status !== RequestStatus.PENDING) {
+      throw new BadRequestException(
+        "Only pending requests can be updated.",
+      );
+    }
+    
+    const effectiveType = type ?? request.type;
+
+    if (effectiveType === RequestType.SERVICE) {
+        this.requestRepository.merge(request, {
+          type,
+          payload: {...request.payload, ...servicePayload},
+        });
+      }
+      if (effectiveType === RequestType.EVENT) {
+        this.requestRepository.merge(request, {
+          type,
+          payload: {...request.payload, ...eventPayload},
+        });
+      }
+
+      return this.requestRepository.save(request);
   }
 }
