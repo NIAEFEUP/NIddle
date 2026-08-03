@@ -9,6 +9,8 @@ import {
 import { CreateEventDto } from "@/events/dto/create-event.dto";
 import { CreateServiceDto } from "@/services/dto/create-service.dto";
 import { User } from "@/users/entities/user.entity";
+import { Service } from "@/services/entity/service.entity";
+import { Event } from "@/events/entities/event.entity";
 
 export enum RequestStatus {
   PENDING = "Pending",
@@ -42,8 +44,9 @@ export class Request {
   @ManyToOne(
     () => User,
     (user) => user.requests,
+    { nullable: true, onDelete: "SET NULL" },
   )
-  requestedBy: User;
+  requestedBy: User | null;
 
   @CreateDateColumn()
   createdAt: Date;
@@ -67,4 +70,10 @@ export class Request {
     type: "simple-json",
   })
   payload: CreateServiceDto | CreateEventDto;
+
+  @ManyToOne(() => Event, { nullable: true, onDelete: "CASCADE" })
+  targetEvent: Event | null;
+
+  @ManyToOne(() => Service, { nullable: true, onDelete: "CASCADE" })
+  targetService: Service | null;
 }
