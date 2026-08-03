@@ -7,10 +7,10 @@ import {
   UpdateDateColumn,
 } from "typeorm";
 import { CreateEventDto } from "@/events/dto/create-event.dto";
-import { CreateServiceDto } from "@/services/dto/create-service.dto";
-import { User } from "@/users/entities/user.entity";
-import { Service } from "@/services/entity/service.entity";
 import { Event } from "@/events/entities/event.entity";
+import { CreateServiceDto } from "@/services/dto/create-service.dto";
+import { Service } from "@/services/entity/service.entity";
+import { User } from "@/users/entities/user.entity";
 
 export enum RequestStatus {
   PENDING = "Pending",

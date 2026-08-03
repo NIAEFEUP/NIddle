@@ -1,7 +1,10 @@
 import { Type } from "class-transformer";
 import {
+  IsDefined,
   IsEnum,
+  IsInt,
   IsNotEmpty,
+  IsOptional,
   ValidateIf,
   ValidateNested,
 } from "class-validator";
@@ -18,6 +21,10 @@ export class CreateRequestDto {
   @IsNotEmpty()
   type: RequestType;
 
+  @IsOptional()
+  @IsInt()
+  targetId?: number;
+
   /**
      * The payload for the request, which can be either a CreateServiceDto or a CreateEventDto depending on the type of the request.
      * @example {
@@ -33,6 +40,7 @@ export class CreateRequestDto {
 }
      */
   @ValidateIf((dto) => dto.type === RequestType.EVENT)
+  @IsDefined()
   @ValidateNested()
   @Type(() => CreateEventDto)
   eventPayload?: CreateEventDto;
@@ -50,6 +58,7 @@ export class CreateRequestDto {
 }
      */
   @ValidateIf((dto) => dto.type === RequestType.SERVICE)
+  @IsDefined()
   @ValidateNested()
   @Type(() => CreateServiceDto)
   servicePayload?: CreateServiceDto;

@@ -1,6 +1,7 @@
 import { Type } from "class-transformer";
 import {
   IsEnum,
+  IsInt,
   IsOptional,
   ValidateIf,
   ValidateNested,

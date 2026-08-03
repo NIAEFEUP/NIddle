@@ -1,6 +1,8 @@
 import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
+import { Event } from "@/events/entities/event.entity";
 import { EventsModule } from "@/events/events.module";
+import { Service } from "@/services/entity/service.entity";
 import { ServicesModule } from "@/services/services.module";
 import { User } from "@/users/entities/user.entity";
 import { Request } from "./entities/request.entity";
@@ -9,7 +11,7 @@ import { RequestsService } from "./requests.service";
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Request, User]),
+    TypeOrmModule.forFeature([Request, User, Service, Event]),
     EventsModule,
     ServicesModule,
   ],
