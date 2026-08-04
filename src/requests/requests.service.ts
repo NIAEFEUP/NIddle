@@ -52,7 +52,7 @@ export class RequestsService {
     updateRequestDto: UpdateRequestDto,
     requestedBy: User,
   ) : Promise<Request> {
-    const { type, eventPayload, servicePayload} = updateRequestDto;
+    const { eventPayload, servicePayload} = updateRequestDto;
 
     const request = await this.requestRepository.findOneOrFail({
       where: { id },
@@ -70,18 +70,26 @@ export class RequestsService {
         "Only pending requests can be updated.",
       );
     }
-    
-    const effectiveType = type ?? request.type;
 
-    if (effectiveType === RequestType.SERVICE) {
+    if (request.type === RequestType.SERVICE && eventPayload) {
+      throw new BadRequestException(
+        "Cannot update an event payload for a service request.",
+      );
+    }
+
+    if ( request.type === RequestType.EVENT && servicePayload) {
+      throw new BadRequestException(
+        "Cannot update a service payload for an event request.",
+      );
+    }
+    
+    if (request.type === RequestType.SERVICE) {
         this.requestRepository.merge(request, {
-          type,
           payload: {...request.payload, ...servicePayload},
         });
       }
-      if (effectiveType === RequestType.EVENT) {
+      if (request.type === RequestType.EVENT) {
         this.requestRepository.merge(request, {
-          type,
           payload: {...request.payload, ...eventPayload},
         });
       }

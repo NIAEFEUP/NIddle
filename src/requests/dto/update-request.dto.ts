@@ -1,9 +1,5 @@
 import { Type } from "class-transformer";
 import {
-  IsEnum,
-  IsInt,
-  IsOptional,
-  ValidateIf,
   ValidateNested,
 } from "class-validator";
 import { UpdateEventDto } from "@/events/dto/update-event.dto";
@@ -11,14 +7,6 @@ import { RequestType } from "@/requests/entities/request.entity";
 import { UpdateServiceDto } from "@/services/dto/update-service.dto";
 
 export class UpdateRequestDto {
-  /**
-   * The type of the request, either "Service" or "Event".
-   * @example 'Service'
-   */
-  @IsEnum(RequestType)
-  @IsOptional()
-  type?: RequestType;
-
   /**
          * The payload for the request, which can be either a UpdateServiceDto or a UpdateEventDto depending on the type of the request.
          * @example {
@@ -33,7 +21,6 @@ export class UpdateRequestDto {
   ]
 }
          */
-  @ValidateIf((dto) => dto.type === RequestType.EVENT)
   @ValidateNested()
   @Type(() => UpdateEventDto)
   eventPayload?: UpdateEventDto;
@@ -50,7 +37,6 @@ export class UpdateRequestDto {
   "courseId": 1
 }
          */
-  @ValidateIf((dto) => dto.type === RequestType.SERVICE)
   @ValidateNested()
   @Type(() => UpdateServiceDto)
   servicePayload?: UpdateServiceDto;
