@@ -6,11 +6,21 @@ import { Request } from "@/requests/entities/request.entity";
 import { User } from "@/users/entities/user.entity";
 import { UpdateRequestDto } from "./dto/update-request.dto";
 import { ActiveAssociationGuard } from "@/auth/guards/active-association.guard";
+import { Headers } from "@nestjs/common";
 
 @UseInterceptors(ClassSerializerInterceptor)
 @Controller("requests")
 export class RequestsController {
   constructor(private readonly requestsService: RequestsService) {}
+
+  @Get()
+  @UseGuards(JwtAuthGuard)
+  async findAll(
+    @Headers("x-active-association") activeAssociationId: string | undefined,
+    @Req() req: { user: User },
+  ) : Promise<Request[]> {
+    return this.requestsService.findAll(req.user, activeAssociationId)
+  }
 
   @Get(':id')
   @UseGuards(JwtAuthGuard, ActiveAssociationGuard)

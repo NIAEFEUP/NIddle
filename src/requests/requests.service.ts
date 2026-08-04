@@ -138,7 +138,63 @@ export class RequestsService {
         "You are not authorized to view this request.",
       )
     }
-    
+
     return request;
+  }
+
+  async findAll(
+    user: User,
+    activeAssociationHeader?: string,
+  ) : Promise<Request[]> {
+    let activeAssociationId: number | undefined;
+
+    const relations = { requestedBy: true, targetAssociation: true, targetEvent: true, targetService: true };
+
+    if(activeAssociationHeader) {
+
+      activeAssociationId = parseInt(activeAssociationHeader, 10);
+
+      if (Number.isNaN(activeAssociationId)) {
+        throw new BadRequestException(
+          "Active Association header must be a valid integer.",
+        );
+      }
+    } 
+
+    if (user.isAdmin) {
+      if (activeAssociationId) {
+        return this.requestRepository.find({
+          where: { targetAssociation: { id: activeAssociationId } },
+          relations,
+        })
+      } else {
+        return this.requestRepository.find({
+          relations,
+        });
+      }
+    }
+
+    else {
+      if (!activeAssociationId) {
+        throw new BadRequestException(
+          "Active Association header is required for non-admin users.",
+        );
+      } 
+      
+      const hasAssociation = user.associations?.some(
+        (association: { id: number }) => association.id === activeAssociationId,
+      );
+
+      if (!hasAssociation) {
+        throw new ForbiddenException(
+          `User does not have access to association with ID ${activeAssociationId}.`,
+        );
+      }
+
+      return this.requestRepository.find({
+        where: { targetAssociation: { id: activeAssociationId } },
+        relations,
+      });
+    }
   }
 }
