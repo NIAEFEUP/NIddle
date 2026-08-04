@@ -1,4 +1,4 @@
-import { Body, ClassSerializerInterceptor, Controller, Param, Patch, Post, Req, UseGuards, UseInterceptors, ValidationPipe } from "@nestjs/common";
+import { Body, ClassSerializerInterceptor, Controller, Delete, Param, Patch, Post, Req, UseGuards, UseInterceptors, ValidationPipe } from "@nestjs/common";
 import { RequestsService } from "./requests.service";
 import { CreateRequestDto } from "./dto/create-request.dto";
 import { JwtAuthGuard } from "@/auth/guards/jwt-auth.guard";
@@ -26,8 +26,17 @@ export class RequestsController {
   async update(
     @Param('id') id: string,
     @Body(ValidationPipe) updateRequestDto: UpdateRequestDto,
-    @Req() req : { user : User, activeAssociationId: number },
+    @Req() req : { activeAssociationId: number },
   ) : Promise<Request> {
-    return this.requestsService.update(id, updateRequestDto, req.user, req.activeAssociationId);
+    return this.requestsService.update(id, updateRequestDto, req.activeAssociationId);
+  }
+
+  @Delete(':id')
+  @UseGuards(JwtAuthGuard, ActiveAssociationGuard)
+  async remove(
+    @Param('id') id: string,
+    @Req() req: { activeAssociationId: number },
+  ) : Promise<Request> {
+    return this.requestsService.remove(id, req.activeAssociationId);
   }
 }

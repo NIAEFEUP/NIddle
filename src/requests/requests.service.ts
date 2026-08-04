@@ -58,7 +58,6 @@ export class RequestsService {
   async update(
     id: string,
     updateRequestDto: UpdateRequestDto,
-    requestedBy: User,
     activeAssociationId: number,
   ) : Promise<Request> {
     const { eventPayload, servicePayload} = updateRequestDto;
@@ -72,12 +71,6 @@ export class RequestsService {
       throw new ForbiddenException(
         "You are not authorized to update this request.",
       )
-    }
-
-    if (request.requestedBy?.id !== requestedBy.id) {
-      throw new ForbiddenException(
-        "You are not authorized to update this request.",
-      );
     }
 
     if (request.status !== RequestStatus.PENDING) {
@@ -110,5 +103,24 @@ export class RequestsService {
       }
 
       return this.requestRepository.save(request);
+  }
+
+  async remove(
+    id: string,
+    activeAssociationId: number
+  ) : Promise<Request> {
+    const request = await this.requestRepository.findOneOrFail({
+      where: { id },
+      relations: { targetAssociation: true },
+    });
+
+    if(request.targetAssociation.id !== activeAssociationId) {
+      throw new ForbiddenException(
+        "You are not authorized to delete this request.",
+      )
+    }
+
+    await this.requestRepository.delete(id);
+    return request;    
   }
 }
