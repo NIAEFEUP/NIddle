@@ -8,10 +8,11 @@ import { User } from "@/users/entities/user.entity";
 import { Request } from "./entities/request.entity";
 import { RequestsController } from "./requests.controller";
 import { RequestsService } from "./requests.service";
+import { Association } from "@/associations/entities/association.entity";
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Request, User, Service, Event]),
+    TypeOrmModule.forFeature([Request, User, Service, Event, Association]),
     EventsModule,
     ServicesModule,
   ],

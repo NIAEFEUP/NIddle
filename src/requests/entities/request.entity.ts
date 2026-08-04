@@ -11,6 +11,7 @@ import { Event } from "@/events/entities/event.entity";
 import { CreateServiceDto } from "@/services/dto/create-service.dto";
 import { Service } from "@/services/entity/service.entity";
 import { User } from "@/users/entities/user.entity";
+import { Association } from "@/associations/entities/association.entity";
 
 export enum RequestStatus {
   PENDING = "Pending",
@@ -76,4 +77,11 @@ export class Request {
 
   @ManyToOne(() => Service, { nullable: true, onDelete: "CASCADE" })
   targetService: Service | null;
+
+  @ManyToOne(
+    () => Association,
+    (association) => association.requests,
+    { nullable: false, onDelete: "CASCADE" },
+  )
+  targetAssociation: Association;
 }

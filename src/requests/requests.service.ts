@@ -7,6 +7,7 @@ import { Service } from "@/services/entity/service.entity";
 import { User } from "@/users/entities/user.entity";
 import { CreateRequestDto } from "./dto/create-request.dto";
 import { UpdateRequestDto } from "./dto/update-request.dto";
+import { Association } from "@/associations/entities/association.entity";
 
 @Injectable()
 export class RequestsService {
@@ -17,11 +18,14 @@ export class RequestsService {
     private serviceRepository: Repository<Service>,
     @InjectRepository(Event)
     private eventRepository: Repository<Event>,
+    @InjectRepository(Association)
+    private associationRepository: Repository<Association>
   ) {}
 
   async create(
     createRequestDto: CreateRequestDto,
     requestedBy: User,
+    activeAssociationId: number,
   ): Promise<Request> {
     const { targetId, type, eventPayload, servicePayload } = createRequestDto;
 
@@ -44,6 +48,10 @@ export class RequestsService {
       }
     }
 
+    request.targetAssociation = await this.associationRepository.findOneByOrFail(
+      { id : activeAssociationId },
+    )
+
     return this.requestRepository.save(request);
   }
 
@@ -51,13 +59,20 @@ export class RequestsService {
     id: string,
     updateRequestDto: UpdateRequestDto,
     requestedBy: User,
+    activeAssociationId: number,
   ) : Promise<Request> {
     const { eventPayload, servicePayload} = updateRequestDto;
 
     const request = await this.requestRepository.findOneOrFail({
       where: { id },
-      relations: { requestedBy : true },
+      relations: { requestedBy : true, targetAssociation : true },
     });
+
+    if (request.targetAssociation.id !== activeAssociationId) {
+      throw new ForbiddenException(
+        "You are not authorized to update this request.",
+      )
+    }
 
     if (request.requestedBy?.id !== requestedBy.id) {
       throw new ForbiddenException(

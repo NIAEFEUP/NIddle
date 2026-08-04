@@ -9,6 +9,7 @@ import {
 import { Event } from "@/events/entities/event.entity";
 import { Service } from "@/services/entity/service.entity";
 import { User } from "@/users/entities/user.entity";
+import { Request } from "@/requests/entities/request.entity";
 
 @Entity()
 export class Association {
@@ -61,4 +62,10 @@ export class Association {
     (service) => service.createdBy,
   )
   services: Service[];
+
+  @OneToMany(
+    () => Request,
+    (request) => request.targetAssociation,
+  )
+  requests: Request[];
 }

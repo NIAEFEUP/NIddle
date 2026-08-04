@@ -5,6 +5,7 @@ import { JwtAuthGuard } from "@/auth/guards/jwt-auth.guard";
 import { Request } from "@/requests/entities/request.entity";
 import { User } from "@/users/entities/user.entity";
 import { UpdateRequestDto } from "./dto/update-request.dto";
+import { ActiveAssociationGuard } from "@/auth/guards/active-association.guard";
 
 @UseInterceptors(ClassSerializerInterceptor)
 @Controller("requests")
@@ -12,21 +13,21 @@ export class RequestsController {
   constructor(private readonly requestsService: RequestsService) {}
 
   @Post()
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, ActiveAssociationGuard)
   async create(
     @Body(ValidationPipe) createRequestDto: CreateRequestDto,
-    @Req() req : { user : User },
+    @Req() req : { user : User, activeAssociationId: number },
   ): Promise<Request> {
-    return this.requestsService.create(createRequestDto, req.user);
+    return this.requestsService.create(createRequestDto, req.user, req.activeAssociationId);
   }
 
   @Patch(':id')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, ActiveAssociationGuard)
   async update(
     @Param('id') id: string,
     @Body(ValidationPipe) updateRequestDto: UpdateRequestDto,
-    @Req() req : { user : User},
+    @Req() req : { user : User, activeAssociationId: number },
   ) : Promise<Request> {
-    return this.requestsService.update(id, updateRequestDto, req.user);
+    return this.requestsService.update(id, updateRequestDto, req.user, req.activeAssociationId);
   }
 }
