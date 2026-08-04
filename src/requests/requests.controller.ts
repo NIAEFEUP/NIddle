@@ -7,11 +7,18 @@ import { User } from "@/users/entities/user.entity";
 import { UpdateRequestDto } from "./dto/update-request.dto";
 import { ActiveAssociationGuard } from "@/auth/guards/active-association.guard";
 import { Headers } from "@nestjs/common";
+import { Event } from "@/events/entities/event.entity";
+import { Service } from "@/services/entity/service.entity";
+import { ServicesService } from "@/services/services.service";
+import { EventsService } from "@/events/events.service";
+import { AdminOnlyGuard } from "@/auth/guards/admin-only.guard";
 
 @UseInterceptors(ClassSerializerInterceptor)
 @Controller("requests")
 export class RequestsController {
-  constructor(private readonly requestsService: RequestsService) {}
+  constructor(
+    private readonly requestsService: RequestsService,
+  ) {}
 
   @Get()
   @UseGuards(JwtAuthGuard)
@@ -48,6 +55,14 @@ export class RequestsController {
     @Req() req : { activeAssociationId: number },
   ) : Promise<Request> {
     return this.requestsService.update(id, updateRequestDto, req.activeAssociationId);
+  }
+
+  @Patch(':id/approve')
+  @UseGuards(JwtAuthGuard, AdminOnlyGuard)
+  async approve(
+    @Param('id') id: string,
+  ) : Promise<Event | Service> {
+    return this.requestsService.approve(id);
   }
 
   @Delete(':id')

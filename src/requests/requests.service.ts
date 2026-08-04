@@ -1,4 +1,4 @@
-import { BadRequestException, ForbiddenException, Injectable } from "@nestjs/common";
+import { BadRequestException, ForbiddenException, Injectable, InternalServerErrorException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { Event } from "@/events/entities/event.entity";
@@ -8,6 +8,10 @@ import { User } from "@/users/entities/user.entity";
 import { CreateRequestDto } from "./dto/create-request.dto";
 import { UpdateRequestDto } from "./dto/update-request.dto";
 import { Association } from "@/associations/entities/association.entity";
+import { ServicesService } from "@/services/services.service";
+import { EventsService } from "@/events/events.service";
+import { CreateServiceDto } from "@/services/dto/create-service.dto";
+import { CreateEventDto } from "@/events/dto/create-event.dto";
 
 @Injectable()
 export class RequestsService {
@@ -19,7 +23,9 @@ export class RequestsService {
     @InjectRepository(Event)
     private eventRepository: Repository<Event>,
     @InjectRepository(Association)
-    private associationRepository: Repository<Association>
+    private associationRepository: Repository<Association>,
+    private readonly servicesService: ServicesService,
+    private readonly eventsService: EventsService,
   ) {}
 
   async create(
@@ -196,5 +202,41 @@ export class RequestsService {
         relations,
       });
     }
+  }
+
+  async approve(id: string) : Promise<Event | Service> {
+    const request = await this.requestRepository.findOneOrFail({
+       where: { id },
+       relations: { targetAssociation: true, targetEvent: true, targetService: true },
+      });
+
+    if (request.status !== RequestStatus.PENDING) {
+      throw new BadRequestException(
+        "Only pending requests can be approved.",
+      );
+    }
+
+    let result: Event | Service;
+
+    if (request.targetEvent && request.type === RequestType.EVENT) {
+      result = await this.eventsService.update(request.targetEvent.id, request.payload, request.targetAssociation.id);
+    } else if (request.targetService && request.type === RequestType.SERVICE) {
+      result = await this.servicesService.update(request.targetService.id, request.payload, request.targetAssociation.id);
+    } else if (request.type === RequestType.SERVICE) {
+      result = await this.servicesService.create(request.payload as CreateServiceDto, request.targetAssociation.id);
+    } else if (request.type === RequestType.EVENT) {
+      result = await this.eventsService.create(request.payload as CreateEventDto, request.targetAssociation.id);
+    } else {
+      throw new InternalServerErrorException(
+        "Request type is not valid or target entity is missing.",
+      );
+    }
+
+    request.status = RequestStatus.APPROVED;
+    request.reviewedAt = new Date();
+
+    await this.requestRepository.save(request);
+
+    return result;
   }
 }
