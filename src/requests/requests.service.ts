@@ -123,4 +123,22 @@ export class RequestsService {
     await this.requestRepository.delete(id);
     return request;    
   }
+
+  async findOne(
+    id: string,
+    activeAssociationId: number
+  ) : Promise<Request> {
+    const request = await this.requestRepository.findOneOrFail({
+      where: { id },
+      relations: { targetAssociation: true },
+    });
+
+    if(request.targetAssociation.id !== activeAssociationId) {
+      throw new ForbiddenException(
+        "You are not authorized to view this request.",
+      )
+    }
+    
+    return request;
+  }
 }

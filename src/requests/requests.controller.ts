@@ -1,4 +1,4 @@
-import { Body, ClassSerializerInterceptor, Controller, Delete, Param, Patch, Post, Req, UseGuards, UseInterceptors, ValidationPipe } from "@nestjs/common";
+import { Body, ClassSerializerInterceptor, Controller, Delete, Get, Param, Patch, Post, Req, UseGuards, UseInterceptors, ValidationPipe } from "@nestjs/common";
 import { RequestsService } from "./requests.service";
 import { CreateRequestDto } from "./dto/create-request.dto";
 import { JwtAuthGuard } from "@/auth/guards/jwt-auth.guard";
@@ -11,6 +11,15 @@ import { ActiveAssociationGuard } from "@/auth/guards/active-association.guard";
 @Controller("requests")
 export class RequestsController {
   constructor(private readonly requestsService: RequestsService) {}
+
+  @Get(':id')
+  @UseGuards(JwtAuthGuard, ActiveAssociationGuard)
+  async findOne(
+    @Param('id') id: string,
+    @Req() req: { activeAssociationId: number},
+  ) : Promise<Request> {
+    return this.requestsService.findOne(id, req.activeAssociationId);
+  }
 
   @Post()
   @UseGuards(JwtAuthGuard, ActiveAssociationGuard)
