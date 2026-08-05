@@ -12,6 +12,7 @@ import { ServicesService } from "@/services/services.service";
 import { EventsService } from "@/events/events.service";
 import { CreateServiceDto } from "@/services/dto/create-service.dto";
 import { CreateEventDto } from "@/events/dto/create-event.dto";
+import { RejectRequestDto } from "./dto/reject-request.dto";
 
 @Injectable()
 export class RequestsService {
@@ -238,5 +239,33 @@ export class RequestsService {
     await this.requestRepository.save(request);
 
     return result;
+  }
+
+  async reject(
+    id: string,
+    rejectRequestDto: RejectRequestDto,
+  ) : Promise<Request> {
+
+    if (!rejectRequestDto || rejectRequestDto.rejectionReason.trim() === "") {
+      throw new BadRequestException(
+        "Rejection reason must be provided.",
+      );
+    }
+
+    const request = await this.requestRepository.findOneOrFail({
+      where: { id },
+    });
+
+    if (request.status !== RequestStatus.PENDING) {
+      throw new BadRequestException(
+        "Only pending requests can be rejected.",
+      );
+    }
+
+    request.status = RequestStatus.REJECTED;
+    request.rejectionReason = rejectRequestDto.rejectionReason;
+    request.reviewedAt = new Date();
+
+    return this.requestRepository.save(request);
   }
 }

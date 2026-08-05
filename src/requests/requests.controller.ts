@@ -12,6 +12,7 @@ import { Service } from "@/services/entity/service.entity";
 import { ServicesService } from "@/services/services.service";
 import { EventsService } from "@/events/events.service";
 import { AdminOnlyGuard } from "@/auth/guards/admin-only.guard";
+import { RejectRequestDto } from "./dto/reject-request.dto";
 
 @UseInterceptors(ClassSerializerInterceptor)
 @Controller("requests")
@@ -63,6 +64,15 @@ export class RequestsController {
     @Param('id') id: string,
   ) : Promise<Event | Service> {
     return this.requestsService.approve(id);
+  }
+
+  @Patch(':id/reject')
+  @UseGuards(JwtAuthGuard, AdminOnlyGuard)
+  async reject(
+    @Param('id') id: string,
+    @Body(ValidationPipe) rejectRequestDto: RejectRequestDto,
+  ) : Promise<Request> {
+    return this.requestsService.reject(id, rejectRequestDto);
   }
 
   @Delete(':id')
