@@ -87,7 +87,6 @@ export class ServicesService {
   async update(
     id: number,
     updateServiceDto: UpdateServiceDto,
-    activeAssociationId: number,
   ): Promise<Service> {
     const { facultyId, courseId, ...serviceData } = updateServiceDto;
 
@@ -95,12 +94,6 @@ export class ServicesService {
       where: { id },
       relations: ["faculty", "course", "createdBy"],
     });
-
-    if (service.createdBy.id !== activeAssociationId) {
-      throw new ForbiddenException(
-        "You do not have permission to update this service.",
-      );
-    }
 
     this.serviceRepository.merge(service, serviceData);
 
@@ -140,17 +133,11 @@ export class ServicesService {
     return await this.serviceRepository.save(service);
   }
 
-  async remove(id: number, activeAssociationId: number): Promise<Service> {
+  async remove(id: number): Promise<Service> {
     const service = await this.serviceRepository.findOneOrFail({
       where: { id },
       relations: ["createdBy"],
     });
-
-    if (service.createdBy.id !== activeAssociationId) {
-      throw new ForbiddenException(
-        "You do not have permission to delete this service.",
-      );
-    }
 
     await this.serviceRepository.delete(id);
     return service;

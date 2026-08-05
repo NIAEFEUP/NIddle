@@ -71,23 +71,13 @@ export class EventsService {
     });
   }
 
-  async update(
-    id: number,
-    updateEventDto: UpdateEventDto,
-    activeAssociationId: number,
-  ): Promise<Event> {
+  async update(id: number, updateEventDto: UpdateEventDto): Promise<Event> {
     const { facultyId, courseIds, ...eventData } = updateEventDto;
 
     const event = await this.eventRepository.findOneOrFail({
       where: { id },
       relations: ["faculty", "courses", "createdBy"],
     });
-
-    if (event.createdBy.id !== activeAssociationId) {
-      throw new ForbiddenException(
-        "You do not have permission to update this event.",
-      );
-    }
 
     this.eventRepository.merge(event, eventData);
 
@@ -112,17 +102,11 @@ export class EventsService {
     return this.eventRepository.save(event);
   }
 
-  async remove(id: number, activeAssociationId: number): Promise<Event> {
+  async remove(id: number): Promise<Event> {
     const event = await this.eventRepository.findOneOrFail({
       where: { id },
       relations: ["createdBy"],
     });
-
-    if (event.createdBy.id !== activeAssociationId) {
-      throw new ForbiddenException(
-        "You do not have permission to delete this event.",
-      );
-    }
 
     await this.eventRepository.delete(id);
     return event;

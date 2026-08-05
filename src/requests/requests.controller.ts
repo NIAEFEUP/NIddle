@@ -14,6 +14,12 @@ import {
   UseInterceptors,
   ValidationPipe,
 } from "@nestjs/common";
+import {
+  ApiBearerAuth,
+  ApiHeader,
+  ApiOperation,
+  ApiResponse,
+} from "@nestjs/swagger";
 import { ActiveAssociationGuard } from "@/auth/guards/active-association.guard";
 import { AdminOnlyGuard } from "@/auth/guards/admin-only.guard";
 import { JwtAuthGuard } from "@/auth/guards/jwt-auth.guard";
@@ -28,7 +34,6 @@ import { RejectRequestDto } from "./dto/reject-request.dto";
 import { RequestFilterDto } from "./dto/request-filter.dto";
 import { UpdateRequestDto } from "./dto/update-request.dto";
 import { RequestsService } from "./requests.service";
-import { ApiBearerAuth, ApiHeader, ApiOperation, ApiResponse } from "@nestjs/swagger";
 
 @UseInterceptors(ClassSerializerInterceptor)
 @Controller("requests")
@@ -36,11 +41,16 @@ export class RequestsController {
   constructor(private readonly requestsService: RequestsService) {}
 
   @ApiOperation({ summary: "Get all requests" })
-  @ApiResponse({ status: 200, description: "List of requests returned."})
-  @ApiResponse({ status: 401, description: "Unauthorized."})
-  @ApiResponse({ status: 403, description: "Forbidden."})
+  @ApiResponse({ status: 200, description: "List of requests returned." })
+  @ApiResponse({ status: 401, description: "Unauthorized." })
+  @ApiResponse({ status: 403, description: "Forbidden." })
   @ApiBearerAuth("access-token")
-  @ApiHeader({ name: "x-active-association", description: "The ID of the association the user is acting on. Required for non-admin users. omitting this returns requests across every association.", required: false})
+  @ApiHeader({
+    name: "x-active-association",
+    description:
+      "The ID of the association the user is acting on. Required for non-admin users. omitting this returns requests across every association.",
+    required: false,
+  })
   @Get()
   @UseGuards(JwtAuthGuard)
   async findAll(
@@ -56,7 +66,11 @@ export class RequestsController {
   @ApiResponse({ status: 401, description: "Unauthorized." })
   @ApiResponse({ status: 403, description: "Forbidden." })
   @ApiBearerAuth("access-token")
-  @ApiHeader({ name: "x-active-association", description: "The ID of the association the user is acting on.", required: true})
+  @ApiHeader({
+    name: "x-active-association",
+    description: "The ID of the association the user is acting on.",
+    required: true,
+  })
   @Get(":id")
   @UseGuards(JwtAuthGuard, ActiveAssociationGuard)
   async findOne(
@@ -66,12 +80,19 @@ export class RequestsController {
     return this.requestsService.findOne(id, req.activeAssociationId);
   }
 
-  @ApiOperation({ summary: "Create a new event/service request for creating or updating an event/service (for updating an already created event/service provide targetID)" })
+  @ApiOperation({
+    summary:
+      "Create a new event/service request for creating or updating an event/service (for updating an already created event/service provide targetID)",
+  })
   @ApiResponse({ status: 201, description: "Request created." })
   @ApiResponse({ status: 401, description: "Unauthorized." })
   @ApiResponse({ status: 403, description: "Forbidden." })
   @ApiBearerAuth("access-token")
-  @ApiHeader({ name: "x-active-association", description: "The ID of the association the user is acting on.", required: true })
+  @ApiHeader({
+    name: "x-active-association",
+    description: "The ID of the association the user is acting on.",
+    required: true,
+  })
   @Post()
   @UseGuards(JwtAuthGuard, ActiveAssociationGuard)
   async create(
@@ -90,7 +111,11 @@ export class RequestsController {
   @ApiResponse({ status: 401, description: "Unauthorized." })
   @ApiResponse({ status: 403, description: "Forbidden." })
   @ApiBearerAuth("access-token")
-  @ApiHeader({ name: "x-active-association", description: "The ID of the association the user is acting on.", required: true })
+  @ApiHeader({
+    name: "x-active-association",
+    description: "The ID of the association the user is acting on.",
+    required: true,
+  })
   @Patch(":id")
   @UseGuards(JwtAuthGuard, ActiveAssociationGuard)
   async update(
@@ -134,7 +159,11 @@ export class RequestsController {
   @ApiResponse({ status: 401, description: "Unauthorized." })
   @ApiResponse({ status: 403, description: "Forbidden." })
   @ApiBearerAuth("access-token")
-  @ApiHeader({ name: "x-active-association", description: "The ID of the association the user is acting on.", required: true })
+  @ApiHeader({
+    name: "x-active-association",
+    description: "The ID of the association the user is acting on.",
+    required: true,
+  })
   @Delete(":id")
   @UseGuards(JwtAuthGuard, ActiveAssociationGuard)
   async remove(

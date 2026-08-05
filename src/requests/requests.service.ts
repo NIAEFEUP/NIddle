@@ -248,13 +248,11 @@ export class RequestsService {
       result = await this.eventsService.update(
         request.targetEvent.id,
         request.payload,
-        request.targetAssociation.id,
       );
     } else if (request.targetService && request.type === RequestType.SERVICE) {
       result = await this.servicesService.update(
         request.targetService.id,
         request.payload,
-        request.targetAssociation.id,
       );
     } else if (request.type === RequestType.SERVICE) {
       result = await this.servicesService.create(

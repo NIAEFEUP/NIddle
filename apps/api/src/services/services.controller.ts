@@ -21,6 +21,7 @@ import {
   ApiResponse,
 } from "@nestjs/swagger";
 import { ActiveAssociationGuard } from "@/auth/guards/active-association.guard";
+import { AdminOnlyGuard } from "@/auth/guards/admin-only.guard";
 import { JwtAuthGuard } from "@/auth/guards/jwt-auth.guard";
 import { CreateServiceDto } from "./dto/create-service.dto";
 import { ServiceFilterDto } from "./dto/service-filter.dto";
@@ -58,7 +59,7 @@ export class ServicesController {
   @ApiResponse({ status: 201, description: "Service created." })
   @ApiResponse({ status: 401, description: "Unauthorized." })
   @ApiResponse({ status: 403, description: "Forbidden." })
-  @UseGuards(JwtAuthGuard, ActiveAssociationGuard)
+  @UseGuards(JwtAuthGuard, AdminOnlyGuard, ActiveAssociationGuard)
   @Post()
   create(
     @Body(ValidationPipe) createServiceDto: CreateServiceDto,
@@ -71,47 +72,29 @@ export class ServicesController {
   }
 
   @ApiBearerAuth("access-token")
-  @ApiHeader({
-    name: "x-active-association",
-    description: "The ID of the association the user is acting on",
-    required: true,
-  })
   @ApiOperation({ summary: "Update a service by ID" })
   @ApiResponse({ status: 200, description: "Service updated." })
   @ApiResponse({ status: 204, description: "Service not found." })
   @ApiResponse({ status: 401, description: "Unauthorized." })
   @ApiResponse({ status: 403, description: "Forbidden." })
-  @UseGuards(JwtAuthGuard, ActiveAssociationGuard)
+  @UseGuards(JwtAuthGuard, AdminOnlyGuard)
   @Patch(":id")
   update(
     @Param("id", ParseIntPipe) id: number,
     @Body(ValidationPipe) updateServiceDto: UpdateServiceDto,
-    @Req() req: { activeAssociationId: number },
   ): Promise<Service> {
-    return this.servicesService.update(
-      id,
-      updateServiceDto,
-      req.activeAssociationId,
-    );
+    return this.servicesService.update(id, updateServiceDto);
   }
 
   @ApiBearerAuth("access-token")
-  @ApiHeader({
-    name: "x-active-association",
-    description: "The ID of the association the user is acting on",
-    required: true,
-  })
   @ApiOperation({ summary: "Delete a service by ID" })
   @ApiResponse({ status: 200, description: "Service deleted." })
   @ApiResponse({ status: 204, description: "Service not found." })
   @ApiResponse({ status: 401, description: "Unauthorized." })
   @ApiResponse({ status: 403, description: "Forbidden." })
-  @UseGuards(JwtAuthGuard, ActiveAssociationGuard)
+  @UseGuards(JwtAuthGuard, AdminOnlyGuard)
   @Delete(":id")
-  remove(
-    @Param("id", ParseIntPipe) id: number,
-    @Req() req: { activeAssociationId: number },
-  ): Promise<Service> {
-    return this.servicesService.remove(id, req.activeAssociationId);
+  remove(@Param("id", ParseIntPipe) id: number): Promise<Service> {
+    return this.servicesService.remove(id);
   }
 }
