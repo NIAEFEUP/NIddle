@@ -26,19 +26,8 @@ export class CreateRequestDto {
   targetId?: number;
 
   /**
-     * The payload for the request, which can be either a CreateServiceDto or a CreateEventDto depending on the type of the request.
-     * @example {
-  "name": "FEUP Week",
-  "description": "FEUP week is a period of interruption of classes and teaching mobility. It includes teaching activities (visits, exhibitions, lectures, ...), as well as the FEUP Project Congress.",
-  "year": 2025,
-  "startDate": "2025-12-26T09:00:00Z",
-  "endDate": "2025-12-27T18:00:00Z",
-  "facultyId": 1,
-  "courseIds": [
-    1
-  ]
-}
-     */
+   * The payload for the request, which can be either a CreateServiceDto or a CreateEventDto depending on the type of the request.
+   */
   @ValidateIf((dto) => dto.type === RequestType.EVENT)
   @IsDefined()
   @ValidateNested()
@@ -46,17 +35,8 @@ export class CreateRequestDto {
   eventPayload?: CreateEventDto;
 
   /**
-     * The payload for the request, which can be either a CreateServiceDto or a CreateEventDto depending on the type of the request.
-     * @example {
-  "name": "Papelaria D. Beatriz",
-  "email": "PdB@gmail.com",
-  "location": "B-142",
-  "schedule": [],
-  "phoneNumber": "+315 999999999",
-  "facultyId": 1,
-  "courseId": 1
-}
-     */
+   * The payload for the request, which can be either a CreateServiceDto or a CreateEventDto depending on the type of the request.
+   */
   @ValidateIf((dto) => dto.type === RequestType.SERVICE)
   @IsDefined()
   @ValidateNested()
