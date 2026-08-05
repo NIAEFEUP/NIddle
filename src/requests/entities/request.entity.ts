@@ -6,12 +6,12 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
+import { Association } from "@/associations/entities/association.entity";
 import { CreateEventDto } from "@/events/dto/create-event.dto";
 import { Event } from "@/events/entities/event.entity";
 import { CreateServiceDto } from "@/services/dto/create-service.dto";
 import { Service } from "@/services/entity/service.entity";
 import { User } from "@/users/entities/user.entity";
-import { Association } from "@/associations/entities/association.entity";
 
 export enum RequestStatus {
   PENDING = "Pending",

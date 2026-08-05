@@ -1,18 +1,28 @@
-import { BadRequestException, ForbiddenException, Injectable, InternalServerErrorException } from "@nestjs/common";
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+  InternalServerErrorException,
+} from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
+import { Association } from "@/associations/entities/association.entity";
+import { CreateEventDto } from "@/events/dto/create-event.dto";
 import { Event } from "@/events/entities/event.entity";
-import { Request, RequestStatus, RequestType } from "@/requests/entities/request.entity";
+import { EventsService } from "@/events/events.service";
+import {
+  Request,
+  RequestStatus,
+  RequestType,
+} from "@/requests/entities/request.entity";
+import { CreateServiceDto } from "@/services/dto/create-service.dto";
 import { Service } from "@/services/entity/service.entity";
+import { ServicesService } from "@/services/services.service";
 import { User } from "@/users/entities/user.entity";
 import { CreateRequestDto } from "./dto/create-request.dto";
-import { UpdateRequestDto } from "./dto/update-request.dto";
-import { Association } from "@/associations/entities/association.entity";
-import { ServicesService } from "@/services/services.service";
-import { EventsService } from "@/events/events.service";
-import { CreateServiceDto } from "@/services/dto/create-service.dto";
-import { CreateEventDto } from "@/events/dto/create-event.dto";
 import { RejectRequestDto } from "./dto/reject-request.dto";
+import { RequestFilterDto } from "./dto/request-filter.dto";
+import { UpdateRequestDto } from "./dto/update-request.dto";
 
 @Injectable()
 export class RequestsService {
@@ -55,9 +65,10 @@ export class RequestsService {
       }
     }
 
-    request.targetAssociation = await this.associationRepository.findOneByOrFail(
-      { id : activeAssociationId },
-    )
+    request.targetAssociation =
+      await this.associationRepository.findOneByOrFail({
+        id: activeAssociationId,
+      });
 
     return this.requestRepository.save(request);
   }
@@ -66,24 +77,22 @@ export class RequestsService {
     id: string,
     updateRequestDto: UpdateRequestDto,
     activeAssociationId: number,
-  ) : Promise<Request> {
-    const { eventPayload, servicePayload} = updateRequestDto;
+  ): Promise<Request> {
+    const { eventPayload, servicePayload } = updateRequestDto;
 
     const request = await this.requestRepository.findOneOrFail({
       where: { id },
-      relations: { requestedBy : true, targetAssociation : true },
+      relations: { requestedBy: true, targetAssociation: true },
     });
 
     if (request.targetAssociation.id !== activeAssociationId) {
       throw new ForbiddenException(
         "You are not authorized to update this request.",
-      )
+      );
     }
 
     if (request.status !== RequestStatus.PENDING) {
-      throw new BadRequestException(
-        "Only pending requests can be updated.",
-      );
+      throw new BadRequestException("Only pending requests can be updated.");
     }
 
     if (request.type === RequestType.SERVICE && eventPayload) {
@@ -92,58 +101,52 @@ export class RequestsService {
       );
     }
 
-    if ( request.type === RequestType.EVENT && servicePayload) {
+    if (request.type === RequestType.EVENT && servicePayload) {
       throw new BadRequestException(
         "Cannot update a service payload for an event request.",
       );
     }
-    
-    if (request.type === RequestType.SERVICE) {
-        this.requestRepository.merge(request, {
-          payload: {...request.payload, ...servicePayload},
-        });
-      }
-      if (request.type === RequestType.EVENT) {
-        this.requestRepository.merge(request, {
-          payload: {...request.payload, ...eventPayload},
-        });
-      }
 
-      return this.requestRepository.save(request);
+    if (request.type === RequestType.SERVICE) {
+      this.requestRepository.merge(request, {
+        payload: { ...request.payload, ...servicePayload },
+      });
+    }
+    if (request.type === RequestType.EVENT) {
+      this.requestRepository.merge(request, {
+        payload: { ...request.payload, ...eventPayload },
+      });
+    }
+
+    return this.requestRepository.save(request);
   }
 
-  async remove(
-    id: string,
-    activeAssociationId: number
-  ) : Promise<Request> {
+  async remove(id: string, activeAssociationId: number): Promise<Request> {
     const request = await this.requestRepository.findOneOrFail({
       where: { id },
       relations: { targetAssociation: true },
     });
 
-    if(request.targetAssociation.id !== activeAssociationId) {
+    if (request.targetAssociation.id !== activeAssociationId) {
       throw new ForbiddenException(
         "You are not authorized to delete this request.",
-      )
+      );
     }
 
     await this.requestRepository.delete(id);
-    return request;    
+    return request;
   }
 
-  async findOne(
-    id: string,
-    activeAssociationId: number
-  ) : Promise<Request> {
+  async findOne(id: string, activeAssociationId: number): Promise<Request> {
     const request = await this.requestRepository.findOneOrFail({
       where: { id },
       relations: { targetAssociation: true },
     });
 
-    if(request.targetAssociation.id !== activeAssociationId) {
+    if (request.targetAssociation.id !== activeAssociationId) {
       throw new ForbiddenException(
         "You are not authorized to view this request.",
-      )
+      );
     }
 
     return request;
@@ -151,14 +154,27 @@ export class RequestsService {
 
   async findAll(
     user: User,
+    filters: RequestFilterDto,
     activeAssociationHeader?: string,
-  ) : Promise<Request[]> {
+  ): Promise<Request[]> {
     let activeAssociationId: number | undefined;
 
-    const relations = { requestedBy: true, targetAssociation: true, targetEvent: true, targetService: true };
+    const relations = {
+      requestedBy: true,
+      targetAssociation: true,
+      targetEvent: true,
+      targetService: true,
+    };
 
-    if(activeAssociationHeader) {
+    const { type, status, requestedBy } = filters;
 
+    const whereFilter = {
+      ...(type !== undefined && { type }),
+      ...(status !== undefined && { status }),
+      ...(requestedBy !== undefined && { requestedBy: { id: requestedBy } }),
+    };
+
+    if (activeAssociationHeader) {
       activeAssociationId = parseInt(activeAssociationHeader, 10);
 
       if (Number.isNaN(activeAssociationId)) {
@@ -166,28 +182,32 @@ export class RequestsService {
           "Active Association header must be a valid integer.",
         );
       }
-    } 
+    }
 
     if (user.isAdmin) {
       if (activeAssociationId) {
         return this.requestRepository.find({
-          where: { targetAssociation: { id: activeAssociationId } },
+          where: {
+            targetAssociation: { id: activeAssociationId },
+            ...whereFilter,
+          },
           relations,
-        })
+        });
       } else {
         return this.requestRepository.find({
           relations,
+          where: {
+            ...whereFilter,
+          },
         });
       }
-    }
-
-    else {
+    } else {
       if (!activeAssociationId) {
         throw new BadRequestException(
           "Active Association header is required for non-admin users.",
         );
-      } 
-      
+      }
+
       const hasAssociation = user.associations?.some(
         (association: { id: number }) => association.id === activeAssociationId,
       );
@@ -199,34 +219,53 @@ export class RequestsService {
       }
 
       return this.requestRepository.find({
-        where: { targetAssociation: { id: activeAssociationId } },
+        where: {
+          targetAssociation: { id: activeAssociationId },
+          ...whereFilter,
+        },
         relations,
       });
     }
   }
 
-  async approve(id: string) : Promise<Event | Service> {
+  async approve(id: string): Promise<Event | Service> {
     const request = await this.requestRepository.findOneOrFail({
-       where: { id },
-       relations: { targetAssociation: true, targetEvent: true, targetService: true },
-      });
+      where: { id },
+      relations: {
+        targetAssociation: true,
+        targetEvent: true,
+        targetService: true,
+      },
+    });
 
     if (request.status !== RequestStatus.PENDING) {
-      throw new BadRequestException(
-        "Only pending requests can be approved.",
-      );
+      throw new BadRequestException("Only pending requests can be approved.");
     }
 
     let result: Event | Service;
 
     if (request.targetEvent && request.type === RequestType.EVENT) {
-      result = await this.eventsService.update(request.targetEvent.id, request.payload, request.targetAssociation.id);
+      result = await this.eventsService.update(
+        request.targetEvent.id,
+        request.payload,
+        request.targetAssociation.id,
+      );
     } else if (request.targetService && request.type === RequestType.SERVICE) {
-      result = await this.servicesService.update(request.targetService.id, request.payload, request.targetAssociation.id);
+      result = await this.servicesService.update(
+        request.targetService.id,
+        request.payload,
+        request.targetAssociation.id,
+      );
     } else if (request.type === RequestType.SERVICE) {
-      result = await this.servicesService.create(request.payload as CreateServiceDto, request.targetAssociation.id);
+      result = await this.servicesService.create(
+        request.payload as CreateServiceDto,
+        request.targetAssociation.id,
+      );
     } else if (request.type === RequestType.EVENT) {
-      result = await this.eventsService.create(request.payload as CreateEventDto, request.targetAssociation.id);
+      result = await this.eventsService.create(
+        request.payload as CreateEventDto,
+        request.targetAssociation.id,
+      );
     } else {
       throw new InternalServerErrorException(
         "Request type is not valid or target entity is missing.",
@@ -244,12 +283,9 @@ export class RequestsService {
   async reject(
     id: string,
     rejectRequestDto: RejectRequestDto,
-  ) : Promise<Request> {
-
+  ): Promise<Request> {
     if (!rejectRequestDto || rejectRequestDto.rejectionReason.trim() === "") {
-      throw new BadRequestException(
-        "Rejection reason must be provided.",
-      );
+      throw new BadRequestException("Rejection reason must be provided.");
     }
 
     const request = await this.requestRepository.findOneOrFail({
@@ -257,9 +293,7 @@ export class RequestsService {
     });
 
     if (request.status !== RequestStatus.PENDING) {
-      throw new BadRequestException(
-        "Only pending requests can be rejected.",
-      );
+      throw new BadRequestException("Only pending requests can be rejected.");
     }
 
     request.status = RequestStatus.REJECTED;

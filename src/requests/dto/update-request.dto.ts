@@ -1,7 +1,5 @@
 import { Type } from "class-transformer";
-import {
-  ValidateNested,
-} from "class-validator";
+import { ValidateNested } from "class-validator";
 import { UpdateEventDto } from "@/events/dto/update-event.dto";
 import { RequestType } from "@/requests/entities/request.entity";
 import { UpdateServiceDto } from "@/services/dto/update-service.dto";

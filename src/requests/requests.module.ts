@@ -1,5 +1,6 @@
 import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
+import { Association } from "@/associations/entities/association.entity";
 import { Event } from "@/events/entities/event.entity";
 import { EventsModule } from "@/events/events.module";
 import { Service } from "@/services/entity/service.entity";
@@ -8,7 +9,6 @@ import { User } from "@/users/entities/user.entity";
 import { Request } from "./entities/request.entity";
 import { RequestsController } from "./requests.controller";
 import { RequestsService } from "./requests.service";
-import { Association } from "@/associations/entities/association.entity";
 
 @Module({
   imports: [
