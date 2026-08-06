@@ -4,6 +4,7 @@ import { Association } from "@/associations/entities/association.entity";
 import { Course } from "@/courses/entities/course.entity";
 import { Event } from "@/events/entities/event.entity";
 import { Faculty } from "@/faculties/entities/faculty.entity";
+import { Request } from "@/requests/entities/request.entity";
 import { Schedule } from "@/services/entity/schedule.entity";
 import { Service } from "@/services/entity/service.entity";
 import { User } from "@/users/entities/user.entity";
@@ -28,6 +29,7 @@ describe("EventsModule", () => {
             Service,
             Schedule,
             User,
+            Request,
           ],
           synchronize: true,
         }),

@@ -20,6 +20,7 @@ describe("UsersService", () => {
     password: "hashedPassword",
     isAdmin: false,
     associations: [],
+    requests: [],
   };
 
   const mockUserRepository = {
