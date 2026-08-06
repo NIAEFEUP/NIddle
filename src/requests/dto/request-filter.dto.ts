@@ -1,6 +1,6 @@
 import { Type } from "class-transformer";
 import { IsEnum, IsInt, IsOptional } from "class-validator";
-import { RequestStatus, RequestType } from "../entities/request.entity";
+import { RequestStatus, RequestType } from "@/requests/entities/request.entity";
 
 export class RequestFilterDto {
   @IsOptional()
