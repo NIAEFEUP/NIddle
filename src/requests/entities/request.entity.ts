@@ -30,13 +30,13 @@ export class Request {
   id: string;
 
   @Column({
-    type: "enum",
+    type: "simple-enum",
     enum: RequestType,
   })
   type: RequestType;
 
   @Column({
-    type: "enum",
+    type: "simple-enum",
     enum: RequestStatus,
     default: RequestStatus.PENDING,
   })
