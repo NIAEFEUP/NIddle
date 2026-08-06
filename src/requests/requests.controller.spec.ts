@@ -1,4 +1,8 @@
+import { GUARDS_METADATA } from "@nestjs/common/constants";
 import { Test, TestingModule } from "@nestjs/testing";
+import { ActiveAssociationGuard } from "@/auth/guards/active-association.guard";
+import { AdminOnlyGuard } from "@/auth/guards/admin-only.guard";
+import { JwtAuthGuard } from "@/auth/guards/jwt-auth.guard";
 import { RequestStatus, RequestType } from "@/requests/entities/request.entity";
 import { User } from "@/users/entities/user.entity";
 import { RequestsController } from "./requests.controller";
@@ -62,6 +66,40 @@ describe("RequestsController", () => {
 
   it("should be defined", () => {
     expect(controller).toBeDefined();
+  });
+
+  describe("guards", () => {
+    it("findAll only requires JwtAuthGuard (association scoping is optional for admins)", () => {
+      const guards = Reflect.getMetadata(
+        GUARDS_METADATA,
+        RequestsController.prototype.findAll,
+      );
+      expect(guards).toEqual([JwtAuthGuard]);
+    });
+
+    it("findOne, create, update and remove require JwtAuthGuard + ActiveAssociationGuard", () => {
+      for (const method of ["findOne", "create", "update", "remove"] as const) {
+        const guards = Reflect.getMetadata(
+          GUARDS_METADATA,
+          RequestsController.prototype[method],
+        );
+        expect(guards).toContain(JwtAuthGuard);
+        expect(guards).toContain(ActiveAssociationGuard);
+        expect(guards).not.toContain(AdminOnlyGuard);
+      }
+    });
+
+    it("approve and reject require JwtAuthGuard + AdminOnlyGuard, not membership", () => {
+      for (const method of ["approve", "reject"] as const) {
+        const guards = Reflect.getMetadata(
+          GUARDS_METADATA,
+          RequestsController.prototype[method],
+        );
+        expect(guards).toContain(JwtAuthGuard);
+        expect(guards).toContain(AdminOnlyGuard);
+        expect(guards).not.toContain(ActiveAssociationGuard);
+      }
+    });
   });
 
   describe("findAll", () => {

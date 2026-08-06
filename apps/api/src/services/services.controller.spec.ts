@@ -1,4 +1,7 @@
+import { GUARDS_METADATA } from "@nestjs/common/constants";
 import { Test, TestingModule } from "@nestjs/testing";
+import { AdminOnlyGuard } from "@/auth/guards/admin-only.guard";
+import { JwtAuthGuard } from "@/auth/guards/jwt-auth.guard";
 import { CreateServiceDto } from "./dto/create-service.dto";
 import { UpdateServiceDto } from "./dto/update-service.dto";
 import { Schedule } from "./entity/schedule.entity";
@@ -32,6 +35,34 @@ describe("ServicesController", () => {
 
   it("should be defined", () => {
     expect(controller).toBeDefined();
+  });
+
+  describe("guards", () => {
+    it("findAll and findOne have no guards (public reference data)", () => {
+      expect(
+        Reflect.getMetadata(
+          GUARDS_METADATA,
+          ServicesController.prototype.findAll,
+        ),
+      ).toBeUndefined();
+      expect(
+        Reflect.getMetadata(
+          GUARDS_METADATA,
+          ServicesController.prototype.findOne,
+        ),
+      ).toBeUndefined();
+    });
+
+    it("create, update and remove require JwtAuthGuard + AdminOnlyGuard", () => {
+      for (const method of ["create", "update", "remove"] as const) {
+        const guards = Reflect.getMetadata(
+          GUARDS_METADATA,
+          ServicesController.prototype[method],
+        );
+        expect(guards).toContain(JwtAuthGuard);
+        expect(guards).toContain(AdminOnlyGuard);
+      }
+    });
   });
 
   describe("delegation", () => {
@@ -74,15 +105,15 @@ describe("ServicesController", () => {
     it("update should forward id and dto to service.update", async () => {
       const dto: UpdateServiceDto = { name: "updated" } as UpdateServiceDto;
       mockService.update.mockResolvedValue({ ...svc, ...dto });
-      const res = await controller.update(1, dto, { activeAssociationId: 1 });
-      expect(mockService.update).toHaveBeenCalledWith(1, dto, 1);
+      const res = await controller.update(1, dto);
+      expect(mockService.update).toHaveBeenCalledWith(1, dto);
       expect(res).toEqual({ ...svc, ...dto });
     });
 
     it("remove should call service.remove and return value", async () => {
       mockService.remove.mockResolvedValue(svc);
-      const res = await controller.remove(1, { activeAssociationId: 1 });
-      expect(mockService.remove).toHaveBeenCalledWith(1, 1);
+      const res = await controller.remove(1);
+      expect(mockService.remove).toHaveBeenCalledWith(1);
       expect(res).toEqual(svc);
     });
   });
