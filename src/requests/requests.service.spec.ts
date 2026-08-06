@@ -140,6 +140,237 @@ describe("RequestsService", () => {
     expect(service).toBeDefined();
   });
 
+  describe("create", () => {
+    it("creates a request without a target (new-entity request)", async () => {
+      const dto = {
+        type: RequestType.SERVICE,
+        servicePayload: { name: "Papelaria Nova" } as any,
+      };
+      const created = {
+        type: dto.type,
+        payload: dto.servicePayload,
+        requestedBy: mockUser,
+      };
+      mockRequestRepository.create.mockReturnValue(created);
+      mockAssociationRepository.findOneByOrFail.mockResolvedValue(
+        mockAssociation,
+      );
+      mockRequestRepository.save.mockImplementation(async (r) => r);
+
+      const result = await service.create(dto as any, mockUser, 3);
+
+      expect(mockRequestRepository.create).toHaveBeenCalledWith({
+        type: dto.type,
+        payload: dto.servicePayload,
+        requestedBy: mockUser,
+      });
+      expect(mockServiceRepository.findOneByOrFail).not.toHaveBeenCalled();
+      expect(mockEventRepository.findOneByOrFail).not.toHaveBeenCalled();
+      expect(mockAssociationRepository.findOneByOrFail).toHaveBeenCalledWith({
+        id: 3,
+      });
+      expect(result.targetAssociation).toEqual(mockAssociation);
+      expect(mockRequestRepository.save).toHaveBeenCalledWith(result);
+    });
+
+    it("resolves targetService when targetId is given for a Service request", async () => {
+      const dto = {
+        type: RequestType.SERVICE,
+        targetId: 5,
+        servicePayload: { name: "Papelaria Editada" } as any,
+      };
+      const mockTargetService = { id: 5, name: "Papelaria Antiga" };
+      mockRequestRepository.create.mockReturnValue({});
+      mockServiceRepository.findOneByOrFail.mockResolvedValue(
+        mockTargetService,
+      );
+      mockAssociationRepository.findOneByOrFail.mockResolvedValue(
+        mockAssociation,
+      );
+      mockRequestRepository.save.mockImplementation(async (r) => r);
+
+      const result = await service.create(dto as any, mockUser, 3);
+
+      expect(mockServiceRepository.findOneByOrFail).toHaveBeenCalledWith({
+        id: 5,
+      });
+      expect(mockEventRepository.findOneByOrFail).not.toHaveBeenCalled();
+      expect(result.targetService).toEqual(mockTargetService);
+    });
+
+    it("resolves targetEvent when targetId is given for an Event request", async () => {
+      const dto = {
+        type: RequestType.EVENT,
+        targetId: 7,
+        eventPayload: { name: "FEUP Week" } as any,
+      };
+      const mockTargetEvent = { id: 7, name: "FEUP Week Antigo" };
+      mockRequestRepository.create.mockReturnValue({});
+      mockEventRepository.findOneByOrFail.mockResolvedValue(mockTargetEvent);
+      mockAssociationRepository.findOneByOrFail.mockResolvedValue(
+        mockAssociation,
+      );
+      mockRequestRepository.save.mockImplementation(async (r) => r);
+
+      const result = await service.create(dto as any, mockUser, 3);
+
+      expect(mockEventRepository.findOneByOrFail).toHaveBeenCalledWith({
+        id: 7,
+      });
+      expect(mockServiceRepository.findOneByOrFail).not.toHaveBeenCalled();
+      expect(result.targetEvent).toEqual(mockTargetEvent);
+    });
+  });
+
+  describe("update", () => {
+    it("merges the servicePayload into a pending Service request", async () => {
+      mockRequestRepository.findOneOrFail.mockResolvedValue({
+        ...mockRequest,
+      });
+      mockRequestRepository.merge.mockImplementation((r, patch) =>
+        Object.assign(r, patch),
+      );
+      mockRequestRepository.save.mockImplementation(async (r) => r);
+
+      const dto = { servicePayload: { name: "Papelaria Nova" } as any };
+      const result = await service.update("req-1", dto, mockAssociation.id);
+
+      expect(mockRequestRepository.merge).toHaveBeenCalledWith(
+        expect.objectContaining({ id: "req-1" }),
+        { payload: { ...mockRequest.payload, ...dto.servicePayload } },
+      );
+      expect(result.payload).toEqual({
+        ...mockRequest.payload,
+        ...dto.servicePayload,
+      });
+    });
+
+    it("merges the eventPayload into a pending Event request", async () => {
+      const eventRequest: Request = { ...mockRequest, type: RequestType.EVENT };
+      mockRequestRepository.findOneOrFail.mockResolvedValue(eventRequest);
+      mockRequestRepository.merge.mockImplementation((r, patch) =>
+        Object.assign(r, patch),
+      );
+      mockRequestRepository.save.mockImplementation(async (r) => r);
+
+      const dto = { eventPayload: { name: "FEUP Week" } as any };
+      const result = await service.update("req-1", dto, mockAssociation.id);
+
+      expect(result.payload).toEqual({
+        ...eventRequest.payload,
+        ...dto.eventPayload,
+      });
+    });
+
+    it("throws ForbiddenException when the request belongs to another association", async () => {
+      mockRequestRepository.findOneOrFail.mockResolvedValue({
+        ...mockRequest,
+      });
+
+      await expect(
+        service.update("req-1", {}, mockOtherAssociation.id),
+      ).rejects.toThrow(ForbiddenException);
+      expect(mockRequestRepository.save).not.toHaveBeenCalled();
+    });
+
+    it("throws BadRequestException when the request is not pending", async () => {
+      mockRequestRepository.findOneOrFail.mockResolvedValue({
+        ...mockRequest,
+        status: RequestStatus.APPROVED,
+      });
+
+      await expect(
+        service.update("req-1", {}, mockAssociation.id),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it("throws BadRequestException for an eventPayload on a Service request", async () => {
+      mockRequestRepository.findOneOrFail.mockResolvedValue({
+        ...mockRequest,
+      });
+
+      await expect(
+        service.update(
+          "req-1",
+          { eventPayload: {} as any },
+          mockAssociation.id,
+        ),
+      ).rejects.toThrow(BadRequestException);
+      expect(mockRequestRepository.save).not.toHaveBeenCalled();
+    });
+
+    it("throws BadRequestException for a servicePayload on an Event request", async () => {
+      mockRequestRepository.findOneOrFail.mockResolvedValue({
+        ...mockRequest,
+        type: RequestType.EVENT,
+      });
+
+      await expect(
+        service.update(
+          "req-1",
+          { servicePayload: {} as any },
+          mockAssociation.id,
+        ),
+      ).rejects.toThrow(BadRequestException);
+      expect(mockRequestRepository.save).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("remove", () => {
+    it("deletes the request when it belongs to the active association", async () => {
+      mockRequestRepository.findOneOrFail.mockResolvedValue({
+        ...mockRequest,
+      });
+      mockRequestRepository.delete.mockResolvedValue(undefined);
+
+      const result = await service.remove("req-1", mockAssociation.id);
+
+      expect(mockRequestRepository.findOneOrFail).toHaveBeenCalledWith({
+        where: { id: "req-1" },
+        relations: { targetAssociation: true },
+      });
+      expect(mockRequestRepository.delete).toHaveBeenCalledWith("req-1");
+      expect(result.id).toEqual(mockRequest.id);
+    });
+
+    it("throws ForbiddenException when the request belongs to another association", async () => {
+      mockRequestRepository.findOneOrFail.mockResolvedValue({
+        ...mockRequest,
+      });
+
+      await expect(
+        service.remove("req-1", mockOtherAssociation.id),
+      ).rejects.toThrow(ForbiddenException);
+      expect(mockRequestRepository.delete).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("findOne", () => {
+    it("returns the request when it belongs to the active association", async () => {
+      mockRequestRepository.findOneOrFail.mockResolvedValue({
+        ...mockRequest,
+      });
+
+      const result = await service.findOne("req-1", mockAssociation.id);
+
+      expect(mockRequestRepository.findOneOrFail).toHaveBeenCalledWith({
+        where: { id: "req-1" },
+        relations: { targetAssociation: true },
+      });
+      expect(result.id).toEqual(mockRequest.id);
+    });
+
+    it("throws ForbiddenException when the request belongs to another association", async () => {
+      mockRequestRepository.findOneOrFail.mockResolvedValue({
+        ...mockRequest,
+      });
+
+      await expect(
+        service.findOne("req-1", mockOtherAssociation.id),
+      ).rejects.toThrow(ForbiddenException);
+    });
+  });
+
   describe("approve", () => {
     it("should approve a pending service creation request", async () => {
       mockRequestRepository.findOneOrFail.mockResolvedValue({
@@ -280,6 +511,49 @@ describe("RequestsService", () => {
       await expect(service.approve("req-1")).rejects.toThrow(
         InternalServerErrorException,
       );
+    });
+  });
+
+  describe("reject", () => {
+    it("rejects a pending request with the given reason", async () => {
+      mockRequestRepository.findOneOrFail.mockResolvedValue({
+        ...mockRequest,
+      });
+      mockRequestRepository.save.mockImplementation(async (r) => r);
+
+      const dto = { rejectionReason: "Missing required documents." };
+      const result = await service.reject("req-1", dto);
+
+      expect(mockRequestRepository.findOneOrFail).toHaveBeenCalledWith({
+        where: { id: "req-1" },
+      });
+      expect(result.status).toEqual(RequestStatus.REJECTED);
+      expect(result.rejectionReason).toEqual(dto.rejectionReason);
+      expect(mockRequestRepository.save).toHaveBeenCalledWith(
+        expect.objectContaining({
+          status: RequestStatus.REJECTED,
+          rejectionReason: dto.rejectionReason,
+        }),
+      );
+    });
+
+    it("throws BadRequestException when the reason is only whitespace", async () => {
+      await expect(
+        service.reject("req-1", { rejectionReason: "   " }),
+      ).rejects.toThrow(BadRequestException);
+      expect(mockRequestRepository.findOneOrFail).not.toHaveBeenCalled();
+    });
+
+    it("throws BadRequestException when the request is not pending", async () => {
+      mockRequestRepository.findOneOrFail.mockResolvedValue({
+        ...mockRequest,
+        status: RequestStatus.APPROVED,
+      });
+
+      await expect(
+        service.reject("req-1", { rejectionReason: "Not valid." }),
+      ).rejects.toThrow(BadRequestException);
+      expect(mockRequestRepository.save).not.toHaveBeenCalled();
     });
   });
 
