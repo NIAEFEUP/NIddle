@@ -2,6 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { TypeOrmModuleOptions, TypeOrmOptionsFactory } from "@nestjs/typeorm";
 import { requiredEnv } from "./helpers/required-env";
 import { getDatabaseSynchronize } from "./synchronize";
+import { SentryTypeOrmLogger } from "./sentry-typeorm.logger";
 
 @Injectable()
 export class DatabaseService implements TypeOrmOptionsFactory {
@@ -28,8 +29,8 @@ export class DatabaseService implements TypeOrmOptionsFactory {
 
     return {
       type: "postgres",
-      logging: ["warn"],
-      maxQueryExecutionTime: 400,
+      maxQueryExecutionTime: 300,
+      logger: new SentryTypeOrmLogger(),
       ...(slaveHost
         ? {
             replication: {
