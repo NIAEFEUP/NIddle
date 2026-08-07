@@ -28,6 +28,8 @@ export class DatabaseService implements TypeOrmOptionsFactory {
 
     return {
       type: "postgres",
+      logging: ["warn"],
+      maxQueryExecutionTime: 400,
       ...(slaveHost
         ? {
             replication: {
