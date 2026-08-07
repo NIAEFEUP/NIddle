@@ -11,7 +11,6 @@ import {
   Req,
   UseGuards,
   UseInterceptors,
-  ValidationPipe,
 } from "@nestjs/common";
 import {
   ApiBearerAuth,
@@ -95,7 +94,7 @@ export class RequestsController {
   @Post()
   @UseGuards(JwtAuthGuard, ActiveAssociationGuard)
   async create(
-    @Body(ValidationPipe) createRequestDto: CreateRequestDto,
+    @Body() createRequestDto: CreateRequestDto,
     @Req() req: { user: User; activeAssociationId: number },
   ): Promise<Request> {
     return this.requestsService.create(
@@ -119,7 +118,7 @@ export class RequestsController {
   @UseGuards(JwtAuthGuard, ActiveAssociationGuard)
   async update(
     @Param("id") id: string,
-    @Body(ValidationPipe) updateRequestDto: UpdateRequestDto,
+    @Body() updateRequestDto: UpdateRequestDto,
     @Req() req: { activeAssociationId: number },
   ): Promise<Request> {
     return this.requestsService.update(
@@ -148,7 +147,7 @@ export class RequestsController {
   @UseGuards(JwtAuthGuard, AdminOnlyGuard)
   async reject(
     @Param("id") id: string,
-    @Body(ValidationPipe) rejectRequestDto: RejectRequestDto,
+    @Body() rejectRequestDto: RejectRequestDto,
   ): Promise<Request> {
     return this.requestsService.reject(id, rejectRequestDto);
   }

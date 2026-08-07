@@ -10,7 +10,6 @@ import {
   Post,
   UseGuards,
   UseInterceptors,
-  ValidationPipe,
 } from "@nestjs/common";
 import { ApiBearerAuth, ApiOperation, ApiResponse } from "@nestjs/swagger";
 import { AdminOnlyGuard } from "@/auth/guards/admin-only.guard";
@@ -48,7 +47,7 @@ export class CoursesController {
   @UseGuards(JwtAuthGuard, AdminOnlyGuard)
   @Post()
   create(
-    @Body(ValidationPipe) createCourseDto: CreateCourseDto,
+    @Body() createCourseDto: CreateCourseDto,
   ): Promise<Course> {
     return this.coursesService.create(createCourseDto);
   }
@@ -63,7 +62,7 @@ export class CoursesController {
   @Patch(":id")
   update(
     @Param("id", ParseIntPipe) id: number,
-    @Body(ValidationPipe) updateCourseDto: UpdateCourseDto,
+    @Body() updateCourseDto: UpdateCourseDto,
   ): Promise<Course> {
     return this.coursesService.update(id, updateCourseDto);
   }

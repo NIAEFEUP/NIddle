@@ -10,7 +10,6 @@ import {
   Post,
   UseGuards,
   UseInterceptors,
-  ValidationPipe,
 } from "@nestjs/common";
 import { ApiBearerAuth, ApiOperation, ApiResponse } from "@nestjs/swagger";
 import { AdminOnlyGuard } from "@/auth/guards/admin-only.guard";
@@ -48,7 +47,7 @@ export class FacultiesController {
   @UseGuards(JwtAuthGuard, AdminOnlyGuard)
   @Post()
   create(
-    @Body(ValidationPipe) createFacultyDto: CreateFacultyDto,
+    @Body() createFacultyDto: CreateFacultyDto,
   ): Promise<Faculty> {
     return this.facultiesService.create(createFacultyDto);
   }
@@ -63,7 +62,7 @@ export class FacultiesController {
   @Patch(":id")
   update(
     @Param("id", ParseIntPipe) id: number,
-    @Body(ValidationPipe) updateFacultyDto: UpdateFacultyDto,
+    @Body() updateFacultyDto: UpdateFacultyDto,
   ): Promise<Faculty> {
     return this.facultiesService.update(id, updateFacultyDto);
   }
