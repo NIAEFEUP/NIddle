@@ -1,8 +1,8 @@
 import { Injectable } from "@nestjs/common";
 import { TypeOrmModuleOptions, TypeOrmOptionsFactory } from "@nestjs/typeorm";
 import { requiredEnv } from "./helpers/required-env";
-import { getDatabaseSynchronize } from "./synchronize";
 import { SentryTypeOrmLogger } from "./sentry-typeorm.logger";
+import { getDatabaseSynchronize } from "./synchronize";
 
 @Injectable()
 export class DatabaseService implements TypeOrmOptionsFactory {
