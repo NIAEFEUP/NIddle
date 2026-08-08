@@ -18,7 +18,7 @@ export class SentryTypeOrmLogger implements Logger {
       extra: { time, parameters },
     });
   }
-  
+
   logSchemaBuild() {}
 
   // TODO: Implement logMigration to log migration events to Sentry
