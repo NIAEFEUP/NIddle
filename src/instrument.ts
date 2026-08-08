@@ -1,3 +1,7 @@
+import { config } from "dotenv";
+
+config({ path: ".env.local" });
+
 import * as Sentry from "@sentry/nestjs";
 
 Sentry.init({
