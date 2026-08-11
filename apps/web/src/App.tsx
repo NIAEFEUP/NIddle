@@ -1,5 +1,6 @@
 import { BrowserRouter, Link, Route, Routes } from "react-router";
 import { Button } from "@/components/ui/button";
+import { SidebarLayout } from "@/components/sidebar-layout";
 
 function Home() {
   return (
@@ -64,39 +65,13 @@ function NotFound() {
 export function App() {
   return (
     <BrowserRouter>
-      <div className="flex min-h-svh flex-col p-6 max-w-md mx-auto gap-8">
-        <header className="flex gap-4 border-b pb-4 items-center">
-          <Link to="/" className="font-bold text-primary mr-auto">
-            NIddle
-          </Link>
-          <Link
-            to="/"
-            className="text-sm font-medium hover:underline text-muted-foreground"
-          >
-            Home
-          </Link>
-          <Link
-            to="/dashboard"
-            className="text-sm font-medium hover:underline text-muted-foreground"
-          >
-            Dashboard
-          </Link>
-        </header>
-
-        <main className="flex-1">
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </main>
-
-        <footer className="flex flex-col gap-2 border-t pt-4 text-muted-foreground">
-          <div className="font-mono text-xs">
-            (Press <kbd>d</kbd> to toggle dark mode)
-          </div>
-        </footer>
-      </div>
+      <Routes>
+        <Route element={<SidebarLayout />}>
+          <Route path="/" element={<Home />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="*" element={<NotFound />} />
+        </Route>
+      </Routes>
     </BrowserRouter>
   );
 }
