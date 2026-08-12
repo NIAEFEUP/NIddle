@@ -46,9 +46,7 @@ export class FacultiesController {
   @ApiResponse({ status: 403, description: "Forbidden." })
   @UseGuards(JwtAuthGuard, AdminOnlyGuard)
   @Post()
-  create(
-    @Body() createFacultyDto: CreateFacultyDto,
-  ): Promise<Faculty> {
+  create(@Body() createFacultyDto: CreateFacultyDto): Promise<Faculty> {
     return this.facultiesService.create(createFacultyDto);
   }
 
