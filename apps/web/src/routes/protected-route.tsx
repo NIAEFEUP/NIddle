@@ -7,12 +7,10 @@ export function ProtectedRoute() {
 
   if (isLoading) {
     return (
-      <div className="flex h-screen w-screen items-center justify-center bg-background">
+      <div className="flex h-screen w-screen items-center justify-center">
         <div className="flex flex-col items-center gap-4 text-center">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          <p className="text-muted-foreground text-sm font-medium">
-            Verifying session...
-          </p>
+          <Loader2 className="h-8 w-8 animate-spin" />
+          <p className="text-sm font-medium">Verifying session...</p>
         </div>
       </div>
     );

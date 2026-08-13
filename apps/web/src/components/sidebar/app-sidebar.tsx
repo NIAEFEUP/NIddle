@@ -30,7 +30,7 @@ export function AppSidebar({
       <SidebarContent>
         <SidebarContentComponent currentPath={currentPath} />
       </SidebarContent>
-      <SidebarFooter className="border-t border-border/60 p-3 flex flex-col gap-3">
+      <SidebarFooter className="border-t border-border/60">
         <SidebarFooterComponent
           user={user}
           isAuthenticated={isAuthenticated}
