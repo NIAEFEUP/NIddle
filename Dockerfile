@@ -5,6 +5,7 @@ WORKDIR /usr/src/app
 
 # Install deps
 COPY package*.json ./
+COPY .husky/ ./.husky/
 RUN npm ci
 
 # ---- Build stage ----
@@ -24,6 +25,7 @@ ENV NODE_ENV=production
 
 # Install only prod deps
 COPY package*.json ./
+COPY .husky/ ./.husky/
 RUN npm ci --omit=dev && npm cache clean --force
 
 # Copy built artifacts
