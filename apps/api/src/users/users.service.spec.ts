@@ -273,6 +273,25 @@ describe("UsersService", () => {
         "Not found",
       );
     });
+
+    it("should return all associations if the user is an admin", async () => {
+      const mockAdminUser = { ...mockUser, isAdmin: true, associations: [] };
+      mockUserRepository.findOneOrFail.mockResolvedValue(mockAdminUser);
+      const mockAllAssociations = [
+        { id: 1, name: "Association 1" },
+        { id: 2, name: "Association 2" },
+      ] as Association[];
+      mockAssociationRepository.find.mockResolvedValue(mockAllAssociations);
+
+      const result = await service.findOneWithAssociations(1);
+
+      expect(result.associations).toEqual(mockAllAssociations);
+      expect(mockUserRepository.findOneOrFail).toHaveBeenCalledWith({
+        where: { id: 1 },
+        relations: ["associations"],
+      });
+      expect(mockAssociationRepository.find).toHaveBeenCalled();
+    });
   });
 
   describe("findOneByEmail", () => {
