@@ -1,4 +1,4 @@
 module.exports = {
-  "*.{ts,tsx,js,jsx,json}": "biome check --write",
-  "*.{ts,tsx}": () => "tsc --noEmit",
+  "*.{ts,tsx}": ["biome check --write", () => "tsc --noEmit"],
+  "*.{js,jsx,json}": "biome check --write",
 };
