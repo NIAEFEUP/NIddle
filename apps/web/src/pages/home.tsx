@@ -1,3 +1,4 @@
+import { Navigate } from "react-router";
 import {
   Card,
   CardContent,
@@ -6,7 +7,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { useAuth } from "@/hooks/use-auth";
-import { Navigate } from "react-router";
 
 export function HomePage() {
   const { user } = useAuth();
