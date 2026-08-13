@@ -33,6 +33,7 @@
     "@nestjs/platform-express": "^11.1.19",
     "@nestjs/swagger": "^11.4.3",
     "@nestjs/typeorm": "^11.0.0",
+    "@sentry/nestjs": "^10.69.0",
     "@types/bcrypt": "^6.0.0",
     "bcrypt": "^6.0.0",
     "class-transformer": "^0.5.1",
