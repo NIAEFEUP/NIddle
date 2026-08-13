@@ -32,7 +32,9 @@ const associations = [
 
 export function SidebarHeaderComponent() {
   const { isMobile } = useSidebar();
-  const [activeAssociation, setActiveAssociation] = React.useState(associations[0]);
+  const [activeAssociation, setActiveAssociation] = React.useState(
+    associations[0],
+  );
 
   if (!activeAssociation) {
     return null;
@@ -96,7 +98,9 @@ export function SidebarHeaderComponent() {
                     {getInitials(association.acronym)}
                   </AvatarFallback>
                 </Avatar>
-                <span className="font-medium text-sm">{association.acronym}</span>
+                <span className="font-medium text-sm">
+                  {association.acronym}
+                </span>
                 <DropdownMenuShortcut>⌘{index + 1}</DropdownMenuShortcut>
               </DropdownMenuItem>
             ))}
