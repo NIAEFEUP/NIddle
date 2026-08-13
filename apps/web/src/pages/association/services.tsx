@@ -1,6 +1,6 @@
 import { AssociationNotFound } from "@/components/association/not-found";
 import { useActiveAssociation } from "@/hooks/use-active-association";
-import InConstructionPage from "../in-construction";
+import InConstructionPage from "@/pages/in-construction";
 
 export function AssociationServicesPage() {
   const association = useActiveAssociation();
@@ -9,9 +9,7 @@ export function AssociationServicesPage() {
     return <AssociationNotFound />;
   }
 
-  return (
-    <InConstructionPage />
-  );
+  return <InConstructionPage />;
 }
 
 export default AssociationServicesPage;

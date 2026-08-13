@@ -1,6 +1,4 @@
-import {
-  ArrowLeft,
-} from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { Link } from "react-router";
 import { buttonVariants } from "@/components/ui/button";
 import {
@@ -20,8 +18,8 @@ export function AssociationNotFound() {
           <CardHeader>
             <CardTitle>Association Not Found</CardTitle>
             <CardDescription>
-              The association you are trying to access does not exist or you
-              do not have permission to view it.
+              The association you are trying to access does not exist or you do
+              not have permission to view it.
             </CardDescription>
           </CardHeader>
           <CardFooter>

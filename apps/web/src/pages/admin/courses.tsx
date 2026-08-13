@@ -1,9 +1,7 @@
-import { InConstructionPage } from "../in-construction";
+import InConstructionPage from "@/pages/in-construction";
 
 export function AdminCoursesPage() {
-  return (
-    <InConstructionPage />
-  );
+  return <InConstructionPage />;
 }
 
 export default AdminCoursesPage;
