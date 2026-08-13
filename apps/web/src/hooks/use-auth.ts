@@ -1,11 +1,18 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiClient, getToken, removeToken, setToken } from "@/lib/api-client";
 
+export interface Association {
+  id: number;
+  name: string;
+  acronym?: string;
+}
+
 export interface User {
   id: number;
   name: string;
   email: string;
   isAdmin: boolean;
+  associations: Association[];
 }
 
 interface LoginResponse {

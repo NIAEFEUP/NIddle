@@ -1,29 +1,27 @@
+import {
+  ArrowLeft,
+} from "lucide-react";
 import { Link } from "react-router";
-import { Badge } from "@/components/ui/badge";
+import { buttonVariants } from "@/components/ui/button";
 import {
   Card,
-  CardAction,
   CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { ArrowLeft } from "lucide-react";
 
-export function NotFoundPage() {
+export function AssociationNotFound() {
   return (
-    <div className="flex min-h-svh w-full items-center justify-center">
-      <div className="w-full max-w-sm">
+    <div className="flex h-full w-full items-center justify-center">
+      <div className="w-full max-w-lg">
         <Card>
           <CardHeader>
-            <CardAction>
-              <Badge variant="destructive">404</Badge>
-            </CardAction>
-            <CardTitle>Page Not Found</CardTitle>
+            <CardTitle>Association Not Found</CardTitle>
             <CardDescription>
-              The page you are looking for does not exist.
+              The association you are trying to access does not exist or you
+              do not have permission to view it.
             </CardDescription>
           </CardHeader>
           <CardFooter>
@@ -56,4 +54,4 @@ export function NotFoundPage() {
   );
 }
 
-export default NotFoundPage;
+export default AssociationNotFound;
