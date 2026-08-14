@@ -52,9 +52,7 @@ export function UserGridCard({
       <div className="mt-4 flex flex-col gap-2 border-t pt-3 text-xs">
         <div className="flex justify-between">
           <span className="text-muted-foreground">Role:</span>
-          <span className="font-medium">
-            {user.isAdmin ? "Admin" : "Member"}
-          </span>
+          <span className="font-medium">{user.isAdmin ? "Admin" : "User"}</span>
         </div>
         <div className="flex justify-between gap-1 mt-1">
           <span className="text-muted-foreground">Associations:</span>

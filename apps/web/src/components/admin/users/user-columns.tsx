@@ -112,14 +112,14 @@ export function getUserColumns({
         const isAdmin = row.original.isAdmin;
         return (
           <span className="text-xs font-medium text-foreground">
-            {isAdmin ? "Admin" : "Member"}
+            {isAdmin ? "Admin" : "User"}
           </span>
         );
       },
       filterFn: (row, _columnId, filterValue) => {
         if (!filterValue || filterValue === "all") return true;
         if (filterValue === "admin") return row.original.isAdmin === true;
-        if (filterValue === "member") return row.original.isAdmin === false;
+        if (filterValue === "user") return row.original.isAdmin === false;
         return true;
       },
     },
@@ -153,6 +153,11 @@ export function getUserColumns({
             ))}
           </>
         );
+      },
+      filterFn: (row, _columnId, filterValue) => {
+        if (!filterValue || filterValue === "all") return true;
+        const userAssocs = row.original.associations || [];
+        return userAssocs.some((assoc) => assoc.id === filterValue);
       },
     },
     {

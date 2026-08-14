@@ -24,7 +24,7 @@ export function UserBulkActions({
       <div className="flex items-center gap-1 pr-2 border-r border-border text-xs font-medium text-foreground">
         {selectedCount}
         <span className="whitespace-nowrap">
-          {selectedCount === 1 ? "member" : "members"} selected
+          {selectedCount === 1 ? "user" : "users"} selected
         </span>
       </div>
 

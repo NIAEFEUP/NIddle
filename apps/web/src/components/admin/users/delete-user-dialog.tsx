@@ -20,10 +20,10 @@ export function DeleteUserDialog({
     <ConfirmDialog
       open={open}
       onOpenChange={onOpenChange}
-      title="Delete Member"
+      title="Delete User"
       description={
         <>
-          Are you sure you want to delete member{" "}
+          Are you sure you want to delete user{" "}
           <span className="font-semibold text-foreground">{user?.name}</span>?
           This action is permanent.
         </>

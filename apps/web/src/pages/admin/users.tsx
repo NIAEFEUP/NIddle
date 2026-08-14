@@ -61,9 +61,12 @@ export function AdminUsersPage() {
   } = useAdminUsers();
 
   const [roleFilter, setRoleFilter] = React.useState("all");
+  const [associationFilter, setAssociationFilter] = React.useState("all");
   const [viewMode, setViewMode] = React.useState<ViewMode>("list");
 
-  const [sorting, setSorting] = React.useState<SortingState>([]);
+  const [sorting, setSorting] = React.useState<SortingState>([
+    { id: "name", desc: false },
+  ]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     [],
   );
@@ -111,6 +114,7 @@ export function AdminUsersPage() {
     onRowSelectionChange: setRowSelection,
     onGlobalFilterChange: setGlobalFilter,
     initialState: {
+      sorting: [{ id: "name", desc: false }],
       pagination: {
         pageIndex: 0,
         pageSize: 12,
@@ -129,6 +133,12 @@ export function AdminUsersPage() {
     const val = value ?? "all";
     setRoleFilter(val);
     table.getColumn("isAdmin")?.setFilterValue(val);
+  };
+
+  const handleAssociationFilterChange = (value: string | null) => {
+    const val = value ?? "all";
+    setAssociationFilter(val);
+    table.getColumn("associations")?.setFilterValue(val);
   };
 
   const handleCreateSubmit = (formData: UserFormData) => {
@@ -196,7 +206,7 @@ export function AdminUsersPage() {
     if (selectedUsers.length === 0) return;
     const headers = ["ID", "Name", "Email", "Role", "Associations"];
     const rows = selectedUsers.map((u) => {
-      const role = u.isAdmin ? "Admin" : "Member";
+      const role = u.isAdmin ? "Admin" : "User";
       const assocs = u.isAdmin
         ? "All Access"
         : (u.associations || []).map((a) => a.acronym || a.name).join("; ");
@@ -219,7 +229,7 @@ export function AdminUsersPage() {
     const headers = ["ID", "Name", "Email", "Role", "Associations"];
     const rows = filteredRows.map((row) => {
       const u = row.original;
-      const role = u.isAdmin ? "Admin" : "Member";
+      const role = u.isAdmin ? "Admin" : "User";
       const assocs = u.isAdmin
         ? "All Access"
         : (u.associations || []).map((a) => a.acronym || a.name).join("; ");
@@ -277,30 +287,65 @@ export function AdminUsersPage() {
               onClick={handleOpenCreate}
             >
               <Plus className="size-3.5" />
-              New Member
+              New User
             </Button>
           </>
         }
         filters={
-          <Select value={roleFilter} onValueChange={handleRoleFilterChange}>
-            <SelectTrigger className="h-8 w-fit gap-1 text-xs">
-              <span className="text-muted-foreground">Filter by Role</span>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Roles</SelectItem>
-              <SelectItem value="admin">Administrator</SelectItem>
-              <SelectItem value="member">Member</SelectItem>
-            </SelectContent>
-          </Select>
+          <>
+            <Select value={roleFilter} onValueChange={handleRoleFilterChange}>
+              <SelectTrigger className="h-8 w-fit gap-1 text-xs">
+                <span className="text-muted-foreground">Filter by Role</span>
+                <SelectValue>
+                  {(val) => {
+                    if (val === "admin") return "Administrator";
+                    if (val === "user") return "User";
+                    return "All Roles";
+                  }}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Roles</SelectItem>
+                <SelectItem value="admin">Administrator</SelectItem>
+                <SelectItem value="user">User</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select
+              value={associationFilter}
+              onValueChange={handleAssociationFilterChange}
+            >
+              <SelectTrigger className="h-8 w-fit gap-1 text-xs">
+                <span className="text-muted-foreground">
+                  Filter by Association
+                </span>
+                <SelectValue>
+                  {(val) => {
+                    if (!val || val === "all") return "All Associations";
+                    const found = associations.find(
+                      (a) => String(a.id) === String(val),
+                    );
+                    return found?.acronym || found?.name || val;
+                  }}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Associations</SelectItem>
+                {associations.map((assoc) => (
+                  <SelectItem key={assoc.id} value={String(assoc.id)}>
+                    {assoc.acronym || assoc.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </>
         }
       />
 
       {isLoading ? (
-        <DataLoadingState message="Loading members database..." />
+        <DataLoadingState message="Loading users database..." />
       ) : isError ? (
         <DataErrorState
-          title="Failed to load members"
+          title="Failed to load users"
           message={getErrorMessage(error)}
         />
       ) : paginatedRows.length === 0 ? (
@@ -357,18 +402,17 @@ export function AdminUsersPage() {
       <ConfirmDialog
         open={isBulkDeleteOpen}
         onOpenChange={setIsBulkDeleteOpen}
-        title={`Delete ${selectedCount} ${selectedCount === 1 ? "Member" : "Members"}`}
+        title={`Delete ${selectedCount} ${selectedCount === 1 ? "User" : "Users"}`}
         description={
           <>
             Are you sure you want to delete{" "}
             <span className="font-semibold text-foreground">
-              {selectedCount} selected{" "}
-              {selectedCount === 1 ? "member" : "members"}
+              {selectedCount} selected {selectedCount === 1 ? "user" : "users"}
             </span>
             ? This action is permanent and cannot be undone.
           </>
         }
-        confirmLabel={`Delete ${selectedCount} ${selectedCount === 1 ? "Member" : "Members"}`}
+        confirmLabel={`Delete ${selectedCount} ${selectedCount === 1 ? "User" : "Users"}`}
         cancelLabel="Cancel"
         variant="destructive"
         isLoading={bulkDeleteUsersMutation.isPending}
