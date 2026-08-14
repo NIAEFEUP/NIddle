@@ -1,4 +1,5 @@
 import type { Table } from "@tanstack/react-table";
+import { AdminGridView } from "@/components/admin/admin-grid-view";
 import { UserGridCard } from "@/components/admin/users/user-grid-card";
 import type { User } from "@/hooks/use-auth";
 
@@ -9,20 +10,18 @@ export interface UserGridViewProps {
 }
 
 export function UserGridView({ table, onEdit, onDelete }: UserGridViewProps) {
-  const rows = table.getRowModel().rows;
-
   return (
-    <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
-      {rows.map((row) => (
+    <AdminGridView
+      table={table}
+      renderCard={(user, { isSelected, onSelectChange }) => (
         <UserGridCard
-          key={row.original.id}
-          user={row.original}
-          isSelected={row.getIsSelected()}
-          onSelectChange={(selected) => row.toggleSelected(selected)}
+          user={user}
+          isSelected={isSelected}
+          onSelectChange={onSelectChange}
           onEdit={onEdit}
           onDelete={onDelete}
         />
-      ))}
-    </div>
+      )}
+    />
   );
 }

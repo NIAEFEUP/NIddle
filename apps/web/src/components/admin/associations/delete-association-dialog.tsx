@@ -1,4 +1,4 @@
-import { ConfirmDialog } from "@/components/admin/confirm-dialog";
+import { AdminDeleteDialog } from "@/components/admin/admin-delete-dialog";
 import type { Association } from "@/hooks/use-auth";
 
 export interface DeleteAssociationDialogProps {
@@ -17,25 +17,15 @@ export function DeleteAssociationDialog({
   onConfirm,
 }: DeleteAssociationDialogProps) {
   return (
-    <ConfirmDialog
+    <AdminDeleteDialog
       open={open}
       onOpenChange={onOpenChange}
-      title="Delete Association"
-      description={
-        <>
-          Are you sure you want to delete association{" "}
-          <span className="font-semibold text-foreground">
-            {association?.name}
-          </span>
-          {association?.acronym ? ` (${association.acronym})` : ""}? This action
-          is permanent.
-        </>
+      entityName="Association"
+      itemName={association?.name}
+      itemDetails={
+        association?.acronym ? ` (${association.acronym})` : undefined
       }
-      confirmLabel="Delete Association"
-      cancelLabel="Cancel"
-      variant="destructive"
       isLoading={isLoading}
-      loadingLabel="Deleting..."
       onConfirm={onConfirm}
     />
   );

@@ -1,7 +1,7 @@
-import { Edit2, Trash2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
+import { AdminAvatar } from "@/components/admin/admin-avatar";
+import { AdminGridCard } from "@/components/admin/admin-grid-card";
 import type { User } from "@/hooks/use-auth";
+import { getInitials } from "@/lib/utils";
 
 export interface UserGridCardProps {
   user: User;
@@ -18,88 +18,45 @@ export function UserGridCard({
   onEdit,
   onDelete,
 }: UserGridCardProps) {
-  const initials = (
-    user.name
-      .split(" ")
-      .filter(Boolean)
-      .map((n) => n[0])
-      .join("") || "U"
-  )
-    .slice(0, 2)
-    .toUpperCase();
+  const initials = getInitials(user.name, "U");
   const userAssocs = user.associations || [];
 
   return (
-    <div className="relative flex flex-col justify-between rounded-xl border bg-card p-4 shadow-xs">
-      <div className="flex items-start justify-between gap-2">
-        <div className="flex items-center gap-3">
-          <div className="flex size-9 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
-            {initials}
-          </div>
+    <AdminGridCard
+      avatar={<AdminAvatar initials={initials} size="md" />}
+      title={user.name}
+      subtitle={user.email}
+      isSelected={isSelected}
+      onSelectChange={onSelectChange}
+      onEdit={() => onEdit(user)}
+      onDelete={() => onDelete(user)}
+    >
+      <div className="flex justify-between">
+        <span className="text-muted-foreground">Role:</span>
+        <span className="font-medium">{user.isAdmin ? "Admin" : "User"}</span>
+      </div>
+      <div className="flex justify-between gap-1 mt-1">
+        <span className="text-muted-foreground">Associations:</span>
+        {user.isAdmin ? (
+          <span className="text-xs font-medium text-foreground">
+            All Access
+          </span>
+        ) : userAssocs.length === 0 ? (
+          <span className="text-xs font-medium text-foreground">None</span>
+        ) : (
           <div>
-            <h3 className="text-sm font-semibold text-foreground">
-              {user.name}
-            </h3>
-            <p className="text-[11px] text-muted-foreground">{user.email}</p>
+            {userAssocs.map((assoc, index) => (
+              <span
+                key={assoc.id}
+                className="text-xs font-medium text-foreground"
+              >
+                {assoc.acronym || assoc.name}
+                {index < userAssocs.length - 1 && ", "}
+              </span>
+            ))}
           </div>
-        </div>
-        {onSelectChange && (
-          <Checkbox
-            checked={isSelected}
-            onCheckedChange={(value) => onSelectChange(!!value)}
-          />
         )}
       </div>
-
-      <div className="mt-4 flex flex-col gap-2 border-t pt-3 text-xs">
-        <div className="flex justify-between">
-          <span className="text-muted-foreground">Role:</span>
-          <span className="font-medium">{user.isAdmin ? "Admin" : "User"}</span>
-        </div>
-        <div className="flex justify-between gap-1 mt-1">
-          <span className="text-muted-foreground">Associations:</span>
-          {user.isAdmin ? (
-            <span className="text-xs font-medium text-foreground">
-              All Access
-            </span>
-          ) : userAssocs.length === 0 ? (
-            <span className="text-xs font-medium text-foreground">None</span>
-          ) : (
-            <div>
-              {userAssocs.map((assoc, index) => (
-                <span
-                  key={assoc.id}
-                  className="text-xs font-medium text-foreground"
-                >
-                  {assoc.acronym || assoc.name}
-                  {index < userAssocs.length - 1 && ", "}
-                </span>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
-
-      <div className="mt-4 flex gap-2 border-t pt-3">
-        <Button
-          variant="outline"
-          size="sm"
-          className="h-8 flex-1 text-xs"
-          onClick={() => onEdit(user)}
-        >
-          <Edit2 className="size-3 mr-1.5" />
-          Edit
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          className="h-8 flex-1 text-xs text-rose-500 hover:text-rose-600 hover:bg-rose-50/10"
-          onClick={() => onDelete(user)}
-        >
-          <Trash2 className="size-3 mr-1.5" />
-          Delete
-        </Button>
-      </div>
-    </div>
+    </AdminGridCard>
   );
 }

@@ -1,4 +1,4 @@
-import { ConfirmDialog } from "@/components/admin/confirm-dialog";
+import { AdminDeleteDialog } from "@/components/admin/admin-delete-dialog";
 import type { User } from "@/hooks/use-auth";
 
 export interface DeleteUserDialogProps {
@@ -17,22 +17,12 @@ export function DeleteUserDialog({
   onConfirm,
 }: DeleteUserDialogProps) {
   return (
-    <ConfirmDialog
+    <AdminDeleteDialog
       open={open}
       onOpenChange={onOpenChange}
-      title="Delete User"
-      description={
-        <>
-          Are you sure you want to delete user{" "}
-          <span className="font-semibold text-foreground">{user?.name}</span>?
-          This action is permanent.
-        </>
-      }
-      confirmLabel="Delete User"
-      cancelLabel="Cancel"
-      variant="destructive"
+      entityName="User"
+      itemName={user?.name}
       isLoading={isLoading}
-      loadingLabel="Deleting..."
       onConfirm={onConfirm}
     />
   );

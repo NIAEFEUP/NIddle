@@ -8,9 +8,12 @@ import {
   useReactTable,
   type VisibilityState,
 } from "@tanstack/react-table";
-import { Download, Plus, Search } from "lucide-react";
+import { Download, Plus } from "lucide-react";
 import * as React from "react";
+import { AdminDataView } from "@/components/admin/admin-data-view";
+import { AdminBulkDeleteDialog } from "@/components/admin/admin-delete-dialog";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
+import { AdminSearchInput } from "@/components/admin/admin-search-input";
 import { AssociationBulkActions } from "@/components/admin/associations/association-bulk-actions";
 import {
   associationColumnLabels,
@@ -19,21 +22,12 @@ import {
 import { AssociationFormDialog } from "@/components/admin/associations/association-form-dialog";
 import { AssociationGridView } from "@/components/admin/associations/association-grid-view";
 import { DeleteAssociationDialog } from "@/components/admin/associations/delete-association-dialog";
-import { ConfirmDialog } from "@/components/admin/confirm-dialog";
-import {
-  DataEmptyState,
-  DataErrorState,
-  DataLoadingState,
-} from "@/components/admin/data-state-view";
 import {
   type ViewMode,
   ViewModeToggle,
 } from "@/components/admin/view-mode-toggle";
-import { DataTable } from "@/components/data-table/data-table";
 import { DataTableColumnToggle } from "@/components/data-table/data-table-column-toggle";
-import { DataTablePagination } from "@/components/data-table/data-table-pagination";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 
 import {
   type AssociationFormData,
@@ -42,6 +36,20 @@ import {
 import type { Association } from "@/hooks/use-auth";
 import { getErrorMessage } from "@/lib/api-client";
 import { downloadCsv } from "@/lib/csv-export";
+
+function exportAssociationsToCsv(
+  associationsList: Association[],
+  filename: string,
+) {
+  const headers = ["ID", "Name", "Acronym", "Members"];
+  const rows = associationsList.map((a) => [
+    a.id,
+    a.name,
+    a.acronym || "",
+    a.users?.length ?? 0,
+  ]);
+  downloadCsv(filename, headers, rows);
+}
 
 export function AdminAssociationsPage() {
   const {
@@ -178,18 +186,9 @@ export function AdminAssociationsPage() {
 
   const handleExportSelected = () => {
     if (selectedAssociations.length === 0) return;
-    const headers = ["ID", "Name", "Acronym", "Members"];
-    const rows = selectedAssociations.map((a) => [
-      a.id,
-      a.name,
-      a.acronym || "",
-      a.users?.length ?? 0,
-    ]);
-
-    downloadCsv(
+    exportAssociationsToCsv(
+      selectedAssociations,
       `associations_selected_${new Date().toISOString().slice(0, 10)}.csv`,
-      headers,
-      rows,
     );
   };
 
@@ -198,21 +197,14 @@ export function AdminAssociationsPage() {
   };
 
   const handleDownloadCSV = () => {
-    const filteredRows = table.getFilteredRowModel().rows;
-    const headers = ["ID", "Name", "Acronym", "Members"];
-    const rows = filteredRows.map((row) => {
-      const a = row.original;
-      return [a.id, a.name, a.acronym || "", a.users?.length ?? 0];
-    });
-
-    downloadCsv(
+    const filteredAssociations = table
+      .getFilteredRowModel()
+      .rows.map((row) => row.original);
+    exportAssociationsToCsv(
+      filteredAssociations,
       `associations_export_${new Date().toISOString().slice(0, 10)}.csv`,
-      headers,
-      rows,
     );
   };
-
-  const paginatedRows = table.getRowModel().rows;
 
   return (
     <div className="flex flex-col gap-4">
@@ -222,16 +214,11 @@ export function AdminAssociationsPage() {
           <ViewModeToggle viewMode={viewMode} onViewModeChange={setViewMode} />
         }
         search={
-          <div className="relative w-full max-w-50 sm:w-50">
-            <Search className="absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              type="search"
-              placeholder="Search Associations"
-              className="h-8 pl-8 text-xs focus-visible:ring-1"
-              value={globalFilter}
-              onChange={(e) => setGlobalFilter(e.target.value)}
-            />
-          </div>
+          <AdminSearchInput
+            placeholder="Search Associations"
+            value={globalFilter}
+            onChange={setGlobalFilter}
+          />
         }
         actions={
           <>
@@ -262,29 +249,24 @@ export function AdminAssociationsPage() {
         }
       />
 
-      {isLoading ? (
-        <DataLoadingState message="Loading associations database..." />
-      ) : isError ? (
-        <DataErrorState
-          title="Failed to load associations"
-          message={getErrorMessage(error)}
-        />
-      ) : paginatedRows.length === 0 ? (
-        <DataEmptyState
-          title="No associations found"
-          description="Try resetting your search query."
-        />
-      ) : viewMode === "list" ? (
-        <DataTable table={table} />
-      ) : (
-        <AssociationGridView
-          table={table}
-          onEdit={handleOpenEdit}
-          onDelete={handleOpenDelete}
-        />
-      )}
-
-      <DataTablePagination table={table} />
+      <AdminDataView
+        table={table}
+        viewMode={viewMode}
+        isLoading={isLoading}
+        loadingMessage="Loading associations database..."
+        isError={isError}
+        errorTitle="Failed to load associations"
+        errorMessage={getErrorMessage(error)}
+        emptyTitle="No associations found"
+        emptyDescription="Try resetting your search query."
+        renderGrid={(t) => (
+          <AssociationGridView
+            table={t}
+            onEdit={handleOpenEdit}
+            onDelete={handleOpenDelete}
+          />
+        )}
+      />
 
       <AssociationBulkActions
         selectedCount={selectedCount}
@@ -318,29 +300,13 @@ export function AdminAssociationsPage() {
         onConfirm={handleDeleteConfirm}
       />
 
-      <ConfirmDialog
+      <AdminBulkDeleteDialog
         open={isBulkDeleteOpen}
         onOpenChange={setIsBulkDeleteOpen}
-        title={`Delete ${selectedCount} ${
-          selectedCount === 1 ? "Association" : "Associations"
-        }`}
-        description={
-          <>
-            Are you sure you want to delete{" "}
-            <span className="font-semibold text-foreground">
-              {selectedCount} selected{" "}
-              {selectedCount === 1 ? "association" : "associations"}
-            </span>
-            ? This action is permanent and cannot be undone.
-          </>
-        }
-        confirmLabel={`Delete ${selectedCount} ${
-          selectedCount === 1 ? "Association" : "Associations"
-        }`}
-        cancelLabel="Cancel"
-        variant="destructive"
+        selectedCount={selectedCount}
+        entityLabel="association"
+        entityPluralLabel="associations"
         isLoading={bulkDeleteAssociationsMutation.isPending}
-        loadingLabel="Deleting..."
         onConfirm={handleBulkDeleteConfirm}
       />
     </div>

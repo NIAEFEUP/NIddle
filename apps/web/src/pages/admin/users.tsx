@@ -8,15 +8,12 @@ import {
   useReactTable,
   type VisibilityState,
 } from "@tanstack/react-table";
-import { Download, Plus, Search } from "lucide-react";
+import { Download, Plus } from "lucide-react";
 import * as React from "react";
+import { AdminDataView } from "@/components/admin/admin-data-view";
+import { AdminBulkDeleteDialog } from "@/components/admin/admin-delete-dialog";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
-import { ConfirmDialog } from "@/components/admin/confirm-dialog";
-import {
-  DataEmptyState,
-  DataErrorState,
-  DataLoadingState,
-} from "@/components/admin/data-state-view";
+import { AdminSearchInput } from "@/components/admin/admin-search-input";
 import { DeleteUserDialog } from "@/components/admin/users/delete-user-dialog";
 import { UserBulkActions } from "@/components/admin/users/user-bulk-actions";
 import {
@@ -29,11 +26,8 @@ import {
   type ViewMode,
   ViewModeToggle,
 } from "@/components/admin/view-mode-toggle";
-import { DataTable } from "@/components/data-table/data-table";
 import { DataTableColumnToggle } from "@/components/data-table/data-table-column-toggle";
-import { DataTablePagination } from "@/components/data-table/data-table-pagination";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -46,6 +40,18 @@ import { type UserFormData, useAdminUsers } from "@/hooks/use-admin-users";
 import type { User } from "@/hooks/use-auth";
 import { getErrorMessage } from "@/lib/api-client";
 import { downloadCsv } from "@/lib/csv-export";
+
+function exportUsersToCsv(usersList: User[], filename: string) {
+  const headers = ["ID", "Name", "Email", "Role", "Associations"];
+  const rows = usersList.map((u) => {
+    const role = u.isAdmin ? "Admin" : "User";
+    const assocs = u.isAdmin
+      ? "All Access"
+      : (u.associations || []).map((a) => a.acronym || a.name).join("; ");
+    return [u.id, u.name, u.email, role, assocs];
+  });
+  downloadCsv(filename, headers, rows);
+}
 
 export function AdminUsersPage() {
   const {
@@ -204,19 +210,9 @@ export function AdminUsersPage() {
 
   const handleExportSelected = () => {
     if (selectedUsers.length === 0) return;
-    const headers = ["ID", "Name", "Email", "Role", "Associations"];
-    const rows = selectedUsers.map((u) => {
-      const role = u.isAdmin ? "Admin" : "User";
-      const assocs = u.isAdmin
-        ? "All Access"
-        : (u.associations || []).map((a) => a.acronym || a.name).join("; ");
-      return [u.id, u.name, u.email, role, assocs];
-    });
-
-    downloadCsv(
+    exportUsersToCsv(
+      selectedUsers,
       `users_selected_${new Date().toISOString().slice(0, 10)}.csv`,
-      headers,
-      rows,
     );
   };
 
@@ -225,25 +221,14 @@ export function AdminUsersPage() {
   };
 
   const handleDownloadCSV = () => {
-    const filteredRows = table.getFilteredRowModel().rows;
-    const headers = ["ID", "Name", "Email", "Role", "Associations"];
-    const rows = filteredRows.map((row) => {
-      const u = row.original;
-      const role = u.isAdmin ? "Admin" : "User";
-      const assocs = u.isAdmin
-        ? "All Access"
-        : (u.associations || []).map((a) => a.acronym || a.name).join("; ");
-      return [u.id, u.name, u.email, role, assocs];
-    });
-
-    downloadCsv(
+    const filteredUsers = table
+      .getFilteredRowModel()
+      .rows.map((row) => row.original);
+    exportUsersToCsv(
+      filteredUsers,
       `users_export_${new Date().toISOString().slice(0, 10)}.csv`,
-      headers,
-      rows,
     );
   };
-
-  const paginatedRows = table.getRowModel().rows;
 
   return (
     <div className="flex flex-col gap-4">
@@ -253,16 +238,11 @@ export function AdminUsersPage() {
           <ViewModeToggle viewMode={viewMode} onViewModeChange={setViewMode} />
         }
         search={
-          <div className="relative w-full max-w-50 sm:w-50">
-            <Search className="absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              type="search"
-              placeholder="Search Users"
-              className="h-8 pl-8 text-xs focus-visible:ring-1"
-              value={globalFilter}
-              onChange={(e) => setGlobalFilter(e.target.value)}
-            />
-          </div>
+          <AdminSearchInput
+            placeholder="Search Users"
+            value={globalFilter}
+            onChange={setGlobalFilter}
+          />
         }
         actions={
           <>
@@ -341,29 +321,24 @@ export function AdminUsersPage() {
         }
       />
 
-      {isLoading ? (
-        <DataLoadingState message="Loading users database..." />
-      ) : isError ? (
-        <DataErrorState
-          title="Failed to load users"
-          message={getErrorMessage(error)}
-        />
-      ) : paginatedRows.length === 0 ? (
-        <DataEmptyState
-          title="No users found"
-          description="Try resetting your filters or search query."
-        />
-      ) : viewMode === "list" ? (
-        <DataTable table={table} />
-      ) : (
-        <UserGridView
-          table={table}
-          onEdit={handleOpenEdit}
-          onDelete={handleOpenDelete}
-        />
-      )}
-
-      <DataTablePagination table={table} />
+      <AdminDataView
+        table={table}
+        viewMode={viewMode}
+        isLoading={isLoading}
+        loadingMessage="Loading users database..."
+        isError={isError}
+        errorTitle="Failed to load users"
+        errorMessage={getErrorMessage(error)}
+        emptyTitle="No users found"
+        emptyDescription="Try resetting your filters or search query."
+        renderGrid={(t) => (
+          <UserGridView
+            table={t}
+            onEdit={handleOpenEdit}
+            onDelete={handleOpenDelete}
+          />
+        )}
+      />
 
       <UserBulkActions
         selectedCount={selectedCount}
@@ -399,24 +374,13 @@ export function AdminUsersPage() {
         onConfirm={handleDeleteConfirm}
       />
 
-      <ConfirmDialog
+      <AdminBulkDeleteDialog
         open={isBulkDeleteOpen}
         onOpenChange={setIsBulkDeleteOpen}
-        title={`Delete ${selectedCount} ${selectedCount === 1 ? "User" : "Users"}`}
-        description={
-          <>
-            Are you sure you want to delete{" "}
-            <span className="font-semibold text-foreground">
-              {selectedCount} selected {selectedCount === 1 ? "user" : "users"}
-            </span>
-            ? This action is permanent and cannot be undone.
-          </>
-        }
-        confirmLabel={`Delete ${selectedCount} ${selectedCount === 1 ? "User" : "Users"}`}
-        cancelLabel="Cancel"
-        variant="destructive"
+        selectedCount={selectedCount}
+        entityLabel="user"
+        entityPluralLabel="users"
         isLoading={bulkDeleteUsersMutation.isPending}
-        loadingLabel="Deleting..."
         onConfirm={handleBulkDeleteConfirm}
       />
     </div>

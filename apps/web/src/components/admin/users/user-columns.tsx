@@ -1,8 +1,12 @@
 import type { ColumnDef } from "@tanstack/react-table";
-import { ArrowDown, ArrowUp, ArrowUpDown, Edit2, Trash2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
+import {
+  DataTableEntityCell,
+  DataTableSortableHeader,
+  getActionsColumn,
+  getSelectColumn,
+} from "@/components/data-table/data-table-column-helpers";
 import type { User } from "@/hooks/use-auth";
+import { getInitials } from "@/lib/utils";
 
 export const userColumnLabels: Record<string, string> = {
   name: "Full Name",
@@ -11,7 +15,7 @@ export const userColumnLabels: Record<string, string> = {
   associations: "Associations",
 };
 
-interface GetUserColumnsProps {
+export interface GetUserColumnsProps {
   onEdit: (user: User) => void;
   onDelete: (user: User) => void;
 }
@@ -21,86 +25,23 @@ export function getUserColumns({
   onDelete,
 }: GetUserColumnsProps): ColumnDef<User>[] {
   return [
-    {
-      id: "select",
-      header: ({ table }) => (
-        <Checkbox
-          checked={table.getIsAllPageRowsSelected()}
-          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-          aria-label="Select all"
-        />
-      ),
-      cell: ({ row }) => (
-        <Checkbox
-          checked={row.getIsSelected()}
-          onCheckedChange={(value) => row.toggleSelected(!!value)}
-          aria-label="Select row"
-        />
-      ),
-      enableSorting: false,
-      enableHiding: false,
-    },
+    getSelectColumn<User>(),
     {
       accessorKey: "name",
-      header: ({ column }) => {
-        return (
-          <Button
-            variant="ghost"
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-            className="text-xs font-semibold text-muted-foreground uppercase gap-1 px-0 hover:bg-transparent"
-          >
-            Full name
-            {column.getIsSorted() === "asc" ? (
-              <ArrowUp className="ml-1 size-3 text-foreground" />
-            ) : column.getIsSorted() === "desc" ? (
-              <ArrowDown className="ml-1 size-3 text-foreground" />
-            ) : (
-              <ArrowUpDown className="ml-1 size-3 opacity-50" />
-            )}
-          </Button>
-        );
-      },
+      header: ({ column }) => (
+        <DataTableSortableHeader column={column} title="Full name" />
+      ),
       cell: ({ row }) => {
         const name = row.original.name;
-        const initials = (
-          name
-            .split(" ")
-            .filter(Boolean)
-            .map((n) => n[0])
-            .join("") || "U"
-        )
-          .slice(0, 2)
-          .toUpperCase();
-        return (
-          <div className="flex items-center gap-3 font-medium text-foreground text-sm py-2">
-            <div className="flex size-7 items-center justify-center rounded-full bg-primary/10 text-[10px] font-bold text-primary">
-              {initials}
-            </div>
-            {name}
-          </div>
-        );
+        const initials = getInitials(name, "U");
+        return <DataTableEntityCell name={name} initials={initials} />;
       },
     },
     {
       accessorKey: "email",
-      header: ({ column }) => {
-        return (
-          <Button
-            variant="ghost"
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-            className="text-xs font-semibold text-muted-foreground uppercase gap-1 px-0 hover:bg-transparent"
-          >
-            Email
-            {column.getIsSorted() === "asc" ? (
-              <ArrowUp className="ml-1 size-3 text-foreground" />
-            ) : column.getIsSorted() === "desc" ? (
-              <ArrowDown className="ml-1 size-3 text-foreground" />
-            ) : (
-              <ArrowUpDown className="ml-1 size-3 opacity-50" />
-            )}
-          </Button>
-        );
-      },
+      header: ({ column }) => (
+        <DataTableSortableHeader column={column} title="Email" />
+      ),
       cell: ({ row }) => (
         <span className="text-xs text-muted-foreground">
           {row.original.email}
@@ -159,36 +100,11 @@ export function getUserColumns({
       filterFn: (row, _columnId, filterValue) => {
         if (!filterValue || filterValue === "all") return true;
         const userAssocs = row.original.associations || [];
-        return userAssocs.some((assoc) => assoc.id === filterValue);
-      },
-    },
-    {
-      id: "actions",
-      cell: ({ row }) => {
-        const user = row.original;
-        return (
-          <div className="flex justify-end gap-1.5 opacity-80 group-hover:opacity-100 transition-opacity">
-            <Button
-              variant="outline"
-              size="icon-xs"
-              className="h-7 w-7"
-              onClick={() => onEdit(user)}
-            >
-              <Edit2 className="size-3" />
-            </Button>
-            <Button
-              variant="outline"
-              size="icon-xs"
-              className="h-7 w-7 text-rose-500 hover:text-rose-600 hover:bg-rose-50/10"
-              onClick={() => onDelete(user)}
-            >
-              <Trash2 className="size-3" />
-            </Button>
-          </div>
+        return userAssocs.some(
+          (assoc) => String(assoc.id) === String(filterValue),
         );
       },
-      enableSorting: false,
-      enableHiding: false,
     },
+    getActionsColumn<User>({ onEdit, onDelete }),
   ];
 }
