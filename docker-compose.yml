@@ -24,5 +24,61 @@ services:
     networks:
       - niddle-network
 
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: api-dev
+    image: niddle-api:dev
+    container_name: niddle-api
+    restart: unless-stopped
+    ports:
+      - '3001:3001'
+    environment:
+      DATABASE_USER: niddle
+      DATABASE_PASSWORD: niddle
+      DATABASE_MASTER: postgres
+      DATABASE_SLAVE: postgres
+      DATABASE_PORT: 5432
+      DATABASE_NAME: niddle_db
+      DATABASE_SYNCHRONIZE: "true"
+      PORT: 3001
+      JWT_SECRET: very_secure_secret
+      ADMIN_EMAIL: admin@example.com
+      ADMIN_PASSWORD: "12345678"
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/apps/api/node_modules
+      - /app/apps/web/node_modules
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - niddle-network
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: web-dev
+    image: niddle-web:dev
+    container_name: niddle-web
+    restart: unless-stopped
+    ports:
+      - '3000:3000'
+    environment:
+      VITE_API_URL: http://api:3001
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/apps/api/node_modules
+      - /app/apps/web/node_modules
+    depends_on:
+      - api
+    networks:
+      - niddle-network
+
 volumes:
   pgdata:
+

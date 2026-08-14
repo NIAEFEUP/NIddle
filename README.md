@@ -27,10 +27,10 @@ The primary goal of NIddle is to provide a reliable and easily maintainable API 
 
 ## API Documentation
 
-NIddle comes with built-in API documentation using Swagger. Once the application is running, you can access the documentation at:
+NIddle comes with built-in API documentation using Swagger. Once the backend application is running, you can access the documentation at:
 
 ```
-http://localhost:3000/api/docs
+http://localhost:3001/api/docs
 ```
 
 This provides an interactive interface to explore and test the available endpoints.
@@ -41,71 +41,100 @@ These instructions will get you a copy of the project up and running on your loc
 
 ### Prerequisites
 
-- [Node.js](https://nodejs.org/) (v22.x recommended)
-- [Docker](https://www.docker.com/)
-- [Docker Compose](https://docs.docker.com/compose/)
+- [Docker](https://www.docker.com/) & [Docker Compose](https://docs.docker.com/compose/)
+- [Node.js](https://nodejs.org/) (v22.x recommended, for non-containerized local development)
 
-### Local Development
+### Containerized Development (Docker / Makefile)
 
-1.  **Clone the repository**
+To run the entire development environment (PostgreSQL, NestJS API with hot reload, and Vite React with HMR) inside containers with volume mounting:
 
-    ```bash
-    git clone https://github.com/NIAEFEUP/NIddle
-    cd NIddle
-    ```
+1. **Clone the repository**
 
-2.  **Set up environment variables**
+   ```bash
+   git clone https://github.com/NIAEFEUP/NIddle
+   cd NIddle
+   ```
 
-    Copy the API example environment file to `apps/api/.env.local` for local development.
+2. **Start the development stack**
 
-    ```bash
-    cp apps/api/.env.example apps/api/.env.local
-    ```
+   Using Make:
+   ```bash
+   make up
+   ```
 
-    Open `apps/api/.env.local` and fill in the required variables. Note that for local development without containerizing the app, `DATABASE_MASTER` should be set to `localhost`.
+   *(Or using Docker Compose directly: `docker compose up -d`)*
 
-    If you want schema synchronization on a non-production deployment such as staging, set `DATABASE_SYNCHRONIZE=true` there. Leave it unset or `false` for production.
+   All source code is volume-mounted, meaning file changes on your machine will instantly trigger hot-reloading in both the API and Web containers.
 
-3.  **Start the database**
+   - **Frontend Web App**: `http://localhost:3000`
+   - **Backend API**: `http://localhost:3001`
+   - **Swagger API Docs**: `http://localhost:3001/api/docs`
+   - **PostgreSQL Database**: `localhost:5432`
 
-    NIddle requires a PostgreSQL database. Use Docker Compose to start a local instance:
+   > **Note**: In development, Vite proxies requests from `http://localhost:3000/api` to the backend API, but the API itself runs directly on port `3001`.
 
-    ```bash
-    docker compose up -d
-    ```
+### Local Development (Host Machine)
 
-4.  **Install dependencies**
+If you prefer to run the Node.js applications natively on your host machine for development:
 
-    Install the root monorepo dependencies (which also installs dependencies for all sub-workspaces):
+1. **Clone the repository**
 
-    ```bash
-    npm install
-    ```
+   ```bash
+   git clone https://github.com/NIAEFEUP/NIddle
+   cd NIddle
+   ```
 
-5.  **Seed the database (Optional)**
+2. **Set up environment variables**
 
-    If you want to populate the database with some initial sample data:
+   Copy the API example environment file to `apps/api/.env.local`:
 
-    ```bash
-    npm run seed
-    ```
+   ```bash
+   cp apps/api/.env.example apps/api/.env.local
+   ```
 
-6.  **Run the applications**
+   Open `apps/api/.env.local` and fill in the required variables. For local development on your host machine, ensure `DATABASE_MASTER` is set to `localhost`.
 
-    Start the frontend and backend in separate terminal sessions:
+   If you want automatic schema synchronization during development/staging, set `DATABASE_SYNCHRONIZE=true`.
 
-    To start the NestJS backend API:
-    ```bash
-    npm run dev:api
-    ```
+3. **Start the database**
 
-    To start the Vite frontend web app:
-    ```bash
-    npm run dev:web
-    ```
+   Start only the PostgreSQL container:
 
-    The frontend will be running at `http://localhost:3000` and the API backend at `http://localhost:3001`.
+   ```bash
+   docker compose up -d postgres
+   ```
 
+4. **Install dependencies**
+
+   Install dependencies across all workspaces:
+
+   ```bash
+   npm install
+   ```
+
+5. **Seed the database (Optional)**
+
+   Populate the database with initial sample data:
+
+   ```bash
+   npm run seed
+   ```
+
+6. **Run the applications**
+
+   Start the frontend and backend in separate terminal sessions:
+
+   To start the NestJS backend API:
+   ```bash
+   npm run dev:api
+   ```
+
+   To start the Vite frontend web app:
+   ```bash
+   npm run dev:web
+   ```
+
+   The frontend will run at `http://localhost:3000` and the API backend at `http://localhost:3001`. In development, Vite automatically proxies all requests from `http://localhost:3000/api` to the API server running on port `3001`.
 
 ## Nix Support
 
@@ -119,27 +148,69 @@ This ensures a consistent development environment across different machines.
 
 ## Docker
 
-NIddle is fully containerized and can be easily built and run as a Docker image. The production image runs both the NestJS API and Vite frontend server concurrently in a single lightweight container.
+NIddle uses a multi-stage Dockerfile to build lightweight, production-ready images for both the NestJS API and the Vite frontend.
 
-### Building the Image
+### Building Images
 
-Build the Docker image from the root of the repository:
+Build the individual target images from the root of the repository:
+
+- **API Image**:
+  ```bash
+  docker build --target api-runner -t niddle-api .
+  ```
+
+- **Web Image**:
+  ```bash
+  docker build --target web-runner -t niddle-web .
+  ```
+
+### Running Images Manually
+
+Ensure the `niddle-network` network exists (created automatically by Docker Compose or via `docker network create niddle-network`):
 
 ```bash
-docker build -t niddle .
+# Run API container
+docker run --name niddle-api --network niddle-network -p 3001:3001 --env-file apps/api/.env.local niddle-api
+
+# Run Web container
+docker run --name niddle-web --network niddle-network -p 3000:3000 niddle-web
 ```
 
-### Running the Image
-
-To run the application container on the same network as your Postgres database, pass the environment variables (ensure `DATABASE_MASTER` points to your database container name `niddle-postgres` instead of `localhost`):
+Or run and manage all containers simultaneously using Docker Compose:
 
 ```bash
-docker run --name niddle --network niddle-network -p 3000:3000 --env-file apps/api/.env.local niddle
+docker compose up -d --build
 ```
 
 ## Available Scripts
 
-### Development & Build
+You can run development and maintenance tasks using **`make`** (simplest for containerized workflow), **`docker compose exec`**, or directly via **`npm`** (if running locally on host).
+
+### Quick Reference (Makefile)
+
+When using the containerized workflow (`make up`):
+
+| Action | Makefile | Docker Compose Equivalent | Host Machine (npm) |
+| :--- | :--- | :--- | :--- |
+| **Start stack** | `make up` | `docker compose up -d` | — |
+| **Stop stack** | `make down` | `docker compose down` | — |
+| **Follow logs** | `make logs` | `docker compose logs -f` | — |
+| **Build API App** | `make build-api` | `docker compose exec api npm run build:api` | `npm run build:api` |
+| **Build Web App** | `make build-web` | `docker compose exec web npm run build:web` | `npm run build:web` |
+| **Build Both Apps** | `make build-app` | `docker compose exec api npm run build` | `npm run build` |
+| **Lint & Format Check** | `make check` | `docker compose exec api npm run check` | `npm run check` |
+| **Auto-fix Format/Lint** | `make fix` | `docker compose exec api npm run check:fix` | `npm run check:fix` |
+| **Format Only** | `make format` | `docker compose exec api npm run format` | `npm run format` |
+| **Lint Only** | `make lint` | `docker compose exec api npm run lint` | `npm run lint` |
+| **Seed Database** | `make seed` | `docker compose exec api npm run seed` | `npm run seed` |
+| **Run Unit Tests** | `make test` | `docker compose exec api npm test` | `npm test` |
+| **Watch Unit Tests** | `make test-watch` | `docker compose exec api npm run test:watch` | `npm run test:watch` |
+| **Test Coverage** | `make test-cov` | `docker compose exec api npm run test:cov` | `npm run test:cov` |
+| **Run E2E Tests** | `make test-e2e` | `docker compose exec api npm run test:e2e` | `npm run test:e2e` |
+
+### Script Reference
+
+#### Development & Build
 
 - `npm run dev:api`: Starts the NestJS backend API in development mode.
 - `npm run dev:web`: Starts the Vite frontend web app in development mode.
@@ -149,14 +220,14 @@ docker run --name niddle --network niddle-network -p 3000:3000 --env-file apps/a
 - `npm run seed`: Seeds the database with sample data (proxied to `@niddle/api`).
 - `npm run schema:create`: Generates the database schema (proxied to `@niddle/api`).
 
-### Quality & Linting
+#### Quality & Linting
 
 - `npm run check`: Runs both linting and formatting checks.
 - `npm run check:fix`: Automatically fixes linting and formatting issues.
 - `npm run lint`: Lints the codebase using Biome.
 - `npm run format`: Formats the codebase using Biome.
 
-### Testing
+#### Testing
 
 - `npm test`: Runs unit tests.
 - `npm run test:watch`: Runs unit tests in watch mode.
