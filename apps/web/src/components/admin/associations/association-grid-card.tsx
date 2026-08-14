@@ -26,13 +26,7 @@ export function AssociationGridCard({
     <AdminGridCard
       avatar={<AdminAvatar initials={initials} size="md" />}
       title={association.name}
-      badge={
-        association.acronym ? (
-          <span className="inline-flex items-center rounded-md bg-secondary px-1.5 py-0.5 text-[10px] font-medium text-secondary-foreground">
-            {association.acronym}
-          </span>
-        ) : undefined
-      }
+      subtitle={association.acronym}
       isSelected={isSelected}
       onSelectChange={onSelectChange}
       onEdit={() => onEdit(association)}

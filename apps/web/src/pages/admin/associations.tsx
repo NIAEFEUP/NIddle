@@ -11,17 +11,14 @@ import {
 import { Download, Plus } from "lucide-react";
 import * as React from "react";
 import { AdminDataView } from "@/components/admin/admin-data-view";
-import { AdminBulkDeleteDialog } from "@/components/admin/admin-delete-dialog";
+import { AdminBulkDeleteDialog, AdminDeleteDialog } from "@/components/admin/admin-delete-dialog";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { AdminSearchInput } from "@/components/admin/admin-search-input";
-import { AssociationBulkActions } from "@/components/admin/associations/association-bulk-actions";
 import {
   associationColumnLabels,
   getAssociationColumns,
 } from "@/components/admin/associations/association-columns";
 import { AssociationFormDialog } from "@/components/admin/associations/association-form-dialog";
-import { AssociationGridView } from "@/components/admin/associations/association-grid-view";
-import { DeleteAssociationDialog } from "@/components/admin/associations/delete-association-dialog";
 import {
   type ViewMode,
   ViewModeToggle,
@@ -36,6 +33,9 @@ import {
 import type { Association } from "@/hooks/use-auth";
 import { getErrorMessage } from "@/lib/api-client";
 import { downloadCsv } from "@/lib/csv-export";
+import { AdminBulkActions } from "@/components/admin/admin-bulk-actions";
+import { AdminGridView } from "@/components/admin/admin-grid-view";
+import { AssociationGridCard } from "@/components/admin/associations/association-grid-card";
 
 function exportAssociationsToCsv(
   associationsList: Association[],
@@ -260,16 +260,25 @@ export function AdminAssociationsPage() {
         emptyTitle="No associations found"
         emptyDescription="Try resetting your search query."
         renderGrid={(t) => (
-          <AssociationGridView
+          <AdminGridView
             table={t}
-            onEdit={handleOpenEdit}
-            onDelete={handleOpenDelete}
+            renderCard={(association, { isSelected, onSelectChange }) => (
+              <AssociationGridCard
+                association={association}
+                isSelected={isSelected}
+                onSelectChange={onSelectChange}
+                onEdit={handleOpenEdit}
+                onDelete={handleOpenDelete}
+              />
+            )}
           />
         )}
       />
 
-      <AssociationBulkActions
+      <AdminBulkActions
         selectedCount={selectedCount}
+        entityLabel="association"
+        entityPluralLabel="associations"
         onExport={handleExportSelected}
         onDelete={() => setIsBulkDeleteOpen(true)}
         onClear={handleClearSelection}
@@ -292,10 +301,12 @@ export function AdminAssociationsPage() {
         onSubmit={handleEditSubmit}
       />
 
-      <DeleteAssociationDialog
+      <AdminDeleteDialog
         open={isDeleteOpen}
         onOpenChange={setIsDeleteOpen}
-        association={selectedAssociation}
+        entityName="Association"
+        itemName={selectedAssociation?.name}
+        itemDetails={selectedAssociation?.acronym ? ` (${selectedAssociation.acronym})` : undefined}
         isLoading={deleteAssociationMutation.isPending}
         onConfirm={handleDeleteConfirm}
       />

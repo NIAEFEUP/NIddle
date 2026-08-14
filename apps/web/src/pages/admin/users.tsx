@@ -11,17 +11,14 @@ import {
 import { Download, Plus } from "lucide-react";
 import * as React from "react";
 import { AdminDataView } from "@/components/admin/admin-data-view";
-import { AdminBulkDeleteDialog } from "@/components/admin/admin-delete-dialog";
+import { AdminBulkDeleteDialog, AdminDeleteDialog } from "@/components/admin/admin-delete-dialog";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { AdminSearchInput } from "@/components/admin/admin-search-input";
-import { DeleteUserDialog } from "@/components/admin/users/delete-user-dialog";
-import { UserBulkActions } from "@/components/admin/users/user-bulk-actions";
 import {
   getUserColumns,
   userColumnLabels,
 } from "@/components/admin/users/user-columns";
 import { UserFormDialog } from "@/components/admin/users/user-form-dialog";
-import { UserGridView } from "@/components/admin/users/user-grid-view";
 import {
   type ViewMode,
   ViewModeToggle,
@@ -40,6 +37,9 @@ import { type UserFormData, useAdminUsers } from "@/hooks/use-admin-users";
 import type { User } from "@/hooks/use-auth";
 import { getErrorMessage } from "@/lib/api-client";
 import { downloadCsv } from "@/lib/csv-export";
+import { AdminBulkActions } from "@/components/admin/admin-bulk-actions";
+import { AdminGridView } from "@/components/admin/admin-grid-view";
+import { UserGridCard } from "@/components/admin/users/user-grid-card";
 
 function exportUsersToCsv(usersList: User[], filename: string) {
   const headers = ["ID", "Name", "Email", "Role", "Associations"];
@@ -332,16 +332,25 @@ export function AdminUsersPage() {
         emptyTitle="No users found"
         emptyDescription="Try resetting your filters or search query."
         renderGrid={(t) => (
-          <UserGridView
+          <AdminGridView
             table={t}
-            onEdit={handleOpenEdit}
-            onDelete={handleOpenDelete}
+            renderCard={(user, { isSelected, onSelectChange }) => (
+              <UserGridCard
+                user={user}
+                isSelected={isSelected}
+                onSelectChange={onSelectChange}
+                onEdit={handleOpenEdit}
+                onDelete={handleOpenDelete}
+              />
+            )}
           />
         )}
       />
 
-      <UserBulkActions
+      <AdminBulkActions
         selectedCount={selectedCount}
+        entityLabel="user"
+        entityPluralLabel="users"
         onExport={handleExportSelected}
         onDelete={() => setIsBulkDeleteOpen(true)}
         onClear={handleClearSelection}
@@ -366,10 +375,11 @@ export function AdminUsersPage() {
         onSubmit={handleEditSubmit}
       />
 
-      <DeleteUserDialog
+      <AdminDeleteDialog
         open={isDeleteOpen}
         onOpenChange={setIsDeleteOpen}
-        user={selectedUser}
+        entityName="User"
+        itemName={selectedUser?.name}
         isLoading={deleteUserMutation.isPending}
         onConfirm={handleDeleteConfirm}
       />
