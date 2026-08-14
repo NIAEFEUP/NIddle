@@ -23,16 +23,16 @@ import {
 import { SearchInput } from "@/components/common/search-input";
 import { BulkActions } from "@/components/data-table/bulk-actions";
 import { DataTableColumnToggle } from "@/components/data-table/data-table-column-toggle";
+import {
+  DataTableFilter,
+  type DataTableFilterOption,
+} from "@/components/data-table/data-table-filter";
 import { DataTableView } from "@/components/data-table/data-table-view";
 import { GridView } from "@/components/data-table/grid-view";
 import {
   type ViewMode,
   ViewModeToggle,
 } from "@/components/data-table/view-mode-toggle";
-import {
-  DataTableFilter,
-  type DataTableFilterOption,
-} from "@/components/data-table/data-table-filter";
 import { PageHeader } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
 import {

@@ -187,7 +187,7 @@ export function SidebarHeaderComponent() {
                   className={cn(
                     "gap-2.5 py-1.5 px-2 cursor-pointer rounded-md",
                     isAdminPath &&
-                    "bg-accent text-accent-foreground font-medium",
+                      "bg-accent text-accent-foreground font-medium",
                   )}
                 >
                   <Avatar className="h-6 w-6 rounded-sm shrink-0 after:rounded-sm">
@@ -249,8 +249,8 @@ export function SidebarHeaderComponent() {
                         );
                         const shortcutKey =
                           hasAssociationShortcuts &&
-                            originalIndex >= 0 &&
-                            originalIndex < 9
+                          originalIndex >= 0 &&
+                          originalIndex < 9
                             ? originalIndex + 1
                             : null;
                         const isActive =
@@ -266,7 +266,7 @@ export function SidebarHeaderComponent() {
                             className={cn(
                               "gap-2.5 py-1.5 px-2 cursor-pointer rounded-md",
                               isActive &&
-                              "bg-accent text-accent-foreground font-medium",
+                                "bg-accent text-accent-foreground font-medium",
                             )}
                           >
                             <Avatar className="h-6 w-6 rounded-sm shrink-0 after:rounded-sm">
