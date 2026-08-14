@@ -23,8 +23,7 @@ export function UserGridCard({
       .split(" ")
       .filter(Boolean)
       .map((n) => n[0])
-      .join("") ||
-    "U"
+      .join("") || "U"
   )
     .slice(0, 2)
     .toUpperCase();

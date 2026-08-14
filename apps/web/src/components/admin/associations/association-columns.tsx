@@ -116,9 +116,7 @@ export function getAssociationColumns({
           return <span className="text-xs font-medium text-foreground">—</span>;
         }
         return (
-          <span className="text-xs font-medium text-foreground">
-            {acronym}
-          </span>
+          <span className="text-xs font-medium text-foreground">{acronym}</span>
         );
       },
     },
