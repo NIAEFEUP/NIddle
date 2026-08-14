@@ -1,25 +1,31 @@
 import type { ColumnDef } from "@tanstack/react-table";
-import { ArrowDown, ArrowUp, ArrowUpDown, Edit2, Trash2 } from "lucide-react";
+import {
+  ArrowDown,
+  ArrowUp,
+  ArrowUpDown,
+  Edit2,
+  Trash2,
+  Users,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import type { User } from "@/hooks/use-auth";
+import type { Association } from "@/hooks/use-auth";
 
-export const userColumnLabels: Record<string, string> = {
-  name: "Full Name",
-  email: "Email",
-  isAdmin: "Role",
-  associations: "Associations",
+export const associationColumnLabels: Record<string, string> = {
+  name: "Name",
+  acronym: "Acronym",
+  members: "Members",
 };
 
-interface GetUserColumnsProps {
-  onEdit: (user: User) => void;
-  onDelete: (user: User) => void;
+interface GetAssociationColumnsProps {
+  onEdit: (association: Association) => void;
+  onDelete: (association: Association) => void;
 }
 
-export function getUserColumns({
+export function getAssociationColumns({
   onEdit,
   onDelete,
-}: GetUserColumnsProps): ColumnDef<User>[] {
+}: GetAssociationColumnsProps): ColumnDef<Association>[] {
   return [
     {
       id: "select",
@@ -49,7 +55,7 @@ export function getUserColumns({
             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
             className="text-xs font-semibold text-muted-foreground uppercase gap-1 px-0 hover:bg-transparent"
           >
-            Full name
+            Name
             {column.getIsSorted() === "asc" ? (
               <ArrowUp className="ml-1 size-3 text-foreground" />
             ) : column.getIsSorted() === "desc" ? (
@@ -62,28 +68,30 @@ export function getUserColumns({
       },
       cell: ({ row }) => {
         const name = row.original.name;
+        const acronym = row.original.acronym;
         const initials = (
+          acronym ||
           name
             .split(" ")
             .filter(Boolean)
             .map((n) => n[0])
             .join("") ||
-          "U"
+          "A"
         )
           .slice(0, 2)
           .toUpperCase();
         return (
           <div className="flex items-center gap-3 font-medium text-foreground text-sm py-2">
-            <div className="flex size-7 items-center justify-center rounded-full bg-primary/10 text-[10px] font-bold text-primary">
+            <div className="flex size-7 items-center justify-center rounded-full bg-primary/10 text-[10px] font-bold text-primary aspect-square">
               {initials}
             </div>
-            {name}
+            <span>{name}</span>
           </div>
         );
       },
     },
     {
-      accessorKey: "email",
+      accessorKey: "acronym",
       header: ({ column }) => {
         return (
           <Button
@@ -91,7 +99,7 @@ export function getUserColumns({
             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
             className="text-xs font-semibold text-muted-foreground uppercase gap-1 px-0 hover:bg-transparent"
           >
-            Email
+            Acronym
             {column.getIsSorted() === "asc" ? (
               <ArrowUp className="ml-1 size-3 text-foreground" />
             ) : column.getIsSorted() === "desc" ? (
@@ -102,78 +110,62 @@ export function getUserColumns({
           </Button>
         );
       },
-      cell: ({ row }) => (
-        <span className="text-xs text-muted-foreground">
-          {row.original.email}
-        </span>
-      ),
-    },
-    {
-      accessorKey: "isAdmin",
-      header: "Role",
       cell: ({ row }) => {
-        const isAdmin = row.original.isAdmin;
+        const acronym = row.original.acronym;
+        if (!acronym) {
+          return <span className="text-xs font-medium text-foreground">—</span>;
+        }
         return (
           <span className="text-xs font-medium text-foreground">
-            {isAdmin ? "Admin" : "User"}
+            {acronym}
           </span>
         );
       },
-      filterFn: (row, _columnId, filterValue) => {
-        if (!filterValue || filterValue === "all") return true;
-        if (filterValue === "admin") return row.original.isAdmin === true;
-        if (filterValue === "user") return row.original.isAdmin === false;
-        return true;
-      },
     },
     {
-      accessorKey: "associations",
-      header: "Associations",
-      cell: ({ row }) => {
-        const userAssocs = row.original.associations || [];
-        if (row.original.isAdmin) {
-          return (
-            <span className="text-xs font-medium text-foreground">
-              All (Admin)
-            </span>
-          );
-        }
-        if (userAssocs.length === 0) {
-          return (
-            <span className="text-xs font-medium text-foreground">None</span>
-          );
-        }
+      id: "members",
+      accessorFn: (row) => row.users?.length ?? 0,
+      header: ({ column }) => {
         return (
-          <>
-            {userAssocs.map((assoc, index) => (
-              <span
-                key={assoc.id}
-                className="text-xs font-medium text-foreground"
-              >
-                {assoc.acronym || assoc.name}
-                {index < userAssocs.length - 1 && ", "}
-              </span>
-            ))}
-          </>
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+            className="text-xs font-semibold text-muted-foreground uppercase gap-1 px-0 hover:bg-transparent"
+          >
+            Members
+            {column.getIsSorted() === "asc" ? (
+              <ArrowUp className="ml-1 size-3 text-foreground" />
+            ) : column.getIsSorted() === "desc" ? (
+              <ArrowDown className="ml-1 size-3 text-foreground" />
+            ) : (
+              <ArrowUpDown className="ml-1 size-3 opacity-50" />
+            )}
+          </Button>
         );
       },
-      filterFn: (row, _columnId, filterValue) => {
-        if (!filterValue || filterValue === "all") return true;
-        const userAssocs = row.original.associations || [];
-        return userAssocs.some((assoc) => assoc.id === filterValue);
+      cell: ({ row }) => {
+        const count = row.original.users?.length ?? 0;
+        return (
+          <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+            <Users className="size-3.5" />
+            <span>
+              {count} {count === 1 ? "member" : "members"}
+            </span>
+          </div>
+        );
       },
     },
     {
       id: "actions",
       cell: ({ row }) => {
-        const user = row.original;
+        const association = row.original;
         return (
           <div className="flex justify-end gap-1.5 opacity-80 group-hover:opacity-100 transition-opacity">
             <Button
               variant="outline"
               size="icon-xs"
               className="h-7 w-7"
-              onClick={() => onEdit(user)}
+              onClick={() => onEdit(association)}
             >
               <Edit2 className="size-3" />
             </Button>
@@ -181,7 +173,7 @@ export function getUserColumns({
               variant="outline"
               size="icon-xs"
               className="h-7 w-7 text-rose-500 hover:text-rose-600 hover:bg-rose-50/10"
-              onClick={() => onDelete(user)}
+              onClick={() => onDelete(association)}
             >
               <Trash2 className="size-3" />
             </Button>

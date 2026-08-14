@@ -18,13 +18,16 @@ export function UserGridCard({
   onEdit,
   onDelete,
 }: UserGridCardProps) {
-  const initials =
+  const initials = (
     user.name
       .split(" ")
+      .filter(Boolean)
       .map((n) => n[0])
-      .join("")
-      .slice(0, 2)
-      .toUpperCase() || "U";
+      .join("") ||
+    "U"
+  )
+    .slice(0, 2)
+    .toUpperCase();
   const userAssocs = user.associations || [];
 
   return (

@@ -1,7 +1,350 @@
-import InConstructionPage from "@/pages/in-construction";
+import {
+  type ColumnFiltersState,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  type SortingState,
+  useReactTable,
+  type VisibilityState,
+} from "@tanstack/react-table";
+import { Download, Plus, Search } from "lucide-react";
+import * as React from "react";
+import { AdminPageHeader } from "@/components/admin/admin-page-header";
+import { AssociationBulkActions } from "@/components/admin/associations/association-bulk-actions";
+import {
+  associationColumnLabels,
+  getAssociationColumns,
+} from "@/components/admin/associations/association-columns";
+import { AssociationFormDialog } from "@/components/admin/associations/association-form-dialog";
+import { AssociationGridView } from "@/components/admin/associations/association-grid-view";
+import { DeleteAssociationDialog } from "@/components/admin/associations/delete-association-dialog";
+import { ConfirmDialog } from "@/components/admin/confirm-dialog";
+import {
+  DataEmptyState,
+  DataErrorState,
+  DataLoadingState,
+} from "@/components/admin/data-state-view";
+import {
+  type ViewMode,
+  ViewModeToggle,
+} from "@/components/admin/view-mode-toggle";
+import { DataTable } from "@/components/data-table/data-table";
+import { DataTableColumnToggle } from "@/components/data-table/data-table-column-toggle";
+import { DataTablePagination } from "@/components/data-table/data-table-pagination";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+
+import {
+  type AssociationFormData,
+  useAdminAssociations,
+} from "@/hooks/use-admin-associations";
+import type { Association } from "@/hooks/use-auth";
+import { getErrorMessage } from "@/lib/api-client";
+import { downloadCsv } from "@/lib/csv-export";
 
 export function AdminAssociationsPage() {
-  return <InConstructionPage />;
+  const {
+    associations,
+    isLoading,
+    isError,
+    error,
+    createAssociationMutation,
+    updateAssociationMutation,
+    deleteAssociationMutation,
+    bulkDeleteAssociationsMutation,
+  } = useAdminAssociations();
+
+  const [viewMode, setViewMode] = React.useState<ViewMode>("list");
+
+  const [sorting, setSorting] = React.useState<SortingState>([
+    { id: "name", desc: false },
+  ]);
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
+    [],
+  );
+  const [columnVisibility, setColumnVisibility] =
+    React.useState<VisibilityState>({});
+  const [rowSelection, setRowSelection] = React.useState({});
+  const [globalFilter, setGlobalFilter] = React.useState("");
+
+  const [isCreateOpen, setIsCreateOpen] = React.useState(false);
+  const [isEditOpen, setIsEditOpen] = React.useState(false);
+  const [isDeleteOpen, setIsDeleteOpen] = React.useState(false);
+  const [isBulkDeleteOpen, setIsBulkDeleteOpen] = React.useState(false);
+  const [selectedAssociation, setSelectedAssociation] =
+    React.useState<Association | null>(null);
+
+  const handleOpenCreate = React.useCallback(() => {
+    setIsCreateOpen(true);
+  }, []);
+
+  const handleOpenEdit = React.useCallback((association: Association) => {
+    setSelectedAssociation(association);
+    setIsEditOpen(true);
+  }, []);
+
+  const handleOpenDelete = React.useCallback((association: Association) => {
+    setSelectedAssociation(association);
+    setIsDeleteOpen(true);
+  }, []);
+
+  const columns = React.useMemo(
+    () =>
+      getAssociationColumns({
+        onEdit: handleOpenEdit,
+        onDelete: handleOpenDelete,
+      }),
+    [handleOpenEdit, handleOpenDelete],
+  );
+
+  const table = useReactTable({
+    data: associations,
+    columns,
+    onSortingChange: setSorting,
+    onColumnFiltersChange: setColumnFilters,
+    getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    onColumnVisibilityChange: setColumnVisibility,
+    onRowSelectionChange: setRowSelection,
+    onGlobalFilterChange: setGlobalFilter,
+    initialState: {
+      sorting: [{ id: "name", desc: false }],
+      pagination: {
+        pageIndex: 0,
+        pageSize: 12,
+      },
+    },
+    state: {
+      sorting,
+      columnFilters,
+      columnVisibility,
+      rowSelection,
+      globalFilter,
+    },
+  });
+
+  const handleCreateSubmit = (formData: AssociationFormData) => {
+    createAssociationMutation.mutate(formData, {
+      onSuccess: () => {
+        setIsCreateOpen(false);
+      },
+    });
+  };
+
+  const handleEditSubmit = (formData: AssociationFormData) => {
+    if (!selectedAssociation) return;
+
+    updateAssociationMutation.mutate(
+      { id: selectedAssociation.id, payload: formData },
+      {
+        onSuccess: () => {
+          setIsEditOpen(false);
+          setSelectedAssociation(null);
+        },
+      },
+    );
+  };
+
+  const handleDeleteConfirm = () => {
+    if (!selectedAssociation) return;
+    deleteAssociationMutation.mutate(selectedAssociation.id, {
+      onSuccess: () => {
+        setIsDeleteOpen(false);
+        setSelectedAssociation(null);
+      },
+    });
+  };
+
+  const selectedRows = table
+    .getFilteredRowModel()
+    .rows.filter((row) => row.getIsSelected());
+  const selectedAssociations = selectedRows.map((row) => row.original);
+  const selectedCount = selectedAssociations.length;
+
+  const handleBulkDeleteConfirm = () => {
+    const ids = selectedAssociations.map((a) => a.id);
+    if (ids.length === 0) return;
+
+    bulkDeleteAssociationsMutation.mutate(ids, {
+      onSuccess: () => {
+        setIsBulkDeleteOpen(false);
+        table.resetRowSelection();
+      },
+    });
+  };
+
+  const handleExportSelected = () => {
+    if (selectedAssociations.length === 0) return;
+    const headers = ["ID", "Name", "Acronym", "Members"];
+    const rows = selectedAssociations.map((a) => [
+      a.id,
+      a.name,
+      a.acronym || "",
+      a.users?.length ?? 0,
+    ]);
+
+    downloadCsv(
+      `associations_selected_${new Date().toISOString().slice(0, 10)}.csv`,
+      headers,
+      rows,
+    );
+  };
+
+  const handleClearSelection = () => {
+    table.resetRowSelection();
+  };
+
+  const handleDownloadCSV = () => {
+    const filteredRows = table.getFilteredRowModel().rows;
+    const headers = ["ID", "Name", "Acronym", "Members"];
+    const rows = filteredRows.map((row) => {
+      const a = row.original;
+      return [a.id, a.name, a.acronym || "", a.users?.length ?? 0];
+    });
+
+    downloadCsv(
+      `associations_export_${new Date().toISOString().slice(0, 10)}.csv`,
+      headers,
+      rows,
+    );
+  };
+
+  const paginatedRows = table.getRowModel().rows;
+
+  return (
+    <div className="flex flex-col gap-4">
+      <AdminPageHeader
+        title="Associations"
+        viewModeToggle={
+          <ViewModeToggle viewMode={viewMode} onViewModeChange={setViewMode} />
+        }
+        search={
+          <div className="relative w-full max-w-50 sm:w-50">
+            <Search className="absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              type="search"
+              placeholder="Search Associations"
+              className="h-8 pl-8 text-xs focus-visible:ring-1"
+              value={globalFilter}
+              onChange={(e) => setGlobalFilter(e.target.value)}
+            />
+          </div>
+        }
+        actions={
+          <>
+            {viewMode === "list" && (
+              <DataTableColumnToggle
+                table={table}
+                columnLabels={associationColumnLabels}
+              />
+            )}
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-8 gap-1.5 text-xs font-normal border-input"
+              onClick={handleDownloadCSV}
+            >
+              <Download className="size-3.5" />
+              Download CSV
+            </Button>
+            <Button
+              size="sm"
+              className="h-8 gap-1.5 text-xs font-medium"
+              onClick={handleOpenCreate}
+            >
+              <Plus className="size-3.5" />
+              New Association
+            </Button>
+          </>
+        }
+      />
+
+      {isLoading ? (
+        <DataLoadingState message="Loading associations database..." />
+      ) : isError ? (
+        <DataErrorState
+          title="Failed to load associations"
+          message={getErrorMessage(error)}
+        />
+      ) : paginatedRows.length === 0 ? (
+        <DataEmptyState
+          title="No associations found"
+          description="Try resetting your search query."
+        />
+      ) : viewMode === "list" ? (
+        <DataTable table={table} />
+      ) : (
+        <AssociationGridView
+          table={table}
+          onEdit={handleOpenEdit}
+          onDelete={handleOpenDelete}
+        />
+      )}
+
+      <DataTablePagination table={table} />
+
+      <AssociationBulkActions
+        selectedCount={selectedCount}
+        onExport={handleExportSelected}
+        onDelete={() => setIsBulkDeleteOpen(true)}
+        onClear={handleClearSelection}
+      />
+
+      <AssociationFormDialog
+        mode="create"
+        open={isCreateOpen}
+        onOpenChange={setIsCreateOpen}
+        isLoading={createAssociationMutation.isPending}
+        onSubmit={handleCreateSubmit}
+      />
+
+      <AssociationFormDialog
+        mode="edit"
+        open={isEditOpen}
+        onOpenChange={setIsEditOpen}
+        association={selectedAssociation}
+        isLoading={updateAssociationMutation.isPending}
+        onSubmit={handleEditSubmit}
+      />
+
+      <DeleteAssociationDialog
+        open={isDeleteOpen}
+        onOpenChange={setIsDeleteOpen}
+        association={selectedAssociation}
+        isLoading={deleteAssociationMutation.isPending}
+        onConfirm={handleDeleteConfirm}
+      />
+
+      <ConfirmDialog
+        open={isBulkDeleteOpen}
+        onOpenChange={setIsBulkDeleteOpen}
+        title={`Delete ${selectedCount} ${
+          selectedCount === 1 ? "Association" : "Associations"
+        }`}
+        description={
+          <>
+            Are you sure you want to delete{" "}
+            <span className="font-semibold text-foreground">
+              {selectedCount} selected{" "}
+              {selectedCount === 1 ? "association" : "associations"}
+            </span>
+            ? This action is permanent and cannot be undone.
+          </>
+        }
+        confirmLabel={`Delete ${selectedCount} ${
+          selectedCount === 1 ? "Association" : "Associations"
+        }`}
+        cancelLabel="Cancel"
+        variant="destructive"
+        isLoading={bulkDeleteAssociationsMutation.isPending}
+        loadingLabel="Deleting..."
+        onConfirm={handleBulkDeleteConfirm}
+      />
+    </div>
+  );
 }
 
 export default AdminAssociationsPage;

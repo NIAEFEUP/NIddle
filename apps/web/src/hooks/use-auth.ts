@@ -5,6 +5,7 @@ export interface Association {
   id: number;
   name: string;
   acronym?: string;
+  users?: User[];
 }
 
 export interface User {
