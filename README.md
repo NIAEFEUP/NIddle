@@ -195,6 +195,9 @@ When using the containerized workflow (`make up`):
 | **Start stack** | `make up` | `docker compose up -d` | — |
 | **Stop stack** | `make down` | `docker compose down` | — |
 | **Follow logs** | `make logs` | `docker compose logs -f` | — |
+| **Build API App** | `make build-api` | `docker compose exec api npm run build:api` | `npm run build:api` |
+| **Build Web App** | `make build-web` | `docker compose exec web npm run build:web` | `npm run build:web` |
+| **Build Both Apps** | `make build-app` | `docker compose exec api npm run build` | `npm run build` |
 | **Lint & Format Check** | `make check` | `docker compose exec api npm run check` | `npm run check` |
 | **Auto-fix Format/Lint** | `make fix` | `docker compose exec api npm run check:fix` | `npm run check:fix` |
 | **Format Only** | `make format` | `docker compose exec api npm run format` | `npm run format` |

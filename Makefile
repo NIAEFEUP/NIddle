@@ -1,4 +1,4 @@
-.PHONY: help up down restart logs build check fix format lint seed test test-watch test-cov test-e2e sh-api sh-web
+.PHONY: help up down restart logs build build-api build-web build-app check fix format lint seed test test-watch test-cov test-e2e sh-api sh-web
 
 help:
 	@echo "NIddle Development Makefile"
@@ -9,6 +9,11 @@ help:
 	@echo "  make restart     - Restart all containers"
 	@echo "  make logs        - Follow container logs"
 	@echo "  make build       - Rebuild container images"
+	@echo ""
+	@echo "Application Build:"
+	@echo "  make build-api   - Build the API application (npm run build:api)"
+	@echo "  make build-web   - Build the Web application (npm run build:web)"
+	@echo "  make build-app   - Build both API and Web applications"
 	@echo ""
 	@echo "Code Quality:"
 	@echo "  make check       - Run linting and formatting checks"
@@ -42,6 +47,15 @@ logs:
 build:
 	docker compose build
 
+build-api:
+	docker compose exec api npm run build:api
+
+build-web:
+	docker compose exec web npm run build:web
+
+build-app:
+	docker compose exec api npm run build
+
 check:
 	docker compose exec api npm run check
 
@@ -73,4 +87,4 @@ sh-api:
 	docker compose exec api sh
 
 sh-web:
-	docker compose exec api sh -c "cd /app/apps/web && sh"
+	docker compose exec web sh
