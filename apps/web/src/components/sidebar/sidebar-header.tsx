@@ -50,7 +50,7 @@ export function SidebarHeaderComponent() {
 
   if (isAdminPath) {
     headerTitle = "Admin Dashboard";
-    headerSubtitle = "System Administration";
+    headerSubtitle = "";
     headerInitials = "AD";
   } else if (activeAssociation) {
     headerTitle = activeAssociation.acronym || activeAssociation.name;
@@ -58,10 +58,6 @@ export function SidebarHeaderComponent() {
     headerInitials = getInitials(
       activeAssociation.acronym || activeAssociation.name,
     );
-  } else if (user?.isAdmin) {
-    headerTitle = "Admin Dashboard";
-    headerSubtitle = "System Administration";
-    headerInitials = "AD";
   } else if (associations.length > 0) {
     headerTitle = "Select Association";
     headerSubtitle = `${associations.length} available`;
