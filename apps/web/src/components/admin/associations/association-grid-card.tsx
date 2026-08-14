@@ -1,6 +1,6 @@
 import { Users } from "lucide-react";
-import { AdminAvatar } from "@/components/admin/admin-avatar";
-import { AdminGridCard } from "@/components/admin/admin-grid-card";
+import { InitialsAvatar } from "@/components/common/initials-avatar";
+import { GridCard } from "@/components/data-table/grid-card";
 import type { Association } from "@/hooks/use-auth";
 import { getInitials } from "@/lib/utils";
 
@@ -23,8 +23,8 @@ export function AssociationGridCard({
   const memberCount = association.users?.length ?? 0;
 
   return (
-    <AdminGridCard
-      avatar={<AdminAvatar initials={initials} size="md" />}
+    <GridCard
+      avatar={<InitialsAvatar initials={initials} size="md" />}
       title={association.name}
       subtitle={association.acronym}
       isSelected={isSelected}
@@ -41,6 +41,6 @@ export function AssociationGridCard({
           </span>
         </div>
       </div>
-    </AdminGridCard>
+    </GridCard>
   );
 }

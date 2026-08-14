@@ -10,22 +10,27 @@ import {
 } from "@tanstack/react-table";
 import { Download, Plus } from "lucide-react";
 import * as React from "react";
-import { AdminDataView } from "@/components/admin/admin-data-view";
-import { AdminBulkDeleteDialog, AdminDeleteDialog } from "@/components/admin/admin-delete-dialog";
-import { AdminPageHeader } from "@/components/admin/admin-page-header";
-import { AdminSearchInput } from "@/components/admin/admin-search-input";
 import {
   associationColumnLabels,
   getAssociationColumns,
 } from "@/components/admin/associations/association-columns";
 import { AssociationFormDialog } from "@/components/admin/associations/association-form-dialog";
+import { AssociationGridCard } from "@/components/admin/associations/association-grid-card";
+import {
+  BulkDeleteDialog,
+  DeleteDialog,
+} from "@/components/common/delete-dialog";
+import { SearchInput } from "@/components/common/search-input";
+import { BulkActions } from "@/components/data-table/bulk-actions";
+import { DataTableColumnToggle } from "@/components/data-table/data-table-column-toggle";
+import { DataTableView } from "@/components/data-table/data-table-view";
+import { GridView } from "@/components/data-table/grid-view";
 import {
   type ViewMode,
   ViewModeToggle,
-} from "@/components/admin/view-mode-toggle";
-import { DataTableColumnToggle } from "@/components/data-table/data-table-column-toggle";
+} from "@/components/data-table/view-mode-toggle";
+import { PageHeader } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
-
 import {
   type AssociationFormData,
   useAdminAssociations,
@@ -33,9 +38,6 @@ import {
 import type { Association } from "@/hooks/use-auth";
 import { getErrorMessage } from "@/lib/api-client";
 import { downloadCsv } from "@/lib/csv-export";
-import { AdminBulkActions } from "@/components/admin/admin-bulk-actions";
-import { AdminGridView } from "@/components/admin/admin-grid-view";
-import { AssociationGridCard } from "@/components/admin/associations/association-grid-card";
 
 function exportAssociationsToCsv(
   associationsList: Association[],
@@ -208,13 +210,13 @@ export function AdminAssociationsPage() {
 
   return (
     <div className="flex flex-col gap-4">
-      <AdminPageHeader
+      <PageHeader
         title="Associations"
         viewModeToggle={
           <ViewModeToggle viewMode={viewMode} onViewModeChange={setViewMode} />
         }
         search={
-          <AdminSearchInput
+          <SearchInput
             placeholder="Search Associations"
             value={globalFilter}
             onChange={setGlobalFilter}
@@ -249,7 +251,7 @@ export function AdminAssociationsPage() {
         }
       />
 
-      <AdminDataView
+      <DataTableView
         table={table}
         viewMode={viewMode}
         isLoading={isLoading}
@@ -260,7 +262,7 @@ export function AdminAssociationsPage() {
         emptyTitle="No associations found"
         emptyDescription="Try resetting your search query."
         renderGrid={(t) => (
-          <AdminGridView
+          <GridView
             table={t}
             renderCard={(association, { isSelected, onSelectChange }) => (
               <AssociationGridCard
@@ -275,7 +277,7 @@ export function AdminAssociationsPage() {
         )}
       />
 
-      <AdminBulkActions
+      <BulkActions
         selectedCount={selectedCount}
         entityLabel="association"
         entityPluralLabel="associations"
@@ -301,17 +303,21 @@ export function AdminAssociationsPage() {
         onSubmit={handleEditSubmit}
       />
 
-      <AdminDeleteDialog
+      <DeleteDialog
         open={isDeleteOpen}
         onOpenChange={setIsDeleteOpen}
         entityName="Association"
         itemName={selectedAssociation?.name}
-        itemDetails={selectedAssociation?.acronym ? ` (${selectedAssociation.acronym})` : undefined}
+        itemDetails={
+          selectedAssociation?.acronym
+            ? ` (${selectedAssociation.acronym})`
+            : undefined
+        }
         isLoading={deleteAssociationMutation.isPending}
         onConfirm={handleDeleteConfirm}
       />
 
-      <AdminBulkDeleteDialog
+      <BulkDeleteDialog
         open={isBulkDeleteOpen}
         onOpenChange={setIsBulkDeleteOpen}
         selectedCount={selectedCount}

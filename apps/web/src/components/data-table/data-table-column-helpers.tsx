@@ -1,7 +1,6 @@
 import type { Column, ColumnDef } from "@tanstack/react-table";
 import { ArrowDown, ArrowUp, ArrowUpDown, Edit2, Trash2 } from "lucide-react";
-import * as React from "react";
-import { AdminAvatar } from "@/components/admin/admin-avatar";
+import { InitialsAvatar } from "@/components/common/initials-avatar";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
@@ -151,7 +150,7 @@ export function DataTableEntityCell({
         className,
       )}
     >
-      {initials && <AdminAvatar initials={initials} size="sm" />}
+      {initials && <InitialsAvatar initials={initials} size="sm" />}
       <div className="flex items-center gap-2">
         <span>{name}</span>
         {badge}

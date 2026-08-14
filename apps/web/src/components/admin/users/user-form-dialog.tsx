@@ -1,6 +1,6 @@
 import { ChevronsUpDown, Search } from "lucide-react";
 import * as React from "react";
-import { AdminFormDialog } from "@/components/admin/admin-form-dialog";
+import { FormDialog } from "@/components/common/form-dialog";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -198,7 +198,7 @@ export function UserFormDialog({
   }, [associations, formData.associationIds]);
 
   return (
-    <AdminFormDialog
+    <FormDialog
       open={open}
       onOpenChange={onOpenChange}
       title={isEdit ? "Edit User" : "Create User"}
@@ -406,6 +406,6 @@ export function UserFormDialog({
           </DropdownMenu>
         </Field>
       )}
-    </AdminFormDialog>
+    </FormDialog>
   );
 }

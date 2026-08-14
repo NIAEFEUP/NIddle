@@ -4,12 +4,12 @@ import {
   DataEmptyState,
   DataErrorState,
   DataLoadingState,
-} from "@/components/admin/data-state-view";
-import type { ViewMode } from "@/components/admin/view-mode-toggle";
+} from "@/components/data-table/data-state-view";
 import { DataTable } from "@/components/data-table/data-table";
 import { DataTablePagination } from "@/components/data-table/data-table-pagination";
+import type { ViewMode } from "@/components/data-table/view-mode-toggle";
 
-export interface AdminDataViewProps<T> {
+export interface DataTableViewProps<T> {
   table: Table<T>;
   viewMode?: ViewMode;
   isLoading?: boolean;
@@ -22,7 +22,7 @@ export interface AdminDataViewProps<T> {
   renderGrid?: (table: Table<T>) => React.ReactNode;
 }
 
-export function AdminDataView<T>({
+export function DataTableView<T>({
   table,
   viewMode = "list",
   isLoading = false,
@@ -33,7 +33,7 @@ export function AdminDataView<T>({
   emptyTitle = "No results found",
   emptyDescription = "Try resetting your filters or search query.",
   renderGrid,
-}: AdminDataViewProps<T>) {
+}: DataTableViewProps<T>) {
   const paginatedRows = table.getRowModel().rows;
 
   if (isLoading) {

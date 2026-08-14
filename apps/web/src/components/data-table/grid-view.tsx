@@ -2,7 +2,7 @@ import type { Row, Table } from "@tanstack/react-table";
 import * as React from "react";
 import { cn } from "@/lib/utils";
 
-export interface AdminGridViewProps<T> {
+export interface GridViewProps<T> {
   table: Table<T>;
   renderCard: (
     item: T,
@@ -16,12 +16,12 @@ export interface AdminGridViewProps<T> {
   className?: string;
 }
 
-export function AdminGridView<T>({
+export function GridView<T>({
   table,
   renderCard,
   getItemKey,
   className,
-}: AdminGridViewProps<T>) {
+}: GridViewProps<T>) {
   const rows = table.getRowModel().rows;
 
   return (

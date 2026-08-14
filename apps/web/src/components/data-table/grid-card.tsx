@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
 
-export interface AdminGridCardProps {
+export interface GridCardProps {
   avatar?: React.ReactNode;
   title: React.ReactNode;
   subtitle?: React.ReactNode;
@@ -18,7 +18,7 @@ export interface AdminGridCardProps {
   className?: string;
 }
 
-export function AdminGridCard({
+export function GridCard({
   avatar,
   title,
   subtitle,
@@ -30,7 +30,7 @@ export function AdminGridCard({
   onDelete,
   actions,
   className,
-}: AdminGridCardProps) {
+}: GridCardProps) {
   return (
     <div
       className={cn(

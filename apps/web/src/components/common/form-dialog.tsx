@@ -11,7 +11,7 @@ import {
 import { FieldGroup } from "@/components/ui/field";
 import { cn } from "@/lib/utils";
 
-export interface AdminFormDialogProps {
+export interface FormDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   title: string;
@@ -25,7 +25,7 @@ export interface AdminFormDialogProps {
   className?: string;
 }
 
-export function AdminFormDialog({
+export function FormDialog({
   open,
   onOpenChange,
   title,
@@ -37,7 +37,7 @@ export function AdminFormDialog({
   onSubmit,
   children,
   className,
-}: AdminFormDialogProps) {
+}: FormDialogProps) {
   const defaultSubmitText = isEdit ? "Save Changes" : "Create";
   const defaultLoadingText = isEdit ? "Saving..." : "Creating...";
 

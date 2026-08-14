@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 
-export interface AdminAvatarProps {
+export interface InitialsAvatarProps {
   initials: string;
   size?: "sm" | "md" | "lg";
   className?: string;
@@ -12,11 +12,11 @@ const sizeClasses = {
   lg: "size-10 text-sm",
 };
 
-export function AdminAvatar({
+export function InitialsAvatar({
   initials,
   size = "sm",
   className,
-}: AdminAvatarProps) {
+}: InitialsAvatarProps) {
   return (
     <div
       className={cn(

@@ -1,5 +1,5 @@
-import { AdminAvatar } from "@/components/admin/admin-avatar";
-import { AdminGridCard } from "@/components/admin/admin-grid-card";
+import { InitialsAvatar } from "@/components/common/initials-avatar";
+import { GridCard } from "@/components/data-table/grid-card";
 import type { User } from "@/hooks/use-auth";
 import { getInitials } from "@/lib/utils";
 
@@ -22,8 +22,8 @@ export function UserGridCard({
   const userAssocs = user.associations || [];
 
   return (
-    <AdminGridCard
-      avatar={<AdminAvatar initials={initials} size="md" />}
+    <GridCard
+      avatar={<InitialsAvatar initials={initials} size="md" />}
       title={user.name}
       subtitle={user.email}
       isSelected={isSelected}
@@ -57,6 +57,6 @@ export function UserGridCard({
           </div>
         )}
       </div>
-    </AdminGridCard>
+    </GridCard>
   );
 }

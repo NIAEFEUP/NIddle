@@ -1,7 +1,7 @@
 import * as React from "react";
-import { ConfirmDialog } from "@/components/admin/confirm-dialog";
+import { ConfirmDialog } from "@/components/common/confirm-dialog";
 
-export interface AdminDeleteDialogProps {
+export interface DeleteDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   entityName: string;
@@ -11,7 +11,7 @@ export interface AdminDeleteDialogProps {
   onConfirm: () => void;
 }
 
-export function AdminDeleteDialog({
+export function DeleteDialog({
   open,
   onOpenChange,
   entityName,
@@ -19,7 +19,7 @@ export function AdminDeleteDialog({
   itemDetails,
   isLoading,
   onConfirm,
-}: AdminDeleteDialogProps) {
+}: DeleteDialogProps) {
   return (
     <ConfirmDialog
       open={open}
@@ -42,7 +42,7 @@ export function AdminDeleteDialog({
   );
 }
 
-export interface AdminBulkDeleteDialogProps {
+export interface BulkDeleteDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   selectedCount: number;
@@ -52,7 +52,7 @@ export interface AdminBulkDeleteDialogProps {
   onConfirm: () => void;
 }
 
-export function AdminBulkDeleteDialog({
+export function BulkDeleteDialog({
   open,
   onOpenChange,
   selectedCount,
@@ -60,7 +60,7 @@ export function AdminBulkDeleteDialog({
   entityPluralLabel,
   isLoading,
   onConfirm,
-}: AdminBulkDeleteDialogProps) {
+}: BulkDeleteDialogProps) {
   const plural = entityPluralLabel || `${entityLabel}s`;
   const countLabel = selectedCount === 1 ? entityLabel : plural;
   const countLabelCapitalized =

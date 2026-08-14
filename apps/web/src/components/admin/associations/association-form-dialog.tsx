@@ -1,5 +1,5 @@
 import * as React from "react";
-import { AdminFormDialog } from "@/components/admin/admin-form-dialog";
+import { FormDialog } from "@/components/common/form-dialog";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import type { AssociationFormData } from "@/hooks/use-admin-associations";
@@ -70,7 +70,7 @@ export function AssociationFormDialog({
   };
 
   return (
-    <AdminFormDialog
+    <FormDialog
       open={open}
       onOpenChange={onOpenChange}
       title={isEdit ? "Edit Association" : "Create Association"}
@@ -118,6 +118,6 @@ export function AssociationFormDialog({
           disabled={isLoading}
         />
       </Field>
-    </AdminFormDialog>
+    </FormDialog>
   );
 }

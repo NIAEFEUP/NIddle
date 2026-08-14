@@ -2,19 +2,19 @@ import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
-export interface AdminSearchInputProps {
+export interface SearchInputProps {
   value: string;
   onChange: (value: string) => void;
   placeholder?: string;
   className?: string;
 }
 
-export function AdminSearchInput({
+export function SearchInput({
   value,
   onChange,
   placeholder = "Search...",
   className,
-}: AdminSearchInputProps) {
+}: SearchInputProps) {
   return (
     <div className={cn("relative w-full max-w-50 sm:w-50", className)}>
       <Search className="absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground pointer-events-none" />

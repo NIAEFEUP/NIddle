@@ -2,7 +2,7 @@ import { Download, Trash2, X } from "lucide-react";
 import * as React from "react";
 import { Button } from "@/components/ui/button";
 
-export interface AdminBulkActionsProps {
+export interface BulkActionsProps {
   selectedCount: number;
   entityLabel?: string;
   entityPluralLabel?: string;
@@ -12,7 +12,7 @@ export interface AdminBulkActionsProps {
   children?: React.ReactNode;
 }
 
-export function AdminBulkActions({
+export function BulkActions({
   selectedCount,
   entityLabel = "item",
   entityPluralLabel,
@@ -20,7 +20,7 @@ export function AdminBulkActions({
   onDelete,
   onClear,
   children,
-}: AdminBulkActionsProps) {
+}: BulkActionsProps) {
   if (selectedCount === 0) return null;
 
   const plural = entityPluralLabel || `${entityLabel}s`;

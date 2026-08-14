@@ -1,6 +1,6 @@
 import * as React from "react";
 
-export interface AdminPageHeaderProps {
+export interface PageHeaderProps {
   title: React.ReactNode;
   viewModeToggle?: React.ReactNode;
   search?: React.ReactNode;
@@ -10,7 +10,7 @@ export interface AdminPageHeaderProps {
   children?: React.ReactNode;
 }
 
-export function AdminPageHeader({
+export function PageHeader({
   title,
   viewModeToggle,
   search,
@@ -18,7 +18,7 @@ export function AdminPageHeader({
   filters,
   className,
   children,
-}: AdminPageHeaderProps) {
+}: PageHeaderProps) {
   return (
     <div
       className={
