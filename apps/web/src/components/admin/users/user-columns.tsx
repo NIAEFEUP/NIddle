@@ -1,0 +1,177 @@
+import type { ColumnDef } from "@tanstack/react-table";
+import { ArrowUpDown, Edit2, Trash2 } from "lucide-react";
+
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import type { User } from "@/hooks/use-auth";
+
+export const userColumnLabels: Record<string, string> = {
+  name: "Full Name",
+  email: "Email",
+  isAdmin: "Role",
+  associations: "Associations",
+};
+
+interface GetUserColumnsProps {
+  onEdit: (user: User) => void;
+  onDelete: (user: User) => void;
+}
+
+export function getUserColumns({
+  onEdit,
+  onDelete,
+}: GetUserColumnsProps): ColumnDef<User>[] {
+  return [
+    {
+      id: "select",
+      header: ({ table }) => (
+        <Checkbox
+          checked={table.getIsAllPageRowsSelected()}
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+          aria-label="Select all"
+        />
+      ),
+      cell: ({ row }) => (
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          aria-label="Select row"
+        />
+      ),
+      enableSorting: false,
+      enableHiding: false,
+    },
+    {
+      accessorKey: "name",
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+            className="text-xs font-semibold text-muted-foreground uppercase gap-1 px-0 hover:bg-transparent"
+          >
+            Full name
+            <ArrowUpDown className="ml-1 size-3" />
+          </Button>
+        );
+      },
+      cell: ({ row }) => {
+        const name = row.original.name;
+        const initials =
+          name
+            .split(" ")
+            .map((n) => n[0])
+            .join("")
+            .slice(0, 2)
+            .toUpperCase() || "U";
+        return (
+          <div className="flex items-center gap-3 font-medium text-foreground text-sm py-2">
+            <div className="flex size-7 items-center justify-center rounded-full bg-primary/10 text-[10px] font-bold text-primary">
+              {initials}
+            </div>
+            {name}
+          </div>
+        );
+      },
+    },
+    {
+      accessorKey: "email",
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+            className="text-xs font-semibold text-muted-foreground uppercase gap-1 px-0 hover:bg-transparent"
+          >
+            Email
+            <ArrowUpDown className="ml-1 size-3" />
+          </Button>
+        );
+      },
+      cell: ({ row }) => (
+        <span className="text-xs text-muted-foreground">
+          {row.original.email}
+        </span>
+      ),
+    },
+    {
+      accessorKey: "isAdmin",
+      header: "Role",
+      cell: ({ row }) => {
+        const isAdmin = row.original.isAdmin;
+        return (
+          <span className="text-xs font-medium text-foreground">
+            {isAdmin ? "Admin" : "Member"}
+          </span>
+        );
+      },
+      filterFn: (row, _columnId, filterValue) => {
+        if (!filterValue || filterValue === "all") return true;
+        if (filterValue === "admin") return row.original.isAdmin === true;
+        if (filterValue === "member") return row.original.isAdmin === false;
+        return true;
+      },
+    },
+    {
+      accessorKey: "associations",
+      header: "Associations",
+      cell: ({ row }) => {
+        const userAssocs = row.original.associations || [];
+        if (row.original.isAdmin) {
+          return (
+            <span className="text-xs text-muted-foreground italic">
+              All (Admin)
+            </span>
+          );
+        }
+        if (userAssocs.length === 0) {
+          return (
+            <span className="text-xs text-muted-foreground italic">None</span>
+          );
+        }
+        return (
+          <div className="flex flex-wrap gap-1 max-w-50">
+            {userAssocs.map((assoc) => (
+              <Badge
+                key={assoc.id}
+                variant="outline"
+                className="text-[9px] px-1 py-0 h-4 bg-muted/30"
+              >
+                {assoc.acronym || assoc.name}
+              </Badge>
+            ))}
+          </div>
+        );
+      },
+    },
+    {
+      id: "actions",
+      cell: ({ row }) => {
+        const user = row.original;
+        return (
+          <div className="flex justify-end gap-1.5 opacity-80 group-hover:opacity-100 transition-opacity">
+            <Button
+              variant="outline"
+              size="icon-xs"
+              className="h-7 w-7"
+              onClick={() => onEdit(user)}
+            >
+              <Edit2 className="size-3" />
+            </Button>
+            <Button
+              variant="outline"
+              size="icon-xs"
+              className="h-7 w-7 text-rose-500 hover:text-rose-600 hover:bg-rose-50/10"
+              onClick={() => onDelete(user)}
+            >
+              <Trash2 className="size-3" />
+            </Button>
+          </div>
+        );
+      },
+      enableSorting: false,
+      enableHiding: false,
+    },
+  ];
+}
