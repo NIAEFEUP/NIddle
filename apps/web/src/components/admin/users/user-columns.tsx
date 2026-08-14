@@ -61,6 +61,14 @@ export function getUserColumns({
       },
       filterFn: (row, _columnId, filterValue) => {
         if (!filterValue || filterValue === "all") return true;
+        if (Array.isArray(filterValue)) {
+          if (filterValue.length === 0 || filterValue.includes("all"))
+            return true;
+          const isAdmin = row.original.isAdmin;
+          if (filterValue.includes("admin") && isAdmin) return true;
+          if (filterValue.includes("user") && !isAdmin) return true;
+          return false;
+        }
         if (filterValue === "admin") return row.original.isAdmin === true;
         if (filterValue === "user") return row.original.isAdmin === false;
         return true;
@@ -100,6 +108,13 @@ export function getUserColumns({
       filterFn: (row, _columnId, filterValue) => {
         if (!filterValue || filterValue === "all") return true;
         const userAssocs = row.original.associations || [];
+        if (Array.isArray(filterValue)) {
+          if (filterValue.length === 0 || filterValue.includes("all"))
+            return true;
+          return userAssocs.some((assoc) =>
+            filterValue.includes(String(assoc.id)),
+          );
+        }
         return userAssocs.some(
           (assoc) => String(assoc.id) === String(filterValue),
         );

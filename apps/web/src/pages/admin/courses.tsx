@@ -29,15 +29,12 @@ import {
   type ViewMode,
   ViewModeToggle,
 } from "@/components/data-table/view-mode-toggle";
+import {
+  DataTableFilter,
+  type DataTableFilterOption,
+} from "@/components/data-table/data-table-filter";
 import { PageHeader } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import {
   type Course,
   type CourseFormData,
@@ -45,6 +42,7 @@ import {
 } from "@/hooks/use-admin-courses";
 import { getErrorMessage } from "@/lib/api-client";
 import { downloadCsv } from "@/lib/csv-export";
+import { getInitials } from "@/lib/utils";
 
 function exportCoursesToCsv(coursesList: Course[], filename: string) {
   const headers = ["ID", "Name", "Acronym", "Faculties"];
@@ -70,8 +68,22 @@ export function AdminCoursesPage() {
     bulkDeleteCoursesMutation,
   } = useAdminCourses();
 
-  const [facultyFilter, setFacultyFilter] = React.useState("all");
+  const [facultyFilter, setFacultyFilter] = React.useState<string[]>([]);
   const [viewMode, setViewMode] = React.useState<ViewMode>("list");
+
+  const facultyOptions: DataTableFilterOption[] = React.useMemo(
+    () =>
+      faculties.map((faculty) => ({
+        value: String(faculty.id),
+        label: faculty.acronym || faculty.name,
+        description:
+          faculty.acronym && faculty.name && faculty.acronym !== faculty.name
+            ? faculty.name
+            : undefined,
+        initials: getInitials(faculty.acronym || faculty.name, "F"),
+      })),
+    [faculties],
+  );
 
   const [sorting, setSorting] = React.useState<SortingState>([
     { id: "name", desc: false },
@@ -149,10 +161,9 @@ export function AdminCoursesPage() {
     table.setPageIndex(0);
   };
 
-  const handleFacultyFilterChange = (value: string | null) => {
-    const val = value ?? "all";
-    setFacultyFilter(val);
-    table.getColumn("faculties")?.setFilterValue(val);
+  const handleFacultyFilterChange = (values: string[]) => {
+    setFacultyFilter(values);
+    table.getColumn("faculties")?.setFilterValue(values);
     table.setPageIndex(0);
   };
 
@@ -270,31 +281,13 @@ export function AdminCoursesPage() {
           </>
         }
         filters={
-          <Select
-            value={facultyFilter}
-            onValueChange={handleFacultyFilterChange}
-          >
-            <SelectTrigger className="h-8 w-fit gap-1 text-xs">
-              <span className="text-muted-foreground">Filter by Faculty</span>
-              <SelectValue>
-                {(val) => {
-                  if (!val || val === "all") return "All Faculties";
-                  const found = faculties.find(
-                    (f) => String(f.id) === String(val),
-                  );
-                  return found?.acronym || found?.name || val;
-                }}
-              </SelectValue>
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Faculties</SelectItem>
-              {faculties.map((faculty) => (
-                <SelectItem key={faculty.id} value={String(faculty.id)}>
-                  {faculty.acronym || faculty.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <DataTableFilter
+            title="Faculty"
+            pluralTitle="Faculties"
+            options={facultyOptions}
+            selectedValues={facultyFilter}
+            onSelectedValuesChange={handleFacultyFilterChange}
+          />
         }
       />
 

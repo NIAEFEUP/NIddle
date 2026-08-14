@@ -30,18 +30,31 @@ import {
   ViewModeToggle,
 } from "@/components/data-table/view-mode-toggle";
 import { PageHeader } from "@/components/layout/page-header";
-import { Button } from "@/components/ui/button";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  DataTableFilter,
+  type DataTableFilterOption,
+} from "@/components/data-table/data-table-filter";
+import { Button } from "@/components/ui/button";
 import { type UserFormData, useAdminUsers } from "@/hooks/use-admin-users";
 import type { User } from "@/hooks/use-auth";
 import { getErrorMessage } from "@/lib/api-client";
 import { downloadCsv } from "@/lib/csv-export";
+import { getInitials } from "@/lib/utils";
+
+const roleOptions: DataTableFilterOption[] = [
+  {
+    value: "admin",
+    label: "Administrator",
+    description: "Full system administrative access",
+    initials: "AD",
+  },
+  {
+    value: "user",
+    label: "User",
+    description: "Standard association member access",
+    initials: "US",
+  },
+];
 
 function exportUsersToCsv(usersList: User[], filename: string) {
   const headers = ["ID", "Name", "Email", "Role", "Associations"];
@@ -68,9 +81,25 @@ export function AdminUsersPage() {
     bulkDeleteUsersMutation,
   } = useAdminUsers();
 
-  const [roleFilter, setRoleFilter] = React.useState("all");
-  const [associationFilter, setAssociationFilter] = React.useState("all");
+  const [roleFilter, setRoleFilter] = React.useState<string[]>([]);
+  const [associationFilter, setAssociationFilter] = React.useState<string[]>(
+    [],
+  );
   const [viewMode, setViewMode] = React.useState<ViewMode>("list");
+
+  const associationOptions: DataTableFilterOption[] = React.useMemo(
+    () =>
+      associations.map((assoc) => ({
+        value: String(assoc.id),
+        label: assoc.acronym || assoc.name,
+        description:
+          assoc.acronym && assoc.name && assoc.acronym !== assoc.name
+            ? assoc.name
+            : undefined,
+        initials: getInitials(assoc.acronym || assoc.name, "A"),
+      })),
+    [associations],
+  );
 
   const [sorting, setSorting] = React.useState<SortingState>([
     { id: "name", desc: false },
@@ -143,17 +172,15 @@ export function AdminUsersPage() {
     table.setPageIndex(0);
   };
 
-  const handleRoleFilterChange = (value: string | null) => {
-    const val = value ?? "all";
-    setRoleFilter(val);
-    table.getColumn("isAdmin")?.setFilterValue(val);
+  const handleRoleFilterChange = (values: string[]) => {
+    setRoleFilter(values);
+    table.getColumn("isAdmin")?.setFilterValue(values);
     table.setPageIndex(0);
   };
 
-  const handleAssociationFilterChange = (value: string | null) => {
-    const val = value ?? "all";
-    setAssociationFilter(val);
-    table.getColumn("associations")?.setFilterValue(val);
+  const handleAssociationFilterChange = (values: string[]) => {
+    setAssociationFilter(values);
+    table.getColumn("associations")?.setFilterValue(values);
     table.setPageIndex(0);
   };
 
@@ -283,50 +310,20 @@ export function AdminUsersPage() {
         }
         filters={
           <>
-            <Select value={roleFilter} onValueChange={handleRoleFilterChange}>
-              <SelectTrigger className="h-8 w-fit gap-1 text-xs">
-                <span className="text-muted-foreground">Filter by Role</span>
-                <SelectValue>
-                  {(val) => {
-                    if (val === "admin") return "Administrator";
-                    if (val === "user") return "User";
-                    return "All Roles";
-                  }}
-                </SelectValue>
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Roles</SelectItem>
-                <SelectItem value="admin">Administrator</SelectItem>
-                <SelectItem value="user">User</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select
-              value={associationFilter}
-              onValueChange={handleAssociationFilterChange}
-            >
-              <SelectTrigger className="h-8 w-fit gap-1 text-xs">
-                <span className="text-muted-foreground">
-                  Filter by Association
-                </span>
-                <SelectValue>
-                  {(val) => {
-                    if (!val || val === "all") return "All Associations";
-                    const found = associations.find(
-                      (a) => String(a.id) === String(val),
-                    );
-                    return found?.acronym || found?.name || val;
-                  }}
-                </SelectValue>
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Associations</SelectItem>
-                {associations.map((assoc) => (
-                  <SelectItem key={assoc.id} value={String(assoc.id)}>
-                    {assoc.acronym || assoc.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <DataTableFilter
+              title="Role"
+              pluralTitle="Roles"
+              options={roleOptions}
+              selectedValues={roleFilter}
+              onSelectedValuesChange={handleRoleFilterChange}
+            />
+            <DataTableFilter
+              title="Association"
+              pluralTitle="Associations"
+              options={associationOptions}
+              selectedValues={associationFilter}
+              onSelectedValuesChange={handleAssociationFilterChange}
+            />
           </>
         }
       />

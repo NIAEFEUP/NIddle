@@ -79,6 +79,13 @@ export function getFacultyColumns({
       filterFn: (row, _columnId, filterValue) => {
         if (!filterValue || filterValue === "all") return true;
         const courses = row.original.courses || [];
+        if (Array.isArray(filterValue)) {
+          if (filterValue.length === 0 || filterValue.includes("all"))
+            return true;
+          return courses.some((course) =>
+            filterValue.includes(String(course.id)),
+          );
+        }
         return courses.some(
           (course) => String(course.id) === String(filterValue),
         );
