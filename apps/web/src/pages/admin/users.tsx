@@ -112,6 +112,7 @@ export function AdminUsersPage() {
   const table = useReactTable({
     data: users,
     columns,
+    autoResetPageIndex: false,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
@@ -137,16 +138,23 @@ export function AdminUsersPage() {
     },
   });
 
+  const handleSearchChange = (value: string) => {
+    setGlobalFilter(value);
+    table.setPageIndex(0);
+  };
+
   const handleRoleFilterChange = (value: string | null) => {
     const val = value ?? "all";
     setRoleFilter(val);
     table.getColumn("isAdmin")?.setFilterValue(val);
+    table.setPageIndex(0);
   };
 
   const handleAssociationFilterChange = (value: string | null) => {
     const val = value ?? "all";
     setAssociationFilter(val);
     table.getColumn("associations")?.setFilterValue(val);
+    table.setPageIndex(0);
   };
 
   const handleCreateSubmit = (formData: UserFormData) => {
@@ -243,7 +251,7 @@ export function AdminUsersPage() {
           <SearchInput
             placeholder="Search Users"
             value={globalFilter}
-            onChange={setGlobalFilter}
+            onChange={handleSearchChange}
           />
         }
         actions={

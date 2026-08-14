@@ -111,6 +111,7 @@ export function AdminAssociationsPage() {
   const table = useReactTable({
     data: associations,
     columns,
+    autoResetPageIndex: false,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
@@ -135,6 +136,11 @@ export function AdminAssociationsPage() {
       globalFilter,
     },
   });
+
+  const handleSearchChange = (value: string) => {
+    setGlobalFilter(value);
+    table.setPageIndex(0);
+  };
 
   const handleCreateSubmit = (formData: AssociationFormData) => {
     createAssociationMutation.mutate(formData, {
@@ -219,7 +225,7 @@ export function AdminAssociationsPage() {
           <SearchInput
             placeholder="Search Associations"
             value={globalFilter}
-            onChange={setGlobalFilter}
+            onChange={handleSearchChange}
           />
         }
         actions={

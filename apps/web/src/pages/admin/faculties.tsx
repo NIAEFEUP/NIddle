@@ -118,6 +118,7 @@ export function AdminFacultiesPage() {
   const table = useReactTable({
     data: faculties,
     columns,
+    autoResetPageIndex: false,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
@@ -143,10 +144,16 @@ export function AdminFacultiesPage() {
     },
   });
 
+  const handleSearchChange = (value: string) => {
+    setGlobalFilter(value);
+    table.setPageIndex(0);
+  };
+
   const handleCourseFilterChange = (value: string | null) => {
     const val = value ?? "all";
     setCourseFilter(val);
     table.getColumn("courses")?.setFilterValue(val);
+    table.setPageIndex(0);
   };
 
   const handleCreateSubmit = (formData: FacultyFormData) => {
@@ -232,7 +239,7 @@ export function AdminFacultiesPage() {
           <SearchInput
             placeholder="Search Faculties"
             value={globalFilter}
-            onChange={setGlobalFilter}
+            onChange={handleSearchChange}
           />
         }
         actions={
