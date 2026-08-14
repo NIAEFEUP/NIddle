@@ -1,7 +1,5 @@
 import type { ColumnDef } from "@tanstack/react-table";
-import { ArrowUpDown, Edit2, Trash2 } from "lucide-react";
-
-import { Badge } from "@/components/ui/badge";
+import { ArrowDown, ArrowUp, ArrowUpDown, Edit2, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import type { User } from "@/hooks/use-auth";
@@ -52,7 +50,13 @@ export function getUserColumns({
             className="text-xs font-semibold text-muted-foreground uppercase gap-1 px-0 hover:bg-transparent"
           >
             Full name
-            <ArrowUpDown className="ml-1 size-3" />
+            {column.getIsSorted() === "asc" ? (
+              <ArrowUp className="ml-1 size-3 text-foreground" />
+            ) : column.getIsSorted() === "desc" ? (
+              <ArrowDown className="ml-1 size-3 text-foreground" />
+            ) : (
+              <ArrowUpDown className="ml-1 size-3 opacity-50" />
+            )}
           </Button>
         );
       },
@@ -85,7 +89,13 @@ export function getUserColumns({
             className="text-xs font-semibold text-muted-foreground uppercase gap-1 px-0 hover:bg-transparent"
           >
             Email
-            <ArrowUpDown className="ml-1 size-3" />
+            {column.getIsSorted() === "asc" ? (
+              <ArrowUp className="ml-1 size-3 text-foreground" />
+            ) : column.getIsSorted() === "desc" ? (
+              <ArrowDown className="ml-1 size-3 text-foreground" />
+            ) : (
+              <ArrowUpDown className="ml-1 size-3 opacity-50" />
+            )}
           </Button>
         );
       },
@@ -120,28 +130,28 @@ export function getUserColumns({
         const userAssocs = row.original.associations || [];
         if (row.original.isAdmin) {
           return (
-            <span className="text-xs text-muted-foreground italic">
+            <span className="text-xs font-medium text-foreground">
               All (Admin)
             </span>
           );
         }
         if (userAssocs.length === 0) {
           return (
-            <span className="text-xs text-muted-foreground italic">None</span>
+            <span className="text-xs font-medium text-foreground">None</span>
           );
         }
         return (
-          <div className="flex flex-wrap gap-1 max-w-50">
-            {userAssocs.map((assoc) => (
-              <Badge
+          <>
+            {userAssocs.map((assoc, index) => (
+              <span
                 key={assoc.id}
-                variant="outline"
-                className="text-[9px] px-1 py-0 h-4 bg-muted/30"
+                className="text-xs font-medium text-foreground"
               >
                 {assoc.acronym || assoc.name}
-              </Badge>
+                {index < userAssocs.length - 1 && ", "}
+              </span>
             ))}
-          </div>
+          </>
         );
       },
     },

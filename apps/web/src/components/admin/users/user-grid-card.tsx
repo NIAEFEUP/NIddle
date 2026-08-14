@@ -1,5 +1,4 @@
 import { Edit2, Trash2 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import type { User } from "@/hooks/use-auth";
@@ -57,26 +56,26 @@ export function UserGridCard({
             {user.isAdmin ? "Admin" : "Member"}
           </span>
         </div>
-        <div className="flex flex-col gap-1 mt-1">
+        <div className="flex justify-between gap-1 mt-1">
           <span className="text-muted-foreground">Associations:</span>
           {user.isAdmin ? (
-            <span className="text-muted-foreground italic text-[11px]">
+            <span className="text-xs font-medium text-foreground">
               All Access
             </span>
           ) : userAssocs.length === 0 ? (
-            <span className="text-muted-foreground italic text-[11px]">
-              No associations
+            <span className="text-xs font-medium text-foreground">
+              None
             </span>
           ) : (
-            <div className="flex flex-wrap gap-1 mt-0.5">
-              {userAssocs.map((assoc) => (
-                <Badge
+            <div>
+              {userAssocs.map((assoc, index) => (
+                <span
                   key={assoc.id}
-                  variant="outline"
-                  className="text-[9px] px-1 py-0 h-4 bg-muted/30"
+                  className="text-xs font-medium text-foreground"
                 >
                   {assoc.acronym || assoc.name}
-                </Badge>
+                  {index < userAssocs.length - 1 && ", "}
+                </span>
               ))}
             </div>
           )}

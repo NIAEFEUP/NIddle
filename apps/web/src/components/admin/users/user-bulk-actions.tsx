@@ -45,7 +45,7 @@ export function UserBulkActions({
         onClick={onDelete}
       >
         <Trash2 className="size-3.5" />
-        Delete ({selectedCount})
+        Delete
       </Button>
 
       <Button
