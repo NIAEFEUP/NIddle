@@ -63,9 +63,7 @@ export function UserGridCard({
               All Access
             </span>
           ) : userAssocs.length === 0 ? (
-            <span className="text-xs font-medium text-foreground">
-              None
-            </span>
+            <span className="text-xs font-medium text-foreground">None</span>
           ) : (
             <div>
               {userAssocs.map((assoc, index) => (

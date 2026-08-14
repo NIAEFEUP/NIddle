@@ -8,11 +8,7 @@ export interface UserGridViewProps {
   onDelete: (user: User) => void;
 }
 
-export function UserGridView({
-  table,
-  onEdit,
-  onDelete,
-}: UserGridViewProps) {
+export function UserGridView({ table, onEdit, onDelete }: UserGridViewProps) {
   const rows = table.getRowModel().rows;
 
   return (
