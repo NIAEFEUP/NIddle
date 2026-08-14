@@ -8,7 +8,7 @@ import {
   useReactTable,
   type VisibilityState,
 } from "@tanstack/react-table";
-import { Download, Plus } from "lucide-react";
+import { Download, Plus, Shield, User as UserIcon } from "lucide-react";
 import * as React from "react";
 import {
   getUserColumns,
@@ -46,13 +46,13 @@ const roleOptions: DataTableFilterOption[] = [
     value: "admin",
     label: "Administrator",
     description: "Full system administrative access",
-    initials: "AD",
+    icon: <Shield />,
   },
   {
     value: "user",
     label: "User",
     description: "Standard association member access",
-    initials: "US",
+    icon: <UserIcon />,
   },
 ];
 
