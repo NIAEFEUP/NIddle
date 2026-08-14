@@ -6,28 +6,7 @@ COPY package.json package-lock.json ./
 COPY apps/api/package.json ./apps/api/package.json
 COPY apps/web/package.json ./apps/web/package.json
 
-RUN npm ci && chown -R node:node /app
-
-FROM node:22-alpine AS api-dev
-RUN apk add --no-cache libc6-compat python3 make g++ gcc build-base
-WORKDIR /app
-
-COPY --from=deps --chown=node:node /app /app
-COPY --chown=node:node . .
-
-USER node
-EXPOSE 3001
-CMD ["npm", "run", "dev:api"]
-
-FROM node:22-alpine AS web-dev
-WORKDIR /app
-
-COPY --from=deps --chown=node:node /app /app
-COPY --chown=node:node . .
-
-USER node
-EXPOSE 3000
-CMD ["npm", "run", "dev:web"]
+RUN npm ci
 
 FROM node:22-alpine AS builder
 WORKDIR /app
@@ -50,7 +29,7 @@ COPY --from=builder /app/apps/api/package.json ./apps/api/package.json
 COPY --from=builder /app/apps/api/dist ./apps/api/dist
 
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
-RUN chmod +x /usr/local/bin/docker-entrypoint.sh && chown -R node:node /app
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh 
 USER node
 
 EXPOSE 3001
