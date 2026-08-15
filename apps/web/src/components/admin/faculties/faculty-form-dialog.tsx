@@ -287,7 +287,6 @@ export function FacultyFormDialog({
                         checked={isSelected}
                         closeOnClick={false}
                         onCheckedChange={() => toggleCourse(course.id)}
-                        className="gap-2.5 py-1.5 px-2 cursor-pointer rounded-md"
                       >
                         <Avatar className="h-6 w-6 rounded-sm shrink-0 after:rounded-sm">
                           <AvatarFallback className="rounded-sm bg-primary/10 text-primary text-[10px] font-semibold">

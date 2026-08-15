@@ -7,6 +7,7 @@ import {
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
+  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuShortcut,
   DropdownMenuTrigger,
@@ -178,14 +179,11 @@ export function SidebarHeaderComponent() {
             sideOffset={4}
           >
             {user?.isAdmin && (
-              <>
-                <div className="px-2 py-1 text-xs font-semibold text-muted-foreground">
-                  Administration
-                </div>
+              <DropdownMenuGroup>
+                <DropdownMenuLabel>Administration</DropdownMenuLabel>
                 <DropdownMenuItem
                   onClick={handleSelectAdmin}
                   className={cn(
-                    "gap-2.5 py-1.5 px-2 cursor-pointer rounded-md",
                     isAdminPath &&
                       "bg-accent text-accent-foreground font-medium",
                   )}
@@ -203,40 +201,42 @@ export function SidebarHeaderComponent() {
                       System Administration
                     </span>
                   </div>
-                  <DropdownMenuShortcut className="text-[10px] tracking-normal font-medium text-muted-foreground">
+                  <DropdownMenuShortcut>
                     {isMac ? "⌘0" : "Ctrl+0"}
                   </DropdownMenuShortcut>
                 </DropdownMenuItem>
-                <DropdownMenuSeparator className="my-1.5" />
-              </>
+                <DropdownMenuSeparator />
+              </DropdownMenuGroup>
             )}
 
-            <div className="flex items-center justify-between px-2 py-1 text-xs font-semibold text-muted-foreground">
-              <span>Associations</span>
-              {associations.length > 0 && (
-                <span className="text-[10px] font-normal text-muted-foreground">
-                  {associations.length} available
-                </span>
-              )}
-            </div>
+            <DropdownMenuGroup>
+              <div className="flex items-center justify-between px-1.5 py-1">
+                <DropdownMenuLabel className="p-0">
+                  Associations
+                </DropdownMenuLabel>
+                {associations.length > 0 && (
+                  <span className="text-[10px] text-muted-foreground">
+                    {associations.length} available
+                  </span>
+                )}
+              </div>
 
-            {associations.length > 0 ? (
-              <>
-                <div className="p-1 pb-1.5">
-                  <div className="relative">
-                    <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground pointer-events-none" />
-                    <Input
-                      placeholder="Search associations..."
-                      value={search}
-                      onChange={(e) => setSearch(e.target.value)}
-                      onKeyDown={(e) => e.stopPropagation()}
-                      className="h-8 pl-8 pr-2 text-xs"
-                      autoFocus
-                    />
+              {associations.length > 0 ? (
+                <>
+                  <div className="p-1 pb-1.5">
+                    <div className="relative">
+                      <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground pointer-events-none" />
+                      <Input
+                        placeholder="Search associations..."
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                        onKeyDown={(e) => e.stopPropagation()}
+                        className="h-8 pl-8 pr-2 text-xs"
+                        autoFocus
+                      />
+                    </div>
                   </div>
-                </div>
 
-                <DropdownMenuGroup>
                   <div className="max-h-52 overflow-y-auto space-y-0.5 mt-0.5">
                     {filteredAssociations.length === 0 ? (
                       <div className="py-6 text-center text-xs text-muted-foreground">
@@ -264,7 +264,6 @@ export function SidebarHeaderComponent() {
                               handleSelectAssociation(association.id)
                             }
                             className={cn(
-                              "gap-2.5 py-1.5 px-2 cursor-pointer rounded-md",
                               isActive &&
                                 "bg-accent text-accent-foreground font-medium",
                             )}
@@ -287,7 +286,7 @@ export function SidebarHeaderComponent() {
                                 )}
                             </div>
                             {shortcutKey !== null && (
-                              <DropdownMenuShortcut className="text-[10px] tracking-normal font-medium text-muted-foreground">
+                              <DropdownMenuShortcut>
                                 {isMac
                                   ? `⌘${shortcutKey}`
                                   : `Ctrl+${shortcutKey}`}
@@ -298,13 +297,13 @@ export function SidebarHeaderComponent() {
                       })
                     )}
                   </div>
-                </DropdownMenuGroup>
-              </>
-            ) : (
-              <div className="py-4 text-center text-xs text-muted-foreground">
-                No associations available
-              </div>
-            )}
+                </>
+              ) : (
+                <div className="py-4 text-center text-xs text-muted-foreground">
+                  No associations available
+                </div>
+              )}
+            </DropdownMenuGroup>
           </DropdownMenuContent>
         </DropdownMenu>
       </SidebarMenuItem>

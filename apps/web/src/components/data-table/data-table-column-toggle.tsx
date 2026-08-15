@@ -35,11 +35,9 @@ export function DataTableColumnToggle<TData>({
           </Button>
         }
       />
-      <DropdownMenuContent align="end" className="w-37.5 rounded-lg">
+      <DropdownMenuContent align="end" className="w-40 rounded-lg">
         <DropdownMenuGroup>
-          <DropdownMenuLabel className="text-xs font-semibold">
-            Toggle Columns
-          </DropdownMenuLabel>
+          <DropdownMenuLabel>Toggle Columns</DropdownMenuLabel>
           <DropdownMenuSeparator />
           {table
             .getAllColumns()
@@ -56,7 +54,7 @@ export function DataTableColumnToggle<TData>({
                   key={column.id}
                   checked={column.getIsVisible()}
                   onCheckedChange={(value) => column.toggleVisibility(!!value)}
-                  className="text-xs capitalize"
+                  className="capitalize"
                 >
                   {label}
                 </DropdownMenuCheckboxItem>

@@ -184,7 +184,6 @@ export function DataTableFilter({
                     checked={isSelected}
                     closeOnClick={false}
                     onCheckedChange={() => toggleOption(opt.value)}
-                    className="gap-2.5 py-1.5 px-2 cursor-pointer rounded-md"
                   >
                     {opt.icon ? (
                       <div className="flex h-6 w-6 items-center justify-center rounded-sm bg-primary/10 text-primary text-[10px] shrink-0 font-semibold">
