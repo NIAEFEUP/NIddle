@@ -6,6 +6,11 @@ COPY apps/web/package.json ./apps/web/package.json
 
 RUN npm ci -w apps/web
 
+FROM deps AS web-dev
+
+EXPOSE 3000
+CMD ["npm", "run", "dev", "-w", "apps/web"]
+
 FROM node:22-alpine AS builder
 WORKDIR /app
 
