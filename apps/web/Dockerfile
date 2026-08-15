@@ -22,7 +22,7 @@ RUN npm run build -w apps/web
 
 RUN npm prune --omit=dev -w apps/web
 
-FROM node:22-alpine AS runner
+FROM node:22-alpine AS web-runner
 WORKDIR /app
 ENV NODE_ENV=production
 
