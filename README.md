@@ -42,99 +42,54 @@ These instructions will get you a copy of the project up and running on your loc
 ### Prerequisites
 
 - [Docker](https://www.docker.com/) & [Docker Compose](https://docs.docker.com/compose/)
-- [Node.js](https://nodejs.org/) (v22.x recommended, for non-containerized local development)
+- [Node.js](https://nodejs.org/) (v22.x recommended, only needed if you run the Node apps natively on your host)
 
-### Containerized Development (Docker / Makefile)
+### Clone & configure
 
-To run the entire development environment (PostgreSQL, NestJS API with hot reload, and Vite React with HMR) inside containers with volume mounting:
+```bash
+git clone https://github.com/NIAEFEUP/NIddle
+cd NIddle
+cp .env.example .env.local
+```
 
-1. **Clone the repository**
+Open `.env.local` and fill in the required variables (`DATABASE_MASTER`/`DATABASE_SLAVE` should stay `localhost` here).
 
-   ```bash
-   git clone https://github.com/NIAEFEUP/NIddle
-   cd NIddle
-   ```
+From this point, pick one of the two setups below.
 
-2. **Start the development stack**
+### Option 1 — Everything in Docker (recommended)
 
-   Using Make:
-   ```bash
-   make up
-   ```
+PostgreSQL, the NestJS API (hot reload via `nest --watch`) and the Vite web app (HMR) all run in containers, with your source code bind-mounted in.
 
-   *(Or using Docker Compose directly: `docker compose up -d`)*
+Inside the containers, Postgres is reachable at the `postgres` service name, not `localhost` — so make a Docker-specific copy of your env file and point it there:
 
-   All source code is volume-mounted, meaning file changes on your machine will instantly trigger hot-reloading in both the API and Web containers.
+```bash
+cp .env.local .env.docker
+```
 
-   - **Frontend Web App**: `http://localhost:3000`
-   - **Backend API**: `http://localhost:3001`
-   - **Swagger API Docs**: `http://localhost:3001/api/docs`
-   - **PostgreSQL Database**: `localhost:5432`
+Edit `.env.docker` and set `DATABASE_MASTER=postgres` and `DATABASE_SLAVE=postgres`.
 
-   > **Note**: In development, Vite proxies requests from `http://localhost:3000/api` to the backend API, but the API itself runs directly on port `3001`.
+```bash
+make up   # or: docker compose up -d
+```
 
-### Local Development (Host Machine)
+- **Frontend Web App**: `http://localhost:3000`
+- **Backend API**: `http://localhost:3001`
+- **Swagger API Docs**: `http://localhost:3001/api/docs`
+- **PostgreSQL Database**: `localhost:5432`
 
-If you prefer to run the Node.js applications natively on your host machine for development:
+> **Note**: In development, Vite proxies requests from `http://localhost:3000/api` to the backend API, but the API itself runs directly on port `3001`.
 
-1. **Clone the repository**
+### Option 2 — Local development, Postgres in Docker
 
-   ```bash
-   git clone https://github.com/NIAEFEUP/NIddle
-   cd NIddle
-   ```
+If you'd rather run the Node.js applications natively (only Postgres in a container):
 
-2. **Set up environment variables**
-
-   Copy the API example environment file to `apps/api/.env.local`:
-
-   ```bash
-   cp apps/api/.env.example apps/api/.env.local
-   ```
-
-   Open `apps/api/.env.local` and fill in the required variables. For local development on your host machine, ensure `DATABASE_MASTER` is set to `localhost`.
-
-   If you want automatic schema synchronization during development/staging, set `DATABASE_SYNCHRONIZE=true`.
-
-3. **Start the database**
-
-   Start only the PostgreSQL container:
-
-   ```bash
-   docker compose up -d postgres
-   ```
-
-4. **Install dependencies**
-
-   Install dependencies across all workspaces:
-
-   ```bash
-   npm install
-   ```
-
-5. **Seed the database (Optional)**
-
-   Populate the database with initial sample data:
-
-   ```bash
-   npm run seed
-   ```
-
-6. **Run the applications**
-
-   Start the frontend and backend in separate terminal sessions:
-
-   To start the NestJS backend API:
-   ```bash
-   npm run dev:api
-   ```
-
-   To start the Vite frontend web app:
-   ```bash
-   npm run dev:web
-   ```
-
-   The frontend will run at `http://localhost:3000` and the API backend at `http://localhost:3001`. In development, Vite automatically proxies all requests from `http://localhost:3000/api` to the API server running on port `3001`.
+```bash
+docker compose up -d postgres
+npm install
+npm run seed        # optional, populates sample data
+npm run dev:api      # http://localhost:3001
+npm run dev:web       # in another terminal, http://localhost:3000
+```
 
 ## Nix Support
 
@@ -148,20 +103,20 @@ This ensures a consistent development environment across different machines.
 
 ## Docker
 
-NIddle uses a multi-stage Dockerfile to build lightweight, production-ready images for both the NestJS API and the Vite frontend.
+NIddle uses two multi-stage Dockerfiles — `apps/api/Dockerfile` and `apps/web/Dockerfile` — to build lightweight, production-ready images. Each has a `deps → builder → *-runner` chain for production and a `deps → *-dev` stage (no build step, source bind-mounted in) used by `docker-compose.yml` for local development.
 
 ### Building Images
 
-Build the individual target images from the root of the repository:
+Build the individual target images from the root of the repository (the build context has to stay the repo root — `apps/*/package.json` alone isn't enough, the shared `package-lock.json` lives at the root):
 
 - **API Image**:
   ```bash
-  docker build --target api-runner -t niddle-api .
+  docker build -f apps/api/Dockerfile --target api-runner -t niddle-api .
   ```
 
 - **Web Image**:
   ```bash
-  docker build --target web-runner -t niddle-web .
+  docker build -f apps/web/Dockerfile --target web-runner -t niddle-web .
   ```
 
 ### Running Images Manually
@@ -170,7 +125,7 @@ Ensure the `niddle-network` network exists (created automatically by Docker Comp
 
 ```bash
 # Run API container
-docker run --name niddle-api --network niddle-network -p 3001:3001 --env-file apps/api/.env.local niddle-api
+docker run --name niddle-api --network niddle-network -p 3001:3001 --env-file .env.docker niddle-api
 
 # Run Web container
 docker run --name niddle-web --network niddle-network -p 3000:3000 niddle-web
