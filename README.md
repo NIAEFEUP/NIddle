@@ -192,9 +192,12 @@ When using the containerized workflow (`make up`):
 
 | Action | Makefile | Docker Compose Equivalent | Host Machine (npm) |
 | :--- | :--- | :--- | :--- |
-| **Start stack** | `make up` | `docker compose up -d` | — |
+| **Start stack** | `make up` | `docker compose up -d --build -V` | — |
 | **Stop stack** | `make down` | `docker compose down` | — |
 | **Follow logs** | `make logs` | `docker compose logs -f` | — |
+| **Install/Sync dependencies** | `make install` | `docker compose exec api npm install && ...` | `npm install` |
+| **Add Web package** | `make add-web pkg=<name>` | `docker compose exec web npm install <pkg> -w apps/web` | `npm i <pkg> -w apps/web` |
+| **Add API package** | `make add-api pkg=<name>` | `docker compose exec api npm install <pkg> -w apps/api` | `npm i <pkg> -w apps/api` |
 | **Build API App** | `make build-api` | `docker compose exec api npm run build:api` | `npm run build:api` |
 | **Build Web App** | `make build-web` | `docker compose exec web npm run build:web` | `npm run build:web` |
 | **Build Both Apps** | `make build-app` | `docker compose exec api npm run build` | `npm run build` |
