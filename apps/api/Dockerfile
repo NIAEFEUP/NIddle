@@ -18,7 +18,12 @@ RUN npm run build -w apps/api
 
 RUN npm prune --omit=dev -w apps/api
 
-FROM node:22-alpine AS runner
+FROM deps AS api-dev
+
+EXPOSE 3001
+CMD ["npm", "run", "start:dev", "-w", "apps/api"]
+
+FROM node:22-alpine AS api-runner
 WORKDIR /app
 ENV NODE_ENV=production
 
