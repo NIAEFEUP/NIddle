@@ -93,11 +93,13 @@ npm run dev:web       # in another terminal, http://localhost:3000
 
 ### Editor Setup — VSCode IntelliSense
 
-`apps/api` and `apps/web` each install their dependencies inside their own container (see [Docker](#docker) below), and some of those dependencies are platform-specific native binaries (`bcrypt`/`sqlite3` for the API, the `rolldown` native binding used by Vite for the web). Running `npm install` on your host isn't guaranteed to give VSCode's TypeScript server working IntelliSense, and making a container share `node_modules` with the host (instead of keeping it in its own Docker volume) can make the dev container crash on a binary built for the wrong platform.
+When you run `make up`, `make install`, or `make add-*`, the `Makefile` automatically syncs the container's installed `node_modules` back to the host filesystem. This gives VS Code running on your host machine instant access to all TypeScript type definitions and Biome formatting without needing Node.js or Dev Containers installed on your host.
 
-The reliable fix is the [Dev Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) VSCode extension. Two configs are provided — `.devcontainer/api/devcontainer.json` and `.devcontainer/web/devcontainer.json` — each attaching to the matching `docker-compose.yml` service. With the stack running (`make up`), open the Command Palette → **Dev Containers: Reopen in Container** and pick `api` or `web`. VSCode's language server then runs *inside* that container, reading its real `node_modules` directly — full IntelliSense, no host/container dependency mismatches.
+If you ever need to manually re-sync module definitions:
 
-Since each app is its own container, use a separate VSCode window per app if you're working on both at the same time.
+```bash
+make sync-modules
+```
 
 ## Nix Support
 
