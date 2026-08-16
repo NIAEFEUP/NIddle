@@ -24,5 +24,51 @@ services:
     networks:
       - niddle-network
 
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+      target: api-dev
+    image: niddle-api:dev
+    container_name: niddle-api
+    restart: unless-stopped
+    user: "${UID:-1000}:${GID:-1000}"
+    ports:
+      - '3001:3001'
+    env_file:
+      -  .env.docker
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/apps/api/node_modules
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - niddle-network
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+      target: web-dev
+    image: niddle-web:dev
+    container_name: niddle-web
+    restart: unless-stopped
+    user: "${UID:-1000}:${GID:-1000}"
+    ports:
+      - '3000:3000'
+    env_file:
+      - .env.docker
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/apps/web/node_modules
+    depends_on:
+      - api
+    networks:
+      - niddle-network
+
 volumes:
   pgdata:
+
