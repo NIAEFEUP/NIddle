@@ -1,9 +1,11 @@
 FROM node:22-alpine AS deps
 WORKDIR /app
+RUN chown node:node /app
 
-COPY package.json package-lock.json ./
-COPY apps/web/package.json ./apps/web/package.json
+COPY --chown=node:node package.json package-lock.json ./
+COPY --chown=node:node apps/web/package.json ./apps/web/package.json
 
+USER node
 RUN npm ci -w apps/web
 
 FROM deps AS web-dev

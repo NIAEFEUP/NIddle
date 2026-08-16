@@ -39,6 +39,8 @@ services:
       -  .env.docker
     volumes:
       - .:/app
+      - /app/node_modules
+      - /app/apps/api/node_modules
     depends_on:
       postgres:
         condition: service_healthy
@@ -60,6 +62,8 @@ services:
       VITE_API_URL: http://api:3001
     volumes:
       - .:/app
+      - /app/node_modules
+      - /app/apps/web/node_modules
     depends_on:
       - api
     networks:
