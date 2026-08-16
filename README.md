@@ -91,6 +91,14 @@ npm run dev:api      # http://localhost:3001
 npm run dev:web       # in another terminal, http://localhost:3000
 ```
 
+### Editor Setup — VSCode IntelliSense
+
+`apps/api` and `apps/web` each install their dependencies inside their own container (see [Docker](#docker) below), and some of those dependencies are platform-specific native binaries (`bcrypt`/`sqlite3` for the API, the `rolldown` native binding used by Vite for the web). Running `npm install` on your host isn't guaranteed to give VSCode's TypeScript server working IntelliSense, and making a container share `node_modules` with the host (instead of keeping it in its own Docker volume) can make the dev container crash on a binary built for the wrong platform.
+
+The reliable fix is the [Dev Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) VSCode extension. Two configs are provided — `.devcontainer/api/devcontainer.json` and `.devcontainer/web/devcontainer.json` — each attaching to the matching `docker-compose.yml` service. With the stack running (`make up`), open the Command Palette → **Dev Containers: Reopen in Container** and pick `api` or `web`. VSCode's language server then runs *inside* that container, reading its real `node_modules` directly — full IntelliSense, no host/container dependency mismatches.
+
+Since each app is its own container, use a separate VSCode window per app if you're working on both at the same time.
+
 ## Nix Support
 
 If you use [Nix](https://nixos.org/), this project includes a flake that provides a development shell with all the necessary tools (Node.js 22, Nest CLI, etc.).
