@@ -29,6 +29,7 @@ describe("createSchema", () => {
       DATABASE_PASSWORD: "test-password",
       DATABASE_NAME: "test-db",
     };
+    delete process.env.DATABASE_SYNCHRONIZE;
   });
   afterEach(() => {
     process.env = OLD_ENV;
