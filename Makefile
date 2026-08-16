@@ -1,21 +1,22 @@
-.PHONY: help up down restart logs build build-api build-web build-app check fix format lint seed test test-watch test-cov test-e2e sh-api sh-web install install-api install-web add-api add-web
+.PHONY: help up down restart logs build build-api build-web build-app check fix format lint seed test test-watch test-cov test-e2e sh-api sh-web install install-api install-web add-api add-web sync-modules
 
 help:
 	@echo "NIddle Development Makefile"
 	@echo ""
 	@echo "Container Management:"
-	@echo "  make up                     - Start development environment (auto-builds & renews volumes)"
+	@echo "  make up                     - Start development environment (auto-builds, renews volumes & syncs modules)"
 	@echo "  make down                   - Stop development environment"
 	@echo "  make restart                - Restart all containers"
 	@echo "  make logs                   - Follow container logs"
 	@echo "  make build                  - Rebuild container images"
 	@echo ""
 	@echo "Dependency Management:"
-	@echo "  make install                - Install/sync dependencies in all containers"
-	@echo "  make install-api            - Install/sync dependencies in API container"
-	@echo "  make install-web            - Install/sync dependencies in Web container"
+	@echo "  make install                - Install/sync dependencies in all containers & sync to host"
+	@echo "  make install-api            - Install/sync dependencies in API container & sync to host"
+	@echo "  make install-web            - Install/sync dependencies in Web container & sync to host"
 	@echo "  make add-api pkg=<name>     - Add dependency to API container (e.g. make add-api pkg=axios)"
 	@echo "  make add-web pkg=<name>     - Add dependency to Web container (e.g. make add-web pkg=lucide-react)"
+	@echo "  make sync-modules           - Sync node_modules from containers to host for VS Code IntelliSense"
 	@echo ""
 	@echo "Application Build:"
 	@echo "  make build-api              - Build the API application (npm run build:api)"
@@ -41,6 +42,7 @@ help:
 
 up:
 	docker compose up -d --build -V
+	@$(MAKE) sync-modules
 
 down:
 	docker compose down
@@ -53,6 +55,13 @@ logs:
 
 build:
 	docker compose build
+
+sync-modules:
+	@echo "Syncing node_modules to host for VS Code IntelliSense..."
+	@docker compose cp api:/app/node_modules .
+	@docker compose cp api:/app/apps/api/node_modules ./apps/api/node_modules 2>/dev/null || true
+	@docker compose cp web:/app/apps/web/node_modules ./apps/web/node_modules 2>/dev/null || true
+	@echo "Sync complete! Host VS Code IntelliSense is ready."
 
 build-api:
 	docker compose exec api npm run build:api
@@ -99,18 +108,23 @@ sh-web:
 install:
 	docker compose exec api npm install
 	docker compose exec web npm install
+	@$(MAKE) sync-modules
 
 install-api:
 	docker compose exec api npm install
+	@$(MAKE) sync-modules
 
 install-web:
 	docker compose exec web npm install
+	@$(MAKE) sync-modules
 
 add-api:
 	@if [ -z "$(pkg)" ]; then echo "Usage: make add-api pkg=<package_name>"; exit 1; fi
 	docker compose exec api npm install $(pkg) -w apps/api
+	@$(MAKE) sync-modules
 
 add-web:
 	@if [ -z "$(pkg)" ]; then echo "Usage: make add-web pkg=<package_name>"; exit 1; fi
 	docker compose exec web npm install $(pkg) -w apps/web
+	@$(MAKE) sync-modules
 
