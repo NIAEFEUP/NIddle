@@ -1,0 +1,16 @@
+{
+  "name": "NIddle API",
+  "dockerComposeFile": ["../../docker-compose.yml"],
+  "service": "api",
+  "workspaceFolder": "/app/apps/api",
+  "shutdownAction": "none",
+  "overrideCommand": false,
+  "customizations": {
+    "vscode": {
+      "extensions": ["biomejs.biome"],
+      "settings": {
+        "typescript.tsdk": "../../node_modules/typescript/lib"
+      }
+    }
+  }
+}

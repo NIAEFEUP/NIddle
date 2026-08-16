@@ -1,10 +1,12 @@
 FROM node:22-alpine AS deps
 RUN apk add --no-cache libc6-compat python3 make g++ gcc build-base
 WORKDIR /app
+RUN chown node:node /app
 
-COPY package.json package-lock.json ./
-COPY apps/api/package.json ./apps/api/package.json
+COPY --chown=node:node package.json package-lock.json ./
+COPY --chown=node:node apps/api/package.json ./apps/api/package.json
 
+USER node
 RUN npm ci -w apps/api
 
 FROM node:22-alpine AS builder

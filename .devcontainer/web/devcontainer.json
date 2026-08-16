@@ -1,0 +1,16 @@
+{
+  "name": "NIddle Web",
+  "dockerComposeFile": ["../../docker-compose.yml"],
+  "service": "web",
+  "workspaceFolder": "/app/apps/web",
+  "shutdownAction": "none",
+  "overrideCommand": false,
+  "customizations": {
+    "vscode": {
+      "extensions": ["biomejs.biome", "bradlc.vscode-tailwindcss"],
+      "settings": {
+        "typescript.tsdk": "node_modules/typescript/lib"
+      }
+    }
+  }
+}
