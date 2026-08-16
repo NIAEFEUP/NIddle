@@ -58,9 +58,11 @@ build:
 
 sync-modules:
 	@echo "Syncing node_modules to host for VS Code IntelliSense..."
-	@docker compose cp api:/app/node_modules .
-	@docker compose cp api:/app/apps/api/node_modules ./apps/api/node_modules 2>/dev/null || true
-	@docker compose cp web:/app/apps/web/node_modules ./apps/web/node_modules 2>/dev/null || true
+	@mkdir -p node_modules apps/api/node_modules apps/web/node_modules
+	@docker compose cp api:/app/node_modules/. ./node_modules/ 2>/dev/null || true
+	@docker compose cp web:/app/node_modules/. ./node_modules/ 2>/dev/null || true
+	@docker compose cp api:/app/apps/api/node_modules/. ./apps/api/node_modules/ 2>/dev/null || true
+	@docker compose cp web:/app/apps/web/node_modules/. ./apps/web/node_modules/ 2>/dev/null || true
 	@echo "Sync complete! Host VS Code IntelliSense is ready."
 
 build-api:
