@@ -17,6 +17,7 @@
     "lint:fix": "biome lint --write ./src ./test",
     "check": "biome check ./src ./test",
     "check:fix": "biome check --write ./src ./test",
+    "typecheck": "tsc --noEmit",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
