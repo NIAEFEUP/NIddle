@@ -5,13 +5,14 @@ import { Association } from "@/associations/entities/association.entity";
 import { validateAndGetRelations } from "@/common/utils/entity-relation.utils";
 import { Course } from "@/courses/entities/course.entity";
 import { Faculty } from "@/faculties/entities/faculty.entity";
+import { Requestable } from "@/requests/interfaces/requestable.interface";
 import { CreateEventDto } from "./dto/create-event.dto";
 import { EventFilterDto } from "./dto/event-filter.dto";
 import { UpdateEventDto } from "./dto/update-event.dto";
 import { Event } from "./entities/event.entity";
 
 @Injectable()
-export class EventsService {
+export class EventsService implements Requestable<CreateEventDto, Event> {
   constructor(
     @InjectRepository(Event)
     private eventRepository: Repository<Event>,
@@ -51,26 +52,6 @@ export class EventsService {
     return this.eventRepository.save(event);
   }
 
-  findAll(filters: EventFilterDto): Promise<Event[]> {
-    const { year, facultyId, courseId } = filters;
-
-    return this.eventRepository.find({
-      where: {
-        ...(year !== undefined && { year }),
-        ...(facultyId && { faculty: { id: facultyId } }),
-        ...(courseId && { courses: { id: courseId } }),
-      },
-      relations: ["faculty", "courses", "createdBy"],
-    });
-  }
-
-  findOne(id: number): Promise<Event> {
-    return this.eventRepository.findOneOrFail({
-      where: { id },
-      relations: ["faculty", "courses", "createdBy"],
-    });
-  }
-
   async update(id: number, updateEventDto: UpdateEventDto): Promise<Event> {
     const { facultyId, courseIds, ...eventData } = updateEventDto;
 
@@ -100,6 +81,37 @@ export class EventsService {
     }
 
     return this.eventRepository.save(event);
+  }
+
+  createFromRequest(
+    payload: CreateEventDto,
+    associationId: number,
+  ): Promise<Event> {
+    return this.create(payload, associationId);
+  }
+
+  updateFromRequest(id: number, payload: CreateEventDto): Promise<Event> {
+    return this.update(id, payload);
+  }
+
+  findAll(filters: EventFilterDto): Promise<Event[]> {
+    const { year, facultyId, courseId } = filters;
+
+    return this.eventRepository.find({
+      where: {
+        ...(year !== undefined && { year }),
+        ...(facultyId && { faculty: { id: facultyId } }),
+        ...(courseId && { courses: { id: courseId } }),
+      },
+      relations: ["faculty", "courses", "createdBy"],
+    });
+  }
+
+  findOne(id: number): Promise<Event> {
+    return this.eventRepository.findOneOrFail({
+      where: { id },
+      relations: ["faculty", "courses", "createdBy"],
+    });
   }
 
   async remove(id: number): Promise<Event> {

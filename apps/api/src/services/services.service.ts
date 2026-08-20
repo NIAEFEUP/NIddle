@@ -8,9 +8,10 @@ import { CreateServiceDto } from "./dto/create-service.dto";
 import { ServiceFilterDto } from "./dto/service-filter.dto";
 import { UpdateServiceDto } from "./dto/update-service.dto";
 import { Service } from "./entity/service.entity";
+import { Requestable } from "@/requests/interfaces/requestable.interface";
 
 @Injectable()
-export class ServicesService {
+export class ServicesService implements Requestable<CreateServiceDto, Service> {
   constructor(
     @InjectRepository(Service)
     private serviceRepository: Repository<Service>,
@@ -61,25 +62,6 @@ export class ServicesService {
     return await this.serviceRepository.save(service);
   }
 
-  findAll(filters: ServiceFilterDto): Promise<Service[]> {
-    const { facultyId, courseId } = filters;
-
-    return this.serviceRepository.find({
-      where: {
-        ...(facultyId && { faculty: { id: facultyId } }),
-        ...(courseId && { course: { id: courseId } }),
-      },
-      relations: ["schedule", "faculty", "course", "createdBy"],
-    });
-  }
-
-  async findOne(id: number): Promise<Service> {
-    return await this.serviceRepository.findOneOrFail({
-      where: { id },
-      relations: ["schedule", "faculty", "course", "createdBy"],
-    });
-  }
-
   async update(
     id: number,
     updateServiceDto: UpdateServiceDto,
@@ -127,6 +109,36 @@ export class ServicesService {
       );
     }
     return await this.serviceRepository.save(service);
+  }
+
+  createFromRequest(
+    payload: CreateServiceDto,
+    associationId: number,
+  ): Promise<Service> {
+    return this.create(payload, associationId);
+  }
+
+  updateFromRequest(id: number, payload: CreateServiceDto): Promise<Service> {
+    return this.update(id, payload);
+  }
+
+  findAll(filters: ServiceFilterDto): Promise<Service[]> {
+    const { facultyId, courseId } = filters;
+
+    return this.serviceRepository.find({
+      where: {
+        ...(facultyId && { faculty: { id: facultyId } }),
+        ...(courseId && { course: { id: courseId } }),
+      },
+      relations: ["schedule", "faculty", "course", "createdBy"],
+    });
+  }
+
+  async findOne(id: number): Promise<Service> {
+    return await this.serviceRepository.findOneOrFail({
+      where: { id },
+      relations: ["schedule", "faculty", "course", "createdBy"],
+    });
   }
 
   async remove(id: number): Promise<Service> {
