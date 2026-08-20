@@ -7,22 +7,19 @@ import {
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { Association } from "@/associations/entities/association.entity";
-import { CreateEventDto } from "@/events/dto/create-event.dto";
 import { Event } from "@/events/entities/event.entity";
-import { EventsService } from "@/events/events.service";
 import {
   Request,
   RequestStatus,
   RequestType,
 } from "@/requests/entities/request.entity";
-import { CreateServiceDto } from "@/services/dto/create-service.dto";
 import { Service } from "@/services/entity/service.entity";
-import { ServicesService } from "@/services/services.service";
 import { User } from "@/users/entities/user.entity";
 import { CreateRequestDto } from "./dto/create-request.dto";
 import { RejectRequestDto } from "./dto/reject-request.dto";
 import { RequestFilterDto } from "./dto/request-filter.dto";
 import { UpdateRequestDto } from "./dto/update-request.dto";
+import { RequestRegistry } from "./requests-registry.service";
 
 @Injectable()
 export class RequestsService {
@@ -35,8 +32,7 @@ export class RequestsService {
     private eventRepository: Repository<Event>,
     @InjectRepository(Association)
     private associationRepository: Repository<Association>,
-    private readonly servicesService: ServicesService,
-    private readonly eventsService: EventsService,
+    private requestRegistry: RequestRegistry,
   ) {}
 
   async create(
@@ -242,33 +238,12 @@ export class RequestsService {
       throw new BadRequestException("Only pending requests can be approved.");
     }
 
-    let result: Event | Service;
+    const handler = this.requestRegistry.get(request.type);
+    const targetId = request.targetEvent?.id ?? request.targetService?.id;
 
-    if (request.targetEvent && request.type === RequestType.EVENT) {
-      result = await this.eventsService.update(
-        request.targetEvent.id,
-        request.payload,
-      );
-    } else if (request.targetService && request.type === RequestType.SERVICE) {
-      result = await this.servicesService.update(
-        request.targetService.id,
-        request.payload,
-      );
-    } else if (request.type === RequestType.SERVICE) {
-      result = await this.servicesService.create(
-        request.payload as CreateServiceDto,
-        request.targetAssociation.id,
-      );
-    } else if (request.type === RequestType.EVENT) {
-      result = await this.eventsService.create(
-        request.payload as CreateEventDto,
-        request.targetAssociation.id,
-      );
-    } else {
-      throw new InternalServerErrorException(
-        "Request type is not valid or target entity is missing.",
-      );
-    }
+    const result = targetId 
+      ? await handler.updateFromRequest(targetId, request.payload)
+      : await handler.createFromRequest(request.payload, request.targetAssociation.id);
 
     request.status = RequestStatus.APPROVED;
     request.reviewedAt = new Date();

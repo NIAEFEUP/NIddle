@@ -9,6 +9,7 @@ import { User } from "@/users/entities/user.entity";
 import { Request } from "./entities/request.entity";
 import { RequestsController } from "./requests.controller";
 import { RequestsService } from "./requests.service";
+import { RequestRegistry } from "./requests-registry.service";
 
 @Module({
   imports: [
@@ -17,6 +18,6 @@ import { RequestsService } from "./requests.service";
     ServicesModule,
   ],
   controllers: [RequestsController],
-  providers: [RequestsService],
+  providers: [RequestsService, RequestRegistry],
 })
 export class RequestsModule {}

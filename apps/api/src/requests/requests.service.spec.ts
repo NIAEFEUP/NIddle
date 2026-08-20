@@ -7,15 +7,14 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { getRepositoryToken } from "@nestjs/typeorm";
 import { Association } from "@/associations/entities/association.entity";
 import { Event } from "@/events/entities/event.entity";
-import { EventsService } from "@/events/events.service";
 import {
   Request,
   RequestStatus,
   RequestType,
 } from "@/requests/entities/request.entity";
 import { Service } from "@/services/entity/service.entity";
-import { ServicesService } from "@/services/services.service";
 import { User } from "@/users/entities/user.entity";
+import { RequestRegistry } from "./requests-registry.service";
 import { RequestsService } from "./requests.service";
 
 describe("RequestsService", () => {
@@ -101,8 +100,23 @@ describe("RequestsService", () => {
   const mockServiceRepository = { findOneByOrFail: jest.fn() };
   const mockEventRepository = { findOneByOrFail: jest.fn() };
   const mockAssociationRepository = { findOneByOrFail: jest.fn() };
-  const mockServicesService = { create: jest.fn(), update: jest.fn() };
-  const mockEventsService = { create: jest.fn(), update: jest.fn() };
+  const mockServiceHandler = {
+    createFromRequest: jest.fn(),
+    updateFromRequest: jest.fn(),
+  };
+  const mockEventHandler = {
+    createFromRequest: jest.fn(),
+    updateFromRequest: jest.fn(),
+  };
+  const mockRequestRegistry = {
+    get: jest.fn((type: RequestType) => {
+      if (type === RequestType.SERVICE) return mockServiceHandler;
+      if (type === RequestType.EVENT) return mockEventHandler;
+      throw new InternalServerErrorException(
+        `No handler registered for request type: ${type}`,
+      );
+    }),
+  };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -124,8 +138,7 @@ describe("RequestsService", () => {
           provide: getRepositoryToken(Association),
           useValue: mockAssociationRepository,
         },
-        { provide: ServicesService, useValue: mockServicesService },
-        { provide: EventsService, useValue: mockEventsService },
+        { provide: RequestRegistry, useValue: mockRequestRegistry },
       ],
     }).compile();
 
@@ -378,7 +391,7 @@ describe("RequestsService", () => {
       });
 
       const createdService = { id: 1, name: " Papelaria D. Beatriz" };
-      mockServicesService.create.mockResolvedValue(createdService);
+      mockServiceHandler.createFromRequest.mockResolvedValue(createdService);
 
       mockRequestRepository.save.mockResolvedValue({
         ...mockRequest,
@@ -397,14 +410,14 @@ describe("RequestsService", () => {
         },
       });
 
-      expect(mockServicesService.create).toHaveBeenCalledWith(
+      expect(mockServiceHandler.createFromRequest).toHaveBeenCalledWith(
         mockRequest.payload,
         mockRequest.targetAssociation.id,
       );
 
-      expect(mockServicesService.update).not.toHaveBeenCalled();
-      expect(mockEventsService.create).not.toHaveBeenCalled();
-      expect(mockEventsService.update).not.toHaveBeenCalled();
+      expect(mockServiceHandler.updateFromRequest).not.toHaveBeenCalled();
+      expect(mockEventHandler.createFromRequest).not.toHaveBeenCalled();
+      expect(mockEventHandler.updateFromRequest).not.toHaveBeenCalled();
 
       expect(mockRequestRepository.save).toHaveBeenCalledWith(
         expect.objectContaining({ status: RequestStatus.APPROVED }),
@@ -422,7 +435,7 @@ describe("RequestsService", () => {
       mockRequestRepository.findOneOrFail.mockResolvedValue(eventRequest);
 
       const createdEvent = { id: 1, name: "FEUP Week" };
-      mockEventsService.create.mockResolvedValue(createdEvent);
+      mockEventHandler.createFromRequest.mockResolvedValue(createdEvent);
       mockRequestRepository.save.mockResolvedValue({
         ...eventRequest,
         status: RequestStatus.APPROVED,
@@ -430,11 +443,11 @@ describe("RequestsService", () => {
 
       const result = await service.approve("req-1");
 
-      expect(mockEventsService.create).toHaveBeenCalledWith(
+      expect(mockEventHandler.createFromRequest).toHaveBeenCalledWith(
         eventRequest.payload,
         eventRequest.targetAssociation.id,
       );
-      expect(mockServicesService.create).not.toHaveBeenCalled();
+      expect(mockServiceHandler.createFromRequest).not.toHaveBeenCalled();
       expect(result).toEqual(createdEvent);
     });
 
@@ -447,7 +460,7 @@ describe("RequestsService", () => {
       mockRequestRepository.findOneOrFail.mockResolvedValue(editRequest);
 
       const updatedService = { id: 5, name: "Papelaria D. Beatriz" };
-      mockServicesService.update.mockResolvedValue(updatedService);
+      mockServiceHandler.updateFromRequest.mockResolvedValue(updatedService);
       mockRequestRepository.save.mockResolvedValue({
         ...editRequest,
         status: RequestStatus.APPROVED,
@@ -455,11 +468,11 @@ describe("RequestsService", () => {
 
       const result = await service.approve("req-1");
 
-      expect(mockServicesService.update).toHaveBeenCalledWith(
+      expect(mockServiceHandler.updateFromRequest).toHaveBeenCalledWith(
         mockTargetService.id,
         editRequest.payload,
       );
-      expect(mockServicesService.create).not.toHaveBeenCalled();
+      expect(mockServiceHandler.createFromRequest).not.toHaveBeenCalled();
       expect(result).toEqual(updatedService);
     });
 
@@ -473,7 +486,7 @@ describe("RequestsService", () => {
       mockRequestRepository.findOneOrFail.mockResolvedValue(editRequest);
 
       const updatedEvent = { id: 7, name: "FEUP Week Novo" };
-      mockEventsService.update.mockResolvedValue(updatedEvent);
+      mockEventHandler.updateFromRequest.mockResolvedValue(updatedEvent);
       mockRequestRepository.save.mockResolvedValue({
         ...editRequest,
         status: RequestStatus.APPROVED,
@@ -481,11 +494,11 @@ describe("RequestsService", () => {
 
       const result = await service.approve("req-1");
 
-      expect(mockEventsService.update).toHaveBeenCalledWith(
+      expect(mockEventHandler.updateFromRequest).toHaveBeenCalledWith(
         mockTargetEvent.id,
         editRequest.payload,
       );
-      expect(mockEventsService.create).not.toHaveBeenCalled();
+      expect(mockEventHandler.createFromRequest).not.toHaveBeenCalled();
       expect(result).toEqual(updatedEvent);
     });
 
@@ -498,7 +511,7 @@ describe("RequestsService", () => {
       await expect(service.approve("req-1")).rejects.toThrow(
         BadRequestException,
       );
-      expect(mockServicesService.create).not.toHaveBeenCalled();
+      expect(mockServiceHandler.createFromRequest).not.toHaveBeenCalled();
       expect(mockRequestRepository.save).not.toHaveBeenCalled();
     });
 
