@@ -4,11 +4,11 @@ import { Repository } from "typeorm";
 import { Association } from "@/associations/entities/association.entity";
 import { Course } from "@/courses/entities/course.entity";
 import { Faculty } from "@/faculties/entities/faculty.entity";
+import { Requestable } from "@/requests/interfaces/requestable.interface";
 import { CreateServiceDto } from "./dto/create-service.dto";
 import { ServiceFilterDto } from "./dto/service-filter.dto";
 import { UpdateServiceDto } from "./dto/update-service.dto";
 import { Service } from "./entity/service.entity";
-import { Requestable } from "@/requests/interfaces/requestable.interface";
 
 @Injectable()
 export class ServicesService implements Requestable<CreateServiceDto, Service> {

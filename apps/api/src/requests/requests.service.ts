@@ -80,28 +80,20 @@ export class RequestsService {
       throw new BadRequestException("Only pending requests can be updated.");
     }
 
-    if (request.type === RequestType.SERVICE && eventPayload) {
+    const payload =
+      request.type === RequestType.SERVICE ? servicePayload : eventPayload;
+    const mismatched =
+      request.type === RequestType.SERVICE ? eventPayload : servicePayload;
+
+    if (mismatched) {
       throw new BadRequestException(
-        "Cannot update an event payload for a service request.",
+        `Cannot update a mismatched payload for a ${request.type} request.`,
       );
     }
 
-    if (request.type === RequestType.EVENT && servicePayload) {
-      throw new BadRequestException(
-        "Cannot update a service payload for an event request.",
-      );
-    }
-
-    if (request.type === RequestType.SERVICE) {
-      this.requestRepository.merge(request, {
-        payload: { ...request.payload, ...servicePayload },
-      });
-    }
-    if (request.type === RequestType.EVENT) {
-      this.requestRepository.merge(request, {
-        payload: { ...request.payload, ...eventPayload },
-      });
-    }
+    this.requestRepository.merge(request, {
+      payload: { ...request.payload, ...payload },
+    });
 
     return this.requestRepository.save(request);
   }
