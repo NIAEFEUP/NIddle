@@ -2,7 +2,6 @@ import {
   BadRequestException,
   ForbiddenException,
   Injectable,
-  InternalServerErrorException,
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
@@ -26,10 +25,6 @@ export class RequestsService {
   constructor(
     @InjectRepository(Request)
     private requestRepository: Repository<Request>,
-    @InjectRepository(Service)
-    private serviceRepository: Repository<Service>,
-    @InjectRepository(Event)
-    private eventRepository: Repository<Event>,
     @InjectRepository(Association)
     private associationRepository: Repository<Association>,
     private requestRegistry: RequestRegistry,
@@ -49,16 +44,10 @@ export class RequestsService {
     });
 
     if (targetId) {
-      if (type === RequestType.SERVICE) {
-        request.targetService = await this.serviceRepository.findOneByOrFail({
-          id: targetId,
-        });
-      }
-      if (type === RequestType.EVENT) {
-        request.targetEvent = await this.eventRepository.findOneByOrFail({
-          id: targetId,
-        });
-      }
+      const target = await this.requestRegistry.get(type).findOne(targetId);
+      if (type === RequestType.SERVICE)
+        request.targetService = target as Service;
+      if (type === RequestType.EVENT) request.targetEvent = target as Event;
     }
 
     request.targetAssociation =
@@ -241,9 +230,12 @@ export class RequestsService {
     const handler = this.requestRegistry.get(request.type);
     const targetId = request.targetEvent?.id ?? request.targetService?.id;
 
-    const result = targetId 
+    const result = targetId
       ? await handler.updateFromRequest(targetId, request.payload)
-      : await handler.createFromRequest(request.payload, request.targetAssociation.id);
+      : await handler.createFromRequest(
+          request.payload,
+          request.targetAssociation.id,
+        );
 
     request.status = RequestStatus.APPROVED;
     request.reviewedAt = new Date();
