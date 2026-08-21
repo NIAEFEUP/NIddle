@@ -567,4 +567,35 @@ describe("ServicesService", () => {
       expect(result).toEqual(mockService);
     });
   });
+
+  describe("createFromRequest", () => {
+    it("delegates to create", async () => {
+      const createServiceDto: CreateServiceDto = {
+        name: "Papelaria D. Beatriz",
+        location: "B-142",
+        schedule: [],
+        facultyId: 1,
+      };
+      jest.spyOn(service, "create").mockResolvedValue(mockService);
+
+      const result = await service.createFromRequest(createServiceDto, 1);
+
+      expect(service.create).toHaveBeenCalledWith(createServiceDto, 1);
+      expect(result).toEqual(mockService);
+    });
+  });
+
+  describe("updateFromRequest", () => {
+    it("delegates to update", async () => {
+      const updateServiceDto: UpdateServiceDto = {
+        name: "Papelaria Editada",
+      };
+      jest.spyOn(service, "update").mockResolvedValue(mockService);
+
+      const result = await service.updateFromRequest(1, updateServiceDto);
+
+      expect(service.update).toHaveBeenCalledWith(1, updateServiceDto);
+      expect(result).toEqual(mockService);
+    });
+  });
 });

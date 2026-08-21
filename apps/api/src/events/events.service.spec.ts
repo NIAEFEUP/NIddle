@@ -294,4 +294,28 @@ describe("EventsService", () => {
       expect(mockEventRepository.delete).toHaveBeenCalledWith(1);
     });
   });
+
+  describe("createFromRequest", () => {
+    it("delegates to create", async () => {
+      const createEventDto: CreateEventDto = { name: "FEUP Week", year: 2025 };
+      jest.spyOn(service, "create").mockResolvedValue(mockEvent);
+
+      const result = await service.createFromRequest(createEventDto, 1);
+
+      expect(service.create).toHaveBeenCalledWith(createEventDto, 1);
+      expect(result).toEqual(mockEvent);
+    });
+  });
+
+  describe("updateFromRequest", () => {
+    it("delegates to update", async () => {
+      const updateEventDto: UpdateEventDto = { name: "FEUP Week Updated" };
+      jest.spyOn(service, "update").mockResolvedValue(mockEvent);
+
+      const result = await service.updateFromRequest(1, updateEventDto);
+
+      expect(service.update).toHaveBeenCalledWith(1, updateEventDto);
+      expect(result).toEqual(mockEvent);
+    });
+  });
 });
