@@ -11,7 +11,12 @@ import { UpdateServiceDto } from "./dto/update-service.dto";
 import { Service } from "./entity/service.entity";
 
 @Injectable()
-export class ServicesService implements Requestable<CreateServiceDto, Service> {
+export class ServicesService
+  implements Requestable<CreateServiceDto, Service, UpdateServiceDto>
+{
+  createPayloadType = CreateServiceDto;
+  updatePayloadType = UpdateServiceDto;
+
   constructor(
     @InjectRepository(Service)
     private serviceRepository: Repository<Service>,
@@ -118,7 +123,7 @@ export class ServicesService implements Requestable<CreateServiceDto, Service> {
     return this.create(payload, associationId);
   }
 
-  updateFromRequest(id: number, payload: CreateServiceDto): Promise<Service> {
+  updateFromRequest(id: number, payload: UpdateServiceDto): Promise<Service> {
     return this.update(id, payload);
   }
 

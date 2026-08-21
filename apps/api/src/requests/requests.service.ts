@@ -35,11 +35,16 @@ export class RequestsService {
     requestedBy: User,
     activeAssociationId: number,
   ): Promise<Request> {
-    const { targetId, type, eventPayload, servicePayload } = createRequestDto;
+    const { targetId, type, payload: rawPayload } = createRequestDto;
+
+    const payload = await this.requestRegistry.validateCreatePayload(
+      type,
+      rawPayload,
+    );
 
     const request = this.requestRepository.create({
       type,
-      payload: eventPayload ?? servicePayload,
+      payload,
       requestedBy,
     });
 
@@ -63,7 +68,7 @@ export class RequestsService {
     updateRequestDto: UpdateRequestDto,
     activeAssociationId: number,
   ): Promise<Request> {
-    const { eventPayload, servicePayload } = updateRequestDto;
+    const { payload: rawPayload } = updateRequestDto;
 
     const request = await this.requestRepository.findOneOrFail({
       where: { id },
@@ -80,16 +85,10 @@ export class RequestsService {
       throw new BadRequestException("Only pending requests can be updated.");
     }
 
-    const payload =
-      request.type === RequestType.SERVICE ? servicePayload : eventPayload;
-    const mismatched =
-      request.type === RequestType.SERVICE ? eventPayload : servicePayload;
-
-    if (mismatched) {
-      throw new BadRequestException(
-        `Cannot update a mismatched payload for a ${request.type} request.`,
-      );
-    }
+    const payload = await this.requestRegistry.validateUpdatePayload(
+      request.type,
+      rawPayload,
+    );
 
     this.requestRepository.merge(request, {
       payload: { ...request.payload, ...payload },

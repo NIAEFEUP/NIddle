@@ -150,7 +150,7 @@ describe("RequestsController", () => {
     it("forwards the dto, requester and active association to the service", async () => {
       const dto = {
         type: RequestType.SERVICE,
-        servicePayload: { name: "Papelaria Nova" } as any,
+        payload: { name: "Papelaria Nova" } as any,
       };
       mockRequestsService.create.mockResolvedValue(mockRequest);
 
@@ -166,7 +166,7 @@ describe("RequestsController", () => {
 
   describe("update", () => {
     it("forwards the id, dto and active association to the service", async () => {
-      const dto = { servicePayload: { name: "Papelaria Editada" } as any };
+      const dto = { payload: { name: "Papelaria Editada" } as any };
       mockRequestsService.update.mockResolvedValue(mockRequest);
 
       const result = await controller.update("req-1", dto as any, {

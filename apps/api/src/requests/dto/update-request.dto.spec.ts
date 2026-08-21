@@ -1,26 +1,21 @@
-import { plainToInstance } from "class-transformer";
+import { validate } from "class-validator";
 import { UpdateRequestDto } from "./update-request.dto";
 
-describe("UpdateRequestDto transformation", () => {
-  it("transforms eventPayload into an UpdateEventDto instance", () => {
-    const plain = {
-      eventPayload: { name: "FEUP Week Updated" },
-    };
+describe("UpdateRequestDto validation", () => {
+  it("requires a payload", async () => {
+    const dto = new UpdateRequestDto();
 
-    const dto = plainToInstance(UpdateRequestDto, plain);
+    const errors = await validate(dto);
 
-    expect(dto.eventPayload).toBeDefined();
-    expect(dto.eventPayload?.name).toEqual("FEUP Week Updated");
+    expect(errors.some((e) => e.property === "payload")).toBe(true);
   });
 
-  it("transforms servicePayload into an UpdateServiceDto instance", () => {
-    const plain = {
-      servicePayload: { name: "Papelaria Editada" },
-    };
+  it("passes when a payload is provided", async () => {
+    const dto = new UpdateRequestDto();
+    dto.payload = { name: "Papelaria Editada" };
 
-    const dto = plainToInstance(UpdateRequestDto, plain);
+    const errors = await validate(dto);
 
-    expect(dto.servicePayload).toBeDefined();
-    expect(dto.servicePayload?.name).toEqual("Papelaria Editada");
+    expect(errors).toHaveLength(0);
   });
 });

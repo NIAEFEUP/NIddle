@@ -114,6 +114,12 @@ describe("RequestsService", () => {
         `No handler registered for request type: ${type}`,
       );
     }),
+    validateCreatePayload: jest.fn((_type: RequestType, payload: unknown) =>
+      Promise.resolve(payload),
+    ),
+    validateUpdatePayload: jest.fn((_type: RequestType, payload: unknown) =>
+      Promise.resolve(payload),
+    ),
   };
 
   beforeEach(async () => {
@@ -147,11 +153,11 @@ describe("RequestsService", () => {
     it("creates a request without a target (new-entity request)", async () => {
       const dto = {
         type: RequestType.SERVICE,
-        servicePayload: { name: "Papelaria Nova" } as any,
+        payload: { name: "Papelaria Nova" } as any,
       };
       const created = {
         type: dto.type,
-        payload: dto.servicePayload,
+        payload: dto.payload,
         requestedBy: mockUser,
       };
       mockRequestRepository.create.mockReturnValue(created);
@@ -162,9 +168,13 @@ describe("RequestsService", () => {
 
       const result = await service.create(dto as any, mockUser, 3);
 
+      expect(mockRequestRegistry.validateCreatePayload).toHaveBeenCalledWith(
+        dto.type,
+        dto.payload,
+      );
       expect(mockRequestRepository.create).toHaveBeenCalledWith({
         type: dto.type,
-        payload: dto.servicePayload,
+        payload: dto.payload,
         requestedBy: mockUser,
       });
       expect(mockServiceHandler.findOne).not.toHaveBeenCalled();
@@ -180,7 +190,7 @@ describe("RequestsService", () => {
       const dto = {
         type: RequestType.SERVICE,
         targetId: 5,
-        servicePayload: { name: "Papelaria Editada" } as any,
+        payload: { name: "Papelaria Editada" } as any,
       };
       const mockTargetService = { id: 5, name: "Papelaria Antiga" };
       mockRequestRepository.create.mockReturnValue({});
@@ -201,7 +211,7 @@ describe("RequestsService", () => {
       const dto = {
         type: RequestType.EVENT,
         targetId: 7,
-        eventPayload: { name: "FEUP Week" } as any,
+        payload: { name: "FEUP Week" } as any,
       };
       const mockTargetEvent = { id: 7, name: "FEUP Week Antigo" };
       mockRequestRepository.create.mockReturnValue({});
@@ -217,10 +227,25 @@ describe("RequestsService", () => {
       expect(mockServiceHandler.findOne).not.toHaveBeenCalled();
       expect(result.targetEvent).toEqual(mockTargetEvent);
     });
+
+    it("throws when the payload fails registry validation", async () => {
+      const dto = {
+        type: RequestType.SERVICE,
+        payload: { name: "" } as any,
+      };
+      mockRequestRegistry.validateCreatePayload.mockRejectedValueOnce(
+        new BadRequestException("Invalid payload."),
+      );
+
+      await expect(service.create(dto as any, mockUser, 3)).rejects.toThrow(
+        BadRequestException,
+      );
+      expect(mockRequestRepository.save).not.toHaveBeenCalled();
+    });
   });
 
   describe("update", () => {
-    it("merges the servicePayload into a pending Service request", async () => {
+    it("merges the payload into a pending Service request", async () => {
       mockRequestRepository.findOneOrFail.mockResolvedValue({
         ...mockRequest,
       });
@@ -229,20 +254,24 @@ describe("RequestsService", () => {
       );
       mockRequestRepository.save.mockImplementation(async (r) => r);
 
-      const dto = { servicePayload: { name: "Papelaria Nova" } as any };
+      const dto = { payload: { name: "Papelaria Nova" } as any };
       const result = await service.update("req-1", dto, mockAssociation.id);
 
+      expect(mockRequestRegistry.validateUpdatePayload).toHaveBeenCalledWith(
+        mockRequest.type,
+        dto.payload,
+      );
       expect(mockRequestRepository.merge).toHaveBeenCalledWith(
         expect.objectContaining({ id: "req-1" }),
-        { payload: { ...mockRequest.payload, ...dto.servicePayload } },
+        { payload: { ...mockRequest.payload, ...dto.payload } },
       );
       expect(result.payload).toEqual({
         ...mockRequest.payload,
-        ...dto.servicePayload,
+        ...dto.payload,
       });
     });
 
-    it("merges the eventPayload into a pending Event request", async () => {
+    it("merges the payload into a pending Event request", async () => {
       const eventRequest: Request = { ...mockRequest, type: RequestType.EVENT };
       mockRequestRepository.findOneOrFail.mockResolvedValue(eventRequest);
       mockRequestRepository.merge.mockImplementation((r, patch) =>
@@ -250,12 +279,16 @@ describe("RequestsService", () => {
       );
       mockRequestRepository.save.mockImplementation(async (r) => r);
 
-      const dto = { eventPayload: { name: "FEUP Week" } as any };
+      const dto = { payload: { name: "FEUP Week" } as any };
       const result = await service.update("req-1", dto, mockAssociation.id);
 
+      expect(mockRequestRegistry.validateUpdatePayload).toHaveBeenCalledWith(
+        eventRequest.type,
+        dto.payload,
+      );
       expect(result.payload).toEqual({
         ...eventRequest.payload,
-        ...dto.eventPayload,
+        ...dto.payload,
       });
     });
 
@@ -265,7 +298,7 @@ describe("RequestsService", () => {
       });
 
       await expect(
-        service.update("req-1", {}, mockOtherAssociation.id),
+        service.update("req-1", { payload: {} }, mockOtherAssociation.id),
       ).rejects.toThrow(ForbiddenException);
       expect(mockRequestRepository.save).not.toHaveBeenCalled();
     });
@@ -277,37 +310,20 @@ describe("RequestsService", () => {
       });
 
       await expect(
-        service.update("req-1", {}, mockAssociation.id),
+        service.update("req-1", { payload: {} }, mockAssociation.id),
       ).rejects.toThrow(BadRequestException);
     });
 
-    it("throws BadRequestException for an eventPayload on a Service request", async () => {
+    it("throws when the payload fails registry validation", async () => {
       mockRequestRepository.findOneOrFail.mockResolvedValue({
         ...mockRequest,
       });
+      mockRequestRegistry.validateUpdatePayload.mockRejectedValueOnce(
+        new BadRequestException("Invalid payload."),
+      );
 
       await expect(
-        service.update(
-          "req-1",
-          { eventPayload: {} as any },
-          mockAssociation.id,
-        ),
-      ).rejects.toThrow(BadRequestException);
-      expect(mockRequestRepository.save).not.toHaveBeenCalled();
-    });
-
-    it("throws BadRequestException for a servicePayload on an Event request", async () => {
-      mockRequestRepository.findOneOrFail.mockResolvedValue({
-        ...mockRequest,
-        type: RequestType.EVENT,
-      });
-
-      await expect(
-        service.update(
-          "req-1",
-          { servicePayload: {} as any },
-          mockAssociation.id,
-        ),
+        service.update("req-1", { payload: {} }, mockAssociation.id),
       ).rejects.toThrow(BadRequestException);
       expect(mockRequestRepository.save).not.toHaveBeenCalled();
     });

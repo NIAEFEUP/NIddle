@@ -1,4 +1,10 @@
-import { Injectable, InternalServerErrorException } from "@nestjs/common";
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+} from "@nestjs/common";
+import { plainToInstance } from "class-transformer";
+import { validate } from "class-validator";
 import { EventsService } from "@/events/events.service";
 import { ServicesService } from "@/services/services.service";
 import { RequestType } from "./entities/request.entity";
@@ -23,5 +29,27 @@ export class RequestRegistry {
     }
 
     return handler;
+  }
+
+  validateCreatePayload(type: RequestType, payload: unknown): Promise<any> {
+    return this.runValidation(this.get(type).createPayloadType, payload);
+  }
+
+  validateUpdatePayload(type: RequestType, payload: unknown): Promise<any> {
+    return this.runValidation(this.get(type).updatePayloadType, payload);
+  }
+
+  private async runValidation<T extends object>(
+    payloadType: new () => T,
+    payload: unknown,
+  ): Promise<T> {
+    const instance = plainToInstance(payloadType, payload);
+    const errors = await validate(instance);
+
+    if (errors.length > 0) {
+      throw new BadRequestException(errors);
+    }
+
+    return instance;
   }
 }

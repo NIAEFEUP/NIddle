@@ -12,7 +12,12 @@ import { UpdateEventDto } from "./dto/update-event.dto";
 import { Event } from "./entities/event.entity";
 
 @Injectable()
-export class EventsService implements Requestable<CreateEventDto, Event> {
+export class EventsService
+  implements Requestable<CreateEventDto, Event, UpdateEventDto>
+{
+  createPayloadType = CreateEventDto;
+  updatePayloadType = UpdateEventDto;
+
   constructor(
     @InjectRepository(Event)
     private eventRepository: Repository<Event>,
@@ -90,7 +95,7 @@ export class EventsService implements Requestable<CreateEventDto, Event> {
     return this.create(payload, associationId);
   }
 
-  updateFromRequest(id: number, payload: CreateEventDto): Promise<Event> {
+  updateFromRequest(id: number, payload: UpdateEventDto): Promise<Event> {
     return this.update(id, payload);
   }
 
