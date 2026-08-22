@@ -8,6 +8,7 @@ import { getRepositoryToken } from "@nestjs/typeorm";
 import { Association } from "@/associations/entities/association.entity";
 import {
   Request,
+  RequestAction,
   RequestStatus,
   RequestType,
 } from "@/requests/entities/request.entity";
@@ -66,6 +67,7 @@ describe("RequestsService", () => {
   const mockRequest: Request = {
     id: "req-1",
     type: RequestType.SERVICE,
+    action: RequestAction.CREATE,
     status: RequestStatus.PENDING,
     requestedBy: mockUser,
     createdAt: new Date("2026-01-01T00:00:00Z"),
@@ -99,11 +101,13 @@ describe("RequestsService", () => {
   const mockServiceHandler = {
     createFromRequest: jest.fn(),
     updateFromRequest: jest.fn(),
+    remove: jest.fn(),
     findOne: jest.fn(),
   };
   const mockEventHandler = {
     createFromRequest: jest.fn(),
     updateFromRequest: jest.fn(),
+    remove: jest.fn(),
     findOne: jest.fn(),
   };
   const mockRequestRegistry = {
@@ -150,13 +154,15 @@ describe("RequestsService", () => {
   });
 
   describe("create", () => {
-    it("creates a request without a target (new-entity request)", async () => {
+    it("creates a Create-action request without a target", async () => {
       const dto = {
         type: RequestType.SERVICE,
+        action: RequestAction.CREATE,
         payload: { name: "Papelaria Nova" } as any,
       };
       const created = {
         type: dto.type,
+        action: dto.action,
         payload: dto.payload,
         requestedBy: mockUser,
       };
@@ -174,6 +180,7 @@ describe("RequestsService", () => {
       );
       expect(mockRequestRepository.create).toHaveBeenCalledWith({
         type: dto.type,
+        action: dto.action,
         payload: dto.payload,
         requestedBy: mockUser,
       });
@@ -186,9 +193,31 @@ describe("RequestsService", () => {
       expect(mockRequestRepository.save).toHaveBeenCalledWith(result);
     });
 
-    it("validates the target exists via the registry when targetId is given for a Service request", async () => {
+    it("ignores a targetId sent alongside a Create action", async () => {
       const dto = {
         type: RequestType.SERVICE,
+        action: RequestAction.CREATE,
+        targetId: 5,
+        payload: { name: "Papelaria Nova" } as any,
+      };
+      mockRequestRepository.create.mockReturnValue({});
+      mockAssociationRepository.findOneByOrFail.mockResolvedValue(
+        mockAssociation,
+      );
+      mockRequestRepository.save.mockImplementation(async (r) => r);
+
+      const result = await service.create(dto as any, mockUser, 3);
+
+      expect(mockServiceHandler.findOne).not.toHaveBeenCalled();
+      expect(mockEventHandler.findOne).not.toHaveBeenCalled();
+      expect(result.targetService).toBeUndefined();
+      expect(result.targetEvent).toBeUndefined();
+    });
+
+    it("validates the target exists via the registry for an Update Existing Service request", async () => {
+      const dto = {
+        type: RequestType.SERVICE,
+        action: RequestAction.UPDATE_EXISTING,
         targetId: 5,
         payload: { name: "Papelaria Editada" } as any,
       };
@@ -207,9 +236,10 @@ describe("RequestsService", () => {
       expect(result.targetService).toEqual(mockTargetService);
     });
 
-    it("validates the target exists via the registry when targetId is given for an Event request", async () => {
+    it("validates the target exists via the registry for an Update Existing Event request", async () => {
       const dto = {
         type: RequestType.EVENT,
+        action: RequestAction.UPDATE_EXISTING,
         targetId: 7,
         payload: { name: "FEUP Week" } as any,
       };
@@ -228,9 +258,51 @@ describe("RequestsService", () => {
       expect(result.targetEvent).toEqual(mockTargetEvent);
     });
 
+    it("validates the target exists via the registry for a Delete Existing request", async () => {
+      const dto = {
+        type: RequestType.SERVICE,
+        action: RequestAction.DELETE_EXISTING,
+        targetId: 5,
+      };
+      const mockTargetService = { id: 5, name: "Papelaria Antiga" };
+      mockRequestRepository.create.mockReturnValue({});
+      mockServiceHandler.findOne.mockResolvedValue(mockTargetService);
+      mockAssociationRepository.findOneByOrFail.mockResolvedValue(
+        mockAssociation,
+      );
+      mockRequestRepository.save.mockImplementation(async (r) => r);
+
+      const result = await service.create(dto as any, mockUser, 3);
+
+      expect(mockServiceHandler.findOne).toHaveBeenCalledWith(5);
+      expect(result.targetService).toEqual(mockTargetService);
+    });
+
+    it("skips payload validation and stores a null payload for a Delete Existing request", async () => {
+      const dto = {
+        type: RequestType.SERVICE,
+        action: RequestAction.DELETE_EXISTING,
+        targetId: 5,
+      };
+      mockRequestRepository.create.mockReturnValue({});
+      mockServiceHandler.findOne.mockResolvedValue({ id: 5 });
+      mockAssociationRepository.findOneByOrFail.mockResolvedValue(
+        mockAssociation,
+      );
+      mockRequestRepository.save.mockImplementation(async (r) => r);
+
+      await service.create(dto as any, mockUser, 3);
+
+      expect(mockRequestRegistry.validateCreatePayload).not.toHaveBeenCalled();
+      expect(mockRequestRepository.create).toHaveBeenCalledWith(
+        expect.objectContaining({ payload: null }),
+      );
+    });
+
     it("throws when the payload fails registry validation", async () => {
       const dto = {
         type: RequestType.SERVICE,
+        action: RequestAction.CREATE,
         payload: { name: "" } as any,
       };
       mockRequestRegistry.validateCreatePayload.mockRejectedValueOnce(
@@ -314,6 +386,20 @@ describe("RequestsService", () => {
       ).rejects.toThrow(BadRequestException);
     });
 
+    it("throws BadRequestException when the request is a Delete Existing action", async () => {
+      mockRequestRepository.findOneOrFail.mockResolvedValue({
+        ...mockRequest,
+        action: RequestAction.DELETE_EXISTING,
+        payload: null,
+      });
+
+      await expect(
+        service.update("req-1", { payload: {} }, mockAssociation.id),
+      ).rejects.toThrow(BadRequestException);
+      expect(mockRequestRegistry.validateUpdatePayload).not.toHaveBeenCalled();
+      expect(mockRequestRepository.save).not.toHaveBeenCalled();
+    });
+
     it("throws when the payload fails registry validation", async () => {
       mockRequestRepository.findOneOrFail.mockResolvedValue({
         ...mockRequest,
@@ -385,7 +471,7 @@ describe("RequestsService", () => {
   });
 
   describe("approve", () => {
-    it("should approve a pending service creation request", async () => {
+    it("approves a Create action for a Service", async () => {
       mockRequestRepository.findOneOrFail.mockResolvedValue({
         ...mockRequest,
       });
@@ -416,8 +502,8 @@ describe("RequestsService", () => {
       );
 
       expect(mockServiceHandler.updateFromRequest).not.toHaveBeenCalled();
+      expect(mockServiceHandler.remove).not.toHaveBeenCalled();
       expect(mockEventHandler.createFromRequest).not.toHaveBeenCalled();
-      expect(mockEventHandler.updateFromRequest).not.toHaveBeenCalled();
 
       expect(mockRequestRepository.save).toHaveBeenCalledWith(
         expect.objectContaining({ status: RequestStatus.APPROVED }),
@@ -426,7 +512,7 @@ describe("RequestsService", () => {
       expect(result).toEqual(createdService);
     });
 
-    it("should approve a pending event creation request", async () => {
+    it("approves a Create action for an Event", async () => {
       const eventRequest: Request = {
         ...mockRequest,
         type: RequestType.EVENT,
@@ -451,10 +537,11 @@ describe("RequestsService", () => {
       expect(result).toEqual(createdEvent);
     });
 
-    it("should update the existing service when the request targets one", async () => {
+    it("approves an Update Existing action for a Service", async () => {
       const mockTargetService = { id: 5, name: "Papelaria Antiga" };
       const editRequest: Request = {
         ...mockRequest,
+        action: RequestAction.UPDATE_EXISTING,
         targetService: mockTargetService as any,
       };
       mockRequestRepository.findOneOrFail.mockResolvedValue(editRequest);
@@ -473,14 +560,16 @@ describe("RequestsService", () => {
         editRequest.payload,
       );
       expect(mockServiceHandler.createFromRequest).not.toHaveBeenCalled();
+      expect(mockServiceHandler.remove).not.toHaveBeenCalled();
       expect(result).toEqual(updatedService);
     });
 
-    it("should update the existing event when the request targets one", async () => {
+    it("approves an Update Existing action for an Event", async () => {
       const mockTargetEvent = { id: 7, name: "FEUP Week Antigo" };
       const editRequest: Request = {
         ...mockRequest,
         type: RequestType.EVENT,
+        action: RequestAction.UPDATE_EXISTING,
         targetEvent: mockTargetEvent as any,
       };
       mockRequestRepository.findOneOrFail.mockResolvedValue(editRequest);
@@ -502,6 +591,101 @@ describe("RequestsService", () => {
       expect(result).toEqual(updatedEvent);
     });
 
+    it("approves a Delete Existing action for a Service", async () => {
+      const mockTargetService = { id: 5, name: "Papelaria Antiga" };
+      const deleteRequest: Request = {
+        ...mockRequest,
+        action: RequestAction.DELETE_EXISTING,
+        payload: null,
+        targetService: mockTargetService as any,
+      };
+      mockRequestRepository.findOneOrFail.mockResolvedValue(deleteRequest);
+
+      const removedService = { id: 5, name: "Papelaria D. Beatriz" };
+      mockServiceHandler.remove.mockResolvedValue(removedService);
+      mockRequestRepository.save.mockResolvedValue({
+        ...deleteRequest,
+        status: RequestStatus.APPROVED,
+      });
+
+      const result = await service.approve("req-1");
+
+      expect(mockServiceHandler.remove).toHaveBeenCalledWith(5);
+      expect(mockServiceHandler.createFromRequest).not.toHaveBeenCalled();
+      expect(mockServiceHandler.updateFromRequest).not.toHaveBeenCalled();
+      expect(result).toEqual(removedService);
+    });
+
+    it("approves a Delete Existing action for an Event", async () => {
+      const mockTargetEvent = { id: 7, name: "FEUP Week Antigo" };
+      const deleteRequest: Request = {
+        ...mockRequest,
+        type: RequestType.EVENT,
+        action: RequestAction.DELETE_EXISTING,
+        payload: null,
+        targetEvent: mockTargetEvent as any,
+      };
+      mockRequestRepository.findOneOrFail.mockResolvedValue(deleteRequest);
+
+      const removedEvent = { id: 7, name: "FEUP Week Antigo" };
+      mockEventHandler.remove.mockResolvedValue(removedEvent);
+      mockRequestRepository.save.mockResolvedValue({
+        ...deleteRequest,
+        status: RequestStatus.APPROVED,
+      });
+
+      const result = await service.approve("req-1");
+
+      expect(mockEventHandler.remove).toHaveBeenCalledWith(7);
+      expect(result).toEqual(removedEvent);
+    });
+
+    it("throws InternalServerErrorException when an Update Existing request is missing its target", async () => {
+      mockRequestRepository.findOneOrFail.mockResolvedValue({
+        ...mockRequest,
+        action: RequestAction.UPDATE_EXISTING,
+        targetService: null,
+        targetEvent: null,
+      });
+
+      await expect(service.approve("req-1")).rejects.toThrow(
+        InternalServerErrorException,
+      );
+      expect(mockServiceHandler.updateFromRequest).not.toHaveBeenCalled();
+      expect(mockRequestRepository.save).not.toHaveBeenCalled();
+    });
+
+    it("throws InternalServerErrorException when a Delete Existing request is missing its target", async () => {
+      mockRequestRepository.findOneOrFail.mockResolvedValue({
+        ...mockRequest,
+        action: RequestAction.DELETE_EXISTING,
+        payload: null,
+        targetService: null,
+        targetEvent: null,
+      });
+
+      await expect(service.approve("req-1")).rejects.toThrow(
+        InternalServerErrorException,
+      );
+      expect(mockServiceHandler.remove).not.toHaveBeenCalled();
+      expect(mockRequestRepository.save).not.toHaveBeenCalled();
+    });
+
+    it("throws InternalServerErrorException when an Update Existing request has a null payload", async () => {
+      mockRequestRepository.findOneOrFail.mockResolvedValue({
+        ...mockRequest,
+        action: RequestAction.UPDATE_EXISTING,
+        payload: null,
+        targetService: { id: 5 } as any,
+      });
+
+      await expect(service.approve("req-1")).rejects.toThrow(
+        InternalServerErrorException,
+      );
+      expect(mockServiceHandler.updateFromRequest).not.toHaveBeenCalled();
+      expect(mockRequestRepository.save).not.toHaveBeenCalled();
+    });
+
     it("should throw BadRequestException when the request is not pending", async () => {
       mockRequestRepository.findOneOrFail.mockResolvedValue({
         ...mockRequest,
@@ -515,7 +699,7 @@ describe("RequestsService", () => {
       expect(mockRequestRepository.save).not.toHaveBeenCalled();
     });
 
-    it("should throw InternalServerErrorException for an unrecognized request type", async () => {
+    it("throws InternalServerErrorException for an unrecognized request type", async () => {
       mockRequestRepository.findOneOrFail.mockResolvedValue({
         ...mockRequest,
         type: "Unknown" as any,
@@ -524,6 +708,19 @@ describe("RequestsService", () => {
       await expect(service.approve("req-1")).rejects.toThrow(
         InternalServerErrorException,
       );
+    });
+
+    it("throws InternalServerErrorException for an unrecognized request action", async () => {
+      mockRequestRepository.findOneOrFail.mockResolvedValue({
+        ...mockRequest,
+        action: "Unknown" as any,
+      });
+
+      await expect(service.approve("req-1")).rejects.toThrow(
+        InternalServerErrorException,
+      );
+      expect(mockServiceHandler.createFromRequest).not.toHaveBeenCalled();
+      expect(mockRequestRepository.save).not.toHaveBeenCalled();
     });
   });
 

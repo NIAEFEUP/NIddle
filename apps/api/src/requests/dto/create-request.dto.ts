@@ -4,10 +4,10 @@ import {
   IsEnum,
   IsInt,
   IsNotEmpty,
-  IsOptional,
+  ValidateIf,
 } from "class-validator";
 import { CreateEventDto } from "@/events/dto/create-event.dto";
-import { RequestType } from "@/requests/entities/request.entity";
+import { RequestAction, RequestType } from "@/requests/entities/request.entity";
 import { CreateServiceDto } from "@/services/dto/create-service.dto";
 
 @ApiExtraModels(CreateEventDto, CreateServiceDto)
@@ -20,7 +20,15 @@ export class CreateRequestDto {
   @IsNotEmpty()
   type: RequestType;
 
-  @IsOptional()
+  /**
+   * The type of action the request is for, either "Create", "Update Existing" or "Delete Existing".
+   * @example 'Delete Existing'
+   */
+  @IsEnum(RequestAction)
+  @IsNotEmpty()
+  action: RequestAction;
+
+  @ValidateIf((dto) => dto.action !== RequestAction.CREATE)
   @IsInt()
   targetId?: number;
 
@@ -35,6 +43,7 @@ export class CreateRequestDto {
     ],
     additionalProperties: false,
   })
+  @ValidateIf((dto) => dto.action !== RequestAction.DELETE_EXISTING)
   @IsDefined()
   payload: Record<string, unknown>;
 }

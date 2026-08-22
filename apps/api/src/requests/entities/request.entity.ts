@@ -24,10 +24,22 @@ export enum RequestType {
   EVENT = "Event",
 }
 
+export enum RequestAction {
+  CREATE = "Create",
+  UPDATE_EXISTING = "Update Existing",
+  DELETE_EXISTING = "Delete Existing",
+}
+
 @Entity()
 export class Request {
   @PrimaryGeneratedColumn("uuid")
   id: string;
+
+  @Column({
+    type: "simple-enum",
+    enum: RequestAction,
+  })
+  action: RequestAction;
 
   @Column({
     type: "simple-enum",
@@ -69,8 +81,9 @@ export class Request {
 
   @Column({
     type: "simple-json",
+    nullable: true,
   })
-  payload: CreateServiceDto | CreateEventDto;
+  payload: CreateServiceDto | CreateEventDto | null;
 
   @ManyToOne(() => Event, { nullable: true, onDelete: "CASCADE" })
   targetEvent: Event | null;

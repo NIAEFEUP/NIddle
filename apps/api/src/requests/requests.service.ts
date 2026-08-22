@@ -2,6 +2,7 @@ import {
   BadRequestException,
   ForbiddenException,
   Injectable,
+  InternalServerErrorException,
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
@@ -9,6 +10,7 @@ import { Association } from "@/associations/entities/association.entity";
 import { Event } from "@/events/entities/event.entity";
 import {
   Request,
+  RequestAction,
   RequestStatus,
   RequestType,
 } from "@/requests/entities/request.entity";
@@ -35,20 +37,21 @@ export class RequestsService {
     requestedBy: User,
     activeAssociationId: number,
   ): Promise<Request> {
-    const { targetId, type, payload: rawPayload } = createRequestDto;
+    const { targetId, type, action, payload: rawPayload } = createRequestDto;
 
-    const payload = await this.requestRegistry.validateCreatePayload(
-      type,
-      rawPayload,
-    );
+    const payload =
+      action === RequestAction.DELETE_EXISTING
+        ? null
+        : await this.requestRegistry.validateCreatePayload(type, rawPayload);
 
     const request = this.requestRepository.create({
       type,
+      action,
       payload,
       requestedBy,
     });
 
-    if (targetId) {
+    if (action !== RequestAction.CREATE && targetId) {
       const target = await this.requestRegistry.get(type).findOne(targetId);
       if (type === RequestType.SERVICE)
         request.targetService = target as Service;
@@ -83,6 +86,12 @@ export class RequestsService {
 
     if (request.status !== RequestStatus.PENDING) {
       throw new BadRequestException("Only pending requests can be updated.");
+    }
+
+    if (request.action === RequestAction.DELETE_EXISTING) {
+      throw new BadRequestException(
+        "Delete requests have no payload to update.",
+      );
     }
 
     const payload = await this.requestRegistry.validateUpdatePayload(
@@ -221,12 +230,41 @@ export class RequestsService {
     const handler = this.requestRegistry.get(request.type);
     const targetId = request.targetEvent?.id ?? request.targetService?.id;
 
-    const result = targetId
-      ? await handler.updateFromRequest(targetId, request.payload)
-      : await handler.createFromRequest(
+    let result: Event | Service;
+
+    switch (request.action) {
+      case RequestAction.CREATE:
+        result = await handler.createFromRequest(
           request.payload,
           request.targetAssociation.id,
         );
+        break;
+      case RequestAction.UPDATE_EXISTING:
+        if (targetId === undefined) {
+          throw new InternalServerErrorException(
+            "Update request is missing its target.",
+          );
+        }
+        if (request.payload === null) {
+          throw new InternalServerErrorException(
+            "Update request is missing its payload.",
+          );
+        }
+        result = await handler.updateFromRequest(targetId, request.payload);
+        break;
+      case RequestAction.DELETE_EXISTING:
+        if (targetId === undefined) {
+          throw new InternalServerErrorException(
+            "Delete request is missing its target.",
+          );
+        }
+        result = await handler.remove(targetId);
+        break;
+      default:
+        throw new InternalServerErrorException(
+          `Unrecognized request action: ${request.action}`,
+        );
+    }
 
     request.status = RequestStatus.APPROVED;
     request.reviewedAt = new Date();
