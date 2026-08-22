@@ -258,6 +258,9 @@ export class RequestsService {
             "Delete request is missing its target.",
           );
         }
+        request.targetEvent = null;
+        request.targetService = null;
+        await this.requestRepository.save(request);
         result = await handler.remove(targetId);
         break;
       default:
