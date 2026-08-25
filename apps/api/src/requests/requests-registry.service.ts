@@ -13,7 +13,7 @@ import { CreateServiceDto } from "@/services/dto/create-service.dto";
 import { UpdateServiceDto } from "@/services/dto/update-service.dto";
 import { Service } from "@/services/entity/service.entity";
 import { ServicesService } from "@/services/services.service";
-import { RequestType } from "./entities/request.entity";
+import { Request, RequestType } from "./entities/request.entity";
 import { Requestable } from "./interfaces/requestable.interface";
 
 const REQUEST_DTOS: Record<
@@ -60,6 +60,37 @@ export class RequestRegistry {
     throw new InternalServerErrorException(
       `No handler registered for request type: ${type}`,
     );
+  }
+
+  attachTarget(
+    request: Request,
+    type: RequestType,
+    target: Event | Service,
+  ): void {
+    if (type === RequestType.SERVICE) {
+      request.targetService = target as Service;
+    }
+
+    if (type === RequestType.EVENT) {
+      request.targetEvent = target as Event;
+    }
+  }
+
+  getTargetId(request: Request, type: RequestType): number | undefined {
+    if (type === RequestType.SERVICE) {
+      return request.targetService?.id;
+    }
+
+    if (type === RequestType.EVENT) {
+      return request.targetEvent?.id;
+    }
+
+    return undefined;
+  }
+
+  detachTarget(request: Request): void {
+    request.targetEvent = null;
+    request.targetService = null;
   }
 
   validateCreatePayload(type: RequestType, payload: unknown): Promise<any> {

@@ -12,7 +12,6 @@ import {
   Request,
   RequestAction,
   RequestStatus,
-  RequestType,
 } from "@/requests/entities/request.entity";
 import { Service } from "@/services/entity/service.entity";
 import { User } from "@/users/entities/user.entity";
@@ -53,9 +52,7 @@ export class RequestsService {
 
     if (action !== RequestAction.CREATE && targetId) {
       const target = await this.requestRegistry.findTarget(type, targetId);
-      if (type === RequestType.SERVICE)
-        request.targetService = target as Service;
-      if (type === RequestType.EVENT) request.targetEvent = target as Event;
+      this.requestRegistry.attachTarget(request, type, target);
     }
 
     request.targetAssociation =
@@ -182,7 +179,7 @@ export class RequestsService {
     }
 
     const handler = this.requestRegistry.get(request.type);
-    const targetId = request.targetEvent?.id ?? request.targetService?.id;
+    const targetId = this.requestRegistry.getTargetId(request, request.type);
 
     let result: Event | Service;
 
@@ -212,8 +209,7 @@ export class RequestsService {
             "Delete request is missing its target.",
           );
         }
-        request.targetEvent = null;
-        request.targetService = null;
+        this.requestRegistry.detachTarget(request);
         await this.requestRepository.save(request);
         result = await handler.removeFromRequest(targetId);
         break;

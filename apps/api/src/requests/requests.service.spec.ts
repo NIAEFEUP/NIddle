@@ -107,6 +107,19 @@ describe("RequestsService", () => {
       );
     }),
     findTarget: jest.fn(),
+    attachTarget: jest.fn((request: any, type: RequestType, target: any) => {
+      if (type === RequestType.SERVICE) request.targetService = target;
+      if (type === RequestType.EVENT) request.targetEvent = target;
+    }),
+    getTargetId: jest.fn((request: any, type: RequestType) => {
+      if (type === RequestType.SERVICE) return request.targetService?.id;
+      if (type === RequestType.EVENT) return request.targetEvent?.id;
+      return undefined;
+    }),
+    detachTarget: jest.fn((request: any) => {
+      request.targetEvent = null;
+      request.targetService = null;
+    }),
     validateCreatePayload: jest.fn((_type: RequestType, payload: unknown) =>
       Promise.resolve(payload),
     ),

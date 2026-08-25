@@ -71,6 +71,70 @@ describe("RequestRegistry", () => {
     });
   });
 
+  describe("attachTarget", () => {
+    it("sets targetService for a Service type", () => {
+      const request = { targetService: null, targetEvent: null } as any;
+      const target = { id: 5, name: "Papelaria D. Beatriz" };
+
+      registry.attachTarget(request, RequestType.SERVICE, target as any);
+
+      expect(request.targetService).toBe(target);
+      expect(request.targetEvent).toBeNull();
+    });
+
+    it("sets targetEvent for an Event type", () => {
+      const request = { targetService: null, targetEvent: null } as any;
+      const target = { id: 7, name: "FEUP Week" };
+
+      registry.attachTarget(request, RequestType.EVENT, target as any);
+
+      expect(request.targetEvent).toBe(target);
+      expect(request.targetService).toBeNull();
+    });
+  });
+
+  describe("getTargetId", () => {
+    it("returns targetService.id for a Service type", () => {
+      const request = {
+        targetService: { id: 5 },
+        targetEvent: null,
+      } as any;
+
+      expect(registry.getTargetId(request, RequestType.SERVICE)).toBe(5);
+    });
+
+    it("returns targetEvent.id for an Event type", () => {
+      const request = {
+        targetService: null,
+        targetEvent: { id: 7 },
+      } as any;
+
+      expect(registry.getTargetId(request, RequestType.EVENT)).toBe(7);
+    });
+
+    it("returns undefined for an unrecognized type", () => {
+      const request = { targetService: null, targetEvent: null } as any;
+
+      expect(
+        registry.getTargetId(request, "Unknown" as RequestType),
+      ).toBeUndefined();
+    });
+  });
+
+  describe("detachTarget", () => {
+    it("nulls both targetService and targetEvent", () => {
+      const request = {
+        targetService: { id: 5 },
+        targetEvent: { id: 7 },
+      } as any;
+
+      registry.detachTarget(request);
+
+      expect(request.targetService).toBeNull();
+      expect(request.targetEvent).toBeNull();
+    });
+  });
+
   describe("validateCreatePayload", () => {
     it("returns a validated CreateEventDto instance for a valid Event payload", async () => {
       const result = await registry.validateCreatePayload(RequestType.EVENT, {
