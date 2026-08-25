@@ -598,4 +598,15 @@ describe("ServicesService", () => {
       expect(result).toEqual(mockService);
     });
   });
+
+  describe("removeFromRequest", () => {
+    it("delegates to remove", async () => {
+      jest.spyOn(service, "remove").mockResolvedValue(mockService);
+
+      const result = await service.removeFromRequest(1);
+
+      expect(service.remove).toHaveBeenCalledWith(1);
+      expect(result).toEqual(mockService);
+    });
+  });
 });

@@ -318,4 +318,15 @@ describe("EventsService", () => {
       expect(result).toEqual(mockEvent);
     });
   });
+
+  describe("removeFromRequest", () => {
+    it("delegates to remove", async () => {
+      jest.spyOn(service, "remove").mockResolvedValue(mockEvent);
+
+      const result = await service.removeFromRequest(1);
+
+      expect(service.remove).toHaveBeenCalledWith(1);
+      expect(result).toEqual(mockEvent);
+    });
+  });
 });

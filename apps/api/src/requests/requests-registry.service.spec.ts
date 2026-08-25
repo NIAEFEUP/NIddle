@@ -13,16 +13,18 @@ import { RequestRegistry } from "./requests-registry.service";
 
 describe("RequestRegistry", () => {
   const mockEventsService = {
-    createPayloadType: CreateEventDto,
-    updatePayloadType: UpdateEventDto,
+    findOne: jest.fn(),
   } as unknown as EventsService;
 
   const mockServicesService = {
-    createPayloadType: CreateServiceDto,
-    updatePayloadType: UpdateServiceDto,
+    findOne: jest.fn(),
   } as unknown as ServicesService;
 
   const registry = new RequestRegistry(mockEventsService, mockServicesService);
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
 
   describe("get", () => {
     it("returns the handler registered for a type", () => {
@@ -34,6 +36,38 @@ describe("RequestRegistry", () => {
       expect(() => registry.get("Unknown" as RequestType)).toThrow(
         InternalServerErrorException,
       );
+    });
+  });
+
+  describe("findTarget", () => {
+    it("delegates to eventsService.findOne for an Event type", async () => {
+      const mockEvent = { id: 7, name: "FEUP Week" };
+      (mockEventsService.findOne as jest.Mock).mockResolvedValue(mockEvent);
+
+      const result = await registry.findTarget(RequestType.EVENT, 7);
+
+      expect(mockEventsService.findOne).toHaveBeenCalledWith(7);
+      expect(mockServicesService.findOne).not.toHaveBeenCalled();
+      expect(result).toEqual(mockEvent);
+    });
+
+    it("delegates to servicesService.findOne for a Service type", async () => {
+      const mockService = { id: 5, name: "Papelaria D. Beatriz" };
+      (mockServicesService.findOne as jest.Mock).mockResolvedValue(mockService);
+
+      const result = await registry.findTarget(RequestType.SERVICE, 5);
+
+      expect(mockServicesService.findOne).toHaveBeenCalledWith(5);
+      expect(mockEventsService.findOne).not.toHaveBeenCalled();
+      expect(result).toEqual(mockService);
+    });
+
+    it("throws InternalServerErrorException for an unrecognized type", async () => {
+      await expect(
+        registry.findTarget("Unknown" as RequestType, 1),
+      ).rejects.toThrow(InternalServerErrorException);
+      expect(mockEventsService.findOne).not.toHaveBeenCalled();
+      expect(mockServicesService.findOne).not.toHaveBeenCalled();
     });
   });
 

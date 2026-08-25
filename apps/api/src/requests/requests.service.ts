@@ -52,7 +52,7 @@ export class RequestsService {
     });
 
     if (action !== RequestAction.CREATE && targetId) {
-      const target = await this.requestRegistry.get(type).findOne(targetId);
+      const target = await this.requestRegistry.findTarget(type, targetId);
       if (type === RequestType.SERVICE)
         request.targetService = target as Service;
       if (type === RequestType.EVENT) request.targetEvent = target as Event;
@@ -215,7 +215,7 @@ export class RequestsService {
         request.targetEvent = null;
         request.targetService = null;
         await this.requestRepository.save(request);
-        result = await handler.remove(targetId);
+        result = await handler.removeFromRequest(targetId);
         break;
       default:
         throw new InternalServerErrorException(

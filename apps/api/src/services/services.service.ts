@@ -14,9 +14,6 @@ import { Service } from "./entity/service.entity";
 export class ServicesService
   implements Requestable<CreateServiceDto, Service, UpdateServiceDto>
 {
-  createPayloadType = CreateServiceDto;
-  updatePayloadType = UpdateServiceDto;
-
   constructor(
     @InjectRepository(Service)
     private serviceRepository: Repository<Service>,
@@ -154,5 +151,9 @@ export class ServicesService
 
     await this.serviceRepository.delete(id);
     return service;
+  }
+
+  removeFromRequest(id: number): Promise<Service> {
+    return this.remove(id);
   }
 }

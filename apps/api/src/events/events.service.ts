@@ -15,9 +15,6 @@ import { Event } from "./entities/event.entity";
 export class EventsService
   implements Requestable<CreateEventDto, Event, UpdateEventDto>
 {
-  createPayloadType = CreateEventDto;
-  updatePayloadType = UpdateEventDto;
-
   constructor(
     @InjectRepository(Event)
     private eventRepository: Repository<Event>,
@@ -127,5 +124,9 @@ export class EventsService
 
     await this.eventRepository.delete(id);
     return event;
+  }
+
+  removeFromRequest(id: number): Promise<Event> {
+    return this.remove(id);
   }
 }
