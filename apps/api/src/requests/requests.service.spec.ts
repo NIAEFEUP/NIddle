@@ -54,16 +54,6 @@ describe("RequestsService", () => {
     requests: [],
   };
 
-  const mockAdmin: User = {
-    id: 1,
-    name: "Admin",
-    email: "admin@example.com",
-    password: "hashed",
-    isAdmin: true,
-    associations: [],
-    requests: [],
-  };
-
   const mockRequest: Request = {
     id: "req-1",
     type: RequestType.SERVICE,
@@ -768,10 +758,15 @@ describe("RequestsService", () => {
   });
 
   describe("findAll", () => {
-    it("admin without header or filters returns everything", async () => {
+    // Header parsing and association-membership checks now live entirely in
+    // ActiveAssociationGuard (see active-association.guard.spec.ts) — by the
+    // time this method runs, activeAssociationId is already a valid number
+    // or undefined. This describe block only covers query construction.
+
+    it("without an activeAssociationId or filters returns everything", async () => {
       mockRequestRepository.find.mockResolvedValue([mockRequest]);
 
-      const result = await service.findAll(mockAdmin, {});
+      const result = await service.findAll({});
 
       expect(result).toEqual([mockRequest]);
       expect(mockRequestRepository.find).toHaveBeenCalledWith({
@@ -780,10 +775,10 @@ describe("RequestsService", () => {
       });
     });
 
-    it("admin with a status filter narrows the where clause", async () => {
+    it("a status filter narrows the where clause", async () => {
       mockRequestRepository.find.mockResolvedValue([mockRequest]);
 
-      await service.findAll(mockAdmin, { status: RequestStatus.PENDING });
+      await service.findAll({ status: RequestStatus.PENDING });
 
       expect(mockRequestRepository.find).toHaveBeenCalledWith({
         relations,
@@ -791,10 +786,10 @@ describe("RequestsService", () => {
       });
     });
 
-    it("admin with a header scopes results to that association", async () => {
+    it("scopes results to the given activeAssociationId", async () => {
       mockRequestRepository.find.mockResolvedValue([mockRequest]);
 
-      await service.findAll(mockAdmin, { type: RequestType.EVENT }, "3");
+      await service.findAll({ type: RequestType.EVENT }, 3);
 
       expect(mockRequestRepository.find).toHaveBeenCalledWith({
         where: {
@@ -805,34 +800,12 @@ describe("RequestsService", () => {
       });
     });
 
-    it("throws BadRequestException when the header is not a valid integer", async () => {
-      await expect(
-        service.findAll(mockAdmin, {}, "not-a-number"),
-      ).rejects.toThrow(BadRequestException);
-      expect(mockRequestRepository.find).not.toHaveBeenCalled();
-    });
-
-    it("non-admin without a header throws BadRequestException", async () => {
-      await expect(service.findAll(mockUser, {})).rejects.toThrow(
-        BadRequestException,
-      );
-      expect(mockRequestRepository.find).not.toHaveBeenCalled();
-    });
-
-    it("non-admin with an association they don't belong to throws ForbiddenException", async () => {
-      await expect(
-        service.findAll(mockUser, {}, String(mockOtherAssociation.id)),
-      ).rejects.toThrow(ForbiddenException);
-      expect(mockRequestRepository.find).not.toHaveBeenCalled();
-    });
-
-    it("non-admin with their own association returns scoped, filtered results", async () => {
+    it("combines an activeAssociationId with the other filters", async () => {
       mockRequestRepository.find.mockResolvedValue([mockRequest]);
 
       const result = await service.findAll(
-        mockUser,
         { status: RequestStatus.PENDING, requestedBy: mockUser.id },
-        String(mockAssociation.id),
+        mockAssociation.id,
       );
 
       expect(result).toEqual([mockRequest]);

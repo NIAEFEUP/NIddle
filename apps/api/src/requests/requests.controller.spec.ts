@@ -69,12 +69,18 @@ describe("RequestsController", () => {
   });
 
   describe("guards", () => {
-    it("findAll only requires JwtAuthGuard (association scoping is optional for admins)", () => {
+    it("findAll requires JwtAuthGuard + ActiveAssociationGuard, marked optional for admins", () => {
       const guards = Reflect.getMetadata(
         GUARDS_METADATA,
         RequestsController.prototype.findAll,
       );
-      expect(guards).toEqual([JwtAuthGuard]);
+      expect(guards).toEqual([JwtAuthGuard, ActiveAssociationGuard]);
+
+      const optionalForAdmin = Reflect.getMetadata(
+        "activeAssociationOptionalForAdmin",
+        RequestsController.prototype.findAll,
+      );
+      expect(optionalForAdmin).toBe(true);
     });
 
     it("findOne, create, update and remove require JwtAuthGuard + ActiveAssociationGuard", () => {
@@ -103,33 +109,27 @@ describe("RequestsController", () => {
   });
 
   describe("findAll", () => {
-    it("forwards the user, filters and header to the service", async () => {
+    it("forwards the filters and activeAssociationId set by the guard", async () => {
       mockRequestsService.findAll.mockResolvedValue([mockRequest]);
 
       const result = await controller.findAll(
-        "3",
-        { user: mockUser },
+        { activeAssociationId: 3 },
         { status: RequestStatus.PENDING },
       );
 
       expect(result).toEqual([mockRequest]);
       expect(mockRequestsService.findAll).toHaveBeenCalledWith(
-        mockUser,
         { status: RequestStatus.PENDING },
-        "3",
+        3,
       );
     });
 
-    it("forwards undefined when no header is provided", async () => {
+    it("forwards undefined when the guard left no activeAssociationId (admin, no header)", async () => {
       mockRequestsService.findAll.mockResolvedValue([]);
 
-      await controller.findAll(undefined, { user: mockUser }, {});
+      await controller.findAll({}, {});
 
-      expect(mockRequestsService.findAll).toHaveBeenCalledWith(
-        mockUser,
-        {},
-        undefined,
-      );
+      expect(mockRequestsService.findAll).toHaveBeenCalledWith({}, undefined);
     });
   });
 

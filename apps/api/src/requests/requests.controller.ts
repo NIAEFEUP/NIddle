@@ -4,7 +4,6 @@ import {
   Controller,
   Delete,
   Get,
-  Headers,
   Param,
   Patch,
   Post,
@@ -20,7 +19,10 @@ import {
   ApiOperation,
   ApiResponse,
 } from "@nestjs/swagger";
-import { ActiveAssociationGuard } from "@/auth/guards/active-association.guard";
+import {
+  ActiveAssociationGuard,
+  OptionalActiveAssociationForAdmin,
+} from "@/auth/guards/active-association.guard";
 import { AdminOnlyGuard } from "@/auth/guards/admin-only.guard";
 import { JwtAuthGuard } from "@/auth/guards/jwt-auth.guard";
 import { Event } from "@/events/entities/event.entity";
@@ -50,13 +52,13 @@ export class RequestsController {
     required: false,
   })
   @Get()
-  @UseGuards(JwtAuthGuard)
+  @OptionalActiveAssociationForAdmin()
+  @UseGuards(JwtAuthGuard, ActiveAssociationGuard)
   async findAll(
-    @Headers("x-active-association") activeAssociationId: string | undefined,
-    @Req() req: { user: User },
+    @Req() req: { activeAssociationId?: number },
     @Query() filters: RequestFilterDto,
   ): Promise<Request[]> {
-    return this.requestsService.findAll(req.user, filters, activeAssociationId);
+    return this.requestsService.findAll(filters, req.activeAssociationId);
   }
 
   @ApiOperation({ summary: "Get request by ID" })
@@ -79,8 +81,7 @@ export class RequestsController {
   }
 
   @ApiOperation({
-    summary:
-      "Create a new event/service request for creating or updating an event/service (for updating an already created event/service provide targetID)",
+    summary: "Create a new creating/updating/delete request",
   })
   @ApiResponse({ status: 201, description: "Request created." })
   @ApiResponse({ status: 401, description: "Unauthorized." })

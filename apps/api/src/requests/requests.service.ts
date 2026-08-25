@@ -138,12 +138,9 @@ export class RequestsService {
   }
 
   async findAll(
-    user: User,
     filters: RequestFilterDto,
-    activeAssociationHeader?: string,
+    activeAssociationId?: number,
   ): Promise<Request[]> {
-    let activeAssociationId: number | undefined;
-
     const relations = {
       requestedBy: true,
       targetAssociation: true,
@@ -159,58 +156,15 @@ export class RequestsService {
       ...(requestedBy !== undefined && { requestedBy: { id: requestedBy } }),
     };
 
-    if (activeAssociationHeader) {
-      activeAssociationId = parseInt(activeAssociationHeader, 10);
-
-      if (Number.isNaN(activeAssociationId)) {
-        throw new BadRequestException(
-          "Active Association header must be a valid integer.",
-        );
-      }
-    }
-
-    if (user.isAdmin) {
-      if (activeAssociationId) {
-        return this.requestRepository.find({
-          where: {
-            targetAssociation: { id: activeAssociationId },
-            ...whereFilter,
-          },
-          relations,
-        });
-      } else {
-        return this.requestRepository.find({
-          relations,
-          where: {
-            ...whereFilter,
-          },
-        });
-      }
-    } else {
-      if (!activeAssociationId) {
-        throw new BadRequestException(
-          "Active Association header is required for non-admin users.",
-        );
-      }
-
-      const hasAssociation = user.associations?.some(
-        (association: { id: number }) => association.id === activeAssociationId,
-      );
-
-      if (!hasAssociation) {
-        throw new ForbiddenException(
-          `User does not have access to association with ID ${activeAssociationId}.`,
-        );
-      }
-
-      return this.requestRepository.find({
-        where: {
+    return this.requestRepository.find({
+      where: {
+        ...(activeAssociationId !== undefined && {
           targetAssociation: { id: activeAssociationId },
-          ...whereFilter,
-        },
-        relations,
-      });
-    }
+        }),
+        ...whereFilter,
+      },
+      relations,
+    });
   }
 
   async approve(id: string): Promise<Event | Service> {
