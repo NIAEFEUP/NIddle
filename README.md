@@ -103,7 +103,7 @@ make sync-modules
 
 ## Nix Support
 
-If you use [Nix](https://nixos.org/), this project includes a flake that provides a development shell with all the necessary tools (Node.js 22, Nest CLI, etc.).
+If you use [Nix](https://nixos.org/), this project includes a flake that provides a development shell with all the necessary tools (Node.js 24, Nest CLI, etc.).
 
 ```bash
 nix develop
