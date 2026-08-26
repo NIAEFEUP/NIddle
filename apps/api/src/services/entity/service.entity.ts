@@ -17,11 +17,11 @@ import { Schedule } from "./schedule.entity";
 @Entity()
 export class Service {
   /**
-   * The unique identifier of the service.
-   * @example 1
+   * The unique identifier (UUID) of the service.
+   * @example '123e4567-e89b-12d3-a456-426614174000'
    */
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn("uuid")
+  id: string;
 
   /**
    * The service name.

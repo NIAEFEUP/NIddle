@@ -7,7 +7,7 @@ describe("Service Entity", () => {
   let service: Service;
 
   const mockFaculty: Faculty = {
-    id: 1,
+    id: "1",
     name: "Engineering Faculty",
     acronym: "FEUP",
     events: [],
@@ -15,7 +15,7 @@ describe("Service Entity", () => {
   };
 
   const mockCourse: Course = {
-    id: 1,
+    id: "1",
     name: "Computer Science",
     acronym: "CS",
     faculties: [],
@@ -41,12 +41,12 @@ describe("Service Entity", () => {
     });
 
     it("should allow assigning other properties", () => {
-      service.id = 1;
+      service.id = "1";
       service.name = "Test";
       service.email = "test@test.com";
       service.location = "Loc";
       service.phoneNumber = "123";
-      expect(service.id).toBe(1);
+      expect(service.id).toBe("1");
       expect(service.name).toBe("Test");
       expect(service.email).toBe("test@test.com");
       expect(service.location).toBe("Loc");

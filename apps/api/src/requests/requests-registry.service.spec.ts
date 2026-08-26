@@ -41,30 +41,30 @@ describe("RequestRegistry", () => {
 
   describe("findTarget", () => {
     it("delegates to eventsService.findOne for an Event type", async () => {
-      const mockEvent = { id: 7, name: "FEUP Week" };
+      const mockEvent = { id: "7", name: "FEUP Week" };
       (mockEventsService.findOne as jest.Mock).mockResolvedValue(mockEvent);
 
-      const result = await registry.findTarget(RequestType.EVENT, 7);
+      const result = await registry.findTarget(RequestType.EVENT, "7");
 
-      expect(mockEventsService.findOne).toHaveBeenCalledWith(7);
+      expect(mockEventsService.findOne).toHaveBeenCalledWith("7");
       expect(mockServicesService.findOne).not.toHaveBeenCalled();
       expect(result).toEqual(mockEvent);
     });
 
     it("delegates to servicesService.findOne for a Service type", async () => {
-      const mockService = { id: 5, name: "Papelaria D. Beatriz" };
+      const mockService = { id: "5", name: "Papelaria D. Beatriz" };
       (mockServicesService.findOne as jest.Mock).mockResolvedValue(mockService);
 
-      const result = await registry.findTarget(RequestType.SERVICE, 5);
+      const result = await registry.findTarget(RequestType.SERVICE, "5");
 
-      expect(mockServicesService.findOne).toHaveBeenCalledWith(5);
+      expect(mockServicesService.findOne).toHaveBeenCalledWith("5");
       expect(mockEventsService.findOne).not.toHaveBeenCalled();
       expect(result).toEqual(mockService);
     });
 
     it("throws InternalServerErrorException for an unrecognized type", async () => {
       await expect(
-        registry.findTarget("Unknown" as RequestType, 1),
+        registry.findTarget("Unknown" as RequestType, "1"),
       ).rejects.toThrow(InternalServerErrorException);
       expect(mockEventsService.findOne).not.toHaveBeenCalled();
       expect(mockServicesService.findOne).not.toHaveBeenCalled();
@@ -74,7 +74,7 @@ describe("RequestRegistry", () => {
   describe("attachTarget", () => {
     it("sets targetService for a Service type", () => {
       const request = { targetService: null, targetEvent: null } as any;
-      const target = { id: 5, name: "Papelaria D. Beatriz" };
+      const target = { id: "5", name: "Papelaria D. Beatriz" };
 
       registry.attachTarget(request, RequestType.SERVICE, target as any);
 
@@ -84,7 +84,7 @@ describe("RequestRegistry", () => {
 
     it("sets targetEvent for an Event type", () => {
       const request = { targetService: null, targetEvent: null } as any;
-      const target = { id: 7, name: "FEUP Week" };
+      const target = { id: "7", name: "FEUP Week" };
 
       registry.attachTarget(request, RequestType.EVENT, target as any);
 
@@ -96,20 +96,20 @@ describe("RequestRegistry", () => {
   describe("getTargetId", () => {
     it("returns targetService.id for a Service type", () => {
       const request = {
-        targetService: { id: 5 },
+        targetService: { id: "5" },
         targetEvent: null,
       } as any;
 
-      expect(registry.getTargetId(request, RequestType.SERVICE)).toBe(5);
+      expect(registry.getTargetId(request, RequestType.SERVICE)).toBe("5");
     });
 
     it("returns targetEvent.id for an Event type", () => {
       const request = {
         targetService: null,
-        targetEvent: { id: 7 },
+        targetEvent: { id: "7" },
       } as any;
 
-      expect(registry.getTargetId(request, RequestType.EVENT)).toBe(7);
+      expect(registry.getTargetId(request, RequestType.EVENT)).toBe("7");
     });
 
     it("returns undefined for an unrecognized type", () => {

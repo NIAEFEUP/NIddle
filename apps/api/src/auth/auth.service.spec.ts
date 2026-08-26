@@ -13,7 +13,7 @@ describe("AuthService", () => {
   let service: AuthService;
 
   const mockUser: User = {
-    id: 1,
+    id: "1",
     name: "Test User",
     email: "test@example.com",
     password: "hashedPassword",

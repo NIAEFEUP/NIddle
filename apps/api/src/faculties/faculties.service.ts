@@ -35,7 +35,7 @@ export class FacultiesService {
     return this.facultyRepository.find({ relations: ["courses"] });
   }
 
-  findOne(id: number): Promise<Faculty> {
+  findOne(id: string): Promise<Faculty> {
     return this.facultyRepository.findOneOrFail({
       where: { id },
       relations: ["courses"],
@@ -43,7 +43,7 @@ export class FacultiesService {
   }
 
   async update(
-    id: number,
+    id: string,
     updateFacultyDto: UpdateFacultyDto,
   ): Promise<Faculty> {
     const { courseIds, ...facultyData } = updateFacultyDto;
@@ -63,7 +63,7 @@ export class FacultiesService {
     return this.facultyRepository.save(faculty);
   }
 
-  async remove(id: number): Promise<Faculty> {
+  async remove(id: string): Promise<Faculty> {
     const faculty = await this.facultyRepository.findOneByOrFail({ id });
     await this.facultyRepository.delete(id);
     return faculty;

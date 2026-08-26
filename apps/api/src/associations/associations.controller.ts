@@ -5,7 +5,7 @@ import {
   Delete,
   Get,
   Param,
-  ParseIntPipe,
+  ParseUUIDPipe,
   Patch,
   Post,
   UseGuards,
@@ -32,11 +32,11 @@ export class AssociationsController {
     return this.associationsService.findAll();
   }
 
-  @ApiOperation({ summary: "Get association by ID" })
+  @ApiOperation({ summary: "Get association by UUID" })
   @ApiResponse({ status: 200, description: "Association found." })
   @ApiResponse({ status: 204, description: "Association not found." })
   @Get(":id")
-  findOne(@Param("id", ParseIntPipe) id: number): Promise<Association> {
+  findOne(@Param("id", ParseUUIDPipe) id: string): Promise<Association> {
     return this.associationsService.findOne(id);
   }
 
@@ -54,7 +54,7 @@ export class AssociationsController {
   }
 
   @ApiBearerAuth("access-token")
-  @ApiOperation({ summary: "Update an association by ID" })
+  @ApiOperation({ summary: "Update an association by UUID" })
   @ApiResponse({ status: 200, description: "Association updated." })
   @ApiResponse({ status: 204, description: "Association not found." })
   @ApiResponse({ status: 401, description: "Unauthorized." })
@@ -62,21 +62,21 @@ export class AssociationsController {
   @UseGuards(JwtAuthGuard, AdminOnlyGuard)
   @Patch(":id")
   update(
-    @Param("id", ParseIntPipe) id: number,
+    @Param("id", ParseUUIDPipe) id: string,
     @Body(ValidationPipe) updateAssociationDto: UpdateAssociationDto,
   ): Promise<Association> {
     return this.associationsService.update(id, updateAssociationDto);
   }
 
   @ApiBearerAuth("access-token")
-  @ApiOperation({ summary: "Delete an association by ID" })
+  @ApiOperation({ summary: "Delete an association by UUID" })
   @ApiResponse({ status: 200, description: "Association deleted." })
   @ApiResponse({ status: 204, description: "Association not found." })
   @ApiResponse({ status: 401, description: "Unauthorized." })
   @ApiResponse({ status: 403, description: "Forbidden." })
   @UseGuards(JwtAuthGuard, AdminOnlyGuard)
   @Delete(":id")
-  remove(@Param("id", ParseIntPipe) id: number): Promise<Association> {
+  remove(@Param("id", ParseUUIDPipe) id: string): Promise<Association> {
     return this.associationsService.remove(id);
   }
 }

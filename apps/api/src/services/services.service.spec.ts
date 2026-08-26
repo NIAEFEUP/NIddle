@@ -14,7 +14,7 @@ describe("ServicesService", () => {
   let service: ServicesService;
 
   const mockAssociation: Association = {
-    id: 1,
+    id: "1",
     name: "Chess Club",
     users: [],
     events: [],
@@ -23,7 +23,7 @@ describe("ServicesService", () => {
   };
 
   const mockFaculty: Faculty = {
-    id: 1,
+    id: "1",
     name: "Engineering Faculty",
     acronym: "FEUP",
     events: [],
@@ -31,7 +31,7 @@ describe("ServicesService", () => {
   };
 
   const mockCourse: Course = {
-    id: 1,
+    id: "1",
     name: "Computer Science",
     acronym: "CS",
     faculties: [],
@@ -41,7 +41,7 @@ describe("ServicesService", () => {
   const mockSchedule: Schedule[] = [];
 
   const mockService: Service = {
-    id: 1,
+    id: "1",
     name: "Papelaria D. Beatriz",
     email: "PdB@gmail.com",
     location: "B-142",
@@ -54,7 +54,7 @@ describe("ServicesService", () => {
   };
 
   const mockTimeInterval: Schedule = {
-    id: 1,
+    id: "1",
     startTime: "09:00",
     endTime: "17:00",
     dayOfWeek: EnumDays.MONDAY,
@@ -147,12 +147,12 @@ describe("ServicesService", () => {
       const services = [mockService];
       mockServiceRepository.find.mockResolvedValue(services);
 
-      const result = await service.findAll({ facultyId: 1 });
+      const result = await service.findAll({ facultyId: "1" });
 
       expect(result).toEqual(services);
       expect(mockServiceRepository.find).toHaveBeenCalledWith({
         where: {
-          faculty: { id: 1 },
+          faculty: { id: "1" },
         },
         relations: ["schedule", "faculty", "course", "createdBy"],
       });
@@ -162,12 +162,12 @@ describe("ServicesService", () => {
       const services = [mockService];
       mockServiceRepository.find.mockResolvedValue(services);
 
-      const result = await service.findAll({ courseId: 2 });
+      const result = await service.findAll({ courseId: "2" });
 
       expect(result).toEqual(services);
       expect(mockServiceRepository.find).toHaveBeenCalledWith({
         where: {
-          course: { id: 2 },
+          course: { id: "2" },
         },
         relations: ["schedule", "faculty", "course", "createdBy"],
       });
@@ -177,13 +177,13 @@ describe("ServicesService", () => {
       const services = [mockService];
       mockServiceRepository.find.mockResolvedValue(services);
 
-      const result = await service.findAll({ facultyId: 1, courseId: 2 });
+      const result = await service.findAll({ facultyId: "1", courseId: "2" });
 
       expect(result).toEqual(services);
       expect(mockServiceRepository.find).toHaveBeenCalledWith({
         where: {
-          faculty: { id: 1 },
-          course: { id: 2 },
+          faculty: { id: "1" },
+          course: { id: "2" },
         },
         relations: ["schedule", "faculty", "course", "createdBy"],
       });
@@ -194,11 +194,11 @@ describe("ServicesService", () => {
     it("should return a service by ID", async () => {
       mockServiceRepository.findOneOrFail.mockResolvedValue(mockService);
 
-      const result = await service.findOne(1);
+      const result = await service.findOne("1");
 
       expect(result).toEqual(mockService);
       expect(mockServiceRepository.findOneOrFail).toHaveBeenCalledWith({
-        where: { id: 1 },
+        where: { id: "1" },
         relations: ["schedule", "faculty", "course", "createdBy"],
       });
     });
@@ -208,7 +208,7 @@ describe("ServicesService", () => {
         new Error("Service with id 1 not found"),
       );
 
-      await expect(service.findOne(1)).rejects.toThrow(
+      await expect(service.findOne("1")).rejects.toThrow(
         "Service with id 1 not found",
       );
     });
@@ -222,7 +222,7 @@ describe("ServicesService", () => {
         email: "PdB@gmail.com",
         phoneNumber: "+315 999999999",
         schedule: mockSchedule,
-        courseId: 1,
+        courseId: "1",
       };
 
       const newService = {
@@ -237,12 +237,12 @@ describe("ServicesService", () => {
           throw new Error(
             "Exactly one of [faculty, course] must be provided, not neither.",
           );
-        return { ...s, id: 1 };
+        return { ...s, id: "1" };
       });
 
-      const result = await service.create(createServiceDto, 1);
+      const result = await service.create(createServiceDto, "1");
 
-      expect(result.id).toEqual(1);
+      expect(result.id).toEqual("1");
       expect(mockServiceRepository.save).toHaveBeenCalled();
     });
 
@@ -253,7 +253,7 @@ describe("ServicesService", () => {
         email: "PdB@gmail.com",
         phoneNumber: "+315 999999999",
         schedule: mockSchedule,
-        courseId: 1,
+        courseId: "1",
       };
 
       const newService = {
@@ -265,13 +265,13 @@ describe("ServicesService", () => {
       mockCourseRepository.findOneByOrFail.mockResolvedValue(mockCourse);
       mockServiceRepository.save.mockImplementation(async (s) => ({
         ...s,
-        id: 1,
+        id: "1",
       }));
 
-      const result = await service.create(createServiceDto, 1);
+      const result = await service.create(createServiceDto, "1");
 
       expect(mockCourseRepository.findOneByOrFail).toHaveBeenCalledWith({
-        id: 1,
+        id: "1",
       });
       expect(result.course).toEqual(mockCourse);
     });
@@ -283,7 +283,7 @@ describe("ServicesService", () => {
         email: "PdB@gmail.com",
         phoneNumber: "+315 999999999",
         schedule: mockSchedule,
-        facultyId: 1,
+        facultyId: "1",
       };
 
       const newService = {
@@ -295,13 +295,13 @@ describe("ServicesService", () => {
       mockFacultyRepository.findOneByOrFail.mockResolvedValue(mockFaculty);
       mockServiceRepository.save.mockImplementation(async (s) => ({
         ...s,
-        id: 1,
+        id: "1",
       }));
 
-      const result = await service.create(createServiceDto, 1);
+      const result = await service.create(createServiceDto, "1");
 
       expect(mockFacultyRepository.findOneByOrFail).toHaveBeenCalledWith({
-        id: 1,
+        id: "1",
       });
       expect(result.faculty).toEqual(mockFaculty);
     });
@@ -313,11 +313,11 @@ describe("ServicesService", () => {
         email: "PdB@gmail.com",
         phoneNumber: "+315 999999999",
         schedule: mockSchedule,
-        facultyId: 1,
-        courseId: 1,
+        facultyId: "1",
+        courseId: "1",
       };
 
-      await expect(service.create(createServiceDto, 1)).rejects.toThrow(
+      await expect(service.create(createServiceDto, "1")).rejects.toThrow(
         BadRequestException,
       );
     });
@@ -343,7 +343,7 @@ describe("ServicesService", () => {
         ),
       );
 
-      await expect(service.create(createServiceDto, 1)).rejects.toThrow(
+      await expect(service.create(createServiceDto, "1")).rejects.toThrow(
         BadRequestException,
       );
     });
@@ -364,7 +364,7 @@ describe("ServicesService", () => {
         ...updateDto,
       });
 
-      const result = await service.update(1, updateDto);
+      const result = await service.update("1", updateDto);
 
       expect(mockServiceRepository.findOneOrFail).toHaveBeenCalled();
       expect(mockServiceRepository.save).toHaveBeenCalled();
@@ -374,13 +374,13 @@ describe("ServicesService", () => {
     it("should throw when both facultyId and courseId are provided", async () => {
       const updateDto: UpdateServiceDto = {
         name: "Updated name",
-        facultyId: 1,
-        courseId: 1,
+        facultyId: "1",
+        courseId: "1",
       };
 
       mockServiceRepository.findOneOrFail.mockResolvedValue(mockService);
 
-      await expect(service.update(1, updateDto)).rejects.toThrow(
+      await expect(service.update("1", updateDto)).rejects.toThrow(
         BadRequestException,
       );
     });
@@ -388,7 +388,7 @@ describe("ServicesService", () => {
     it("should update service with facultyId", async () => {
       const updateDto: UpdateServiceDto = {
         name: "Updated name",
-        facultyId: 1,
+        facultyId: "1",
       };
 
       mockServiceRepository.findOneOrFail.mockResolvedValue({ ...mockService });
@@ -398,10 +398,10 @@ describe("ServicesService", () => {
       mockFacultyRepository.findOneByOrFail.mockResolvedValue(mockFaculty);
       mockServiceRepository.save.mockImplementation(async (s) => s);
 
-      const result = await service.update(1, updateDto);
+      const result = await service.update("1", updateDto);
 
       expect(mockFacultyRepository.findOneByOrFail).toHaveBeenCalledWith({
-        id: 1,
+        id: "1",
       });
       expect(result.faculty).toEqual(mockFaculty);
       expect(result.course).toBeNull();
@@ -410,7 +410,7 @@ describe("ServicesService", () => {
     it("should update service with courseId", async () => {
       const updateDto: UpdateServiceDto = {
         name: "Updated name",
-        courseId: 2,
+        courseId: "2",
       };
 
       mockServiceRepository.findOneOrFail.mockResolvedValue({ ...mockService });
@@ -420,10 +420,10 @@ describe("ServicesService", () => {
       mockCourseRepository.findOneByOrFail.mockResolvedValue(mockCourse);
       mockServiceRepository.save.mockImplementation(async (s) => s);
 
-      const result = await service.update(1, updateDto);
+      const result = await service.update("1", updateDto);
 
       expect(mockCourseRepository.findOneByOrFail).toHaveBeenCalledWith({
-        id: 2,
+        id: "2",
       });
       expect(result.course).toEqual(mockCourse);
       expect(result.faculty).toBeNull();
@@ -436,7 +436,7 @@ describe("ServicesService", () => {
         course: mockCourse,
       };
       const updateDto: UpdateServiceDto = {
-        facultyId: 1,
+        facultyId: "1",
       };
 
       mockServiceRepository.findOneOrFail.mockResolvedValue(serviceWithCourse);
@@ -446,7 +446,7 @@ describe("ServicesService", () => {
       mockFacultyRepository.findOneByOrFail.mockResolvedValue(mockFaculty);
       mockServiceRepository.save.mockImplementation(async (s) => s);
 
-      const result = await service.update(1, updateDto);
+      const result = await service.update("1", updateDto);
 
       expect(result.faculty).toEqual(mockFaculty);
       expect(result.course).toBeNull();
@@ -459,7 +459,7 @@ describe("ServicesService", () => {
         course: null,
       };
       const updateDto: UpdateServiceDto = {
-        courseId: 1,
+        courseId: "1",
       };
 
       mockServiceRepository.findOneOrFail.mockResolvedValue(serviceWithFaculty);
@@ -469,7 +469,7 @@ describe("ServicesService", () => {
       mockCourseRepository.findOneByOrFail.mockResolvedValue(mockCourse);
       mockServiceRepository.save.mockImplementation(async (s) => s);
 
-      const result = await service.update(1, updateDto);
+      const result = await service.update("1", updateDto);
 
       expect(result.course).toEqual(mockCourse);
       expect(result.faculty).toBeNull();
@@ -486,7 +486,9 @@ describe("ServicesService", () => {
       );
       mockServiceRepository.save.mockRejectedValue(new Error("Save failed"));
 
-      await expect(service.update(1, updateDto)).rejects.toThrow("Save failed");
+      await expect(service.update("1", updateDto)).rejects.toThrow(
+        "Save failed",
+      );
     });
 
     it("should allow setting facultyId to null if course is present", async () => {
@@ -506,7 +508,7 @@ describe("ServicesService", () => {
       );
       mockServiceRepository.save.mockImplementation(async (s) => s);
 
-      const result = await service.update(1, updateDto);
+      const result = await service.update("1", updateDto);
 
       expect(result.faculty).toBeNull();
       expect(result.course).toEqual(mockCourse);
@@ -523,7 +525,7 @@ describe("ServicesService", () => {
       );
       mockServiceRepository.save.mockImplementation(async (s) => s);
 
-      const result = await service.update(1, updateDto);
+      const result = await service.update("1", updateDto);
 
       expect(result.course).toBeNull();
     });
@@ -546,7 +548,7 @@ describe("ServicesService", () => {
         Object.assign(s, d),
       );
 
-      await expect(service.update(1, updateDto)).rejects.toThrow(
+      await expect(service.update("1", updateDto)).rejects.toThrow(
         BadRequestException,
       );
     });
@@ -557,13 +559,13 @@ describe("ServicesService", () => {
       mockServiceRepository.findOneOrFail.mockResolvedValue(mockService);
       mockServiceRepository.delete.mockResolvedValue(undefined);
 
-      const result = await service.remove(1);
+      const result = await service.remove("1");
 
       expect(mockServiceRepository.findOneOrFail).toHaveBeenCalledWith({
-        where: { id: 1 },
+        where: { id: "1" },
         relations: ["createdBy"],
       });
-      expect(mockServiceRepository.delete).toHaveBeenCalledWith(1);
+      expect(mockServiceRepository.delete).toHaveBeenCalledWith("1");
       expect(result).toEqual(mockService);
     });
   });
@@ -574,13 +576,13 @@ describe("ServicesService", () => {
         name: "Papelaria D. Beatriz",
         location: "B-142",
         schedule: [],
-        facultyId: 1,
+        facultyId: "1",
       };
       jest.spyOn(service, "create").mockResolvedValue(mockService);
 
-      const result = await service.createFromRequest(createServiceDto, 1);
+      const result = await service.createFromRequest(createServiceDto, "1");
 
-      expect(service.create).toHaveBeenCalledWith(createServiceDto, 1);
+      expect(service.create).toHaveBeenCalledWith(createServiceDto, "1");
       expect(result).toEqual(mockService);
     });
   });
@@ -592,9 +594,9 @@ describe("ServicesService", () => {
       };
       jest.spyOn(service, "update").mockResolvedValue(mockService);
 
-      const result = await service.updateFromRequest(1, updateServiceDto);
+      const result = await service.updateFromRequest("1", updateServiceDto);
 
-      expect(service.update).toHaveBeenCalledWith(1, updateServiceDto);
+      expect(service.update).toHaveBeenCalledWith("1", updateServiceDto);
       expect(result).toEqual(mockService);
     });
   });
@@ -603,9 +605,9 @@ describe("ServicesService", () => {
     it("delegates to remove", async () => {
       jest.spyOn(service, "remove").mockResolvedValue(mockService);
 
-      const result = await service.removeFromRequest(1);
+      const result = await service.removeFromRequest("1");
 
-      expect(service.remove).toHaveBeenCalledWith(1);
+      expect(service.remove).toHaveBeenCalledWith("1");
       expect(result).toEqual(mockService);
     });
   });

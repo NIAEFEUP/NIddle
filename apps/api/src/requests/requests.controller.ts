@@ -48,34 +48,34 @@ export class RequestsController {
   @ApiHeader({
     name: "x-active-association",
     description:
-      "The ID of the association the user is acting on. Required for non-admin users. omitting this returns requests across every association.",
+      "The UUID of the association the user is acting on. Required for non-admin users. omitting this returns requests across every association.",
     required: false,
   })
   @Get()
   @OptionalActiveAssociationForAdmin()
   @UseGuards(JwtAuthGuard, ActiveAssociationGuard)
   async findAll(
-    @Req() req: { activeAssociationId?: number },
+    @Req() req: { activeAssociationId?: string },
     @Query() filters: RequestFilterDto,
   ): Promise<Request[]> {
     return this.requestsService.findAll(filters, req.activeAssociationId);
   }
 
-  @ApiOperation({ summary: "Get request by ID" })
+  @ApiOperation({ summary: "Get request by UUID" })
   @ApiResponse({ status: 200, description: "Request found." })
   @ApiResponse({ status: 401, description: "Unauthorized." })
   @ApiResponse({ status: 403, description: "Forbidden." })
   @ApiBearerAuth("access-token")
   @ApiHeader({
     name: "x-active-association",
-    description: "The ID of the association the user is acting on.",
+    description: "The UUID of the association the user is acting on.",
     required: true,
   })
   @Get(":id")
   @UseGuards(JwtAuthGuard, ActiveAssociationGuard)
   async findOne(
     @Param("id") id: string,
-    @Req() req: { activeAssociationId: number },
+    @Req() req: { activeAssociationId: string },
   ): Promise<Request> {
     return this.requestsService.findOne(id, req.activeAssociationId);
   }
@@ -89,14 +89,14 @@ export class RequestsController {
   @ApiBearerAuth("access-token")
   @ApiHeader({
     name: "x-active-association",
-    description: "The ID of the association the user is acting on.",
+    description: "The UUID of the association the user is acting on.",
     required: true,
   })
   @Post()
   @UseGuards(JwtAuthGuard, ActiveAssociationGuard)
   async create(
     @Body(ValidationPipe) createRequestDto: CreateRequestDto,
-    @Req() req: { user: User; activeAssociationId: number },
+    @Req() req: { user: User; activeAssociationId: string },
   ): Promise<Request> {
     return this.requestsService.create(
       createRequestDto,
@@ -112,7 +112,7 @@ export class RequestsController {
   @ApiBearerAuth("access-token")
   @ApiHeader({
     name: "x-active-association",
-    description: "The ID of the association the user is acting on.",
+    description: "The UUID of the association the user is acting on.",
     required: true,
   })
   @Patch(":id")
@@ -120,7 +120,7 @@ export class RequestsController {
   async update(
     @Param("id") id: string,
     @Body(ValidationPipe) updateRequestDto: UpdateRequestDto,
-    @Req() req: { activeAssociationId: number },
+    @Req() req: { activeAssociationId: string },
   ): Promise<Request> {
     return this.requestsService.update(
       id,
@@ -160,14 +160,14 @@ export class RequestsController {
   @ApiBearerAuth("access-token")
   @ApiHeader({
     name: "x-active-association",
-    description: "The ID of the association the user is acting on.",
+    description: "The UUID of the association the user is acting on.",
     required: true,
   })
   @Delete(":id")
   @UseGuards(JwtAuthGuard, ActiveAssociationGuard)
   async remove(
     @Param("id") id: string,
-    @Req() req: { activeAssociationId: number },
+    @Req() req: { activeAssociationId: string },
   ): Promise<Request> {
     return this.requestsService.remove(id, req.activeAssociationId);
   }

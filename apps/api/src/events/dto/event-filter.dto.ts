@@ -1,5 +1,5 @@
 import { Type } from "class-transformer";
-import { IsOptional } from "class-validator";
+import { IsOptional, IsUUID } from "class-validator";
 
 export class EventFilterDto {
   /**
@@ -11,18 +11,18 @@ export class EventFilterDto {
   year?: number;
 
   /**
-   * The faculty ID to filter events by.
-   * @example 1
+   * The faculty UUID to filter events by.
+   * @example '123e4567-e89b-12d3-a456-426614174000'
    */
   @IsOptional()
-  @Type(() => Number)
-  facultyId?: number;
+  @IsUUID()
+  facultyId?: string;
 
   /**
-   * The course ID to filter events by.
-   * @example 1
+   * The course UUID to filter events by.
+   * @example '123e4567-e89b-12d3-a456-426614174000'
    */
   @IsOptional()
-  @Type(() => Number)
-  courseId?: number;
+  @IsUUID()
+  courseId?: string;
 }

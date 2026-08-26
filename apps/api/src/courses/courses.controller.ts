@@ -5,7 +5,7 @@ import {
   Delete,
   Get,
   Param,
-  ParseIntPipe,
+  ParseUUIDPipe,
   Patch,
   Post,
   UseGuards,
@@ -32,11 +32,11 @@ export class CoursesController {
     return this.coursesService.findAll();
   }
 
-  @ApiOperation({ summary: "Get course by ID" })
+  @ApiOperation({ summary: "Get course by UUID" })
   @ApiResponse({ status: 200, description: "Course found." })
   @ApiResponse({ status: 204, description: "Course not found." })
   @Get(":id")
-  findOne(@Param("id", ParseIntPipe) id: number): Promise<Course> {
+  findOne(@Param("id", ParseUUIDPipe) id: string): Promise<Course> {
     return this.coursesService.findOne(id);
   }
 
@@ -54,7 +54,7 @@ export class CoursesController {
   }
 
   @ApiBearerAuth("access-token")
-  @ApiOperation({ summary: "Update a course by ID" })
+  @ApiOperation({ summary: "Update a course by UUID" })
   @ApiResponse({ status: 200, description: "Course updated." })
   @ApiResponse({ status: 204, description: "Course not found." })
   @ApiResponse({ status: 401, description: "Unauthorized." })
@@ -62,21 +62,21 @@ export class CoursesController {
   @UseGuards(JwtAuthGuard, AdminOnlyGuard)
   @Patch(":id")
   update(
-    @Param("id", ParseIntPipe) id: number,
+    @Param("id", ParseUUIDPipe) id: string,
     @Body(ValidationPipe) updateCourseDto: UpdateCourseDto,
   ): Promise<Course> {
     return this.coursesService.update(id, updateCourseDto);
   }
 
   @ApiBearerAuth("access-token")
-  @ApiOperation({ summary: "Delete a course by ID" })
+  @ApiOperation({ summary: "Delete a course by UUID" })
   @ApiResponse({ status: 200, description: "Course deleted." })
   @ApiResponse({ status: 204, description: "Course not found." })
   @ApiResponse({ status: 401, description: "Unauthorized." })
   @ApiResponse({ status: 403, description: "Forbidden." })
   @UseGuards(JwtAuthGuard, AdminOnlyGuard)
   @Delete(":id")
-  remove(@Param("id", ParseIntPipe) id: number): Promise<Course> {
+  remove(@Param("id", ParseUUIDPipe) id: string): Promise<Course> {
     return this.coursesService.remove(id);
   }
 }

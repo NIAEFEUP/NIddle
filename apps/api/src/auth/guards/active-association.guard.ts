@@ -8,6 +8,7 @@ import {
   UnauthorizedException,
 } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
+import { isUUID } from "class-validator";
 
 export const OptionalActiveAssociationForAdmin = () =>
   SetMetadata("activeAssociationOptionalForAdmin", true);
@@ -39,11 +40,17 @@ export class ActiveAssociationGuard implements CanActivate {
       }
     }
 
-    const activeAssociationId = parseInt(activeAssociationHeader as string, 10);
+    const activeAssociationId = Array.isArray(activeAssociationHeader)
+      ? activeAssociationHeader[0]
+      : activeAssociationHeader;
 
-    if (Number.isNaN(activeAssociationId)) {
+    if (
+      !activeAssociationId ||
+      typeof activeAssociationId !== "string" ||
+      !isUUID(activeAssociationId)
+    ) {
       throw new BadRequestException(
-        "Active Association header must be a valid integer.",
+        "Active Association header must be a valid UUID.",
       );
     }
 
@@ -53,12 +60,12 @@ export class ActiveAssociationGuard implements CanActivate {
     }
 
     const hasAssociation = user.associations?.some(
-      (association: { id: number }) => association.id === activeAssociationId,
+      (association: { id: string }) => association.id === activeAssociationId,
     );
 
     if (!hasAssociation) {
       throw new ForbiddenException(
-        `User does not have access to association with ID ${activeAssociationId}.`,
+        `User does not have access to association with UUID ${activeAssociationId}.`,
       );
     }
 
