@@ -21,6 +21,7 @@ import {
   ApiResponse,
 } from "@nestjs/swagger";
 import { ActiveAssociationGuard } from "@/auth/guards/active-association.guard";
+import { AdminOnlyGuard } from "@/auth/guards/admin-only.guard";
 import { JwtAuthGuard } from "@/auth/guards/jwt-auth.guard";
 import { CreateEventDto } from "./dto/create-event.dto";
 import { EventFilterDto } from "./dto/event-filter.dto";
@@ -58,7 +59,7 @@ export class EventsController {
   @ApiResponse({ status: 201, description: "Event created." })
   @ApiResponse({ status: 401, description: "Unauthorized." })
   @ApiResponse({ status: 403, description: "Forbidden." })
-  @UseGuards(JwtAuthGuard, ActiveAssociationGuard)
+  @UseGuards(JwtAuthGuard, AdminOnlyGuard, ActiveAssociationGuard)
   @Post()
   create(
     @Body(ValidationPipe) createEventDto: CreateEventDto,
@@ -68,47 +69,29 @@ export class EventsController {
   }
 
   @ApiBearerAuth("access-token")
-  @ApiHeader({
-    name: "x-active-association",
-    description: "The ID of the association the user is acting on",
-    required: true,
-  })
   @ApiOperation({ summary: "Update an event by ID" })
   @ApiResponse({ status: 200, description: "Event updated." })
   @ApiResponse({ status: 204, description: "Event not found." })
   @ApiResponse({ status: 401, description: "Unauthorized." })
   @ApiResponse({ status: 403, description: "Forbidden." })
-  @UseGuards(JwtAuthGuard, ActiveAssociationGuard)
+  @UseGuards(JwtAuthGuard, AdminOnlyGuard)
   @Patch(":id")
   update(
     @Param("id", ParseIntPipe) id: number,
     @Body(ValidationPipe) updateEventDto: UpdateEventDto,
-    @Req() req: { activeAssociationId: number },
   ): Promise<Event> {
-    return this.eventsService.update(
-      id,
-      updateEventDto,
-      req.activeAssociationId,
-    );
+    return this.eventsService.update(id, updateEventDto);
   }
 
   @ApiBearerAuth("access-token")
-  @ApiHeader({
-    name: "x-active-association",
-    description: "The ID of the association the user is acting on",
-    required: true,
-  })
   @ApiOperation({ summary: "Delete an event by ID" })
   @ApiResponse({ status: 200, description: "Event deleted." })
   @ApiResponse({ status: 204, description: "Event not found." })
   @ApiResponse({ status: 401, description: "Unauthorized." })
   @ApiResponse({ status: 403, description: "Forbidden." })
-  @UseGuards(JwtAuthGuard, ActiveAssociationGuard)
+  @UseGuards(JwtAuthGuard, AdminOnlyGuard)
   @Delete(":id")
-  remove(
-    @Param("id", ParseIntPipe) id: number,
-    @Req() req: { activeAssociationId: number },
-  ): Promise<Event> {
-    return this.eventsService.remove(id, req.activeAssociationId);
+  remove(@Param("id", ParseIntPipe) id: number): Promise<Event> {
+    return this.eventsService.remove(id);
   }
 }

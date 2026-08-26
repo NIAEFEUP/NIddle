@@ -23,9 +23,12 @@
     "test": "npm test -w apps/api",
     "test:watch": "npm run test:watch -w apps/api",
     "test:cov": "npm run test:cov -w apps/api",
-    "test:e2e": "npm run test:e2e -w apps/api"
+    "test:e2e": "npm run test:e2e -w apps/api",
+    "prepare": "husky || true"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.4.6"
+    "@biomejs/biome": "2.4.6",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.4.0"
   }
 }

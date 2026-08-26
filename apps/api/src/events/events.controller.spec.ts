@@ -1,5 +1,8 @@
 import { NotFoundException } from "@nestjs/common";
+import { GUARDS_METADATA } from "@nestjs/common/constants";
 import { Test, TestingModule } from "@nestjs/testing";
+import { AdminOnlyGuard } from "@/auth/guards/admin-only.guard";
+import { JwtAuthGuard } from "@/auth/guards/jwt-auth.guard";
 import { CreateEventDto } from "./dto/create-event.dto";
 import { EventFilterDto } from "./dto/event-filter.dto";
 import { UpdateEventDto } from "./dto/update-event.dto";
@@ -50,6 +53,34 @@ describe("EventsController", () => {
 
   it("should be defined", () => {
     expect(controller).toBeDefined();
+  });
+
+  describe("guards", () => {
+    it("findAll and findOne have no guards (public reference data)", () => {
+      expect(
+        Reflect.getMetadata(
+          GUARDS_METADATA,
+          EventsController.prototype.findAll,
+        ),
+      ).toBeUndefined();
+      expect(
+        Reflect.getMetadata(
+          GUARDS_METADATA,
+          EventsController.prototype.findOne,
+        ),
+      ).toBeUndefined();
+    });
+
+    it("create, update and remove require JwtAuthGuard + AdminOnlyGuard", () => {
+      for (const method of ["create", "update", "remove"] as const) {
+        const guards = Reflect.getMetadata(
+          GUARDS_METADATA,
+          EventsController.prototype[method],
+        );
+        expect(guards).toContain(JwtAuthGuard);
+        expect(guards).toContain(AdminOnlyGuard);
+      }
+    });
   });
 
   describe("findAll", () => {
@@ -112,16 +143,10 @@ describe("EventsController", () => {
       const updatedEvent = { ...mockEvent, ...updateEventDto };
       mockEventsService.update.mockResolvedValue(updatedEvent);
 
-      const result = await controller.update(1, updateEventDto, {
-        activeAssociationId: 1,
-      });
+      const result = await controller.update(1, updateEventDto);
 
       expect(result).toEqual(updatedEvent);
-      expect(mockEventsService.update).toHaveBeenCalledWith(
-        1,
-        updateEventDto,
-        1,
-      );
+      expect(mockEventsService.update).toHaveBeenCalledWith(1, updateEventDto);
     });
 
     it("should throw NotFoundException if event not found", async () => {
@@ -130,14 +155,10 @@ describe("EventsController", () => {
       };
       mockEventsService.update.mockRejectedValue(new NotFoundException());
 
-      await expect(
-        controller.update(1, updateEventDto, { activeAssociationId: 1 }),
-      ).rejects.toThrow(NotFoundException);
-      expect(mockEventsService.update).toHaveBeenCalledWith(
-        1,
-        updateEventDto,
-        1,
+      await expect(controller.update(1, updateEventDto)).rejects.toThrow(
+        NotFoundException,
       );
+      expect(mockEventsService.update).toHaveBeenCalledWith(1, updateEventDto);
     });
   });
 
@@ -145,19 +166,17 @@ describe("EventsController", () => {
     it("should remove an event", async () => {
       mockEventsService.remove.mockResolvedValue(mockEvent);
 
-      const result = await controller.remove(1, { activeAssociationId: 1 });
+      const result = await controller.remove(1);
 
       expect(result).toEqual(mockEvent);
-      expect(mockEventsService.remove).toHaveBeenCalledWith(1, 1);
+      expect(mockEventsService.remove).toHaveBeenCalledWith(1);
     });
 
     it("should throw NotFoundException if event not found", async () => {
       mockEventsService.remove.mockRejectedValue(new NotFoundException());
 
-      await expect(
-        controller.remove(1, { activeAssociationId: 1 }),
-      ).rejects.toThrow(NotFoundException);
-      expect(mockEventsService.remove).toHaveBeenCalledWith(1, 1);
+      await expect(controller.remove(1)).rejects.toThrow(NotFoundException);
+      expect(mockEventsService.remove).toHaveBeenCalledWith(1);
     });
   });
 });

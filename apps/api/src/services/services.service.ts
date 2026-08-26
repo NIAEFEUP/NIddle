@@ -1,20 +1,19 @@
-import {
-  BadRequestException,
-  ForbiddenException,
-  Injectable,
-} from "@nestjs/common";
+import { BadRequestException, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { Association } from "@/associations/entities/association.entity";
 import { Course } from "@/courses/entities/course.entity";
 import { Faculty } from "@/faculties/entities/faculty.entity";
+import { Requestable } from "@/requests/interfaces/requestable.interface";
 import { CreateServiceDto } from "./dto/create-service.dto";
 import { ServiceFilterDto } from "./dto/service-filter.dto";
 import { UpdateServiceDto } from "./dto/update-service.dto";
 import { Service } from "./entity/service.entity";
 
 @Injectable()
-export class ServicesService {
+export class ServicesService
+  implements Requestable<CreateServiceDto, Service, UpdateServiceDto>
+{
   constructor(
     @InjectRepository(Service)
     private serviceRepository: Repository<Service>,
@@ -65,29 +64,9 @@ export class ServicesService {
     return await this.serviceRepository.save(service);
   }
 
-  findAll(filters: ServiceFilterDto): Promise<Service[]> {
-    const { facultyId, courseId } = filters;
-
-    return this.serviceRepository.find({
-      where: {
-        ...(facultyId && { faculty: { id: facultyId } }),
-        ...(courseId && { course: { id: courseId } }),
-      },
-      relations: ["schedule", "faculty", "course", "createdBy"],
-    });
-  }
-
-  async findOne(id: number): Promise<Service> {
-    return await this.serviceRepository.findOneOrFail({
-      where: { id },
-      relations: ["schedule", "faculty", "course", "createdBy"],
-    });
-  }
-
   async update(
     id: number,
     updateServiceDto: UpdateServiceDto,
-    activeAssociationId: number,
   ): Promise<Service> {
     const { facultyId, courseId, ...serviceData } = updateServiceDto;
 
@@ -95,12 +74,6 @@ export class ServicesService {
       where: { id },
       relations: ["faculty", "course", "createdBy"],
     });
-
-    if (service.createdBy.id !== activeAssociationId) {
-      throw new ForbiddenException(
-        "You do not have permission to update this service.",
-      );
-    }
 
     this.serviceRepository.merge(service, serviceData);
 
@@ -140,19 +113,47 @@ export class ServicesService {
     return await this.serviceRepository.save(service);
   }
 
-  async remove(id: number, activeAssociationId: number): Promise<Service> {
+  createFromRequest(
+    payload: CreateServiceDto,
+    associationId: number,
+  ): Promise<Service> {
+    return this.create(payload, associationId);
+  }
+
+  updateFromRequest(id: number, payload: UpdateServiceDto): Promise<Service> {
+    return this.update(id, payload);
+  }
+
+  findAll(filters: ServiceFilterDto): Promise<Service[]> {
+    const { facultyId, courseId } = filters;
+
+    return this.serviceRepository.find({
+      where: {
+        ...(facultyId && { faculty: { id: facultyId } }),
+        ...(courseId && { course: { id: courseId } }),
+      },
+      relations: ["schedule", "faculty", "course", "createdBy"],
+    });
+  }
+
+  async findOne(id: number): Promise<Service> {
+    return await this.serviceRepository.findOneOrFail({
+      where: { id },
+      relations: ["schedule", "faculty", "course", "createdBy"],
+    });
+  }
+
+  async remove(id: number): Promise<Service> {
     const service = await this.serviceRepository.findOneOrFail({
       where: { id },
       relations: ["createdBy"],
     });
 
-    if (service.createdBy.id !== activeAssociationId) {
-      throw new ForbiddenException(
-        "You do not have permission to delete this service.",
-      );
-    }
-
     await this.serviceRepository.delete(id);
     return service;
+  }
+
+  removeFromRequest(id: number): Promise<Service> {
+    return this.remove(id);
   }
 }

@@ -1,4 +1,8 @@
-.PHONY: help up down restart logs build build-api build-web build-app check fix format lint seed test test-watch test-cov test-e2e sh-api sh-web install install-api install-web add-api add-web sync-modules
+UID ?= $(shell id -u 2>/dev/null || echo 1000)
+GID ?= $(shell id -g 2>/dev/null || echo 1000)
+export UID GID
+
+.PHONY: help up down restart logs build build-api build-web build-app check fix format lint seed test test-watch test-cov test-e2e sh-api sh-web install install-api install-web add-api add-web sync-modules sync_modules fix-perms
 
 help:
 	@echo "NIddle Development Makefile"
@@ -16,7 +20,8 @@ help:
 	@echo "  make install-web            - Install/sync dependencies in Web container & sync to host"
 	@echo "  make add-api pkg=<name>     - Add dependency to API container (e.g. make add-api pkg=axios)"
 	@echo "  make add-web pkg=<name>     - Add dependency to Web container (e.g. make add-web pkg=lucide-react)"
-	@echo "  make sync-modules           - Sync node_modules from containers to host for VS Code IntelliSense"
+	@echo "  make sync-modules           - Sync node_modules from containers to host"
+	@echo "  make fix-perms              - Ensure node_modules on host has proper user permissions"
 	@echo ""
 	@echo "Application Build:"
 	@echo "  make build-api              - Build the API application (npm run build:api)"
@@ -40,7 +45,16 @@ help:
 	@echo "  make sh-api                 - Open a shell inside the API container"
 	@echo "  make sh-web                 - Open a shell inside the Web container"
 
-up:
+fix-perms:
+	@mkdir -p node_modules apps/api/node_modules apps/web/node_modules
+	@if { [ -d node_modules ] && [ ! -w node_modules ]; } || \
+	   { [ -d apps/api/node_modules ] && [ ! -w apps/api/node_modules ]; } || \
+	   { [ -d apps/web/node_modules ] && [ ! -w apps/web/node_modules ]; }; then \
+		echo "Fixing node_modules permissions via Docker..."; \
+		docker run --rm -v "$$(pwd):/host" alpine chown -R $(UID):$(GID) /host/node_modules /host/apps/api/node_modules /host/apps/web/node_modules 2>/dev/null || true; \
+	fi
+
+up: fix-perms
 	docker compose up -d --build -V
 	@$(MAKE) sync-modules
 
@@ -56,14 +70,17 @@ logs:
 build:
 	docker compose build
 
-sync-modules:
-	@echo "Syncing node_modules to host for VS Code IntelliSense..."
-	@mkdir -p node_modules apps/api/node_modules apps/web/node_modules
-	@docker compose cp api:/app/node_modules/. ./node_modules/ 2>/dev/null || true
-	@docker compose cp web:/app/node_modules/. ./node_modules/ 2>/dev/null || true
-	@docker compose cp api:/app/apps/api/node_modules/. ./apps/api/node_modules/ 2>/dev/null || true
-	@docker compose cp web:/app/apps/web/node_modules/. ./apps/web/node_modules/ 2>/dev/null || true
-	@echo "Sync complete! Host VS Code IntelliSense is ready."
+sync-modules: fix-perms
+	@echo "Waiting for containers to be ready..."
+	@sh -c 'count=0; until docker compose exec -T api true 2>/dev/null || [ $$count -ge 30 ]; do sleep 1; count=$$((count + 1)); done'
+	@echo "Syncing node_modules to host..."
+	@docker compose cp api:/app/node_modules ./
+	@docker compose cp web:/app/node_modules ./ 2>/dev/null || true
+	@docker compose cp api:/app/apps/api/node_modules ./apps/api/ 2>/dev/null || true
+	@docker compose cp web:/app/apps/web/node_modules ./apps/web/ 2>/dev/null || true
+	@echo "Sync complete!"
+
+sync_modules: sync-modules
 
 build-api:
 	docker compose exec api npm run build:api

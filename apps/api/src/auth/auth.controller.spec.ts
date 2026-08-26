@@ -14,6 +14,7 @@ describe("AuthController", () => {
     password: "hashedPassword",
     isAdmin: false,
     associations: [],
+    requests: [],
   };
 
   const mockAccessToken = {

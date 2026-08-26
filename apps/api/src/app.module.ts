@@ -10,6 +10,7 @@ import { DatabaseModule } from "./database/database.module";
 import { EventsModule } from "./events/events.module";
 import { FacultiesModule } from "./faculties/faculties.module";
 import { EntityNotFoundFilter } from "./filters/entity-not-found.filter";
+import { RequestsModule } from "./requests/requests.module";
 import { ServicesModule } from "./services/services.module";
 import { UsersModule } from "./users/users.module";
 
@@ -27,6 +28,7 @@ import { UsersModule } from "./users/users.module";
     ServicesModule,
     EventsModule,
     CoursesModule,
+    RequestsModule,
   ],
   controllers: [AppController],
   providers: [

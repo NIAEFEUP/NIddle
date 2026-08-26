@@ -16,6 +16,7 @@ describe("AssociationsService", () => {
     password: "hashedpassword",
     isAdmin: false,
     associations: [],
+    requests: [],
   };
 
   const mockAssociation: Association = {
@@ -25,6 +26,7 @@ describe("AssociationsService", () => {
     users: [mockUser],
     events: [],
     services: [],
+    requests: [],
   };
 
   const mockAssociationRepository = {
