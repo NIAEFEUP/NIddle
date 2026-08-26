@@ -48,7 +48,7 @@ export class RequestsController {
   @ApiHeader({
     name: "x-active-association",
     description:
-      "The UUID of the association the user is acting on. Required for non-admin users. omitting this returns requests across every association.",
+      "The UUID of the association the user is acting on. Required for non-admin users. Omitting this returns requests across every association.",
     required: false,
   })
   @Get()

@@ -91,6 +91,16 @@ describe("RequestRegistry", () => {
       expect(request.targetEvent).toBe(target);
       expect(request.targetService).toBeNull();
     });
+
+    it("does not attach anything for an unregistered type", () => {
+      const request = { targetService: null, targetEvent: null } as any;
+      const target = { id: "5", name: "Papelaria D. Beatriz" };
+
+      registry.attachTarget(request, "Unknown" as RequestType, target as any);
+
+      expect(request.targetService).toBeNull();
+      expect(request.targetEvent).toBeNull();
+    });
   });
 
   describe("getTargetId", () => {
@@ -124,8 +134,8 @@ describe("RequestRegistry", () => {
   describe("detachTarget", () => {
     it("nulls both targetService and targetEvent", () => {
       const request = {
-        targetService: { id: 5 },
-        targetEvent: { id: 7 },
+        targetService: { id: "5" },
+        targetEvent: { id: "7" },
       } as any;
 
       registry.detachTarget(request);

@@ -40,19 +40,22 @@ export class ActiveAssociationGuard implements CanActivate {
       }
     }
 
-    const activeAssociationId = Array.isArray(activeAssociationHeader)
-      ? activeAssociationHeader[0]
-      : activeAssociationHeader;
+    if (Array.isArray(activeAssociationHeader)) {
+      throw new BadRequestException(
+        "Active Association header cannot be provided multiple times.",
+      );
+    }
 
     if (
-      !activeAssociationId ||
-      typeof activeAssociationId !== "string" ||
-      !isUUID(activeAssociationId)
+      typeof activeAssociationHeader !== "string" ||
+      !isUUID(activeAssociationHeader)
     ) {
       throw new BadRequestException(
         "Active Association header must be a valid UUID.",
       );
     }
+
+    const activeAssociationId = activeAssociationHeader;
 
     if (user.isAdmin) {
       request.activeAssociationId = activeAssociationId;

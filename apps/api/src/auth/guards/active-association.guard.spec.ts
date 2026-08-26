@@ -71,6 +71,19 @@ describe("ActiveAssociationGuard", () => {
     expect(request.activeAssociationId).toBe(validUuid1);
   });
 
+  it("should throw BadRequestException if x-active-association is provided multiple times", () => {
+    const request: any = {
+      user: { id: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11", isAdmin: true },
+      headers: { "x-active-association": [validUuid1, validUuid2] },
+    };
+    const context = buildContext(request);
+
+    expect(() => guard.canActivate(context)).toThrow(BadRequestException);
+    expect(() => guard.canActivate(context)).toThrow(
+      "Active Association header cannot be provided multiple times.",
+    );
+  });
+
   it("should return true if user has the association", () => {
     const request: any = {
       user: {
