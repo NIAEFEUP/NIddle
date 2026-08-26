@@ -1,4 +1,3 @@
-import { ForbiddenException } from "@nestjs/common";
 import { Test, TestingModule } from "@nestjs/testing";
 import { getRepositoryToken } from "@nestjs/typeorm";
 import { Association } from "@/associations/entities/association.entity";
@@ -19,6 +18,7 @@ describe("EventsService", () => {
     users: [],
     events: [],
     services: [],
+    requests: [],
   };
 
   const mockFaculty: Faculty = {
@@ -236,7 +236,7 @@ describe("EventsService", () => {
         name: "New Event Name",
       });
 
-      const result = await service.update(1, updateEventDto, 1);
+      const result = await service.update(1, updateEventDto);
 
       expect(result.name).toEqual("New Event Name");
       expect(mockEventRepository.save).toHaveBeenCalled();
@@ -252,7 +252,7 @@ describe("EventsService", () => {
         courses: [],
       });
 
-      const result = await service.update(1, updateEventDto, 1);
+      const result = await service.update(1, updateEventDto);
 
       expect(result.faculty).toEqual(mockFaculty);
     });
@@ -265,7 +265,7 @@ describe("EventsService", () => {
       });
       mockEventRepository.save.mockImplementation(async (e) => e);
 
-      const result = await service.update(1, updateEventDto, 1);
+      const result = await service.update(1, updateEventDto);
 
       expect(result.faculty).toBeUndefined();
     });
@@ -276,21 +276,10 @@ describe("EventsService", () => {
       mockCourseRepository.findBy.mockResolvedValue([mockCourse]);
       mockEventRepository.save.mockImplementation(async (e) => e);
 
-      const result = await service.update(1, updateEventDto, 1);
+      const result = await service.update(1, updateEventDto);
 
       expect(mockCourseRepository.findBy).toHaveBeenCalled();
       expect(result.courses).toEqual([mockCourse]);
-    });
-
-    it("should throw ForbiddenException when user does not own the event", async () => {
-      const updateEventDto: UpdateEventDto = { name: "Hacked Event" };
-      const otherAssociation = { ...mockAssociation, id: 99 };
-      const eventOwnedByOther = { ...mockEvent, createdBy: otherAssociation };
-      mockEventRepository.findOneOrFail.mockResolvedValue(eventOwnedByOther);
-
-      await expect(service.update(1, updateEventDto, 1)).rejects.toThrow(
-        ForbiddenException,
-      );
     });
   });
 
@@ -299,18 +288,45 @@ describe("EventsService", () => {
       mockEventRepository.findOneOrFail.mockResolvedValue(mockEvent);
       mockEventRepository.delete.mockResolvedValue({ affected: 1 });
 
-      const result = await service.remove(1, 1);
+      const result = await service.remove(1);
 
       expect(result).toEqual(mockEvent);
       expect(mockEventRepository.delete).toHaveBeenCalledWith(1);
     });
+  });
 
-    it("should throw ForbiddenException when user does not own the event", async () => {
-      const otherAssociation = { ...mockAssociation, id: 99 };
-      const eventOwnedByOther = { ...mockEvent, createdBy: otherAssociation };
-      mockEventRepository.findOneOrFail.mockResolvedValue(eventOwnedByOther);
+  describe("createFromRequest", () => {
+    it("delegates to create", async () => {
+      const createEventDto: CreateEventDto = { name: "FEUP Week", year: 2025 };
+      jest.spyOn(service, "create").mockResolvedValue(mockEvent);
 
-      await expect(service.remove(1, 1)).rejects.toThrow(ForbiddenException);
+      const result = await service.createFromRequest(createEventDto, 1);
+
+      expect(service.create).toHaveBeenCalledWith(createEventDto, 1);
+      expect(result).toEqual(mockEvent);
+    });
+  });
+
+  describe("updateFromRequest", () => {
+    it("delegates to update", async () => {
+      const updateEventDto: UpdateEventDto = { name: "FEUP Week Updated" };
+      jest.spyOn(service, "update").mockResolvedValue(mockEvent);
+
+      const result = await service.updateFromRequest(1, updateEventDto);
+
+      expect(service.update).toHaveBeenCalledWith(1, updateEventDto);
+      expect(result).toEqual(mockEvent);
+    });
+  });
+
+  describe("removeFromRequest", () => {
+    it("delegates to remove", async () => {
+      jest.spyOn(service, "remove").mockResolvedValue(mockEvent);
+
+      const result = await service.removeFromRequest(1);
+
+      expect(service.remove).toHaveBeenCalledWith(1);
+      expect(result).toEqual(mockEvent);
     });
   });
 });

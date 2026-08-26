@@ -3,16 +3,18 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { Association } from "@/associations/entities/association.entity";
 import { Course } from "@/courses/entities/course.entity";
 import { Event } from "@/events/entities/event.entity";
+import { EventsService } from "@/events/events.service";
 import { Faculty } from "@/faculties/entities/faculty.entity";
-import { Request } from "@/requests/entities/request.entity";
 import { Schedule } from "@/services/entity/schedule.entity";
 import { Service } from "@/services/entity/service.entity";
+import { ServicesService } from "@/services/services.service";
 import { User } from "@/users/entities/user.entity";
-import { EventsController } from "./events.controller";
-import { EventsModule } from "./events.module";
-import { EventsService } from "./events.service";
+import { Request } from "./entities/request.entity";
+import { RequestsController } from "./requests.controller";
+import { RequestsModule } from "./requests.module";
+import { RequestsService } from "./requests.service";
 
-describe("EventsModule", () => {
+describe("RequestsModule", () => {
   let module: TestingModule;
 
   beforeAll(async () => {
@@ -33,7 +35,7 @@ describe("EventsModule", () => {
           ],
           synchronize: true,
         }),
-        EventsModule,
+        RequestsModule,
       ],
     }).compile();
   });
@@ -42,15 +44,22 @@ describe("EventsModule", () => {
     expect(module).toBeDefined();
   });
 
-  it("should resolve EventsService", () => {
-    const service = module.get<EventsService>(EventsService);
+  it("should resolve RequestsService", () => {
+    const service = module.get<RequestsService>(RequestsService);
     expect(service).toBeDefined();
-    expect(service).toBeInstanceOf(EventsService);
+    expect(service).toBeInstanceOf(RequestsService);
   });
 
-  it("should resolve EventsController", () => {
-    const controller = module.get<EventsController>(EventsController);
+  it("should resolve RequestsController", () => {
+    const controller = module.get<RequestsController>(RequestsController);
     expect(controller).toBeDefined();
-    expect(controller).toBeInstanceOf(EventsController);
+    expect(controller).toBeInstanceOf(RequestsController);
+  });
+
+  it("injects the real EventsService and ServicesService into RequestsService", () => {
+    const eventsService = module.get<EventsService>(EventsService);
+    const servicesService = module.get<ServicesService>(ServicesService);
+    expect(eventsService).toBeInstanceOf(EventsService);
+    expect(servicesService).toBeInstanceOf(ServicesService);
   });
 });
