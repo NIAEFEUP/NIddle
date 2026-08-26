@@ -42,7 +42,7 @@ These instructions will get you a copy of the project up and running on your loc
 ### Prerequisites
 
 - [Docker](https://www.docker.com/) & [Docker Compose](https://docs.docker.com/compose/)
-- [Node.js](https://nodejs.org/) (v22.x recommended, only needed if you run the Node apps natively on your host)
+- [Node.js](https://nodejs.org/) (v24.x (LTS), only needed if you run the Node apps natively on your host)
 
 ### Clone & configure
 
