@@ -10,5 +10,3 @@ export function AdminRoute() {
 
   return <Outlet />;
 }
-
-export default AdminRoute;
