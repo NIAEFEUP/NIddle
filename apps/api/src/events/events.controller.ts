@@ -12,7 +12,6 @@ import {
   Req,
   UseGuards,
   UseInterceptors,
-  ValidationPipe,
 } from "@nestjs/common";
 import {
   ApiBearerAuth,
@@ -62,7 +61,7 @@ export class EventsController {
   @UseGuards(JwtAuthGuard, AdminOnlyGuard, ActiveAssociationGuard)
   @Post()
   create(
-    @Body(ValidationPipe) createEventDto: CreateEventDto,
+    @Body() createEventDto: CreateEventDto,
     @Req() req: { activeAssociationId: number },
   ): Promise<Event> {
     return this.eventsService.create(createEventDto, req.activeAssociationId);
@@ -78,7 +77,7 @@ export class EventsController {
   @Patch(":id")
   update(
     @Param("id", ParseIntPipe) id: number,
-    @Body(ValidationPipe) updateEventDto: UpdateEventDto,
+    @Body() updateEventDto: UpdateEventDto,
   ): Promise<Event> {
     return this.eventsService.update(id, updateEventDto);
   }
