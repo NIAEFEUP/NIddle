@@ -2,107 +2,123 @@ import {
   BadRequestException,
   Injectable,
   InternalServerErrorException,
+  Type,
 } from "@nestjs/common";
 import { plainToInstance } from "class-transformer";
 import { validate } from "class-validator";
 import { CreateEventDto } from "@/events/dto/create-event.dto";
 import { UpdateEventDto } from "@/events/dto/update-event.dto";
-import { Event } from "@/events/entities/event.entity";
 import { EventsService } from "@/events/events.service";
 import { CreateServiceDto } from "@/services/dto/create-service.dto";
 import { UpdateServiceDto } from "@/services/dto/update-service.dto";
-import { Service } from "@/services/entity/service.entity";
 import { ServicesService } from "@/services/services.service";
 import { Request, RequestType } from "./entities/request.entity";
 import { Requestable } from "./interfaces/requestable.interface";
 
-const REQUEST_DTOS: Record<
-  RequestType,
-  { create: new () => object; update: new () => object }
-> = {
-  [RequestType.EVENT]: { create: CreateEventDto, update: UpdateEventDto },
-  [RequestType.SERVICE]: { create: CreateServiceDto, update: UpdateServiceDto },
-};
+export interface RequestRegistration<
+  TEntity = unknown,
+  TCreateDto extends object = object,
+  TUpdateDto extends object = object,
+> {
+  handler: Requestable;
+  findTarget: (id: number) => Promise<TEntity>;
+  targetKey: keyof Request;
+  createDto: Type<TCreateDto>;
+  updateDto: Type<TUpdateDto>;
+}
 
 @Injectable()
 export class RequestRegistry {
-  private readonly handlers = new Map<RequestType, Requestable>();
+  private readonly registry = new Map<RequestType, RequestRegistration>();
 
-  constructor(
-    private readonly eventsService: EventsService,
-    private readonly servicesService: ServicesService,
-  ) {
-    this.handlers.set(RequestType.EVENT, eventsService);
-    this.handlers.set(RequestType.SERVICE, servicesService);
+  constructor(eventsService: EventsService, servicesService: ServicesService) {
+    this.register(RequestType.EVENT, {
+      handler: eventsService,
+      findTarget: (id) => eventsService.findOne(id),
+      targetKey: "targetEvent",
+      createDto: CreateEventDto,
+      updateDto: UpdateEventDto,
+    });
+
+    this.register(RequestType.SERVICE, {
+      handler: servicesService,
+      findTarget: (id) => servicesService.findOne(id),
+      targetKey: "targetService",
+      createDto: CreateServiceDto,
+      updateDto: UpdateServiceDto,
+    });
   }
 
-  get(type: RequestType): Requestable {
-    const handler = this.handlers.get(type);
+  private register<TEntity, TCreate extends object, TUpdate extends object>(
+    type: RequestType,
+    config: RequestRegistration<TEntity, TCreate, TUpdate>,
+  ): void {
+    this.registry.set(type, config as RequestRegistration);
+  }
 
-    if (!handler) {
+  private getEntry(type: RequestType): RequestRegistration {
+    const entry = this.registry.get(type);
+
+    if (!entry) {
       throw new InternalServerErrorException(
         `No handler registered for request type: ${type}`,
       );
     }
 
-    return handler;
+    return entry;
   }
 
-  async findTarget(type: RequestType, id: number): Promise<Event | Service> {
-    if (type === RequestType.EVENT) {
-      return this.eventsService.findOne(id);
-    }
-
-    if (type === RequestType.SERVICE) {
-      return this.servicesService.findOne(id);
-    }
-
-    throw new InternalServerErrorException(
-      `No handler registered for request type: ${type}`,
-    );
+  get(type: RequestType): Requestable {
+    return this.getEntry(type).handler;
   }
 
-  attachTarget(
-    request: Request,
-    type: RequestType,
-    target: Event | Service,
-  ): void {
-    if (type === RequestType.SERVICE) {
-      request.targetService = target as Service;
-    }
+  async findTarget<T = any>(type: RequestType, id: number): Promise<T> {
+    return this.getEntry(type).findTarget(id) as Promise<T>;
+  }
 
-    if (type === RequestType.EVENT) {
-      request.targetEvent = target as Event;
+  attachTarget(request: Request, type: RequestType, target: any): void {
+    const entry = this.registry.get(type);
+
+    if (entry) {
+      (request as any)[entry.targetKey] = target;
     }
   }
 
   getTargetId(request: Request, type: RequestType): number | undefined {
-    if (type === RequestType.SERVICE) {
-      return request.targetService?.id;
+    const entry = this.registry.get(type);
+
+    if (!entry) {
+      return undefined;
     }
 
-    if (type === RequestType.EVENT) {
-      return request.targetEvent?.id;
-    }
-
-    return undefined;
+    const target = (request as any)[entry.targetKey];
+    return target?.id;
   }
 
   detachTarget(request: Request): void {
-    request.targetEvent = null;
-    request.targetService = null;
+    for (const entry of this.registry.values()) {
+      (request as any)[entry.targetKey] = null;
+    }
   }
 
-  validateCreatePayload(type: RequestType, payload: unknown): Promise<any> {
-    return this.runValidation(REQUEST_DTOS[type].create, payload);
+  async validateCreatePayload<T = any>(
+    type: RequestType,
+    payload: unknown,
+  ): Promise<T> {
+    const entry = this.getEntry(type);
+    return this.runValidation(entry.createDto, payload) as Promise<T>;
   }
 
-  validateUpdatePayload(type: RequestType, payload: unknown): Promise<any> {
-    return this.runValidation(REQUEST_DTOS[type].update, payload);
+  async validateUpdatePayload<T = any>(
+    type: RequestType,
+    payload: unknown,
+  ): Promise<T> {
+    const entry = this.getEntry(type);
+    return this.runValidation(entry.updateDto, payload) as Promise<T>;
   }
 
   private async runValidation<T extends object>(
-    payloadType: new () => T,
+    payloadType: Type<T>,
     payload: unknown,
   ): Promise<T> {
     const instance = plainToInstance(payloadType, payload);
