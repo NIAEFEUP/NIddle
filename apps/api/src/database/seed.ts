@@ -5,6 +5,7 @@ import { Association } from "@/associations/entities/association.entity";
 import { Course } from "@/courses/entities/course.entity";
 import { Event } from "@/events/entities/event.entity";
 import { Faculty } from "@/faculties/entities/faculty.entity";
+import { Request } from "@/requests/entities/request.entity";
 import { Schedule } from "@/services/entity/schedule.entity";
 import { Service } from "@/services/entity/service.entity";
 import { User } from "@/users/entities/user.entity";
@@ -25,7 +26,16 @@ export const seed = async () => {
     synchronize: true,
     dropSchema: true,
     schema: "public",
-    entities: [Association, Course, Faculty, User, Service, Schedule, Event],
+    entities: [
+      Association,
+      Course,
+      Faculty,
+      User,
+      Service,
+      Schedule,
+      Event,
+      Request,
+    ],
     seeds: ["src/database/seeds/*.seeder.{ts,js}"],
     factories: ["src/database/factories/*.factory.{ts,js}"],
   };

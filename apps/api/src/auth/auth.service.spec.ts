@@ -19,6 +19,7 @@ describe("AuthService", () => {
     password: "hashedPassword",
     isAdmin: false,
     associations: [],
+    requests: [],
   };
 
   const mockUsersService = {

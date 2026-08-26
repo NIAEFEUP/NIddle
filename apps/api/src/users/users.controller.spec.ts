@@ -16,6 +16,7 @@ describe("UsersController", () => {
     password: "password",
     isAdmin: false,
     associations: [],
+    requests: [],
   };
 
   const mockUsersService = {

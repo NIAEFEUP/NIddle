@@ -4,6 +4,7 @@ import { Association } from "@/associations/entities/association.entity";
 import { Course } from "@/courses/entities/course.entity";
 import { Event } from "@/events/entities/event.entity";
 import { Faculty } from "@/faculties/entities/faculty.entity";
+import { Request } from "@/requests/entities/request.entity";
 import { Schedule } from "@/services/entity/schedule.entity";
 import { Service } from "@/services/entity/service.entity";
 import { User } from "@/users/entities/user.entity";
@@ -27,7 +28,16 @@ export const createSchema = async () => {
     synchronize,
     dropSchema: false,
     schema: "public",
-    entities: [Association, Course, Faculty, User, Event, Service, Schedule],
+    entities: [
+      Association,
+      Course,
+      Faculty,
+      User,
+      Event,
+      Service,
+      Schedule,
+      Request,
+    ],
   };
 
   const dataSource = new DataSource(options);
