@@ -25,9 +25,9 @@ export function SidebarLayout({
         currentPath={currentPath}
       />
       <SidebarInset>
-        <main className="flex-1 p-6">
+        <div className="flex-1 p-6">
           <Outlet />
-        </main>
+        </div>
       </SidebarInset>
     </SidebarProvider>
   );
