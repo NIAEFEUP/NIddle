@@ -5,6 +5,7 @@ import {
   Delete,
   Get,
   Param,
+  ParseUUIDPipe,
   Patch,
   Post,
   Query,
@@ -73,7 +74,7 @@ export class RequestsController {
   @Get(":id")
   @UseGuards(JwtAuthGuard, ActiveAssociationGuard)
   async findOne(
-    @Param("id") id: string,
+    @Param("id", ParseUUIDPipe) id: string,
     @Req() req: { activeAssociationId: string },
   ): Promise<Request> {
     return this.requestsService.findOne(id, req.activeAssociationId);
@@ -117,7 +118,7 @@ export class RequestsController {
   @Patch(":id")
   @UseGuards(JwtAuthGuard, ActiveAssociationGuard)
   async update(
-    @Param("id") id: string,
+    @Param("id", ParseUUIDPipe) id: string,
     @Body() updateRequestDto: UpdateRequestDto,
     @Req() req: { activeAssociationId: string },
   ): Promise<Request> {
@@ -135,7 +136,9 @@ export class RequestsController {
   @ApiBearerAuth("access-token")
   @Patch(":id/approve")
   @UseGuards(JwtAuthGuard, AdminOnlyGuard)
-  async approve(@Param("id") id: string): Promise<Event | Service> {
+  async approve(
+    @Param("id", ParseUUIDPipe) id: string,
+  ): Promise<Event | Service> {
     return this.requestsService.approve(id);
   }
   @ApiOperation({ summary: "Reject a request" })
@@ -146,7 +149,7 @@ export class RequestsController {
   @Patch(":id/reject")
   @UseGuards(JwtAuthGuard, AdminOnlyGuard)
   async reject(
-    @Param("id") id: string,
+    @Param("id", ParseUUIDPipe) id: string,
     @Body() rejectRequestDto: RejectRequestDto,
   ): Promise<Request> {
     return this.requestsService.reject(id, rejectRequestDto);
@@ -165,7 +168,7 @@ export class RequestsController {
   @Delete(":id")
   @UseGuards(JwtAuthGuard, ActiveAssociationGuard)
   async remove(
-    @Param("id") id: string,
+    @Param("id", ParseUUIDPipe) id: string,
     @Req() req: { activeAssociationId: string },
   ): Promise<Request> {
     return this.requestsService.remove(id, req.activeAssociationId);
