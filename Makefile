@@ -88,8 +88,7 @@ build-api:
 build-web:
 	docker compose exec web npm run build:web
 
-build-app:
-	docker compose exec api npm run build
+build-app: build-api build-web
 
 check:
 	docker compose exec api npm run check

@@ -1,4 +1,4 @@
-FROM node:22-alpine AS deps
+FROM node:24-alpine AS deps
 RUN apk add --no-cache libc6-compat python3 make g++ gcc build-base
 WORKDIR /app
 RUN chown node:node /app
@@ -9,7 +9,7 @@ COPY --chown=node:node apps/api/package.json ./apps/api/package.json
 USER node
 RUN npm ci -w apps/api
 
-FROM node:22-alpine AS builder
+FROM node:24-alpine AS builder
 WORKDIR /app
 
 COPY --from=deps /app /app
@@ -25,7 +25,7 @@ FROM deps AS api-dev
 EXPOSE 3001
 CMD ["npm", "run", "start:dev", "-w", "apps/api"]
 
-FROM node:22-alpine AS api-runner
+FROM node:24-alpine AS api-runner
 WORKDIR /app
 ENV NODE_ENV=production
 
