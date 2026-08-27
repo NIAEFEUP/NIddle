@@ -1,4 +1,4 @@
-FROM node:22-alpine AS deps
+FROM node:24-alpine AS deps
 WORKDIR /app
 RUN chown node:node /app
 
@@ -13,7 +13,7 @@ FROM deps AS web-dev
 EXPOSE 3000
 CMD ["npm", "run", "dev", "-w", "apps/web"]
 
-FROM node:22-alpine AS builder
+FROM node:24-alpine AS builder
 WORKDIR /app
 
 COPY --from=deps /app /app
@@ -24,7 +24,7 @@ RUN npm run build -w apps/web
 
 RUN npm prune --omit=dev -w apps/web
 
-FROM node:22-alpine AS web-runner
+FROM node:24-alpine AS web-runner
 WORKDIR /app
 ENV NODE_ENV=production
 

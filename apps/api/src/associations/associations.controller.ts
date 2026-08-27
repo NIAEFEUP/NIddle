@@ -10,7 +10,6 @@ import {
   Post,
   UseGuards,
   UseInterceptors,
-  ValidationPipe,
 } from "@nestjs/common";
 import { ApiBearerAuth, ApiOperation, ApiResponse } from "@nestjs/swagger";
 import { AdminOnlyGuard } from "@/auth/guards/admin-only.guard";
@@ -48,7 +47,7 @@ export class AssociationsController {
   @UseGuards(JwtAuthGuard, AdminOnlyGuard)
   @Post()
   create(
-    @Body(ValidationPipe) createAssociationDto: CreateAssociationDto,
+    @Body() createAssociationDto: CreateAssociationDto,
   ): Promise<Association> {
     return this.associationsService.create(createAssociationDto);
   }
@@ -63,7 +62,7 @@ export class AssociationsController {
   @Patch(":id")
   update(
     @Param("id", ParseUUIDPipe) id: string,
-    @Body(ValidationPipe) updateAssociationDto: UpdateAssociationDto,
+    @Body() updateAssociationDto: UpdateAssociationDto,
   ): Promise<Association> {
     return this.associationsService.update(id, updateAssociationDto);
   }

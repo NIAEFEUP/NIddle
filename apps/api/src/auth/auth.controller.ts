@@ -7,7 +7,6 @@ import {
   Request,
   UseGuards,
   UseInterceptors,
-  ValidationPipe,
 } from "@nestjs/common";
 import { ApiBearerAuth, ApiOperation, ApiResponse } from "@nestjs/swagger";
 import { AuthService } from "./auth.service";
@@ -46,7 +45,7 @@ export class AuthController {
   })
   @UseGuards(LocalAuthGuard)
   @Post("login")
-  async signIn(@Body(ValidationPipe) signInDto: SignInDto) {
+  async signIn(@Body() signInDto: SignInDto) {
     return this.authService.signIn(signInDto);
   }
 }
