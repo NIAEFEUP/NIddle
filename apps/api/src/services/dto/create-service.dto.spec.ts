@@ -28,7 +28,7 @@ describe("CreateServiceDto validation", () => {
     expect(errors.some((e) => e.property === "name")).toBe(true);
   });
 
-  it("should transform plain schedule object into Schedule instance using Type decorator", () => {
+  it("should transform plain schedule object into CreateScheduleDto instance using Type decorator", () => {
     const plain = {
       name: "Papelaria",
       location: "B-142",

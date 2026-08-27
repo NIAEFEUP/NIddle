@@ -3,6 +3,9 @@
   "version": "0.0.1",
   "private": true,
   "license": "GPL-3.0-only",
+  "engines": {
+    "node": ">=24"
+  },
   "scripts": {
     "build": "nest build",
     "seed": "ts-node -r tsconfig-paths/register src/database/seed.ts",
@@ -61,7 +64,7 @@
     "@types/express": "^5.0.0",
     "@types/jest": "^30.0.0",
     "@types/mocha": "^10.0.10",
-    "@types/node": "^22.10.7",
+    "@types/node": "^24.13.3",
     "@types/passport-jwt": "^4.0.1",
     "@types/passport-local": "^1.0.38",
     "@types/supertest": "^6.0.2",

@@ -42,7 +42,7 @@ These instructions will get you a copy of the project up and running on your loc
 ### Prerequisites
 
 - [Docker](https://www.docker.com/) & [Docker Compose](https://docs.docker.com/compose/)
-- [Node.js](https://nodejs.org/) (v22.x recommended, only needed if you run the Node apps natively on your host)
+- [Node.js](https://nodejs.org/) (v24.x (LTS), only needed if you run the Node apps natively on your host)
 
 ### Clone & configure
 
@@ -103,7 +103,7 @@ make sync-modules
 
 ## Nix Support
 
-If you use [Nix](https://nixos.org/), this project includes a flake that provides a development shell with all the necessary tools (Node.js 22, Nest CLI, etc.).
+If you use [Nix](https://nixos.org/), this project includes a flake that provides a development shell with all the necessary tools (Node.js 24, Nest CLI, etc.).
 
 ```bash
 nix develop
