@@ -259,7 +259,7 @@ We use [Biome](https://biomejs.dev/) for fast linting and formatting across the 
 - **Automatically fix formatting and lint issues:**
   ```bash
   make fix         # Docker
-  npm run check:fix# Host
+  npm run check:fix # Host
   ```
 
 ### Git Hooks (Husky & lint-staged)
@@ -343,7 +343,7 @@ docker network create niddle-network || true
 docker run --name niddle-api --network niddle-network -p 3001:3001 --env-file .env.docker niddle-api
 
 # Run Web container
-docker run --name niddle-web --network niddle-network -p 3000:3000 niddle-web
+docker run --name niddle-web --network niddle-network -p 3000:3000 --env-file .env.docker niddle-web
 ```
 
 ---
