@@ -88,6 +88,20 @@ describe("createSchema", () => {
     delete process.env.DATABASE_PORT;
   });
 
+  it("should default to port 5432 when DATABASE_PORT is not set", async () => {
+    process.env.NODE_ENV = "development";
+    delete process.env.DATABASE_PORT;
+    const logSpy = jest.spyOn(console, "log").mockImplementation(() => {});
+
+    await createSchema();
+
+    expect(DataSource).toHaveBeenCalledWith(
+      expect.objectContaining({ port: 5432 }),
+    );
+
+    logSpy.mockRestore();
+  });
+
   it("should handle schema creation failure", async () => {
     const originalDataSource = DataSource;
     (DataSource as unknown as jest.Mock).mockImplementationOnce((options) => {

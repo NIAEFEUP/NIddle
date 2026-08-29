@@ -73,6 +73,16 @@ describe("Seed Script", () => {
     delete process.env.DATABASE_PORT;
   });
 
+  it("should default to port 5432 when DATABASE_PORT is not set", async () => {
+    delete process.env.DATABASE_PORT;
+
+    await seed();
+
+    expect(DataSource).toHaveBeenCalledWith(
+      expect.objectContaining({ port: 5432 }),
+    );
+  });
+
   describe("environment loading", () => {
     afterEach(() => {
       jest.resetModules();

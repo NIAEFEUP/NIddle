@@ -132,6 +132,20 @@ describe("DatabaseService", () => {
     process.env.NODE_ENV = originalEnv;
   });
 
+  it("should default to port 5432 when DATABASE_PORT is not set", () => {
+    const originalEnv = process.env.NODE_ENV;
+    process.env.NODE_ENV = "development";
+    delete process.env.DATABASE_PORT;
+
+    const options = service.createTypeOrmOptions();
+    expect(
+      (options as { replication: { master: { port: number } } }).replication
+        .master.port,
+    ).toBe(5432);
+
+    process.env.NODE_ENV = originalEnv;
+  });
+
   it("should create a single-host connection with custom port when DATABASE_SLAVE is not set", () => {
     const originalEnv = process.env.NODE_ENV;
     process.env.NODE_ENV = "development";
