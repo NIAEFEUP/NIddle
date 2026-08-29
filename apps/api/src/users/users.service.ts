@@ -8,6 +8,7 @@ import { validateAndGetRelations } from "@/common/utils/entity-relation.utils";
 import { UpdateUserDto } from "@/users/dto/update-user.dto";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { User } from "./entities/user.entity";
+import { PaginationDto } from "@/common/dto/pagination.dto";
 
 @Injectable()
 export class UsersService implements OnApplicationBootstrap {
@@ -68,8 +69,15 @@ export class UsersService implements OnApplicationBootstrap {
     return this.userRepository.save(user);
   }
 
-  findAll(): Promise<User[]> {
-    return this.userRepository.find();
+  async findAll(pagination: PaginationDto): Promise<User[]> {
+    const { page, limit } = pagination;
+
+    const [items] = await this.userRepository.findAndCount({
+      skip: (page - 1) * limit,
+      take: limit,
+    });
+
+    return items;
   }
 
   findOne(id: string): Promise<User> {

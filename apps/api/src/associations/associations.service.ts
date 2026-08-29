@@ -4,6 +4,7 @@ import { Repository } from "typeorm";
 import { CreateAssociationDto } from "./dto/create-association.dto";
 import { UpdateAssociationDto } from "./dto/update-association.dto";
 import { Association } from "./entities/association.entity";
+import { PaginationDto } from "@/common/dto/pagination.dto";
 
 @Injectable()
 export class AssociationsService {
@@ -20,10 +21,16 @@ export class AssociationsService {
     return this.associationRepository.save(association);
   }
 
-  findAll(): Promise<Association[]> {
-    return this.associationRepository.find({
+  async findAll(pagination: PaginationDto): Promise<Association[]> {
+    const { page, limit } = pagination;
+
+    const [items] = await this.associationRepository.findAndCount({
       relations: ["users"],
+      skip: (page - 1) * limit,
+      take: limit,
     });
+
+    return items;
   }
 
   findOne(id: string): Promise<Association> {

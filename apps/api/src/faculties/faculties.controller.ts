@@ -8,6 +8,7 @@ import {
   ParseUUIDPipe,
   Patch,
   Post,
+  Query,
   UseGuards,
   UseInterceptors,
 } from "@nestjs/common";
@@ -18,6 +19,7 @@ import { CreateFacultyDto } from "./dto/create-faculty.dto";
 import { UpdateFacultyDto } from "./dto/update-faculty.dto";
 import { Faculty } from "./entities/faculty.entity";
 import { FacultiesService } from "./faculties.service";
+import { PaginationDto } from "@/common/dto/pagination.dto";
 
 @UseInterceptors(ClassSerializerInterceptor)
 @Controller("faculties")
@@ -27,8 +29,8 @@ export class FacultiesController {
   @ApiOperation({ summary: "Get all faculties" })
   @ApiResponse({ status: 200, description: "List of faculties returned." })
   @Get()
-  findAll(): Promise<Faculty[]> {
-    return this.facultiesService.findAll();
+  findAll(@Query() pagination: PaginationDto): Promise<Faculty[]> {
+    return this.facultiesService.findAll(pagination);
   }
 
   @ApiOperation({ summary: "Get faculty by UUID" })

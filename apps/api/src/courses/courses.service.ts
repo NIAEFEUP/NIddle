@@ -6,6 +6,7 @@ import { Faculty } from "@/faculties/entities/faculty.entity";
 import { CreateCourseDto } from "./dto/create-course.dto";
 import { UpdateCourseDto } from "./dto/update-course.dto";
 import { Course } from "./entities/course.entity";
+import { PaginationDto } from "@/common/dto/pagination.dto";
 
 @Injectable()
 export class CoursesService {
@@ -31,8 +32,16 @@ export class CoursesService {
     return this.courseRepository.save(course);
   }
 
-  findAll(): Promise<Course[]> {
-    return this.courseRepository.find({ relations: ["faculties"] });
+  async findAll(pagination: PaginationDto): Promise<Course[]> {
+    const { page, limit } = pagination;
+
+    const [items] = await this.courseRepository.findAndCount({
+       relations: ["faculties"],
+       skip: (page - 1) * limit,
+       take: limit, 
+      });
+
+    return items;
   }
 
   findOne(id: string): Promise<Course> {

@@ -8,6 +8,7 @@ import {
   ParseUUIDPipe,
   Patch,
   Post,
+  Query,
   UseGuards,
   UseInterceptors,
 } from "@nestjs/common";
@@ -18,6 +19,7 @@ import { CreateUserDto } from "@/users/dto/create-user.dto";
 import { UpdateUserDto } from "@/users/dto/update-user.dto";
 import { User } from "./entities/user.entity";
 import { UsersService } from "./users.service";
+import { PaginationDto } from "@/common/dto/pagination.dto";
 
 @UseInterceptors(ClassSerializerInterceptor)
 @Controller("users")
@@ -27,8 +29,8 @@ export class UsersController {
   @Get()
   @ApiOperation({ summary: "Get all users" })
   @ApiResponse({ status: 200, description: "List of users returned." })
-  findAll(): Promise<User[]> {
-    return this.usersService.findAll();
+  findAll(@Query() pagination: PaginationDto): Promise<User[]> {
+    return this.usersService.findAll(pagination);
   }
 
   @ApiBearerAuth("access-token")

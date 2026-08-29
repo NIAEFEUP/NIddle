@@ -8,6 +8,7 @@ import {
   ParseUUIDPipe,
   Patch,
   Post,
+  Query,
   UseGuards,
   UseInterceptors,
 } from "@nestjs/common";
@@ -18,6 +19,7 @@ import { AssociationsService } from "./associations.service";
 import { CreateAssociationDto } from "./dto/create-association.dto";
 import { UpdateAssociationDto } from "./dto/update-association.dto";
 import { Association } from "./entities/association.entity";
+import { PaginationDto } from "@/common/dto/pagination.dto";
 
 @UseInterceptors(ClassSerializerInterceptor)
 @Controller("associations")
@@ -27,8 +29,8 @@ export class AssociationsController {
   @ApiOperation({ summary: "Get all associations" })
   @ApiResponse({ status: 200, description: "List of associations returned." })
   @Get()
-  findAll(): Promise<Association[]> {
-    return this.associationsService.findAll();
+  findAll(@Query() pagination: PaginationDto): Promise<Association[]> {
+    return this.associationsService.findAll(pagination);
   }
 
   @ApiOperation({ summary: "Get association by UUID" })
