@@ -26,7 +26,7 @@ export class AssociationsService {
     });
   }
 
-  findOne(id: number): Promise<Association> {
+  findOne(id: string): Promise<Association> {
     return this.associationRepository.findOneOrFail({
       where: { id },
       relations: ["users"],
@@ -34,7 +34,7 @@ export class AssociationsService {
   }
 
   async update(
-    id: number,
+    id: string,
     updateAssociationDto: UpdateAssociationDto,
   ): Promise<Association> {
     const association = await this.associationRepository.findOneOrFail({
@@ -47,7 +47,7 @@ export class AssociationsService {
     return this.associationRepository.save(association);
   }
 
-  async remove(id: number): Promise<Association> {
+  async remove(id: string): Promise<Association> {
     const association = await this.associationRepository.findOneByOrFail({
       id,
     });

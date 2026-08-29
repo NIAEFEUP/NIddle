@@ -21,7 +21,7 @@ export interface RequestRegistration<
   TUpdateDto extends object = object,
 > {
   handler: Requestable;
-  findTarget: (id: number) => Promise<TEntity>;
+  findTarget: (id: string) => Promise<TEntity>;
   targetKey: keyof Request;
   createDto: Type<TCreateDto>;
   updateDto: Type<TUpdateDto>;
@@ -72,7 +72,7 @@ export class RequestRegistry {
     return this.getEntry(type).handler;
   }
 
-  async findTarget<T = any>(type: RequestType, id: number): Promise<T> {
+  async findTarget<T = any>(type: RequestType, id: string): Promise<T> {
     return this.getEntry(type).findTarget(id) as Promise<T>;
   }
 
@@ -84,7 +84,7 @@ export class RequestRegistry {
     }
   }
 
-  getTargetId(request: Request, type: RequestType): number | undefined {
+  getTargetId(request: Request, type: RequestType): string | undefined {
     const entry = this.registry.get(type);
 
     if (!entry) {

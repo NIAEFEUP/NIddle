@@ -1,9 +1,9 @@
 import {
   IsArray,
   IsNotEmpty,
-  IsNumber,
   IsOptional,
   IsString,
+  IsUUID,
 } from "class-validator";
 
 export class CreateFacultyDto {
@@ -24,11 +24,11 @@ export class CreateFacultyDto {
   acronym: string;
 
   /**
-   * The IDs of the courses associated with the faculty.
-   * @example [1, 2]
+   * The UUIDs of the courses associated with the faculty.
+   * @example ['123e4567-e89b-12d3-a456-426614174000']
    */
   @IsArray()
-  @IsNumber({}, { each: true })
+  @IsUUID("all", { each: true })
   @IsOptional()
-  courseIds?: number[];
+  courseIds?: string[];
 }

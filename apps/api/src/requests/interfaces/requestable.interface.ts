@@ -3,7 +3,7 @@ export interface Requestable<
   TEntity = any,
   TUpdatePayload = Partial<TPayload>,
 > {
-  createFromRequest(payload: TPayload, associationId: number): Promise<TEntity>;
-  updateFromRequest(id: number, payload: TUpdatePayload): Promise<TEntity>;
-  removeFromRequest(id: number): Promise<TEntity>;
+  createFromRequest(payload: TPayload, associationId: string): Promise<TEntity>;
+  updateFromRequest(id: string, payload: TUpdatePayload): Promise<TEntity>;
+  removeFromRequest(id: string): Promise<TEntity>;
 }

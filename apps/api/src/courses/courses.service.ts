@@ -35,14 +35,14 @@ export class CoursesService {
     return this.courseRepository.find({ relations: ["faculties"] });
   }
 
-  findOne(id: number): Promise<Course> {
+  findOne(id: string): Promise<Course> {
     return this.courseRepository.findOneOrFail({
       where: { id },
       relations: ["faculties"],
     });
   }
 
-  async update(id: number, updateCourseDto: UpdateCourseDto): Promise<Course> {
+  async update(id: string, updateCourseDto: UpdateCourseDto): Promise<Course> {
     const { facultyIds, ...courseData } = updateCourseDto;
 
     const course = await this.courseRepository.findOneByOrFail({ id });
@@ -60,7 +60,7 @@ export class CoursesService {
     return this.courseRepository.save(course);
   }
 
-  async remove(id: number): Promise<Course> {
+  async remove(id: string): Promise<Course> {
     const course = await this.courseRepository.findOneByOrFail({ id });
     await this.courseRepository.delete(id);
     return course;

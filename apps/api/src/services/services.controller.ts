@@ -5,7 +5,7 @@ import {
   Delete,
   Get,
   Param,
-  ParseIntPipe,
+  ParseUUIDPipe,
   Patch,
   Post,
   Query,
@@ -40,18 +40,18 @@ export class ServicesController {
     return this.servicesService.findAll(filters);
   }
 
-  @ApiOperation({ summary: "Get service by ID" })
+  @ApiOperation({ summary: "Get service by UUID" })
   @ApiResponse({ status: 200, description: "Service found." })
   @ApiResponse({ status: 204, description: "Service not found" })
   @Get(":id")
-  findOne(@Param("id", ParseIntPipe) id: number): Promise<Service> {
+  findOne(@Param("id", ParseUUIDPipe) id: string): Promise<Service> {
     return this.servicesService.findOne(id);
   }
 
   @ApiBearerAuth("access-token")
   @ApiHeader({
     name: "x-active-association",
-    description: "The ID of the association the user is acting on",
+    description: "The UUID of the association the user is acting on",
     required: true,
   })
   @ApiOperation({ summary: "Create a new service" })
@@ -62,7 +62,7 @@ export class ServicesController {
   @Post()
   create(
     @Body() createServiceDto: CreateServiceDto,
-    @Req() req: { activeAssociationId: number },
+    @Req() req: { activeAssociationId: string },
   ): Promise<Service> {
     return this.servicesService.create(
       createServiceDto,
@@ -71,7 +71,7 @@ export class ServicesController {
   }
 
   @ApiBearerAuth("access-token")
-  @ApiOperation({ summary: "Update a service by ID" })
+  @ApiOperation({ summary: "Update a service by UUID" })
   @ApiResponse({ status: 200, description: "Service updated." })
   @ApiResponse({ status: 204, description: "Service not found." })
   @ApiResponse({ status: 401, description: "Unauthorized." })
@@ -79,21 +79,21 @@ export class ServicesController {
   @UseGuards(JwtAuthGuard, AdminOnlyGuard)
   @Patch(":id")
   update(
-    @Param("id", ParseIntPipe) id: number,
+    @Param("id", ParseUUIDPipe) id: string,
     @Body() updateServiceDto: UpdateServiceDto,
   ): Promise<Service> {
     return this.servicesService.update(id, updateServiceDto);
   }
 
   @ApiBearerAuth("access-token")
-  @ApiOperation({ summary: "Delete a service by ID" })
+  @ApiOperation({ summary: "Delete a service by UUID" })
   @ApiResponse({ status: 200, description: "Service deleted." })
   @ApiResponse({ status: 204, description: "Service not found." })
   @ApiResponse({ status: 401, description: "Unauthorized." })
   @ApiResponse({ status: 403, description: "Forbidden." })
   @UseGuards(JwtAuthGuard, AdminOnlyGuard)
   @Delete(":id")
-  remove(@Param("id", ParseIntPipe) id: number): Promise<Service> {
+  remove(@Param("id", ParseUUIDPipe) id: string): Promise<Service> {
     return this.servicesService.remove(id);
   }
 }

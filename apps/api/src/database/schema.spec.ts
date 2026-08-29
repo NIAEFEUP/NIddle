@@ -73,6 +73,21 @@ describe("createSchema", () => {
     logSpy.mockRestore();
   });
 
+  it("should use custom DATABASE_PORT when provided", async () => {
+    process.env.NODE_ENV = "development";
+    process.env.DATABASE_PORT = "5433";
+    const logSpy = jest.spyOn(console, "log").mockImplementation(() => {});
+
+    await createSchema();
+
+    expect(DataSource).toHaveBeenCalledWith(
+      expect.objectContaining({ port: 5433 }),
+    );
+
+    logSpy.mockRestore();
+    delete process.env.DATABASE_PORT;
+  });
+
   it("should handle schema creation failure", async () => {
     const originalDataSource = DataSource;
     (DataSource as unknown as jest.Mock).mockImplementationOnce((options) => {
@@ -160,6 +175,11 @@ describe("createSchema", () => {
 
       handleMain(mockModule, otherModule);
       expect(DataSource).not.toHaveBeenCalled();
+    });
+
+    it("should use require.main by default when mainModule argument is omitted", () => {
+      const mockModule = { id: "mock" } as NodeJS.Module;
+      expect(() => handleMain(mockModule)).not.toThrow();
     });
 
     it("should handle errors and exit process", async () => {

@@ -5,7 +5,7 @@ import {
   Delete,
   Get,
   Param,
-  ParseIntPipe,
+  ParseUUIDPipe,
   Patch,
   Post,
   UseGuards,
@@ -43,15 +43,15 @@ export class UsersController {
   }
 
   @Get(":id")
-  @ApiOperation({ summary: "Get user by ID" })
+  @ApiOperation({ summary: "Get user by UUID" })
   @ApiResponse({ status: 200, description: "User found." })
   @ApiResponse({ status: 204, description: "User not found." })
-  findOne(@Param("id", ParseIntPipe) id: number): Promise<User> {
+  findOne(@Param("id", ParseUUIDPipe) id: string): Promise<User> {
     return this.usersService.findOne(id);
   }
 
   @ApiBearerAuth("access-token")
-  @ApiOperation({ summary: "Update a user by ID" })
+  @ApiOperation({ summary: "Update a user by UUID" })
   @ApiResponse({ status: 200, description: "User updated." })
   @ApiResponse({ status: 204, description: "User not found." })
   @ApiResponse({ status: 401, description: "Unauthorized." })
@@ -59,21 +59,21 @@ export class UsersController {
   @UseGuards(JwtAuthGuard, AdminOnlyGuard)
   @Patch(":id")
   update(
-    @Param("id", ParseIntPipe) id: number,
+    @Param("id", ParseUUIDPipe) id: string,
     @Body() updateUserDto: UpdateUserDto,
   ): Promise<User> {
     return this.usersService.update(id, updateUserDto);
   }
 
   @ApiBearerAuth("access-token")
-  @ApiOperation({ summary: "Delete a user by ID" })
+  @ApiOperation({ summary: "Delete a user by UUID" })
   @ApiResponse({ status: 200, description: "User deleted." })
   @ApiResponse({ status: 204, description: "User not found." })
   @ApiResponse({ status: 401, description: "Unauthorized." })
   @ApiResponse({ status: 403, description: "Forbidden." })
   @UseGuards(JwtAuthGuard, AdminOnlyGuard)
   @Delete(":id")
-  remove(@Param("id", ParseIntPipe) id: number): Promise<User> {
+  remove(@Param("id", ParseUUIDPipe) id: string): Promise<User> {
     return this.usersService.remove(id);
   }
 }

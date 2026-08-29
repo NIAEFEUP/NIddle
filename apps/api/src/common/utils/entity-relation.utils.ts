@@ -2,8 +2,8 @@ import { NotFoundException } from "@nestjs/common";
 import { FindOptionsWhere, In, ObjectLiteral, Repository } from "typeorm";
 
 export async function validateAndGetRelations<
-  T extends ObjectLiteral & { id: number },
->(repository: Repository<T>, ids: number[], entityName: string): Promise<T[]> {
+  T extends ObjectLiteral & { id: string },
+>(repository: Repository<T>, ids: string[], entityName: string): Promise<T[]> {
   if (!ids || ids.length === 0) {
     return [];
   }

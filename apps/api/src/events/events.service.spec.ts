@@ -13,7 +13,7 @@ describe("EventsService", () => {
   let service: EventsService;
 
   const mockAssociation: Association = {
-    id: 1,
+    id: "1",
     name: "Chess Club",
     users: [],
     events: [],
@@ -22,7 +22,7 @@ describe("EventsService", () => {
   };
 
   const mockFaculty: Faculty = {
-    id: 1,
+    id: "1",
     name: "Engineering Faculty",
     acronym: "FEUP",
     events: [],
@@ -30,7 +30,7 @@ describe("EventsService", () => {
   };
 
   const mockCourse: Course = {
-    id: 1,
+    id: "1",
     name: "Computer Science",
     acronym: "CS",
     faculties: [],
@@ -38,7 +38,7 @@ describe("EventsService", () => {
   };
 
   const mockEvent: Event = {
-    id: 1,
+    id: "1",
     name: "FEUP Week",
     description: "Annual FEUP event",
     year: 2025,
@@ -140,28 +140,28 @@ describe("EventsService", () => {
 
     it("should return events filtered by facultyId", async () => {
       const events = [mockEvent];
-      const filters: EventFilterDto = { facultyId: 1 };
+      const filters: EventFilterDto = { facultyId: "1" };
       mockEventRepository.find.mockResolvedValue(events);
 
       const result = await service.findAll(filters);
 
       expect(result).toEqual(events);
       expect(mockEventRepository.find).toHaveBeenCalledWith({
-        where: { faculty: { id: 1 } },
+        where: { faculty: { id: "1" } },
         relations: ["faculty", "courses", "createdBy"],
       });
     });
 
     it("should return events filtered by courseId", async () => {
       const events = [mockEvent];
-      const filters: EventFilterDto = { courseId: 1 };
+      const filters: EventFilterDto = { courseId: "1" };
       mockEventRepository.find.mockResolvedValue(events);
 
       const result = await service.findAll(filters);
 
       expect(result).toEqual(events);
       expect(mockEventRepository.find).toHaveBeenCalledWith({
-        where: { courses: { id: 1 } },
+        where: { courses: { id: "1" } },
         relations: ["faculty", "courses", "createdBy"],
       });
     });
@@ -171,11 +171,11 @@ describe("EventsService", () => {
     it("should return an event by ID", async () => {
       mockEventRepository.findOneOrFail.mockResolvedValue(mockEvent);
 
-      const result = await service.findOne(1);
+      const result = await service.findOne("1");
 
       expect(result).toEqual(mockEvent);
       expect(mockEventRepository.findOneOrFail).toHaveBeenCalledWith({
-        where: { id: 1 },
+        where: { id: "1" },
         relations: ["faculty", "courses", "createdBy"],
       });
     });
@@ -189,14 +189,14 @@ describe("EventsService", () => {
         year: 2025,
         startDate: "2025-12-26T09:00:00Z",
         endDate: "2025-12-27T18:00:00Z",
-        facultyId: 1,
+        facultyId: "1",
       };
       const createdMock = { ...mockEvent, faculty: mockFaculty, courses: [] };
       mockEventRepository.create.mockReturnValue(createdMock);
       mockFacultyRepository.findOneByOrFail.mockResolvedValue(mockFaculty);
       mockEventRepository.save.mockResolvedValue(createdMock);
 
-      const result = await service.create(createEventDto, 1);
+      const result = await service.create(createEventDto, "1");
 
       expect(result.faculty).toEqual(mockFaculty);
       expect(mockEventRepository.save).toHaveBeenCalled();
@@ -209,7 +209,7 @@ describe("EventsService", () => {
         year: 2025,
         startDate: "2025-12-26T09:00:00Z",
         endDate: "2025-12-27T18:00:00Z",
-        courseIds: [1],
+        courseIds: ["1"],
       };
       const createdMock = {
         ...mockEvent,
@@ -220,7 +220,7 @@ describe("EventsService", () => {
       mockCourseRepository.findBy.mockResolvedValue([mockCourse]);
       mockEventRepository.save.mockResolvedValue(createdMock);
 
-      const result = await service.create(createEventDto, 1);
+      const result = await service.create(createEventDto, "1");
 
       expect(result.courses).toEqual([mockCourse]);
       expect(mockEventRepository.save).toHaveBeenCalled();
@@ -236,14 +236,14 @@ describe("EventsService", () => {
         name: "New Event Name",
       });
 
-      const result = await service.update(1, updateEventDto);
+      const result = await service.update("1", updateEventDto);
 
       expect(result.name).toEqual("New Event Name");
       expect(mockEventRepository.save).toHaveBeenCalled();
     });
 
     it("should update faculty if provided", async () => {
-      const updateEventDto: UpdateEventDto = { facultyId: 1 };
+      const updateEventDto: UpdateEventDto = { facultyId: "1" };
       mockEventRepository.findOneOrFail.mockResolvedValue({ ...mockEvent });
       mockFacultyRepository.findOneByOrFail.mockResolvedValue(mockFaculty);
       mockEventRepository.save.mockResolvedValue({
@@ -252,7 +252,7 @@ describe("EventsService", () => {
         courses: [],
       });
 
-      const result = await service.update(1, updateEventDto);
+      const result = await service.update("1", updateEventDto);
 
       expect(result.faculty).toEqual(mockFaculty);
     });
@@ -265,18 +265,18 @@ describe("EventsService", () => {
       });
       mockEventRepository.save.mockImplementation(async (e) => e);
 
-      const result = await service.update(1, updateEventDto);
+      const result = await service.update("1", updateEventDto);
 
       expect(result.faculty).toBeUndefined();
     });
 
     it("should update courses if courseIds is provided", async () => {
-      const updateEventDto: UpdateEventDto = { courseIds: [1] };
+      const updateEventDto: UpdateEventDto = { courseIds: ["1"] };
       mockEventRepository.findOneOrFail.mockResolvedValue({ ...mockEvent });
       mockCourseRepository.findBy.mockResolvedValue([mockCourse]);
       mockEventRepository.save.mockImplementation(async (e) => e);
 
-      const result = await service.update(1, updateEventDto);
+      const result = await service.update("1", updateEventDto);
 
       expect(mockCourseRepository.findBy).toHaveBeenCalled();
       expect(result.courses).toEqual([mockCourse]);
@@ -288,10 +288,10 @@ describe("EventsService", () => {
       mockEventRepository.findOneOrFail.mockResolvedValue(mockEvent);
       mockEventRepository.delete.mockResolvedValue({ affected: 1 });
 
-      const result = await service.remove(1);
+      const result = await service.remove("1");
 
       expect(result).toEqual(mockEvent);
-      expect(mockEventRepository.delete).toHaveBeenCalledWith(1);
+      expect(mockEventRepository.delete).toHaveBeenCalledWith("1");
     });
   });
 
@@ -300,9 +300,9 @@ describe("EventsService", () => {
       const createEventDto: CreateEventDto = { name: "FEUP Week", year: 2025 };
       jest.spyOn(service, "create").mockResolvedValue(mockEvent);
 
-      const result = await service.createFromRequest(createEventDto, 1);
+      const result = await service.createFromRequest(createEventDto, "1");
 
-      expect(service.create).toHaveBeenCalledWith(createEventDto, 1);
+      expect(service.create).toHaveBeenCalledWith(createEventDto, "1");
       expect(result).toEqual(mockEvent);
     });
   });
@@ -312,9 +312,9 @@ describe("EventsService", () => {
       const updateEventDto: UpdateEventDto = { name: "FEUP Week Updated" };
       jest.spyOn(service, "update").mockResolvedValue(mockEvent);
 
-      const result = await service.updateFromRequest(1, updateEventDto);
+      const result = await service.updateFromRequest("1", updateEventDto);
 
-      expect(service.update).toHaveBeenCalledWith(1, updateEventDto);
+      expect(service.update).toHaveBeenCalledWith("1", updateEventDto);
       expect(result).toEqual(mockEvent);
     });
   });
@@ -323,9 +323,9 @@ describe("EventsService", () => {
     it("delegates to remove", async () => {
       jest.spyOn(service, "remove").mockResolvedValue(mockEvent);
 
-      const result = await service.removeFromRequest(1);
+      const result = await service.removeFromRequest("1");
 
-      expect(service.remove).toHaveBeenCalledWith(1);
+      expect(service.remove).toHaveBeenCalledWith("1");
       expect(result).toEqual(mockEvent);
     });
   });

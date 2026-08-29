@@ -34,7 +34,7 @@ describe("LocalStrategy", () => {
   });
 
   it("should return user if validation is successful", async () => {
-    const user = { id: 1, email: "test@example.com" } as User;
+    const user = { id: "1", email: "test@example.com" } as unknown as User;
     mockAuthService.validateUser.mockResolvedValue(user);
 
     const result = await strategy.validate("test@example.com", "password");

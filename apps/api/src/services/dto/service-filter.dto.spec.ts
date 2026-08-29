@@ -4,53 +4,22 @@ import { validate } from "class-validator";
 import { ServiceFilterDto } from "./service-filter.dto";
 
 describe("ServiceFilterDto", () => {
-  describe("Transformation", () => {
-    it("should transform string facultyId to number using @Type decorator", () => {
+  const validUuid1 = "b0eebc99-9c0b-4ef8-bb6d-6bb9bd380a22";
+  const validUuid2 = "c0eebc99-9c0b-4ef8-bb6d-6bb9bd380a33";
+
+  describe("Transformation & Assignment", () => {
+    it("should keep string facultyId and courseId as string UUIDs", () => {
       const plain = {
-        facultyId: "42",
+        facultyId: validUuid1,
+        courseId: validUuid2,
       };
 
       const dto = plainToInstance(ServiceFilterDto, plain);
 
-      expect(dto.facultyId).toBe(42);
-      expect(typeof dto.facultyId).toBe("number");
-    });
-
-    it("should transform string courseId to number using @Type decorator", () => {
-      const plain = {
-        courseId: "10",
-      };
-
-      const dto = plainToInstance(ServiceFilterDto, plain);
-
-      expect(dto.courseId).toBe(10);
-      expect(typeof dto.courseId).toBe("number");
-    });
-
-    it("should transform both facultyId and courseId to numbers", () => {
-      const plain = {
-        facultyId: "1",
-        courseId: "2",
-      };
-
-      const dto = plainToInstance(ServiceFilterDto, plain);
-
-      expect(dto.facultyId).toBe(1);
-      expect(dto.courseId).toBe(2);
-      expect(typeof dto.facultyId).toBe("number");
-      expect(typeof dto.courseId).toBe("number");
-    });
-
-    it("should keep numeric values as numbers", () => {
-      const plain = {
-        facultyId: 5,
-        courseId: 10,
-      };
-
-      const dto = plainToInstance(ServiceFilterDto, plain);
-
-      expect(dto.facultyId).toBe(5);
-      expect(dto.courseId).toBe(10);
+      expect(dto.facultyId).toBe(validUuid1);
+      expect(dto.courseId).toBe(validUuid2);
+      expect(typeof dto.facultyId).toBe("string");
+      expect(typeof dto.courseId).toBe("string");
     });
   });
 
@@ -63,26 +32,26 @@ describe("ServiceFilterDto", () => {
       expect(errors).toHaveLength(0);
     });
 
-    it("should be valid with only facultyId", async () => {
-      const dto = plainToInstance(ServiceFilterDto, { facultyId: 1 });
+    it("should be valid with only facultyId UUID", async () => {
+      const dto = plainToInstance(ServiceFilterDto, { facultyId: validUuid1 });
 
       const errors = await validate(dto);
 
       expect(errors).toHaveLength(0);
     });
 
-    it("should be valid with only courseId", async () => {
-      const dto = plainToInstance(ServiceFilterDto, { courseId: 1 });
+    it("should be valid with only courseId UUID", async () => {
+      const dto = plainToInstance(ServiceFilterDto, { courseId: validUuid1 });
 
       const errors = await validate(dto);
 
       expect(errors).toHaveLength(0);
     });
 
-    it("should be valid with both facultyId and courseId", async () => {
+    it("should be valid with both facultyId and courseId UUIDs", async () => {
       const dto = plainToInstance(ServiceFilterDto, {
-        facultyId: 1,
-        courseId: 2,
+        facultyId: validUuid1,
+        courseId: validUuid2,
       });
 
       const errors = await validate(dto);
@@ -101,15 +70,16 @@ describe("ServiceFilterDto", () => {
       expect(errors).toHaveLength(0);
     });
 
-    it("should be valid with string numbers due to @IsOptional", async () => {
+    it("should fail validation if facultyId or courseId is not a valid UUID", async () => {
       const dto = plainToInstance(ServiceFilterDto, {
-        facultyId: "1",
-        courseId: "2",
+        facultyId: "invalid-uuid",
+        courseId: "invalid-uuid",
       });
 
       const errors = await validate(dto);
 
-      expect(errors).toHaveLength(0);
+      expect(errors.some((e) => e.property === "facultyId")).toBe(true);
+      expect(errors.some((e) => e.property === "courseId")).toBe(true);
     });
   });
 
@@ -123,53 +93,11 @@ describe("ServiceFilterDto", () => {
 
     it("should support partial data", () => {
       const dto = plainToInstance(ServiceFilterDto, {
-        facultyId: 1,
+        facultyId: validUuid1,
       });
 
-      expect(dto.facultyId).toBe(1);
+      expect(dto.facultyId).toBe(validUuid1);
       expect(dto.courseId).toBeUndefined();
-    });
-
-    it("should support null values for optional fields", () => {
-      const dto = plainToInstance(ServiceFilterDto, {
-        facultyId: null,
-        courseId: null,
-      });
-
-      expect(dto.facultyId).toBeNull();
-      expect(dto.courseId).toBeNull();
-    });
-  });
-
-  describe("Type conversion edge cases", () => {
-    it("should convert zero string to zero number", () => {
-      const dto = plainToInstance(ServiceFilterDto, {
-        facultyId: "0",
-        courseId: "0",
-      });
-
-      expect(dto.facultyId).toBe(0);
-      expect(dto.courseId).toBe(0);
-    });
-
-    it("should handle large numbers", () => {
-      const dto = plainToInstance(ServiceFilterDto, {
-        facultyId: "999999999",
-        courseId: "999999999",
-      });
-
-      expect(dto.facultyId).toBe(999999999);
-      expect(dto.courseId).toBe(999999999);
-    });
-
-    it("should handle negative numbers", () => {
-      const dto = plainToInstance(ServiceFilterDto, {
-        facultyId: "-1",
-        courseId: "-1",
-      });
-
-      expect(dto.facultyId).toBe(-1);
-      expect(dto.courseId).toBe(-1);
     });
   });
 });

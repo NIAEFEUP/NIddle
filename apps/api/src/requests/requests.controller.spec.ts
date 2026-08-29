@@ -12,7 +12,7 @@ describe("RequestsController", () => {
   let controller: RequestsController;
 
   const mockUser: User = {
-    id: 9,
+    id: "9",
     name: "John Doe",
     email: "john.doe@example.com",
     password: "hashed",
@@ -33,7 +33,7 @@ describe("RequestsController", () => {
     payload: { name: "Papelaria D. Beatriz" } as any,
     targetEvent: null,
     targetService: null,
-    targetAssociation: { id: 3, name: "Chess Club" } as any,
+    targetAssociation: { id: "3", name: "Chess Club" } as any,
   };
 
   const mockRequestsService = {
@@ -113,14 +113,14 @@ describe("RequestsController", () => {
       mockRequestsService.findAll.mockResolvedValue([mockRequest]);
 
       const result = await controller.findAll(
-        { activeAssociationId: 3 },
+        { activeAssociationId: "3" },
         { status: RequestStatus.PENDING },
       );
 
       expect(result).toEqual([mockRequest]);
       expect(mockRequestsService.findAll).toHaveBeenCalledWith(
         { status: RequestStatus.PENDING },
-        3,
+        "3",
       );
     });
 
@@ -138,11 +138,11 @@ describe("RequestsController", () => {
       mockRequestsService.findOne.mockResolvedValue(mockRequest);
 
       const result = await controller.findOne("req-1", {
-        activeAssociationId: 3,
+        activeAssociationId: "3",
       });
 
       expect(result).toEqual(mockRequest);
-      expect(mockRequestsService.findOne).toHaveBeenCalledWith("req-1", 3);
+      expect(mockRequestsService.findOne).toHaveBeenCalledWith("req-1", "3");
     });
   });
 
@@ -156,11 +156,15 @@ describe("RequestsController", () => {
 
       const result = await controller.create(dto as any, {
         user: mockUser,
-        activeAssociationId: 3,
+        activeAssociationId: "3",
       });
 
       expect(result).toEqual(mockRequest);
-      expect(mockRequestsService.create).toHaveBeenCalledWith(dto, mockUser, 3);
+      expect(mockRequestsService.create).toHaveBeenCalledWith(
+        dto,
+        mockUser,
+        "3",
+      );
     });
   });
 
@@ -170,17 +174,21 @@ describe("RequestsController", () => {
       mockRequestsService.update.mockResolvedValue(mockRequest);
 
       const result = await controller.update("req-1", dto as any, {
-        activeAssociationId: 3,
+        activeAssociationId: "3",
       });
 
       expect(result).toEqual(mockRequest);
-      expect(mockRequestsService.update).toHaveBeenCalledWith("req-1", dto, 3);
+      expect(mockRequestsService.update).toHaveBeenCalledWith(
+        "req-1",
+        dto,
+        "3",
+      );
     });
   });
 
   describe("approve", () => {
     it("forwards the id to the service and returns its result", async () => {
-      const approvedService = { id: 1, name: "Papelaria D. Beatriz" };
+      const approvedService = { id: "1", name: "Papelaria D. Beatriz" };
       mockRequestsService.approve.mockResolvedValue(approvedService);
 
       const result = await controller.approve("req-1");
@@ -208,11 +216,11 @@ describe("RequestsController", () => {
       mockRequestsService.remove.mockResolvedValue(mockRequest);
 
       const result = await controller.remove("req-1", {
-        activeAssociationId: 3,
+        activeAssociationId: "3",
       });
 
       expect(result).toEqual(mockRequest);
-      expect(mockRequestsService.remove).toHaveBeenCalledWith("req-1", 3);
+      expect(mockRequestsService.remove).toHaveBeenCalledWith("req-1", "3");
     });
   });
 });

@@ -5,6 +5,7 @@ import {
   IsNotEmpty,
   IsOptional,
   IsString,
+  IsUUID,
 } from "class-validator";
 
 export class CreateEventDto {
@@ -49,19 +50,19 @@ export class CreateEventDto {
   endDate?: string;
 
   /**
-   * The faculty ID this event belongs to.
-   * @example 1
+   * The faculty UUID this event belongs to.
+   * @example '123e4567-e89b-12d3-a456-426614174000'
    */
-  @IsInt()
+  @IsUUID()
   @IsOptional()
-  facultyId?: number;
+  facultyId?: string;
 
   /**
-   * The IDs of the courses associated with the event.
-   * @example [1]
+   * The UUIDs of the courses associated with the event.
+   * @example ['123e4567-e89b-12d3-a456-426614174000']
    */
   @IsArray()
-  @IsInt({ each: true })
+  @IsUUID("all", { each: true })
   @IsOptional()
-  courseIds?: number[];
+  courseIds?: string[];
 }

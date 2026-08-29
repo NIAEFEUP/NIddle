@@ -10,7 +10,7 @@ describe("UsersController", () => {
   let controller: UsersController;
 
   const mockUser: User = {
-    id: 1,
+    id: "1",
     name: "John Doe",
     email: "john@example.com",
     password: "password",
@@ -81,17 +81,17 @@ describe("UsersController", () => {
     it("should return a single user", async () => {
       mockUsersService.findOne.mockResolvedValue(mockUser);
 
-      const result = await controller.findOne(1);
+      const result = await controller.findOne("1");
 
       expect(result).toEqual(mockUser);
-      expect(mockUsersService.findOne).toHaveBeenCalledWith(1);
+      expect(mockUsersService.findOne).toHaveBeenCalledWith("1");
     });
 
     it("should throw NotFoundException if user not found", async () => {
       mockUsersService.findOne.mockRejectedValue(new NotFoundException());
 
-      await expect(controller.findOne(1)).rejects.toThrow(NotFoundException);
-      expect(mockUsersService.findOne).toHaveBeenCalledWith(1);
+      await expect(controller.findOne("1")).rejects.toThrow(NotFoundException);
+      expect(mockUsersService.findOne).toHaveBeenCalledWith("1");
     });
   });
 
@@ -101,10 +101,10 @@ describe("UsersController", () => {
       const updatedUser = { ...mockUser, name: "Updated Name" };
       mockUsersService.update.mockResolvedValue(updatedUser);
 
-      const result = await controller.update(1, updateUserDto);
+      const result = await controller.update("1", updateUserDto);
 
       expect(result).toEqual(updatedUser);
-      expect(mockUsersService.update).toHaveBeenCalledWith(1, updateUserDto);
+      expect(mockUsersService.update).toHaveBeenCalledWith("1", updateUserDto);
     });
   });
 
@@ -112,10 +112,10 @@ describe("UsersController", () => {
     it("should remove a user", async () => {
       mockUsersService.remove.mockResolvedValue(mockUser);
 
-      const result = await controller.remove(1);
+      const result = await controller.remove("1");
 
       expect(result).toEqual(mockUser);
-      expect(mockUsersService.remove).toHaveBeenCalledWith(1);
+      expect(mockUsersService.remove).toHaveBeenCalledWith("1");
     });
   });
 });
