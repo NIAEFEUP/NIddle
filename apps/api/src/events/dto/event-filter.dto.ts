@@ -1,7 +1,8 @@
+import { PaginationDto } from "@/common/dto/pagination.dto";
 import { Type } from "class-transformer";
 import { IsOptional, IsUUID } from "class-validator";
 
-export class EventFilterDto {
+export class EventFilterDto extends PaginationDto {
   /**
    * The year to filter events by.
    * @example 2025

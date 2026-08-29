@@ -4,8 +4,9 @@ import {
   RequestStatus,
   RequestType,
 } from "@/requests/entities/request.entity";
+import { PaginationDto } from "@/common/dto/pagination.dto";
 
-export class RequestFilterDto {
+export class RequestFilterDto extends PaginationDto {
   @IsOptional()
   @IsEnum(RequestType)
   type?: RequestType;

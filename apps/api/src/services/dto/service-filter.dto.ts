@@ -1,6 +1,7 @@
+import { PaginationDto } from "@/common/dto/pagination.dto";
 import { IsOptional, IsUUID } from "class-validator";
 
-export class ServiceFilterDto {
+export class ServiceFilterDto extends PaginationDto {
   /**
    * The faculty UUID to filter services by.
    * @example '123e4567-e89b-12d3-a456-426614174000'
