@@ -69,7 +69,7 @@ export class UsersService implements OnApplicationBootstrap {
   }
 
   findAll(): Promise<User[]> {
-    return this.userRepository.find();
+    return this.userRepository.find({ relations: ["associations"] });
   }
 
   findOne(id: string): Promise<User> {

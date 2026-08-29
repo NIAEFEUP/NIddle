@@ -55,6 +55,10 @@ export async function apiClient<T>(
   });
 
   if (!response.ok) {
+    if (response.status === 401) {
+      removeToken();
+    }
+
     let errorMessage = response.statusText || "An unexpected error occurred";
     let errorData: unknown = null;
 

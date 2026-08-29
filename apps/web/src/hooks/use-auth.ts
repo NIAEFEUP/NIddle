@@ -1,10 +1,17 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { apiClient, getToken, removeToken, setToken } from "@/lib/api-client";
+import {
+  ApiError,
+  apiClient,
+  getToken,
+  removeToken,
+  setToken,
+} from "@/lib/api-client";
 
 export interface Association {
   id: number;
   name: string;
   acronym?: string;
+  users?: User[];
 }
 
 export interface User {
@@ -30,7 +37,17 @@ export function useAuth() {
     refetch,
   } = useQuery<User>({
     queryKey: ["auth-user"],
-    queryFn: () => apiClient<User>("/api/auth/profile"),
+    queryFn: async () => {
+      try {
+        return await apiClient<User>("/api/auth/profile");
+      } catch (err) {
+        if (err instanceof ApiError && err.status === 401) {
+          removeToken();
+          queryClient.setQueryData(["auth-user"], null);
+        }
+        throw err;
+      }
+    },
     enabled: !!token,
     retry: false,
     staleTime: 5 * 60 * 1000,
@@ -55,7 +72,7 @@ export function useAuth() {
   };
 
   const isAuthenticated = !!user && !isProfileError;
-  const isLoading = isProfileLoading && !!token;
+  const isLoading = isProfileLoading && !isProfileError && !!token;
 
   return {
     user: user ?? null,

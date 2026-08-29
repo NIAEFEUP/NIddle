@@ -25,7 +25,7 @@ export function SidebarLayout({
         currentPath={currentPath}
       />
       <SidebarInset>
-        <div className="flex-1 p-6">
+        <div className="flex-1 p-6 py-4">
           <Outlet />
         </div>
       </SidebarInset>
