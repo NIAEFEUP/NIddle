@@ -29,7 +29,7 @@ describe("FacultiesService", () => {
   const mockFacultyRepository = {
     create: jest.fn(),
     save: jest.fn(),
-    find: jest.fn(),
+    findAndCount: jest.fn(),
     findOneOrFail: jest.fn(),
     findOneBy: jest.fn(),
     merge: jest.fn(),
@@ -70,13 +70,18 @@ describe("FacultiesService", () => {
   describe("findAll", () => {
     it("should return an array of faculties", async () => {
       const faculties = [mockFaculty];
-      mockFacultyRepository.find.mockResolvedValue(faculties);
+      mockFacultyRepository.findAndCount.mockResolvedValue([
+        faculties,
+        faculties.length,
+      ]);
 
-      const result = await service.findAll();
+      const result = await service.findAll({ page: 1, limit: 10 });
 
       expect(result).toEqual(faculties);
-      expect(mockFacultyRepository.find).toHaveBeenCalledWith({
+      expect(mockFacultyRepository.findAndCount).toHaveBeenCalledWith({
         relations: ["courses"],
+        skip: 0,
+        take: 10,
       });
     });
   });

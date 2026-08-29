@@ -80,7 +80,7 @@ describe("RequestsService", () => {
   const mockRequestRepository = {
     create: jest.fn(),
     save: jest.fn(),
-    find: jest.fn(),
+    findAndCount: jest.fn(),
     findOneOrFail: jest.fn(),
     findOneByOrFail: jest.fn(),
     merge: jest.fn(),
@@ -781,58 +781,78 @@ describe("RequestsService", () => {
     // or undefined. This describe block only covers query construction.
 
     it("without an activeAssociationId or filters returns everything", async () => {
-      mockRequestRepository.find.mockResolvedValue([mockRequest]);
+      mockRequestRepository.findAndCount.mockResolvedValue([[mockRequest], 1]);
 
-      const result = await service.findAll({});
+      const result = await service.findAll({ page: 1, limit: 10 });
 
       expect(result).toEqual([mockRequest]);
-      expect(mockRequestRepository.find).toHaveBeenCalledWith({
+      expect(mockRequestRepository.findAndCount).toHaveBeenCalledWith({
         relations,
         where: {},
+        skip: 0,
+        take: 10,
       });
     });
 
     it("a status filter narrows the where clause", async () => {
-      mockRequestRepository.find.mockResolvedValue([mockRequest]);
+      mockRequestRepository.findAndCount.mockResolvedValue([[mockRequest], 1]);
 
-      await service.findAll({ status: RequestStatus.PENDING });
+      await service.findAll({
+        status: RequestStatus.PENDING,
+        page: 1,
+        limit: 10,
+      });
 
-      expect(mockRequestRepository.find).toHaveBeenCalledWith({
+      expect(mockRequestRepository.findAndCount).toHaveBeenCalledWith({
         relations,
         where: { status: RequestStatus.PENDING },
+        skip: 0,
+        take: 10,
       });
     });
 
     it("scopes results to the given activeAssociationId", async () => {
-      mockRequestRepository.find.mockResolvedValue([mockRequest]);
+      mockRequestRepository.findAndCount.mockResolvedValue([[mockRequest], 1]);
 
-      await service.findAll({ type: RequestType.EVENT }, "3");
+      await service.findAll(
+        { type: RequestType.EVENT, page: 1, limit: 10 },
+        "3",
+      );
 
-      expect(mockRequestRepository.find).toHaveBeenCalledWith({
+      expect(mockRequestRepository.findAndCount).toHaveBeenCalledWith({
         where: {
           targetAssociation: { id: "3" },
           type: RequestType.EVENT,
         },
         relations,
+        skip: 0,
+        take: 10,
       });
     });
 
     it("combines an activeAssociationId with the other filters", async () => {
-      mockRequestRepository.find.mockResolvedValue([mockRequest]);
+      mockRequestRepository.findAndCount.mockResolvedValue([[mockRequest], 1]);
 
       const result = await service.findAll(
-        { status: RequestStatus.PENDING, requestedBy: mockUser.id },
+        {
+          status: RequestStatus.PENDING,
+          requestedBy: mockUser.id,
+          page: 1,
+          limit: 10,
+        },
         mockAssociation.id,
       );
 
       expect(result).toEqual([mockRequest]);
-      expect(mockRequestRepository.find).toHaveBeenCalledWith({
+      expect(mockRequestRepository.findAndCount).toHaveBeenCalledWith({
         where: {
           targetAssociation: { id: mockAssociation.id },
           status: RequestStatus.PENDING,
           requestedBy: { id: mockUser.id },
         },
         relations,
+        skip: 0,
+        take: 10,
       });
     });
   });

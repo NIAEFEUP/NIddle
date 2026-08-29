@@ -66,7 +66,7 @@ describe("ServicesService", () => {
   const mockServiceRepository = {
     create: jest.fn(),
     save: jest.fn(),
-    find: jest.fn(),
+    findAndCount: jest.fn(),
     findOne: jest.fn(),
     findOneOrFail: jest.fn(),
     findOneByOrFail: jest.fn(),
@@ -132,60 +132,93 @@ describe("ServicesService", () => {
   describe("findAll", () => {
     it("should return an array of services", async () => {
       const services = [mockService];
-      mockServiceRepository.find.mockResolvedValue(services);
+      mockServiceRepository.findAndCount.mockResolvedValue([
+        services,
+        services.length,
+      ]);
 
-      const result = await service.findAll({});
+      const result = await service.findAll({ page: 1, limit: 10 });
 
       expect(result).toEqual(services);
-      expect(mockServiceRepository.find).toHaveBeenCalledWith({
+      expect(mockServiceRepository.findAndCount).toHaveBeenCalledWith({
         where: {},
         relations: ["schedule", "faculty", "course", "createdBy"],
+        skip: 0,
+        take: 10,
       });
     });
 
     it("should filter by facultyId", async () => {
       const services = [mockService];
-      mockServiceRepository.find.mockResolvedValue(services);
+      mockServiceRepository.findAndCount.mockResolvedValue([
+        services,
+        services.length,
+      ]);
 
-      const result = await service.findAll({ facultyId: "1" });
+      const result = await service.findAll({
+        facultyId: "1",
+        page: 1,
+        limit: 10,
+      });
 
       expect(result).toEqual(services);
-      expect(mockServiceRepository.find).toHaveBeenCalledWith({
+      expect(mockServiceRepository.findAndCount).toHaveBeenCalledWith({
         where: {
           faculty: { id: "1" },
         },
         relations: ["schedule", "faculty", "course", "createdBy"],
+        skip: 0,
+        take: 10,
       });
     });
 
     it("should filter by courseId", async () => {
       const services = [mockService];
-      mockServiceRepository.find.mockResolvedValue(services);
+      mockServiceRepository.findAndCount.mockResolvedValue([
+        services,
+        services.length,
+      ]);
 
-      const result = await service.findAll({ courseId: "2" });
+      const result = await service.findAll({
+        courseId: "2",
+        page: 1,
+        limit: 10,
+      });
 
       expect(result).toEqual(services);
-      expect(mockServiceRepository.find).toHaveBeenCalledWith({
+      expect(mockServiceRepository.findAndCount).toHaveBeenCalledWith({
         where: {
           course: { id: "2" },
         },
         relations: ["schedule", "faculty", "course", "createdBy"],
+        skip: 0,
+        take: 10,
       });
     });
 
     it("should filter by both facultyId and courseId", async () => {
       const services = [mockService];
-      mockServiceRepository.find.mockResolvedValue(services);
+      mockServiceRepository.findAndCount.mockResolvedValue([
+        services,
+        services.length,
+      ]);
 
-      const result = await service.findAll({ facultyId: "1", courseId: "2" });
+      const result = await service.findAll({
+        facultyId: "1",
+        courseId: "2",
+        page: 1,
+        limit: 10,
+      });
 
       expect(result).toEqual(services);
-      expect(mockServiceRepository.find).toHaveBeenCalledWith({
+      expect(mockServiceRepository.findAndCount).toHaveBeenCalledWith({
         where: {
           faculty: { id: "1" },
           course: { id: "2" },
         },
         relations: ["schedule", "faculty", "course", "createdBy"],
+        skip: 0,
+        take: 10,
       });
     });
   });

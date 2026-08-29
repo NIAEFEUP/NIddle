@@ -78,8 +78,8 @@ describe("ServicesController", () => {
 
     it("findAll should call service.findAll and return its value", async () => {
       mockService.findAll.mockResolvedValue([svc]);
-      const res = await controller.findAll({});
-      expect(mockService.findAll).toHaveBeenCalledWith({});
+      const res = await controller.findAll({ page: 1, limit: 10 });
+      expect(mockService.findAll).toHaveBeenCalledWith({ page: 1, limit: 10 });
       expect(res).toEqual([svc]);
     });
 

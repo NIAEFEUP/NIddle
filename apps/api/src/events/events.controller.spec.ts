@@ -86,7 +86,7 @@ describe("EventsController", () => {
   describe("findAll", () => {
     it("should return an array of events", async () => {
       const events = [mockEvent];
-      const filters: EventFilterDto = {};
+      const filters: EventFilterDto = { page: 1, limit: 10 };
       mockEventsService.findAll.mockResolvedValue(events);
 
       const result = await controller.findAll(filters);
