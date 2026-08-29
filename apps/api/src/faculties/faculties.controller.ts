@@ -5,7 +5,7 @@ import {
   Delete,
   Get,
   Param,
-  ParseIntPipe,
+  ParseUUIDPipe,
   Patch,
   Post,
   UseGuards,
@@ -31,11 +31,11 @@ export class FacultiesController {
     return this.facultiesService.findAll();
   }
 
-  @ApiOperation({ summary: "Get faculty by ID" })
+  @ApiOperation({ summary: "Get faculty by UUID" })
   @ApiResponse({ status: 200, description: "Faculty found." })
   @ApiResponse({ status: 204, description: "Faculty not found." })
   @Get(":id")
-  findOne(@Param("id", ParseIntPipe) id: number): Promise<Faculty> {
+  findOne(@Param("id", ParseUUIDPipe) id: string): Promise<Faculty> {
     return this.facultiesService.findOne(id);
   }
 
@@ -51,7 +51,7 @@ export class FacultiesController {
   }
 
   @ApiBearerAuth("access-token")
-  @ApiOperation({ summary: "Update a faculty by ID" })
+  @ApiOperation({ summary: "Update a faculty by UUID" })
   @ApiResponse({ status: 200, description: "Faculty updated." })
   @ApiResponse({ status: 204, description: "Faculty not found." })
   @ApiResponse({ status: 401, description: "Unauthorized." })
@@ -59,21 +59,21 @@ export class FacultiesController {
   @UseGuards(JwtAuthGuard, AdminOnlyGuard)
   @Patch(":id")
   update(
-    @Param("id", ParseIntPipe) id: number,
+    @Param("id", ParseUUIDPipe) id: string,
     @Body() updateFacultyDto: UpdateFacultyDto,
   ): Promise<Faculty> {
     return this.facultiesService.update(id, updateFacultyDto);
   }
 
   @ApiBearerAuth("access-token")
-  @ApiOperation({ summary: "Delete a faculty by ID" })
+  @ApiOperation({ summary: "Delete a faculty by UUID" })
   @ApiResponse({ status: 200, description: "Faculty deleted." })
   @ApiResponse({ status: 204, description: "Faculty not found." })
   @ApiResponse({ status: 401, description: "Unauthorized." })
   @ApiResponse({ status: 403, description: "Forbidden." })
   @UseGuards(JwtAuthGuard, AdminOnlyGuard)
   @Delete(":id")
-  remove(@Param("id", ParseIntPipe) id: number): Promise<Faculty> {
+  remove(@Param("id", ParseUUIDPipe) id: string): Promise<Faculty> {
     return this.facultiesService.remove(id);
   }
 }

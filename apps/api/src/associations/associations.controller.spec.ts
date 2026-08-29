@@ -45,7 +45,7 @@ describe("AssociationsController", () => {
       name: "Chess Club",
       acronym: "CC",
     };
-    const expected = { id: 1, ...createDto };
+    const expected = { id: "1", ...createDto };
     service.create.mockResolvedValue(expected);
 
     const result = await controller.create(createDto);
@@ -55,7 +55,7 @@ describe("AssociationsController", () => {
   });
 
   it("finds all associations", async () => {
-    const expected = [{ id: 1, name: "Chess Club", acronym: "CC" }];
+    const expected = [{ id: "1", name: "Chess Club", acronym: "CC" }];
     service.findAll.mockResolvedValue(expected);
 
     const result = await controller.findAll();
@@ -65,12 +65,12 @@ describe("AssociationsController", () => {
   });
 
   it("finds one association by id", async () => {
-    const expected = { id: 3, name: "Drama", acronym: "DR" };
+    const expected = { id: "3", name: "Drama", acronym: "DR" };
     service.findOne.mockResolvedValue(expected);
 
-    const result = await controller.findOne(3);
+    const result = await controller.findOne("3");
 
-    expect(service.findOne).toHaveBeenCalledWith(3);
+    expect(service.findOne).toHaveBeenCalledWith("3");
     expect(result).toBe(expected);
   });
 
@@ -79,22 +79,22 @@ describe("AssociationsController", () => {
       name: "Drama Club",
       acronym: "DC",
     };
-    const expected = { id: 3, name: "Drama Club", acronym: "DC" };
+    const expected = { id: "3", name: "Drama Club", acronym: "DC" };
     service.update.mockResolvedValue(expected);
 
-    const result = await controller.update(3, updateDto);
+    const result = await controller.update("3", updateDto);
 
-    expect(service.update).toHaveBeenCalledWith(3, updateDto);
+    expect(service.update).toHaveBeenCalledWith("3", updateDto);
     expect(result).toBe(expected);
   });
 
   it("removes an association", async () => {
-    const expected = { id: 3, name: "Drama", acronym: "DR" };
+    const expected = { id: "3", name: "Drama", acronym: "DR" };
     service.remove.mockResolvedValue(expected);
 
-    const result = await controller.remove(3);
+    const result = await controller.remove("3");
 
-    expect(service.remove).toHaveBeenCalledWith(3);
+    expect(service.remove).toHaveBeenCalledWith("3");
     expect(result).toBe(expected);
   });
 });

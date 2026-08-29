@@ -67,7 +67,7 @@ describe("ServicesController", () => {
 
   describe("delegation", () => {
     const svc: Partial<Service> = {
-      id: 1,
+      id: "1",
       name: "x",
       location: "L",
     };
@@ -83,10 +83,10 @@ describe("ServicesController", () => {
       expect(res).toEqual([svc]);
     });
 
-    it("findOne should call service.findOne with numeric id", async () => {
+    it("findOne should call service.findOne with string id", async () => {
       mockService.findOne.mockResolvedValue(svc);
-      const res = await controller.findOne(1);
-      expect(mockService.findOne).toHaveBeenCalledWith(1);
+      const res = await controller.findOne("1");
+      expect(mockService.findOne).toHaveBeenCalledWith("1");
       expect(res).toEqual(svc);
     });
 
@@ -97,23 +97,23 @@ describe("ServicesController", () => {
         schedule: [] as Schedule[],
       };
       mockService.create.mockResolvedValue(svc);
-      const res = await controller.create(dto, { activeAssociationId: 1 });
-      expect(mockService.create).toHaveBeenCalledWith(dto, 1);
+      const res = await controller.create(dto, { activeAssociationId: "1" });
+      expect(mockService.create).toHaveBeenCalledWith(dto, "1");
       expect(res).toEqual(svc);
     });
 
     it("update should forward id and dto to service.update", async () => {
       const dto: UpdateServiceDto = { name: "updated" } as UpdateServiceDto;
       mockService.update.mockResolvedValue({ ...svc, ...dto });
-      const res = await controller.update(1, dto);
-      expect(mockService.update).toHaveBeenCalledWith(1, dto);
+      const res = await controller.update("1", dto);
+      expect(mockService.update).toHaveBeenCalledWith("1", dto);
       expect(res).toEqual({ ...svc, ...dto });
     });
 
     it("remove should call service.remove and return value", async () => {
       mockService.remove.mockResolvedValue(svc);
-      const res = await controller.remove(1);
-      expect(mockService.remove).toHaveBeenCalledWith(1);
+      const res = await controller.remove("1");
+      expect(mockService.remove).toHaveBeenCalledWith("1");
       expect(res).toEqual(svc);
     });
   });

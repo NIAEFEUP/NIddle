@@ -11,12 +11,12 @@ describe("ServiceSeeder", () => {
   let dataSource: DataSource;
   let factoryManager: SeederFactoryManager;
 
-  const mockAssociations: any[] = [{ id: 1, name: "Chess Club" }];
+  const mockAssociations: any[] = [{ id: "1", name: "Chess Club" }];
 
   const mockFactory = {
     make: jest.fn().mockImplementation(() =>
       Promise.resolve({
-        id: 1,
+        id: "1",
         course: null,
         faculty: null,
         createdBy: null,
@@ -85,8 +85,13 @@ describe("ServiceSeeder", () => {
   });
 
   it("should assign course relation when relType is 0 and courses exist", async () => {
-    const mockCourse = { id: 1, name: "Test Course" };
-    const mockService = { id: 1, course: null, faculty: null, createdBy: null };
+    const mockCourse = { id: "1", name: "Test Course" };
+    const mockService = {
+      id: "1",
+      course: null,
+      faculty: null,
+      createdBy: null,
+    };
 
     const mockServiceRepository = {
       find: jest.fn().mockResolvedValue([mockService]),
@@ -137,8 +142,13 @@ describe("ServiceSeeder", () => {
   });
 
   it("should assign faculty relation when relType is 1 and faculties exist", async () => {
-    const mockFaculty = { id: 1, name: "Test Faculty" };
-    const mockService = { id: 1, course: null, faculty: null, createdBy: null };
+    const mockFaculty = { id: "1", name: "Test Faculty" };
+    const mockService = {
+      id: "1",
+      course: null,
+      faculty: null,
+      createdBy: null,
+    };
 
     const mockServiceRepository = {
       find: jest.fn().mockResolvedValue([mockService]),
@@ -192,7 +202,12 @@ describe("ServiceSeeder", () => {
   });
 
   it("should not assign createdBy if no associations exist", async () => {
-    const mockService = { id: 1, course: null, faculty: null, createdBy: null };
+    const mockService = {
+      id: "1",
+      course: null,
+      faculty: null,
+      createdBy: null,
+    };
 
     const mockServiceRepository = {
       find: jest.fn().mockResolvedValue([mockService]),

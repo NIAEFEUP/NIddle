@@ -28,9 +28,13 @@ describe("ActiveAssociationGuard", () => {
     expect(guard).toBeDefined();
   });
 
+  const validUuid1 = "b0eebc99-9c0b-4ef8-bb6d-6bb9bd380a22";
+  const validUuid2 = "c0eebc99-9c0b-4ef8-bb6d-6bb9bd380a33";
+  const validUuid3 = "d0eebc99-9c0b-4ef8-bb6d-6bb9bd380a44";
+
   it("should throw UnauthorizedException if user is not present", () => {
     const context = buildContext({
-      headers: { "x-active-association": "1" },
+      headers: { "x-active-association": validUuid1 },
     });
 
     expect(() => guard.canActivate(context)).toThrow(UnauthorizedException);
@@ -38,17 +42,17 @@ describe("ActiveAssociationGuard", () => {
 
   it("should throw BadRequestException if x-active-association header is missing", () => {
     const context = buildContext({
-      user: { id: 1 },
+      user: { id: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11" },
       headers: {},
     });
 
     expect(() => guard.canActivate(context)).toThrow(BadRequestException);
   });
 
-  it("should throw BadRequestException if x-active-association is not a valid integer", () => {
+  it("should throw BadRequestException if x-active-association is not a valid UUID", () => {
     const context = buildContext({
-      user: { id: 1 },
-      headers: { "x-active-association": "abc" },
+      user: { id: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11" },
+      headers: { "x-active-association": "not-a-uuid" },
     });
 
     expect(() => guard.canActivate(context)).toThrow(BadRequestException);
@@ -56,42 +60,55 @@ describe("ActiveAssociationGuard", () => {
 
   it("should return true and set activeAssociationId if user is admin", () => {
     const request: any = {
-      user: { id: 1, isAdmin: true },
-      headers: { "x-active-association": "5" },
+      user: { id: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11", isAdmin: true },
+      headers: { "x-active-association": validUuid1 },
     };
     const context = buildContext(request);
 
     const result = guard.canActivate(context);
 
     expect(result).toBe(true);
-    expect(request.activeAssociationId).toBe(5);
+    expect(request.activeAssociationId).toBe(validUuid1);
+  });
+
+  it("should throw BadRequestException if x-active-association is provided multiple times", () => {
+    const request: any = {
+      user: { id: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11", isAdmin: true },
+      headers: { "x-active-association": [validUuid1, validUuid2] },
+    };
+    const context = buildContext(request);
+
+    expect(() => guard.canActivate(context)).toThrow(BadRequestException);
+    expect(() => guard.canActivate(context)).toThrow(
+      "Active Association header cannot be provided multiple times.",
+    );
   });
 
   it("should return true if user has the association", () => {
     const request: any = {
       user: {
-        id: 1,
+        id: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
         isAdmin: false,
-        associations: [{ id: 3 }, { id: 5 }],
+        associations: [{ id: validUuid2 }, { id: validUuid1 }],
       },
-      headers: { "x-active-association": "5" },
+      headers: { "x-active-association": validUuid1 },
     };
     const context = buildContext(request);
 
     const result = guard.canActivate(context);
 
     expect(result).toBe(true);
-    expect(request.activeAssociationId).toBe(5);
+    expect(request.activeAssociationId).toBe(validUuid1);
   });
 
   it("should throw ForbiddenException if user does not have the association", () => {
     const request = {
       user: {
-        id: 1,
+        id: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
         isAdmin: false,
-        associations: [{ id: 3 }],
+        associations: [{ id: validUuid2 }],
       },
-      headers: { "x-active-association": "5" },
+      headers: { "x-active-association": validUuid1 },
     };
     const context = buildContext(request);
 
@@ -101,11 +118,11 @@ describe("ActiveAssociationGuard", () => {
   it("should throw ForbiddenException if user has no associations", () => {
     const request = {
       user: {
-        id: 1,
+        id: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
         isAdmin: false,
         associations: [],
       },
-      headers: { "x-active-association": "5" },
+      headers: { "x-active-association": validUuid1 },
     };
     const context = buildContext(request);
 
@@ -115,10 +132,10 @@ describe("ActiveAssociationGuard", () => {
   it("should throw ForbiddenException if user associations is undefined", () => {
     const request = {
       user: {
-        id: 1,
+        id: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
         isAdmin: false,
       },
-      headers: { "x-active-association": "5" },
+      headers: { "x-active-association": validUuid1 },
     };
     const context = buildContext(request);
 
@@ -132,7 +149,7 @@ describe("ActiveAssociationGuard", () => {
 
     it("returns true and does not set activeAssociationId when an admin omits the header", () => {
       const request: any = {
-        user: { id: 1, isAdmin: true },
+        user: { id: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11", isAdmin: true },
         headers: {},
       };
       const context = buildContext(request);
@@ -145,7 +162,11 @@ describe("ActiveAssociationGuard", () => {
 
     it("still throws BadRequestException when a non-admin omits the header", () => {
       const request = {
-        user: { id: 1, isAdmin: false, associations: [] },
+        user: {
+          id: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
+          isAdmin: false,
+          associations: [],
+        },
         headers: {},
       };
       const context = buildContext(request);
@@ -155,15 +176,15 @@ describe("ActiveAssociationGuard", () => {
 
     it("still validates and scopes the association when an admin provides the header", () => {
       const request: any = {
-        user: { id: 1, isAdmin: true },
-        headers: { "x-active-association": "7" },
+        user: { id: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11", isAdmin: true },
+        headers: { "x-active-association": validUuid3 },
       };
       const context = buildContext(request);
 
       const result = guard.canActivate(context);
 
       expect(result).toBe(true);
-      expect(request.activeAssociationId).toBe(7);
+      expect(request.activeAssociationId).toBe(validUuid3);
     });
   });
 
@@ -172,7 +193,7 @@ describe("ActiveAssociationGuard", () => {
       mockReflector.get.mockReturnValue(undefined);
 
       const request = {
-        user: { id: 1, isAdmin: true },
+        user: { id: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11", isAdmin: true },
         headers: {},
       };
       const context = buildContext(request);

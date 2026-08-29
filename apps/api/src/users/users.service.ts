@@ -72,11 +72,11 @@ export class UsersService implements OnApplicationBootstrap {
     return this.userRepository.find();
   }
 
-  findOne(id: number): Promise<User> {
+  findOne(id: string): Promise<User> {
     return this.userRepository.findOneOrFail({ where: { id } });
   }
 
-  async findOneWithAssociations(id: number): Promise<User> {
+  async findOneWithAssociations(id: string): Promise<User> {
     return this.userRepository.findOneOrFail({
       where: { id },
       relations: ["associations"],
@@ -87,7 +87,7 @@ export class UsersService implements OnApplicationBootstrap {
     return this.userRepository.findOneByOrFail({ email: email });
   }
 
-  async update(id: number, updateUserDto: UpdateUserDto): Promise<User> {
+  async update(id: string, updateUserDto: UpdateUserDto): Promise<User> {
     const { password, associationIds, ...userData } = updateUserDto;
 
     const user = await this.userRepository.findOneOrFail({ where: { id } });
@@ -109,7 +109,7 @@ export class UsersService implements OnApplicationBootstrap {
     return this.userRepository.save(user);
   }
 
-  async remove(id: number): Promise<User> {
+  async remove(id: string): Promise<User> {
     const user = await this.userRepository.findOneOrFail({ where: { id } });
     await this.userRepository.delete(id);
     return user;

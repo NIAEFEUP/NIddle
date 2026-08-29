@@ -116,4 +116,33 @@ describe("DatabaseService", () => {
     process.env.NODE_ENV = originalEnv;
     process.env.DATABASE_SYNCHRONIZE = originalSynchronize;
   });
+
+  it("should use custom DATABASE_PORT when provided", () => {
+    const originalEnv = process.env.NODE_ENV;
+    process.env.NODE_ENV = "development";
+    process.env.DATABASE_PORT = "5433";
+
+    const options = service.createTypeOrmOptions();
+    expect(
+      (options as { replication: { master: { port: number } } }).replication
+        .master.port,
+    ).toBe(5433);
+
+    delete process.env.DATABASE_PORT;
+    process.env.NODE_ENV = originalEnv;
+  });
+
+  it("should create a single-host connection with custom port when DATABASE_SLAVE is not set", () => {
+    const originalEnv = process.env.NODE_ENV;
+    process.env.NODE_ENV = "development";
+    process.env.DATABASE_PORT = "5433";
+    delete process.env.DATABASE_SLAVE;
+
+    const options = service.createTypeOrmOptions();
+    expect(options.type).toBe("postgres");
+    expect((options as { port: number }).port).toBe(5433);
+
+    delete process.env.DATABASE_PORT;
+    process.env.NODE_ENV = originalEnv;
+  });
 });

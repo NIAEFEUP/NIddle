@@ -62,6 +62,17 @@ describe("Seed Script", () => {
     expect(runSeeders).toHaveBeenCalledWith(mockDataSourceInstance);
   });
 
+  it("should use custom DATABASE_PORT when provided", async () => {
+    process.env.DATABASE_PORT = "5433";
+    await seed();
+
+    expect(DataSource).toHaveBeenCalledWith(
+      expect.objectContaining({ port: 5433 }),
+    );
+
+    delete process.env.DATABASE_PORT;
+  });
+
   describe("environment loading", () => {
     afterEach(() => {
       jest.resetModules();
@@ -125,6 +136,11 @@ describe("Seed Script", () => {
 
       handleMain(mockModule, otherModule);
       expect(runSeeders).not.toHaveBeenCalled();
+    });
+
+    it("should use require.main by default when mainModule argument is omitted", () => {
+      const mockModule = { id: "mock" } as NodeJS.Module;
+      expect(() => handleMain(mockModule)).not.toThrow();
     });
 
     it("should handle errors and exit process", async () => {

@@ -2,8 +2,8 @@ import { ApiExtraModels, ApiProperty, getSchemaPath } from "@nestjs/swagger";
 import {
   IsDefined,
   IsEnum,
-  IsInt,
   IsNotEmpty,
+  IsUUID,
   ValidateIf,
 } from "class-validator";
 import { CreateEventDto } from "@/events/dto/create-event.dto";
@@ -28,9 +28,13 @@ export class CreateRequestDto {
   @IsNotEmpty()
   action: RequestAction;
 
+  /**
+   * The target entity UUID for update or delete requests.
+   * @example '123e4567-e89b-12d3-a456-426614174000'
+   */
   @ValidateIf((dto) => dto.action !== RequestAction.CREATE)
-  @IsInt()
-  targetId?: number;
+  @IsUUID()
+  targetId?: string;
 
   /**
    * The payload for the request. Its shape depends on `type`: a CreateEventDto for

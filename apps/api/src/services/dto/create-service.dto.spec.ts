@@ -42,19 +42,19 @@ describe("CreateServiceDto validation", () => {
     expect(dto.schedule).toEqual(plain.schedule);
   });
 
-  it("should transform string courseId to numbers using Type decorator", () => {
+  it("should keep string courseId as string", () => {
     const plain = {
       name: "Service Name",
       location: "B-142",
       schedule: [],
-      courseId: "1",
+      courseId: "b0eebc99-9c0b-4ef8-bb6d-6bb9bd380a22",
     };
 
     const dto = plainToInstance(CreateServiceDto, plain);
 
-    expect(dto.courseId).toEqual(1);
+    expect(dto.courseId).toEqual("b0eebc99-9c0b-4ef8-bb6d-6bb9bd380a22");
     if (dto.courseId) {
-      expect(typeof dto.courseId).toBe("number");
+      expect(typeof dto.courseId).toBe("string");
     }
   });
 
@@ -177,28 +177,39 @@ describe("CreateServiceDto validation", () => {
     });
   });
 
-  describe("Optional courseId transformation", () => {
-    it("should convert numeric strings to numbers", () => {
-      const plain = {
-        name: "Service",
-        location: "B-142",
-        schedule: [],
-        courseId: 100,
-      };
-
-      const dto = plainToInstance(CreateServiceDto, plain);
-
-      expect(dto.courseId).toEqual(100);
-    });
-  });
-
-  describe("Optional facultyId", () => {
-    it("should accept facultyId number", async () => {
+  describe("Optional courseId", () => {
+    it("should accept valid UUID courseId", async () => {
       const dto = new CreateServiceDto();
       dto.name = "Service";
       dto.location = "B-142";
       dto.schedule = [];
-      dto.facultyId = 1;
+      dto.courseId = "b0eebc99-9c0b-4ef8-bb6d-6bb9bd380a22";
+
+      const errors = await validate(dto);
+
+      expect(errors.some((e) => e.property === "courseId")).toBe(false);
+    });
+
+    it("should reject invalid UUID courseId", async () => {
+      const dto = new CreateServiceDto();
+      dto.name = "Service";
+      dto.location = "B-142";
+      dto.schedule = [];
+      dto.courseId = "invalid-uuid";
+
+      const errors = await validate(dto);
+
+      expect(errors.some((e) => e.property === "courseId")).toBe(true);
+    });
+  });
+
+  describe("Optional facultyId", () => {
+    it("should accept facultyId UUID", async () => {
+      const dto = new CreateServiceDto();
+      dto.name = "Service";
+      dto.location = "B-142";
+      dto.schedule = [];
+      dto.facultyId = "b0eebc99-9c0b-4ef8-bb6d-6bb9bd380a22";
 
       const errors = await validate(dto);
 
@@ -215,6 +226,18 @@ describe("CreateServiceDto validation", () => {
 
       expect(errors.some((e) => e.property === "facultyId")).toBe(false);
     });
+
+    it("should reject invalid UUID facultyId", async () => {
+      const dto = new CreateServiceDto();
+      dto.name = "Service";
+      dto.location = "B-142";
+      dto.schedule = [];
+      dto.facultyId = "invalid-uuid";
+
+      const errors = await validate(dto);
+
+      expect(errors.some((e) => e.property === "facultyId")).toBe(true);
+    });
   });
 
   describe("Complete valid payload", () => {
@@ -225,7 +248,7 @@ describe("CreateServiceDto validation", () => {
         email: "pbeatriz@example.com",
         phoneNumber: "+1-555-0123",
         schedule: [],
-        courseId: 12,
+        courseId: "b0eebc99-9c0b-4ef8-bb6d-6bb9bd380a22",
       };
 
       const dto = plainToInstance(CreateServiceDto, plain);
@@ -236,7 +259,7 @@ describe("CreateServiceDto validation", () => {
       expect(dto.location).toBe("B-142");
       expect(dto.email).toBe("pbeatriz@example.com");
       expect(dto.phoneNumber).toBe("+1-555-0123");
-      expect(dto.courseId).toEqual(12);
+      expect(dto.courseId).toEqual("b0eebc99-9c0b-4ef8-bb6d-6bb9bd380a22");
     });
   });
 });

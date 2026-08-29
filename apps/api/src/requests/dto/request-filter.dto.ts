@@ -1,5 +1,4 @@
-import { Type } from "class-transformer";
-import { IsEnum, IsInt, IsOptional } from "class-validator";
+import { IsEnum, IsOptional, IsUUID } from "class-validator";
 import {
   RequestAction,
   RequestStatus,
@@ -19,8 +18,11 @@ export class RequestFilterDto {
   @IsEnum(RequestStatus)
   status?: RequestStatus;
 
+  /**
+   * The UUID of the user who requested the action.
+   * @example '123e4567-e89b-12d3-a456-426614174000'
+   */
   @IsOptional()
-  @Type(() => Number)
-  @IsInt()
-  requestedBy?: number;
+  @IsUUID()
+  requestedBy?: string;
 }

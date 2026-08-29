@@ -34,7 +34,7 @@ export class RequestsService {
   async create(
     createRequestDto: CreateRequestDto,
     requestedBy: User,
-    activeAssociationId: number,
+    activeAssociationId: string,
   ): Promise<Request> {
     const { targetId, type, action, payload: rawPayload } = createRequestDto;
 
@@ -66,7 +66,7 @@ export class RequestsService {
   async update(
     id: string,
     updateRequestDto: UpdateRequestDto,
-    activeAssociationId: number,
+    activeAssociationId: string,
   ): Promise<Request> {
     const { payload: rawPayload } = updateRequestDto;
 
@@ -103,7 +103,7 @@ export class RequestsService {
     return this.requestRepository.save(request);
   }
 
-  async remove(id: string, activeAssociationId: number): Promise<Request> {
+  async remove(id: string, activeAssociationId: string): Promise<Request> {
     const request = await this.requestRepository.findOneOrFail({
       where: { id },
       relations: { targetAssociation: true },
@@ -119,7 +119,7 @@ export class RequestsService {
     return request;
   }
 
-  async findOne(id: string, activeAssociationId: number): Promise<Request> {
+  async findOne(id: string, activeAssociationId: string): Promise<Request> {
     const request = await this.requestRepository.findOneOrFail({
       where: { id },
       relations: { targetAssociation: true },
@@ -136,7 +136,7 @@ export class RequestsService {
 
   async findAll(
     filters: RequestFilterDto,
-    activeAssociationId?: number,
+    activeAssociationId?: string,
   ): Promise<Request[]> {
     const relations = {
       requestedBy: true,
