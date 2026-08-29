@@ -15,11 +15,11 @@ import {
 import { ApiBearerAuth, ApiOperation, ApiResponse } from "@nestjs/swagger";
 import { AdminOnlyGuard } from "@/auth/guards/admin-only.guard";
 import { JwtAuthGuard } from "@/auth/guards/jwt-auth.guard";
+import { PaginationDto } from "@/common/dto/pagination.dto";
 import { CreateFacultyDto } from "./dto/create-faculty.dto";
 import { UpdateFacultyDto } from "./dto/update-faculty.dto";
 import { Faculty } from "./entities/faculty.entity";
 import { FacultiesService } from "./faculties.service";
-import { PaginationDto } from "@/common/dto/pagination.dto";
 
 @UseInterceptors(ClassSerializerInterceptor)
 @Controller("faculties")

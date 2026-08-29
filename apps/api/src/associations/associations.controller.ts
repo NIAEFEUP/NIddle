@@ -15,11 +15,11 @@ import {
 import { ApiBearerAuth, ApiOperation, ApiResponse } from "@nestjs/swagger";
 import { AdminOnlyGuard } from "@/auth/guards/admin-only.guard";
 import { JwtAuthGuard } from "@/auth/guards/jwt-auth.guard";
+import { PaginationDto } from "@/common/dto/pagination.dto";
 import { AssociationsService } from "./associations.service";
 import { CreateAssociationDto } from "./dto/create-association.dto";
 import { UpdateAssociationDto } from "./dto/update-association.dto";
 import { Association } from "./entities/association.entity";
-import { PaginationDto } from "@/common/dto/pagination.dto";
 
 @UseInterceptors(ClassSerializerInterceptor)
 @Controller("associations")

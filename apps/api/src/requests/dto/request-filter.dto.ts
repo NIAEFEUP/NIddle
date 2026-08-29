@@ -1,10 +1,10 @@
 import { IsEnum, IsOptional, IsUUID } from "class-validator";
+import { PaginationDto } from "@/common/dto/pagination.dto";
 import {
   RequestAction,
   RequestStatus,
   RequestType,
 } from "@/requests/entities/request.entity";
-import { PaginationDto } from "@/common/dto/pagination.dto";
 
 export class RequestFilterDto extends PaginationDto {
   @IsOptional()

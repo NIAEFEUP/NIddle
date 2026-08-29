@@ -99,7 +99,7 @@ export class EventsService
   async findAll(filters: EventFilterDto): Promise<Event[]> {
     const { year, facultyId, courseId, limit, page } = filters;
 
-    const [items] =  await this.eventRepository.findAndCount({
+    const [items] = await this.eventRepository.findAndCount({
       where: {
         ...(year !== undefined && { year }),
         ...(facultyId && { faculty: { id: facultyId } }),

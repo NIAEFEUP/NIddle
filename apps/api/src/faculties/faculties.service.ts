@@ -1,12 +1,12 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
+import { PaginationDto } from "@/common/dto/pagination.dto";
 import { validateAndGetRelations } from "@/common/utils/entity-relation.utils";
 import { Course } from "@/courses/entities/course.entity";
 import { CreateFacultyDto } from "./dto/create-faculty.dto";
 import { UpdateFacultyDto } from "./dto/update-faculty.dto";
 import { Faculty } from "./entities/faculty.entity";
-import { PaginationDto } from "@/common/dto/pagination.dto";
 
 @Injectable()
 export class FacultiesService {
@@ -36,10 +36,10 @@ export class FacultiesService {
     const { page, limit } = pagination;
 
     const [items] = await this.facultyRepository.findAndCount({
-       relations: ["courses"],
-       skip: (page - 1) * limit,
-       take: limit, 
-      });
+      relations: ["courses"],
+      skip: (page - 1) * limit,
+      take: limit,
+    });
 
     return items;
   }

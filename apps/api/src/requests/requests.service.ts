@@ -153,7 +153,7 @@ export class RequestsService {
       ...(requestedBy !== undefined && { requestedBy: { id: requestedBy } }),
     };
 
-    const [items] =  await this.requestRepository.findAndCount({
+    const [items] = await this.requestRepository.findAndCount({
       where: {
         ...(activeAssociationId !== undefined && {
           targetAssociation: { id: activeAssociationId },
