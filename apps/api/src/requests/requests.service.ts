@@ -145,7 +145,7 @@ export class RequestsService {
       targetService: true,
     };
 
-    const { type, status, requestedBy } = filters;
+    const { type, status, requestedBy, limit, page } = filters;
 
     const whereFilter = {
       ...(type !== undefined && { type }),
@@ -153,7 +153,7 @@ export class RequestsService {
       ...(requestedBy !== undefined && { requestedBy: { id: requestedBy } }),
     };
 
-    return this.requestRepository.find({
+    const [items] =  await this.requestRepository.findAndCount({
       where: {
         ...(activeAssociationId !== undefined && {
           targetAssociation: { id: activeAssociationId },
@@ -161,7 +161,11 @@ export class RequestsService {
         ...whereFilter,
       },
       relations,
+      skip: (page - 1) * limit,
+      take: limit,
     });
+
+    return items;
   }
 
   async approve(id: string): Promise<Event | Service> {

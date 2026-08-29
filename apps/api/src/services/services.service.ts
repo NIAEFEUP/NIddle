@@ -124,16 +124,20 @@ export class ServicesService
     return this.update(id, payload);
   }
 
-  findAll(filters: ServiceFilterDto): Promise<Service[]> {
-    const { facultyId, courseId } = filters;
+  async findAll(filters: ServiceFilterDto): Promise<Service[]> {
+    const { facultyId, courseId, limit, page } = filters;
 
-    return this.serviceRepository.find({
+    const [items] = await this.serviceRepository.findAndCount({
       where: {
         ...(facultyId && { faculty: { id: facultyId } }),
         ...(courseId && { course: { id: courseId } }),
       },
       relations: ["schedule", "faculty", "course", "createdBy"],
+      skip: (page - 1) * limit,
+      take: limit,
     });
+
+    return items;
   }
 
   async findOne(id: string): Promise<Service> {
