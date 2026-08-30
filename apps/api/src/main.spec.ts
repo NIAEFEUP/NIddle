@@ -35,7 +35,7 @@ jest.mock("./app.module", () => ({
   AppModule: class MockAppModule {},
 }));
 
-jest.mock("./filters/entity-not-found.filter", () => ({
+jest.mock("./common/filters/entity-not-found.filter", () => ({
   EntityNotFoundFilter: class MockFilter {},
 }));
 
