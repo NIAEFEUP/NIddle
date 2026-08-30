@@ -108,6 +108,7 @@ export class EventsService
       relations: ["faculty", "courses", "createdBy"],
       skip: (page - 1) * limit,
       take: limit,
+      order: { id: "ASC" },
     });
 
     return items;

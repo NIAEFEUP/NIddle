@@ -82,6 +82,7 @@ describe("CoursesService", () => {
         relations: ["faculties"],
         skip: 0,
         take: 10,
+        order: { id: "ASC" },
       });
     });
   });

@@ -135,6 +135,7 @@ export class ServicesService
       relations: ["schedule", "faculty", "course", "createdBy"],
       skip: (page - 1) * limit,
       take: limit,
+      order: { id: "ASC" },
     });
 
     return items;

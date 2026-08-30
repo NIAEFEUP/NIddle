@@ -145,6 +145,7 @@ describe("ServicesService", () => {
         relations: ["schedule", "faculty", "course", "createdBy"],
         skip: 0,
         take: 10,
+        order: { id: "ASC" },
       });
     });
 
@@ -169,6 +170,7 @@ describe("ServicesService", () => {
         relations: ["schedule", "faculty", "course", "createdBy"],
         skip: 0,
         take: 10,
+        order: { id: "ASC" },
       });
     });
 
@@ -193,6 +195,7 @@ describe("ServicesService", () => {
         relations: ["schedule", "faculty", "course", "createdBy"],
         skip: 0,
         take: 10,
+        order: { id: "ASC" },
       });
     });
 
@@ -219,6 +222,7 @@ describe("ServicesService", () => {
         relations: ["schedule", "faculty", "course", "createdBy"],
         skip: 0,
         take: 10,
+        order: { id: "ASC" },
       });
     });
   });

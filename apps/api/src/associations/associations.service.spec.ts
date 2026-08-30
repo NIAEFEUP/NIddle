@@ -95,6 +95,7 @@ describe("AssociationsService", () => {
         relations: ["users"],
         skip: 0,
         take: 10,
+        order: { id: "ASC" },
       });
     });
   });

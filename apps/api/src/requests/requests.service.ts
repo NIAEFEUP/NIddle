@@ -163,6 +163,7 @@ export class RequestsService {
       relations,
       skip: (page - 1) * limit,
       take: limit,
+      order: { id: "ASC" },
     });
 
     return items;

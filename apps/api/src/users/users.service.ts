@@ -75,6 +75,7 @@ export class UsersService implements OnApplicationBootstrap {
     const [items] = await this.userRepository.findAndCount({
       skip: (page - 1) * limit,
       take: limit,
+      order: { id: "ASC" },
     });
 
     return items;

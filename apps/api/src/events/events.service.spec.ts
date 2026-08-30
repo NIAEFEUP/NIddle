@@ -126,6 +126,7 @@ describe("EventsService", () => {
         relations: ["faculty", "courses", "createdBy"],
         skip: 0,
         take: 10,
+        order: { id: "ASC" },
       });
     });
 
@@ -145,6 +146,7 @@ describe("EventsService", () => {
         relations: ["faculty", "courses", "createdBy"],
         skip: 0,
         take: 10,
+        order: { id: "ASC" },
       });
     });
 
@@ -164,6 +166,7 @@ describe("EventsService", () => {
         relations: ["faculty", "courses", "createdBy"],
         skip: 0,
         take: 10,
+        order: { id: "ASC" },
       });
     });
 
@@ -183,6 +186,7 @@ describe("EventsService", () => {
         relations: ["faculty", "courses", "createdBy"],
         skip: 0,
         take: 10,
+        order: { id: "ASC" },
       });
     });
   });

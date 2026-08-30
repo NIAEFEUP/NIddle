@@ -230,6 +230,7 @@ describe("UsersService", () => {
       expect(mockUserRepository.findAndCount).toHaveBeenCalledWith({
         skip: 0,
         take: 10,
+        order: { id: "ASC" },
       });
     });
   });

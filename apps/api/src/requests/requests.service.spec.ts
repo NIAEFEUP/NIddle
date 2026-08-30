@@ -791,6 +791,7 @@ describe("RequestsService", () => {
         where: {},
         skip: 0,
         take: 10,
+        order: { id: "ASC" },
       });
     });
 
@@ -808,6 +809,7 @@ describe("RequestsService", () => {
         where: { status: RequestStatus.PENDING },
         skip: 0,
         take: 10,
+        order: { id: "ASC" },
       });
     });
 
@@ -827,6 +829,7 @@ describe("RequestsService", () => {
         relations,
         skip: 0,
         take: 10,
+        order: { id: "ASC" },
       });
     });
 
@@ -853,6 +856,7 @@ describe("RequestsService", () => {
         relations,
         skip: 0,
         take: 10,
+        order: { id: "ASC" },
       });
     });
   });

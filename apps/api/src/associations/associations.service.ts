@@ -28,6 +28,7 @@ export class AssociationsService {
       relations: ["users"],
       skip: (page - 1) * limit,
       take: limit,
+      order: { id: "ASC" },
     });
 
     return items;
