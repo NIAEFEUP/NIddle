@@ -19,9 +19,12 @@ export class QueryFailedErrorFilter implements ExceptionFilter {
     };
 
     if (driverError?.code === "23505") {
+      const fieldMatch = driverError.detail?.match(/^Key \(([^)]+)\)=/);
+      const field = fieldMatch ? fieldMatch[1] : "value";
+
       response.status(HttpStatus.CONFLICT).json({
         statusCode: HttpStatus.CONFLICT,
-        message: "There is already a user registered with this email address",
+        message: `A record with this ${field} already exists`,
         error: "Conflict",
       });
       return;

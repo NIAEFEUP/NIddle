@@ -28,7 +28,7 @@ describe("QueryFailedErrorFilter", () => {
     expect(filter).toBeDefined();
   });
 
-  it("should return 409 when the driver error is a unique violation (23505)", () => {
+  it("should return 409 naming the violated field for a unique violation (23505)", () => {
     const exception = new QueryFailedError(
       "INSERT INTO ...",
       undefined,
@@ -43,7 +43,45 @@ describe("QueryFailedErrorFilter", () => {
     expect(mockResponse.status).toHaveBeenCalledWith(HttpStatus.CONFLICT);
     expect(mockResponse.json).toHaveBeenCalledWith({
       statusCode: HttpStatus.CONFLICT,
-      message: "There is already a user registered with this email address",
+      message: "A record with this email already exists",
+      error: "Conflict",
+    });
+  });
+
+  it("should name whichever field violated the constraint, not just email", () => {
+    const exception = new QueryFailedError(
+      "INSERT INTO ...",
+      undefined,
+      Object.assign(new Error("duplicate key value"), {
+        code: "23505",
+        detail: "Key (acronym)=(CC) already exists.",
+      }),
+    );
+
+    filter.catch(exception, mockArgumentsHost as ArgumentsHost);
+
+    expect(mockResponse.json).toHaveBeenCalledWith({
+      statusCode: HttpStatus.CONFLICT,
+      message: "A record with this acronym already exists",
+      error: "Conflict",
+    });
+  });
+
+  it('should fall back to "value" when the detail message has no parseable field', () => {
+    const exception = new QueryFailedError(
+      "INSERT INTO ...",
+      undefined,
+      Object.assign(new Error("duplicate key value"), {
+        code: "23505",
+        detail: undefined,
+      }),
+    );
+
+    filter.catch(exception, mockArgumentsHost as ArgumentsHost);
+
+    expect(mockResponse.json).toHaveBeenCalledWith({
+      statusCode: HttpStatus.CONFLICT,
+      message: "A record with this value already exists",
       error: "Conflict",
     });
   });
