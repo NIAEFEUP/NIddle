@@ -1,7 +1,8 @@
 import { Type } from "class-transformer";
-import { IsOptional, IsUUID } from "class-validator";
+import { IsIn, IsOptional, IsUUID } from "class-validator";
+import { PaginationDto } from "@/common/dto/pagination.dto";
 
-export class EventFilterDto {
+export class EventFilterDto extends PaginationDto {
   /**
    * The year to filter events by.
    * @example 2025
@@ -25,4 +26,12 @@ export class EventFilterDto {
   @IsOptional()
   @IsUUID()
   courseId?: string;
+
+  @IsOptional()
+  @IsIn(["name", "year", "startDate"])
+  sortBy?: string;
+
+  @IsOptional()
+  @IsIn(["ASC", "DESC"])
+  sortOrder?: "ASC" | "DESC";
 }

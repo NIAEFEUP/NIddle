@@ -80,7 +80,7 @@ describe("RequestsService", () => {
   const mockRequestRepository = {
     create: jest.fn(),
     save: jest.fn(),
-    find: jest.fn(),
+    findAndCount: jest.fn(),
     findOneOrFail: jest.fn(),
     findOneByOrFail: jest.fn(),
     merge: jest.fn(),
@@ -781,59 +781,110 @@ describe("RequestsService", () => {
     // or undefined. This describe block only covers query construction.
 
     it("without an activeAssociationId or filters returns everything", async () => {
-      mockRequestRepository.find.mockResolvedValue([mockRequest]);
+      mockRequestRepository.findAndCount.mockResolvedValue([[mockRequest], 1]);
 
-      const result = await service.findAll({});
+      const result = await service.findAll({ page: 1, limit: 10 });
 
       expect(result).toEqual([mockRequest]);
-      expect(mockRequestRepository.find).toHaveBeenCalledWith({
+      expect(mockRequestRepository.findAndCount).toHaveBeenCalledWith({
         relations,
         where: {},
+        skip: 0,
+        take: 10,
+        order: { id: "ASC" },
       });
     });
 
     it("a status filter narrows the where clause", async () => {
-      mockRequestRepository.find.mockResolvedValue([mockRequest]);
+      mockRequestRepository.findAndCount.mockResolvedValue([[mockRequest], 1]);
 
-      await service.findAll({ status: RequestStatus.PENDING });
+      await service.findAll({
+        status: RequestStatus.PENDING,
+        page: 1,
+        limit: 10,
+      });
 
-      expect(mockRequestRepository.find).toHaveBeenCalledWith({
+      expect(mockRequestRepository.findAndCount).toHaveBeenCalledWith({
         relations,
         where: { status: RequestStatus.PENDING },
+        skip: 0,
+        take: 10,
+        order: { id: "ASC" },
       });
     });
 
     it("scopes results to the given activeAssociationId", async () => {
-      mockRequestRepository.find.mockResolvedValue([mockRequest]);
+      mockRequestRepository.findAndCount.mockResolvedValue([[mockRequest], 1]);
 
-      await service.findAll({ type: RequestType.EVENT }, "3");
+      await service.findAll(
+        { type: RequestType.EVENT, page: 1, limit: 10 },
+        "3",
+      );
 
-      expect(mockRequestRepository.find).toHaveBeenCalledWith({
+      expect(mockRequestRepository.findAndCount).toHaveBeenCalledWith({
         where: {
           targetAssociation: { id: "3" },
           type: RequestType.EVENT,
         },
         relations,
+        skip: 0,
+        take: 10,
+        order: { id: "ASC" },
       });
     });
 
     it("combines an activeAssociationId with the other filters", async () => {
-      mockRequestRepository.find.mockResolvedValue([mockRequest]);
+      mockRequestRepository.findAndCount.mockResolvedValue([[mockRequest], 1]);
 
       const result = await service.findAll(
-        { status: RequestStatus.PENDING, requestedBy: mockUser.id },
+        {
+          status: RequestStatus.PENDING,
+          requestedBy: mockUser.id,
+          page: 1,
+          limit: 10,
+        },
         mockAssociation.id,
       );
 
       expect(result).toEqual([mockRequest]);
-      expect(mockRequestRepository.find).toHaveBeenCalledWith({
+      expect(mockRequestRepository.findAndCount).toHaveBeenCalledWith({
         where: {
           targetAssociation: { id: mockAssociation.id },
           status: RequestStatus.PENDING,
           requestedBy: { id: mockUser.id },
         },
         relations,
+        skip: 0,
+        take: 10,
+        order: { id: "ASC" },
       });
+    });
+
+    it("orders by the requested sortBy field before the id tiebreaker", async () => {
+      mockRequestRepository.findAndCount.mockResolvedValue([[mockRequest], 1]);
+
+      await service.findAll({
+        sortBy: "createdAt",
+        sortOrder: "DESC",
+        page: 1,
+        limit: 10,
+      });
+
+      const { order } = mockRequestRepository.findAndCount.mock.calls[0][0];
+      expect(order).toEqual({ createdAt: "DESC", id: "ASC" });
+      // Key order matters: TypeORM builds ORDER BY in object-key insertion
+      // order, so the requested field must come before the id tiebreaker.
+      expect(Object.keys(order)).toEqual(["createdAt", "id"]);
+    });
+
+    it("defaults sortOrder to ASC when only sortBy is provided", async () => {
+      mockRequestRepository.findAndCount.mockResolvedValue([[mockRequest], 1]);
+
+      await service.findAll({ sortBy: "createdAt", page: 1, limit: 10 });
+
+      expect(mockRequestRepository.findAndCount).toHaveBeenCalledWith(
+        expect.objectContaining({ order: { createdAt: "ASC", id: "ASC" } }),
+      );
     });
   });
 });

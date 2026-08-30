@@ -96,17 +96,26 @@ export class EventsService
     return this.update(id, payload);
   }
 
-  findAll(filters: EventFilterDto): Promise<Event[]> {
-    const { year, facultyId, courseId } = filters;
+  async findAll(filters: EventFilterDto): Promise<Event[]> {
+    const { year, facultyId, courseId, sortBy, sortOrder, limit, page } =
+      filters;
 
-    return this.eventRepository.find({
+    const [items] = await this.eventRepository.findAndCount({
       where: {
         ...(year !== undefined && { year }),
         ...(facultyId && { faculty: { id: facultyId } }),
         ...(courseId && { courses: { id: courseId } }),
       },
       relations: ["faculty", "courses", "createdBy"],
+      skip: (page - 1) * limit,
+      take: limit,
+      order: {
+        ...(sortBy && { [sortBy]: sortOrder ?? "ASC" }),
+        id: "ASC",
+      },
     });
+
+    return items;
   }
 
   findOne(id: string): Promise<Event> {

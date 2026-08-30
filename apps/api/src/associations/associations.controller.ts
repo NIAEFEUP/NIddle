@@ -8,12 +8,14 @@ import {
   ParseUUIDPipe,
   Patch,
   Post,
+  Query,
   UseGuards,
   UseInterceptors,
 } from "@nestjs/common";
 import { ApiBearerAuth, ApiOperation, ApiResponse } from "@nestjs/swagger";
 import { AdminOnlyGuard } from "@/auth/guards/admin-only.guard";
 import { JwtAuthGuard } from "@/auth/guards/jwt-auth.guard";
+import { PaginationDto } from "@/common/dto/pagination.dto";
 import { AssociationsService } from "./associations.service";
 import { CreateAssociationDto } from "./dto/create-association.dto";
 import { UpdateAssociationDto } from "./dto/update-association.dto";
@@ -27,8 +29,8 @@ export class AssociationsController {
   @ApiOperation({ summary: "Get all associations" })
   @ApiResponse({ status: 200, description: "List of associations returned." })
   @Get()
-  findAll(): Promise<Association[]> {
-    return this.associationsService.findAll();
+  findAll(@Query() pagination: PaginationDto): Promise<Association[]> {
+    return this.associationsService.findAll(pagination);
   }
 
   @ApiOperation({ summary: "Get association by UUID" })
