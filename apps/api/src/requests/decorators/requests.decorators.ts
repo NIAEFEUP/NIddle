@@ -5,12 +5,12 @@ import {
   ApiOperation,
   ApiResponse,
 } from "@nestjs/swagger";
+import { JwtAuthGuard } from "@/auth/guards/jwt-auth.guard";
 import {
   ActiveAssociationGuard,
   OptionalActiveAssociationForAdmin,
-} from "@/auth/guards/active-association.guard";
-import { AdminOnlyGuard } from "@/auth/guards/admin-only.guard";
-import { JwtAuthGuard } from "@/auth/guards/jwt-auth.guard";
+} from "@/common/guards/active-association.guard";
+import { AdminOnlyGuard } from "@/common/guards/admin-only.guard";
 
 export function GetAllRequestsDecorator() {
   return applyDecorators(

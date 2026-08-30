@@ -1,8 +1,8 @@
 import { GUARDS_METADATA } from "@nestjs/common/constants";
 import { Test, TestingModule } from "@nestjs/testing";
-import { ActiveAssociationGuard } from "@/auth/guards/active-association.guard";
-import { AdminOnlyGuard } from "@/auth/guards/admin-only.guard";
 import { JwtAuthGuard } from "@/auth/guards/jwt-auth.guard";
+import { ActiveAssociationGuard } from "@/common/guards/active-association.guard";
+import { AdminOnlyGuard } from "@/common/guards/admin-only.guard";
 import { RequestStatus, RequestType } from "@/requests/entities/request.entity";
 import { User } from "@/users/entities/user.entity";
 import { RequestsController } from "./requests.controller";

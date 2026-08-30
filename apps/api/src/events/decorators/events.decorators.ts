@@ -5,9 +5,9 @@ import {
   ApiOperation,
   ApiResponse,
 } from "@nestjs/swagger";
-import { ActiveAssociationGuard } from "@/auth/guards/active-association.guard";
-import { AdminOnlyGuard } from "@/auth/guards/admin-only.guard";
 import { JwtAuthGuard } from "@/auth/guards/jwt-auth.guard";
+import { ActiveAssociationGuard } from "@/common/guards/active-association.guard";
+import { AdminOnlyGuard } from "@/common/guards/admin-only.guard";
 
 export function GetAllEventsDecorator() {
   return applyDecorators(

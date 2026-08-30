@@ -1,7 +1,7 @@
 import { applyDecorators, UseGuards } from "@nestjs/common";
 import { ApiBearerAuth, ApiOperation, ApiResponse } from "@nestjs/swagger";
-import { AdminOnlyGuard } from "@/auth/guards/admin-only.guard";
 import { JwtAuthGuard } from "@/auth/guards/jwt-auth.guard";
+import { AdminOnlyGuard } from "@/common/guards/admin-only.guard";
 
 export function GetAllUsersDecorator() {
   return applyDecorators(
