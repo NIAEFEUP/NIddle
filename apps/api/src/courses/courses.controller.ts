@@ -8,12 +8,14 @@ import {
   ParseUUIDPipe,
   Patch,
   Post,
+  Query,
   UseGuards,
   UseInterceptors,
 } from "@nestjs/common";
 import { ApiBearerAuth, ApiOperation, ApiResponse } from "@nestjs/swagger";
 import { AdminOnlyGuard } from "@/auth/guards/admin-only.guard";
 import { JwtAuthGuard } from "@/auth/guards/jwt-auth.guard";
+import { PaginationDto } from "@/common/dto/pagination.dto";
 import { CoursesService } from "./courses.service";
 import { CreateCourseDto } from "./dto/create-course.dto";
 import { UpdateCourseDto } from "./dto/update-course.dto";
@@ -27,8 +29,8 @@ export class CoursesController {
   @ApiOperation({ summary: "Get all courses" })
   @ApiResponse({ status: 200, description: "List of courses returned." })
   @Get()
-  findAll(): Promise<Course[]> {
-    return this.coursesService.findAll();
+  findAll(@Query() pagination: PaginationDto): Promise<Course[]> {
+    return this.coursesService.findAll(pagination);
   }
 
   @ApiOperation({ summary: "Get course by UUID" })

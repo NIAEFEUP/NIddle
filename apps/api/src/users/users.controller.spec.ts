@@ -70,10 +70,13 @@ describe("UsersController", () => {
       const users = [mockUser];
       mockUsersService.findAll.mockResolvedValue(users);
 
-      const result = await controller.findAll();
+      const result = await controller.findAll({ page: 1, limit: 10 });
 
       expect(result).toEqual(users);
-      expect(mockUsersService.findAll).toHaveBeenCalled();
+      expect(mockUsersService.findAll).toHaveBeenCalledWith({
+        page: 1,
+        limit: 10,
+      });
     });
   });
 

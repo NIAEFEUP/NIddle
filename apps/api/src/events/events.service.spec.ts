@@ -52,7 +52,7 @@ describe("EventsService", () => {
   const mockEventRepository = {
     create: jest.fn(),
     save: jest.fn(),
-    find: jest.fn(),
+    findAndCount: jest.fn(),
     findOneOrFail: jest.fn(),
     findOneByOrFail: jest.fn(),
     merge: jest.fn(),
@@ -112,58 +112,123 @@ describe("EventsService", () => {
   describe("findAll", () => {
     it("should return an array of events without filters", async () => {
       const events = [mockEvent];
-      const filters: EventFilterDto = {};
-      mockEventRepository.find.mockResolvedValue(events);
+      const filters: EventFilterDto = { page: 1, limit: 10 };
+      mockEventRepository.findAndCount.mockResolvedValue([
+        events,
+        events.length,
+      ]);
 
       const result = await service.findAll(filters);
 
       expect(result).toEqual(events);
-      expect(mockEventRepository.find).toHaveBeenCalledWith({
+      expect(mockEventRepository.findAndCount).toHaveBeenCalledWith({
         where: {},
         relations: ["faculty", "courses", "createdBy"],
+        skip: 0,
+        take: 10,
+        order: { id: "ASC" },
       });
     });
 
     it("should return events filtered by year", async () => {
       const events = [mockEvent];
-      const filters: EventFilterDto = { year: 2025 };
-      mockEventRepository.find.mockResolvedValue(events);
+      const filters: EventFilterDto = { year: 2025, page: 1, limit: 10 };
+      mockEventRepository.findAndCount.mockResolvedValue([
+        events,
+        events.length,
+      ]);
 
       const result = await service.findAll(filters);
 
       expect(result).toEqual(events);
-      expect(mockEventRepository.find).toHaveBeenCalledWith({
+      expect(mockEventRepository.findAndCount).toHaveBeenCalledWith({
         where: { year: 2025 },
         relations: ["faculty", "courses", "createdBy"],
+        skip: 0,
+        take: 10,
+        order: { id: "ASC" },
       });
     });
 
     it("should return events filtered by facultyId", async () => {
       const events = [mockEvent];
-      const filters: EventFilterDto = { facultyId: "1" };
-      mockEventRepository.find.mockResolvedValue(events);
+      const filters: EventFilterDto = { facultyId: "1", page: 1, limit: 10 };
+      mockEventRepository.findAndCount.mockResolvedValue([
+        events,
+        events.length,
+      ]);
 
       const result = await service.findAll(filters);
 
       expect(result).toEqual(events);
-      expect(mockEventRepository.find).toHaveBeenCalledWith({
+      expect(mockEventRepository.findAndCount).toHaveBeenCalledWith({
         where: { faculty: { id: "1" } },
         relations: ["faculty", "courses", "createdBy"],
+        skip: 0,
+        take: 10,
+        order: { id: "ASC" },
       });
     });
 
     it("should return events filtered by courseId", async () => {
       const events = [mockEvent];
-      const filters: EventFilterDto = { courseId: "1" };
-      mockEventRepository.find.mockResolvedValue(events);
+      const filters: EventFilterDto = { courseId: "1", page: 1, limit: 10 };
+      mockEventRepository.findAndCount.mockResolvedValue([
+        events,
+        events.length,
+      ]);
 
       const result = await service.findAll(filters);
 
       expect(result).toEqual(events);
-      expect(mockEventRepository.find).toHaveBeenCalledWith({
+      expect(mockEventRepository.findAndCount).toHaveBeenCalledWith({
         where: { courses: { id: "1" } },
         relations: ["faculty", "courses", "createdBy"],
+        skip: 0,
+        take: 10,
+        order: { id: "ASC" },
       });
+    });
+
+    it("orders by the requested sortBy field before the id tiebreaker", async () => {
+      const events = [mockEvent];
+      const filters: EventFilterDto = {
+        sortBy: "year",
+        sortOrder: "DESC",
+        page: 1,
+        limit: 10,
+      };
+      mockEventRepository.findAndCount.mockResolvedValue([
+        events,
+        events.length,
+      ]);
+
+      await service.findAll(filters);
+
+      const { order } = mockEventRepository.findAndCount.mock.calls[0][0];
+      expect(order).toEqual({ year: "DESC", id: "ASC" });
+      // Key order matters: TypeORM builds ORDER BY in object-key insertion
+      // order, so the requested field must come before the id tiebreaker.
+      expect(Object.keys(order)).toEqual(["year", "id"]);
+    });
+
+    it("defaults sortOrder to ASC when only sortBy is provided", async () => {
+      const events = [mockEvent];
+      const filters: EventFilterDto = {
+        sortBy: "name",
+        page: 1,
+        limit: 10,
+      };
+      mockEventRepository.findAndCount.mockResolvedValue([
+        events,
+        events.length,
+      ]);
+
+      await service.findAll(filters);
+
+      expect(mockEventRepository.findAndCount).toHaveBeenCalledWith(
+        expect.objectContaining({ order: { name: "ASC", id: "ASC" } }),
+      );
     });
   });
 

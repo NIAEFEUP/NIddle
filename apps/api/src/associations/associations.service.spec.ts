@@ -32,7 +32,7 @@ describe("AssociationsService", () => {
   const mockAssociationRepository = {
     create: jest.fn(),
     save: jest.fn(),
-    find: jest.fn(),
+    findAndCount: jest.fn(),
     findOneOrFail: jest.fn(),
     findOneByOrFail: jest.fn(),
     merge: jest.fn(),
@@ -83,13 +83,19 @@ describe("AssociationsService", () => {
 
   describe("findAll", () => {
     it("should return an array of associations", async () => {
-      mockAssociationRepository.find.mockResolvedValue([mockAssociation]);
+      mockAssociationRepository.findAndCount.mockResolvedValue([
+        [mockAssociation],
+        1,
+      ]);
 
-      const result = await service.findAll();
+      const result = await service.findAll({ page: 1, limit: 10 });
 
       expect(result).toEqual([mockAssociation]);
-      expect(mockAssociationRepository.find).toHaveBeenCalledWith({
+      expect(mockAssociationRepository.findAndCount).toHaveBeenCalledWith({
         relations: ["users"],
+        skip: 0,
+        take: 10,
+        order: { id: "ASC" },
       });
     });
   });

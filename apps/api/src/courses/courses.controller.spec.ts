@@ -52,10 +52,13 @@ describe("CoursesController", () => {
       const courses = [mockCourse];
       mockCoursesService.findAll.mockResolvedValue(courses);
 
-      const result = await controller.findAll();
+      const result = await controller.findAll({ page: 1, limit: 10 });
 
       expect(result).toEqual(courses);
-      expect(mockCoursesService.findAll).toHaveBeenCalled();
+      expect(mockCoursesService.findAll).toHaveBeenCalledWith({
+        page: 1,
+        limit: 10,
+      });
     });
   });
 

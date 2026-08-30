@@ -4,6 +4,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import * as bcrypt from "bcrypt";
 import { Repository } from "typeorm";
 import { Association } from "@/associations/entities/association.entity";
+import { PaginationDto } from "@/common/dto/pagination.dto";
 import { validateAndGetRelations } from "@/common/utils/entity-relation.utils";
 import { UpdateUserDto } from "@/users/dto/update-user.dto";
 import { CreateUserDto } from "./dto/create-user.dto";
@@ -68,8 +69,16 @@ export class UsersService implements OnApplicationBootstrap {
     return this.userRepository.save(user);
   }
 
-  findAll(): Promise<User[]> {
-    return this.userRepository.find();
+  async findAll(pagination: PaginationDto): Promise<User[]> {
+    const { page, limit } = pagination;
+
+    const [items] = await this.userRepository.findAndCount({
+      skip: (page - 1) * limit,
+      take: limit,
+      order: { id: "ASC" },
+    });
+
+    return items;
   }
 
   findOne(id: string): Promise<User> {

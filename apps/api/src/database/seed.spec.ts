@@ -69,8 +69,16 @@ describe("Seed Script", () => {
     expect(DataSource).toHaveBeenCalledWith(
       expect.objectContaining({ port: 5433 }),
     );
+  });
 
+  it("should default to port 5432 when DATABASE_PORT is not set", async () => {
     delete process.env.DATABASE_PORT;
+
+    await seed();
+
+    expect(DataSource).toHaveBeenCalledWith(
+      expect.objectContaining({ port: 5432 }),
+    );
   });
 
   describe("environment loading", () => {

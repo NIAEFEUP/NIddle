@@ -1,11 +1,12 @@
-import { IsEnum, IsOptional, IsUUID } from "class-validator";
+import { IsEnum, IsIn, IsOptional, IsUUID } from "class-validator";
+import { PaginationDto } from "@/common/dto/pagination.dto";
 import {
   RequestAction,
   RequestStatus,
   RequestType,
 } from "@/requests/entities/request.entity";
 
-export class RequestFilterDto {
+export class RequestFilterDto extends PaginationDto {
   @IsOptional()
   @IsEnum(RequestType)
   type?: RequestType;
@@ -25,4 +26,12 @@ export class RequestFilterDto {
   @IsOptional()
   @IsUUID()
   requestedBy?: string;
+
+  @IsOptional()
+  @IsIn(["createdAt", "updatedAt", "reviewedAt"])
+  sortBy?: string;
+
+  @IsOptional()
+  @IsIn(["ASC", "DESC"])
+  sortOrder?: "ASC" | "DESC";
 }

@@ -29,7 +29,7 @@ describe("CoursesService", () => {
   const mockCourseRepository = {
     create: jest.fn(),
     save: jest.fn(),
-    find: jest.fn(),
+    findAndCount: jest.fn(),
     findOneOrFail: jest.fn(),
     findOneBy: jest.fn(),
     merge: jest.fn(),
@@ -70,13 +70,19 @@ describe("CoursesService", () => {
   describe("findAll", () => {
     it("should return an array of courses", async () => {
       const courses = [mockCourse];
-      mockCourseRepository.find.mockResolvedValue(courses);
+      mockCourseRepository.findAndCount.mockResolvedValue([
+        courses,
+        courses.length,
+      ]);
 
-      const result = await service.findAll();
+      const result = await service.findAll({ page: 1, limit: 10 });
 
       expect(result).toEqual(courses);
-      expect(mockCourseRepository.find).toHaveBeenCalledWith({
+      expect(mockCourseRepository.findAndCount).toHaveBeenCalledWith({
         relations: ["faculties"],
+        skip: 0,
+        take: 10,
+        order: { id: "ASC" },
       });
     });
   });
