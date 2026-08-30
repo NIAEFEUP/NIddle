@@ -9,13 +9,16 @@ import {
   Patch,
   Post,
   Query,
-  UseGuards,
   UseInterceptors,
 } from "@nestjs/common";
-import { ApiBearerAuth, ApiOperation, ApiResponse } from "@nestjs/swagger";
-import { AdminOnlyGuard } from "@/auth/guards/admin-only.guard";
-import { JwtAuthGuard } from "@/auth/guards/jwt-auth.guard";
 import { PaginationDto } from "@/common/dto/pagination.dto";
+import {
+  CreateFacultyDecorator,
+  DeleteFacultyDecorator,
+  GetAllFacultiesDecorator,
+  GetOneFacultyDecorator,
+  UpdateFacultyDecorator,
+} from "./decorators/faculties.decorators";
 import { CreateFacultyDto } from "./dto/create-faculty.dto";
 import { UpdateFacultyDto } from "./dto/update-faculty.dto";
 import { Faculty } from "./entities/faculty.entity";
@@ -26,39 +29,25 @@ import { FacultiesService } from "./faculties.service";
 export class FacultiesController {
   constructor(private readonly facultiesService: FacultiesService) {}
 
-  @ApiOperation({ summary: "Get all faculties" })
-  @ApiResponse({ status: 200, description: "List of faculties returned." })
+  @GetAllFacultiesDecorator()
   @Get()
   findAll(@Query() pagination: PaginationDto): Promise<Faculty[]> {
     return this.facultiesService.findAll(pagination);
   }
 
-  @ApiOperation({ summary: "Get faculty by UUID" })
-  @ApiResponse({ status: 200, description: "Faculty found." })
-  @ApiResponse({ status: 204, description: "Faculty not found." })
+  @GetOneFacultyDecorator()
   @Get(":id")
   findOne(@Param("id", ParseUUIDPipe) id: string): Promise<Faculty> {
     return this.facultiesService.findOne(id);
   }
 
-  @ApiBearerAuth("access-token")
-  @ApiOperation({ summary: "Create a new faculty" })
-  @ApiResponse({ status: 201, description: "Faculty created." })
-  @ApiResponse({ status: 401, description: "Unauthorized." })
-  @ApiResponse({ status: 403, description: "Forbidden." })
-  @UseGuards(JwtAuthGuard, AdminOnlyGuard)
+  @CreateFacultyDecorator()
   @Post()
   create(@Body() createFacultyDto: CreateFacultyDto): Promise<Faculty> {
     return this.facultiesService.create(createFacultyDto);
   }
 
-  @ApiBearerAuth("access-token")
-  @ApiOperation({ summary: "Update a faculty by UUID" })
-  @ApiResponse({ status: 200, description: "Faculty updated." })
-  @ApiResponse({ status: 204, description: "Faculty not found." })
-  @ApiResponse({ status: 401, description: "Unauthorized." })
-  @ApiResponse({ status: 403, description: "Forbidden." })
-  @UseGuards(JwtAuthGuard, AdminOnlyGuard)
+  @UpdateFacultyDecorator()
   @Patch(":id")
   update(
     @Param("id", ParseUUIDPipe) id: string,
@@ -67,13 +56,7 @@ export class FacultiesController {
     return this.facultiesService.update(id, updateFacultyDto);
   }
 
-  @ApiBearerAuth("access-token")
-  @ApiOperation({ summary: "Delete a faculty by UUID" })
-  @ApiResponse({ status: 200, description: "Faculty deleted." })
-  @ApiResponse({ status: 204, description: "Faculty not found." })
-  @ApiResponse({ status: 401, description: "Unauthorized." })
-  @ApiResponse({ status: 403, description: "Forbidden." })
-  @UseGuards(JwtAuthGuard, AdminOnlyGuard)
+  @DeleteFacultyDecorator()
   @Delete(":id")
   remove(@Param("id", ParseUUIDPipe) id: string): Promise<Faculty> {
     return this.facultiesService.remove(id);
