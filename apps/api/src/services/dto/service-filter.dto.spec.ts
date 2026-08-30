@@ -81,6 +81,47 @@ describe("ServiceFilterDto", () => {
       expect(errors.some((e) => e.property === "facultyId")).toBe(true);
       expect(errors.some((e) => e.property === "courseId")).toBe(true);
     });
+
+    it("should be valid with sortBy 'name'", async () => {
+      const dto = plainToInstance(ServiceFilterDto, { sortBy: "name" });
+
+      const errors = await validate(dto);
+
+      expect(errors).toHaveLength(0);
+    });
+
+    it("should fail validation for a sortBy value that isn't whitelisted", async () => {
+      const dto = plainToInstance(ServiceFilterDto, { sortBy: "location" });
+
+      const errors = await validate(dto);
+
+      expect(errors.some((e) => e.property === "sortBy")).toBe(true);
+    });
+
+    it.each([
+      "ASC",
+      "DESC",
+    ])("should be valid with sortOrder %s", async (sortOrder) => {
+      const dto = plainToInstance(ServiceFilterDto, {
+        sortBy: "name",
+        sortOrder,
+      });
+
+      const errors = await validate(dto);
+
+      expect(errors).toHaveLength(0);
+    });
+
+    it("should fail validation for an invalid sortOrder value", async () => {
+      const dto = plainToInstance(ServiceFilterDto, {
+        sortBy: "name",
+        sortOrder: "sideways",
+      });
+
+      const errors = await validate(dto);
+
+      expect(errors.some((e) => e.property === "sortOrder")).toBe(true);
+    });
   });
 
   describe("Optional fields", () => {
@@ -98,6 +139,13 @@ describe("ServiceFilterDto", () => {
 
       expect(dto.facultyId).toBe(validUuid1);
       expect(dto.courseId).toBeUndefined();
+    });
+
+    it("should have undefined sortBy and sortOrder when not provided", () => {
+      const dto = plainToInstance(ServiceFilterDto, {});
+
+      expect(dto.sortBy).toBeUndefined();
+      expect(dto.sortOrder).toBeUndefined();
     });
   });
 });

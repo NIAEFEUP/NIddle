@@ -1,4 +1,4 @@
-import { IsOptional, IsUUID } from "class-validator";
+import { IsIn, IsOptional, IsUUID } from "class-validator";
 import { PaginationDto } from "@/common/dto/pagination.dto";
 
 export class ServiceFilterDto extends PaginationDto {
@@ -17,4 +17,12 @@ export class ServiceFilterDto extends PaginationDto {
   @IsOptional()
   @IsUUID()
   courseId?: string;
+
+  @IsOptional()
+  @IsIn(["name"])
+  sortBy?: string;
+
+  @IsOptional()
+  @IsIn(["ASC", "DESC"])
+  sortOrder?: "ASC" | "DESC";
 }

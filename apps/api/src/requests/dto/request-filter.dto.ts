@@ -1,4 +1,4 @@
-import { IsEnum, IsOptional, IsUUID } from "class-validator";
+import { IsEnum, IsIn, IsOptional, IsUUID } from "class-validator";
 import { PaginationDto } from "@/common/dto/pagination.dto";
 import {
   RequestAction,
@@ -26,4 +26,12 @@ export class RequestFilterDto extends PaginationDto {
   @IsOptional()
   @IsUUID()
   requestedBy?: string;
+
+  @IsOptional()
+  @IsIn(["createdAt", "updatedAt", "reviewedAt"])
+  sortBy?: string;
+
+  @IsOptional()
+  @IsIn(["ASC", "DESC"])
+  sortOrder?: "ASC" | "DESC";
 }

@@ -189,6 +189,47 @@ describe("EventsService", () => {
         order: { id: "ASC" },
       });
     });
+
+    it("orders by the requested sortBy field before the id tiebreaker", async () => {
+      const events = [mockEvent];
+      const filters: EventFilterDto = {
+        sortBy: "year",
+        sortOrder: "DESC",
+        page: 1,
+        limit: 10,
+      };
+      mockEventRepository.findAndCount.mockResolvedValue([
+        events,
+        events.length,
+      ]);
+
+      await service.findAll(filters);
+
+      const { order } = mockEventRepository.findAndCount.mock.calls[0][0];
+      expect(order).toEqual({ year: "DESC", id: "ASC" });
+      // Key order matters: TypeORM builds ORDER BY in object-key insertion
+      // order, so the requested field must come before the id tiebreaker.
+      expect(Object.keys(order)).toEqual(["year", "id"]);
+    });
+
+    it("defaults sortOrder to ASC when only sortBy is provided", async () => {
+      const events = [mockEvent];
+      const filters: EventFilterDto = {
+        sortBy: "name",
+        page: 1,
+        limit: 10,
+      };
+      mockEventRepository.findAndCount.mockResolvedValue([
+        events,
+        events.length,
+      ]);
+
+      await service.findAll(filters);
+
+      expect(mockEventRepository.findAndCount).toHaveBeenCalledWith(
+        expect.objectContaining({ order: { name: "ASC", id: "ASC" } }),
+      );
+    });
   });
 
   describe("findOne", () => {

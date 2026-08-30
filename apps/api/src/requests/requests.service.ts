@@ -145,7 +145,8 @@ export class RequestsService {
       targetService: true,
     };
 
-    const { type, status, requestedBy, limit, page } = filters;
+    const { type, status, requestedBy, sortBy, sortOrder, limit, page } =
+      filters;
 
     const whereFilter = {
       ...(type !== undefined && { type }),
@@ -163,7 +164,10 @@ export class RequestsService {
       relations,
       skip: (page - 1) * limit,
       take: limit,
-      order: { id: "ASC" },
+      order: {
+        ...(sortBy && { [sortBy]: sortOrder ?? "ASC" }),
+        id: "ASC",
+      },
     });
 
     return items;

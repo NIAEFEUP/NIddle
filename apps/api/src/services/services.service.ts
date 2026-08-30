@@ -125,7 +125,7 @@ export class ServicesService
   }
 
   async findAll(filters: ServiceFilterDto): Promise<Service[]> {
-    const { facultyId, courseId, limit, page } = filters;
+    const { facultyId, courseId, sortBy, sortOrder, limit, page } = filters;
 
     const [items] = await this.serviceRepository.findAndCount({
       where: {
@@ -135,7 +135,10 @@ export class ServicesService
       relations: ["schedule", "faculty", "course", "createdBy"],
       skip: (page - 1) * limit,
       take: limit,
-      order: { id: "ASC" },
+      order: {
+        ...(sortBy && { [sortBy]: sortOrder ?? "ASC" }),
+        id: "ASC",
+      },
     });
 
     return items;

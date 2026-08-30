@@ -97,7 +97,8 @@ export class EventsService
   }
 
   async findAll(filters: EventFilterDto): Promise<Event[]> {
-    const { year, facultyId, courseId, limit, page } = filters;
+    const { year, facultyId, courseId, sortBy, sortOrder, limit, page } =
+      filters;
 
     const [items] = await this.eventRepository.findAndCount({
       where: {
@@ -108,7 +109,10 @@ export class EventsService
       relations: ["faculty", "courses", "createdBy"],
       skip: (page - 1) * limit,
       take: limit,
-      order: { id: "ASC" },
+      order: {
+        ...(sortBy && { [sortBy]: sortOrder ?? "ASC" }),
+        id: "ASC",
+      },
     });
 
     return items;
