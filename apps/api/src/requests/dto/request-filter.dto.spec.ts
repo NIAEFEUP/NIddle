@@ -30,4 +30,51 @@ describe("RequestFilterDto transformation", () => {
 
     expect(errors).toHaveLength(0);
   });
+
+  describe("sortBy / sortOrder", () => {
+    it.each([
+      "createdAt",
+      "updatedAt",
+      "reviewedAt",
+    ])("accepts %s as a valid sortBy value", async (sortBy) => {
+      const dto = plainToInstance(RequestFilterDto, { sortBy });
+
+      const errors = await validate(dto);
+
+      expect(errors).toHaveLength(0);
+    });
+
+    it("rejects a sortBy value that isn't whitelisted", async () => {
+      const dto = plainToInstance(RequestFilterDto, { sortBy: "status" });
+
+      const errors = await validate(dto);
+
+      expect(errors.some((e) => e.property === "sortBy")).toBe(true);
+    });
+
+    it.each([
+      "ASC",
+      "DESC",
+    ])("accepts %s as a valid sortOrder", async (sortOrder) => {
+      const dto = plainToInstance(RequestFilterDto, {
+        sortBy: "createdAt",
+        sortOrder,
+      });
+
+      const errors = await validate(dto);
+
+      expect(errors).toHaveLength(0);
+    });
+
+    it("rejects an invalid sortOrder value", async () => {
+      const dto = plainToInstance(RequestFilterDto, {
+        sortBy: "createdAt",
+        sortOrder: "sideways",
+      });
+
+      const errors = await validate(dto);
+
+      expect(errors.some((e) => e.property === "sortOrder")).toBe(true);
+    });
+  });
 });

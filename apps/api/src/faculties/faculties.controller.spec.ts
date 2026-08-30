@@ -52,10 +52,13 @@ describe("FacultiesController", () => {
       const faculties = [mockFaculty];
       mockFacultiesService.findAll.mockResolvedValue(faculties);
 
-      const result = await controller.findAll();
+      const result = await controller.findAll({ page: 1, limit: 10 });
 
       expect(result).toEqual(faculties);
-      expect(mockFacultiesService.findAll).toHaveBeenCalled();
+      expect(mockFacultiesService.findAll).toHaveBeenCalledWith({
+        page: 1,
+        limit: 10,
+      });
     });
   });
 

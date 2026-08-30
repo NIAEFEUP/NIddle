@@ -58,9 +58,9 @@ describe("AssociationsController", () => {
     const expected = [{ id: "1", name: "Chess Club", acronym: "CC" }];
     service.findAll.mockResolvedValue(expected);
 
-    const result = await controller.findAll();
+    const result = await controller.findAll({ page: 1, limit: 10 });
 
-    expect(service.findAll).toHaveBeenCalled();
+    expect(service.findAll).toHaveBeenCalledWith({ page: 1, limit: 10 });
     expect(result).toBe(expected);
   });
 

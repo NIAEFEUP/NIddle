@@ -66,7 +66,7 @@ describe("ServicesService", () => {
   const mockServiceRepository = {
     create: jest.fn(),
     save: jest.fn(),
-    find: jest.fn(),
+    findAndCount: jest.fn(),
     findOne: jest.fn(),
     findOneOrFail: jest.fn(),
     findOneByOrFail: jest.fn(),
@@ -132,61 +132,133 @@ describe("ServicesService", () => {
   describe("findAll", () => {
     it("should return an array of services", async () => {
       const services = [mockService];
-      mockServiceRepository.find.mockResolvedValue(services);
+      mockServiceRepository.findAndCount.mockResolvedValue([
+        services,
+        services.length,
+      ]);
 
-      const result = await service.findAll({});
+      const result = await service.findAll({ page: 1, limit: 10 });
 
       expect(result).toEqual(services);
-      expect(mockServiceRepository.find).toHaveBeenCalledWith({
+      expect(mockServiceRepository.findAndCount).toHaveBeenCalledWith({
         where: {},
         relations: ["schedule", "faculty", "course", "createdBy"],
+        skip: 0,
+        take: 10,
+        order: { id: "ASC" },
       });
     });
 
     it("should filter by facultyId", async () => {
       const services = [mockService];
-      mockServiceRepository.find.mockResolvedValue(services);
+      mockServiceRepository.findAndCount.mockResolvedValue([
+        services,
+        services.length,
+      ]);
 
-      const result = await service.findAll({ facultyId: "1" });
+      const result = await service.findAll({
+        facultyId: "1",
+        page: 1,
+        limit: 10,
+      });
 
       expect(result).toEqual(services);
-      expect(mockServiceRepository.find).toHaveBeenCalledWith({
+      expect(mockServiceRepository.findAndCount).toHaveBeenCalledWith({
         where: {
           faculty: { id: "1" },
         },
         relations: ["schedule", "faculty", "course", "createdBy"],
+        skip: 0,
+        take: 10,
+        order: { id: "ASC" },
       });
     });
 
     it("should filter by courseId", async () => {
       const services = [mockService];
-      mockServiceRepository.find.mockResolvedValue(services);
+      mockServiceRepository.findAndCount.mockResolvedValue([
+        services,
+        services.length,
+      ]);
 
-      const result = await service.findAll({ courseId: "2" });
+      const result = await service.findAll({
+        courseId: "2",
+        page: 1,
+        limit: 10,
+      });
 
       expect(result).toEqual(services);
-      expect(mockServiceRepository.find).toHaveBeenCalledWith({
+      expect(mockServiceRepository.findAndCount).toHaveBeenCalledWith({
         where: {
           course: { id: "2" },
         },
         relations: ["schedule", "faculty", "course", "createdBy"],
+        skip: 0,
+        take: 10,
+        order: { id: "ASC" },
       });
     });
 
     it("should filter by both facultyId and courseId", async () => {
       const services = [mockService];
-      mockServiceRepository.find.mockResolvedValue(services);
+      mockServiceRepository.findAndCount.mockResolvedValue([
+        services,
+        services.length,
+      ]);
 
-      const result = await service.findAll({ facultyId: "1", courseId: "2" });
+      const result = await service.findAll({
+        facultyId: "1",
+        courseId: "2",
+        page: 1,
+        limit: 10,
+      });
 
       expect(result).toEqual(services);
-      expect(mockServiceRepository.find).toHaveBeenCalledWith({
+      expect(mockServiceRepository.findAndCount).toHaveBeenCalledWith({
         where: {
           faculty: { id: "1" },
           course: { id: "2" },
         },
         relations: ["schedule", "faculty", "course", "createdBy"],
+        skip: 0,
+        take: 10,
+        order: { id: "ASC" },
       });
+    });
+
+    it("orders by the requested sortBy field before the id tiebreaker", async () => {
+      const services = [mockService];
+      mockServiceRepository.findAndCount.mockResolvedValue([
+        services,
+        services.length,
+      ]);
+
+      await service.findAll({
+        sortBy: "name",
+        sortOrder: "DESC",
+        page: 1,
+        limit: 10,
+      });
+
+      const { order } = mockServiceRepository.findAndCount.mock.calls[0][0];
+      expect(order).toEqual({ name: "DESC", id: "ASC" });
+      // Key order matters: TypeORM builds ORDER BY in object-key insertion
+      // order, so the requested field must come before the id tiebreaker.
+      expect(Object.keys(order)).toEqual(["name", "id"]);
+    });
+
+    it("defaults sortOrder to ASC when only sortBy is provided", async () => {
+      const services = [mockService];
+      mockServiceRepository.findAndCount.mockResolvedValue([
+        services,
+        services.length,
+      ]);
+
+      await service.findAll({ sortBy: "name", page: 1, limit: 10 });
+
+      expect(mockServiceRepository.findAndCount).toHaveBeenCalledWith(
+        expect.objectContaining({ order: { name: "ASC", id: "ASC" } }),
+      );
     });
   });
 

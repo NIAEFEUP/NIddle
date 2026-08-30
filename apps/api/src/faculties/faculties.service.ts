@@ -1,6 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
+import { PaginationDto } from "@/common/dto/pagination.dto";
 import { validateAndGetRelations } from "@/common/utils/entity-relation.utils";
 import { Course } from "@/courses/entities/course.entity";
 import { CreateFacultyDto } from "./dto/create-faculty.dto";
@@ -31,8 +32,17 @@ export class FacultiesService {
     return this.facultyRepository.save(faculty);
   }
 
-  findAll(): Promise<Faculty[]> {
-    return this.facultyRepository.find({ relations: ["courses"] });
+  async findAll(pagination: PaginationDto): Promise<Faculty[]> {
+    const { page, limit } = pagination;
+
+    const [items] = await this.facultyRepository.findAndCount({
+      relations: ["courses"],
+      skip: (page - 1) * limit,
+      take: limit,
+      order: { id: "ASC" },
+    });
+
+    return items;
   }
 
   findOne(id: string): Promise<Faculty> {

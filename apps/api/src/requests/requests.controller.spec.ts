@@ -114,12 +114,12 @@ describe("RequestsController", () => {
 
       const result = await controller.findAll(
         { activeAssociationId: "3" },
-        { status: RequestStatus.PENDING },
+        { status: RequestStatus.PENDING, page: 1, limit: 10 },
       );
 
       expect(result).toEqual([mockRequest]);
       expect(mockRequestsService.findAll).toHaveBeenCalledWith(
-        { status: RequestStatus.PENDING },
+        { status: RequestStatus.PENDING, page: 1, limit: 10 },
         "3",
       );
     });
@@ -127,9 +127,12 @@ describe("RequestsController", () => {
     it("forwards undefined when the guard left no activeAssociationId (admin, no header)", async () => {
       mockRequestsService.findAll.mockResolvedValue([]);
 
-      await controller.findAll({}, {});
+      await controller.findAll({}, { page: 1, limit: 10 });
 
-      expect(mockRequestsService.findAll).toHaveBeenCalledWith({}, undefined);
+      expect(mockRequestsService.findAll).toHaveBeenCalledWith(
+        { page: 1, limit: 10 },
+        undefined,
+      );
     });
   });
 
