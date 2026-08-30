@@ -237,9 +237,14 @@ NIddle uses npm workspaces. Always install packages into their respective worksp
   npm run seed
   ```
 
-- **Generate/Synchronize Schema:**
+- **Database Schema & Migrations:**
+  In development (`NODE_ENV=development`), TypeORM automatically synchronizes entities with the database when the backend starts up. Production will use automated database migrations:
   ```bash
-  npm run schema:create
+  # Run pending migrations
+  npm run migration:run
+
+  # Generate a new migration based on entity changes
+  npm run migration:generate -- name=<MigrationName>
   ```
 
 ---
