@@ -3,6 +3,7 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { getRepositoryToken } from "@nestjs/typeorm";
 import * as bcrypt from "bcrypt";
 import { Association } from "@/associations/entities/association.entity";
+import { SortOrder } from "@/common/sorting";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import { User } from "./entities/user.entity";
@@ -220,17 +221,44 @@ describe("UsersService", () => {
   });
 
   describe("findAll", () => {
-    it("should return an array of users", async () => {
+    it("should return a paginated response of users with default sort", async () => {
       const users = [mockUser];
       mockUserRepository.findAndCount.mockResolvedValue([users, users.length]);
 
       const result = await service.findAll({ page: 1, limit: 10 });
 
-      expect(result).toEqual(users);
+      expect(result.data).toEqual(users);
+      expect(result.meta.totalItems).toBe(users.length);
+      expect(result.meta.totalPages).toBe(1);
       expect(mockUserRepository.findAndCount).toHaveBeenCalledWith({
+        where: {},
         skip: 0,
         take: 10,
         order: { id: "ASC" },
+      });
+    });
+
+    it("should filter by isAdmin, associationId, and apply sortBy with id tiebreaker", async () => {
+      const users = [mockUser];
+      mockUserRepository.findAndCount.mockResolvedValue([users, users.length]);
+
+      await service.findAll({
+        page: 1,
+        limit: 10,
+        isAdmin: true,
+        associationId: "assoc-123",
+        sortBy: "email",
+        sortOrder: SortOrder.DESC,
+      });
+
+      expect(mockUserRepository.findAndCount).toHaveBeenCalledWith({
+        where: {
+          isAdmin: true,
+          associations: { id: "assoc-123" },
+        },
+        skip: 0,
+        take: 10,
+        order: { email: "DESC", id: "ASC" },
       });
     });
   });

@@ -10,25 +10,22 @@ import {
   Post,
   Query,
   Req,
-  UseGuards,
   UseInterceptors,
 } from "@nestjs/common";
-import {
-  ApiBearerAuth,
-  ApiHeader,
-  ApiOperation,
-  ApiResponse,
-} from "@nestjs/swagger";
-import {
-  ActiveAssociationGuard,
-  OptionalActiveAssociationForAdmin,
-} from "@/auth/guards/active-association.guard";
-import { AdminOnlyGuard } from "@/auth/guards/admin-only.guard";
-import { JwtAuthGuard } from "@/auth/guards/jwt-auth.guard";
+import { PaginatedResponseDto } from "@/common/pagination";
 import { Event } from "@/events/entities/event.entity";
 import { Request } from "@/requests/entities/request.entity";
 import { Service } from "@/services/entity/service.entity";
 import { User } from "@/users/entities/user.entity";
+import {
+  ApproveRequestDecorator,
+  CreateRequestDecorator,
+  DeleteRequestDecorator,
+  GetAllRequestsDecorator,
+  GetOneRequestDecorator,
+  RejectRequestDecorator,
+  UpdateRequestDecorator,
+} from "./decorators/requests.decorators";
 import { CreateRequestDto } from "./dto/create-request.dto";
 import { RejectRequestDto } from "./dto/reject-request.dto";
 import { RequestFilterDto } from "./dto/request-filter.dto";
@@ -40,39 +37,17 @@ import { RequestsService } from "./requests.service";
 export class RequestsController {
   constructor(private readonly requestsService: RequestsService) {}
 
-  @ApiOperation({ summary: "Get all requests" })
-  @ApiResponse({ status: 200, description: "List of requests returned." })
-  @ApiResponse({ status: 401, description: "Unauthorized." })
-  @ApiResponse({ status: 403, description: "Forbidden." })
-  @ApiBearerAuth("access-token")
-  @ApiHeader({
-    name: "x-active-association",
-    description:
-      "The UUID of the association the user is acting on. Required for non-admin users. Omitting this returns requests across every association.",
-    required: false,
-  })
+  @GetAllRequestsDecorator()
   @Get()
-  @OptionalActiveAssociationForAdmin()
-  @UseGuards(JwtAuthGuard, ActiveAssociationGuard)
   async findAll(
     @Req() req: { activeAssociationId?: string },
     @Query() filters: RequestFilterDto,
-  ): Promise<Request[]> {
+  ): Promise<PaginatedResponseDto<Request>> {
     return this.requestsService.findAll(filters, req.activeAssociationId);
   }
 
-  @ApiOperation({ summary: "Get request by UUID" })
-  @ApiResponse({ status: 200, description: "Request found." })
-  @ApiResponse({ status: 401, description: "Unauthorized." })
-  @ApiResponse({ status: 403, description: "Forbidden." })
-  @ApiBearerAuth("access-token")
-  @ApiHeader({
-    name: "x-active-association",
-    description: "The UUID of the association the user is acting on.",
-    required: true,
-  })
+  @GetOneRequestDecorator()
   @Get(":id")
-  @UseGuards(JwtAuthGuard, ActiveAssociationGuard)
   async findOne(
     @Param("id", ParseUUIDPipe) id: string,
     @Req() req: { activeAssociationId: string },
@@ -80,20 +55,8 @@ export class RequestsController {
     return this.requestsService.findOne(id, req.activeAssociationId);
   }
 
-  @ApiOperation({
-    summary: "Create a new creating/updating/delete request",
-  })
-  @ApiResponse({ status: 201, description: "Request created." })
-  @ApiResponse({ status: 401, description: "Unauthorized." })
-  @ApiResponse({ status: 403, description: "Forbidden." })
-  @ApiBearerAuth("access-token")
-  @ApiHeader({
-    name: "x-active-association",
-    description: "The UUID of the association the user is acting on.",
-    required: true,
-  })
+  @CreateRequestDecorator()
   @Post()
-  @UseGuards(JwtAuthGuard, ActiveAssociationGuard)
   async create(
     @Body() createRequestDto: CreateRequestDto,
     @Req() req: { user: User; activeAssociationId: string },
@@ -105,18 +68,8 @@ export class RequestsController {
     );
   }
 
-  @ApiOperation({ summary: "Update a pending request." })
-  @ApiResponse({ status: 200, description: "Request updated." })
-  @ApiResponse({ status: 401, description: "Unauthorized." })
-  @ApiResponse({ status: 403, description: "Forbidden." })
-  @ApiBearerAuth("access-token")
-  @ApiHeader({
-    name: "x-active-association",
-    description: "The UUID of the association the user is acting on.",
-    required: true,
-  })
+  @UpdateRequestDecorator()
   @Patch(":id")
-  @UseGuards(JwtAuthGuard, ActiveAssociationGuard)
   async update(
     @Param("id", ParseUUIDPipe) id: string,
     @Body() updateRequestDto: UpdateRequestDto,
@@ -129,48 +82,29 @@ export class RequestsController {
     );
   }
 
-  @ApiOperation({ summary: "Approve a request" })
-  @ApiResponse({ status: 200, description: "Request approved." })
-  @ApiResponse({ status: 401, description: "Unauthorized." })
-  @ApiResponse({ status: 403, description: "Forbidden." })
-  @ApiBearerAuth("access-token")
-  @Patch(":id/approve")
-  @UseGuards(JwtAuthGuard, AdminOnlyGuard)
-  async approve(
-    @Param("id", ParseUUIDPipe) id: string,
-  ): Promise<Event | Service> {
-    return this.requestsService.approve(id);
-  }
-  @ApiOperation({ summary: "Reject a request" })
-  @ApiResponse({ status: 200, description: "Request rejected." })
-  @ApiResponse({ status: 401, description: "Unauthorized." })
-  @ApiResponse({ status: 403, description: "Forbidden." })
-  @ApiBearerAuth("access-token")
-  @Patch(":id/reject")
-  @UseGuards(JwtAuthGuard, AdminOnlyGuard)
-  async reject(
-    @Param("id", ParseUUIDPipe) id: string,
-    @Body() rejectRequestDto: RejectRequestDto,
-  ): Promise<Request> {
-    return this.requestsService.reject(id, rejectRequestDto);
-  }
-
-  @ApiOperation({ summary: "Delete a request" })
-  @ApiResponse({ status: 200, description: "Request deleted." })
-  @ApiResponse({ status: 401, description: "Unauthorized." })
-  @ApiResponse({ status: 403, description: "Forbidden." })
-  @ApiBearerAuth("access-token")
-  @ApiHeader({
-    name: "x-active-association",
-    description: "The UUID of the association the user is acting on.",
-    required: true,
-  })
+  @DeleteRequestDecorator()
   @Delete(":id")
-  @UseGuards(JwtAuthGuard, ActiveAssociationGuard)
   async remove(
     @Param("id", ParseUUIDPipe) id: string,
     @Req() req: { activeAssociationId: string },
   ): Promise<Request> {
     return this.requestsService.remove(id, req.activeAssociationId);
+  }
+
+  @ApproveRequestDecorator()
+  @Patch(":id/approve")
+  async approve(
+    @Param("id", ParseUUIDPipe) id: string,
+  ): Promise<Event | Service> {
+    return this.requestsService.approve(id);
+  }
+
+  @RejectRequestDecorator()
+  @Patch(":id/reject")
+  async reject(
+    @Param("id", ParseUUIDPipe) id: string,
+    @Body() rejectRequestDto: RejectRequestDto,
+  ): Promise<Request> {
+    return this.requestsService.reject(id, rejectRequestDto);
   }
 }

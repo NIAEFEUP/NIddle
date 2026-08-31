@@ -785,7 +785,9 @@ describe("RequestsService", () => {
 
       const result = await service.findAll({ page: 1, limit: 10 });
 
-      expect(result).toEqual([mockRequest]);
+      expect(result.data).toEqual([mockRequest]);
+      expect(result.meta.totalItems).toBe(1);
+      expect(result.meta.totalPages).toBe(1);
       expect(mockRequestRepository.findAndCount).toHaveBeenCalledWith({
         relations,
         where: {},
@@ -846,12 +848,37 @@ describe("RequestsService", () => {
         mockAssociation.id,
       );
 
-      expect(result).toEqual([mockRequest]);
+      expect(result.data).toEqual([mockRequest]);
+      expect(result.meta.totalItems).toBe(1);
+      expect(result.meta.totalPages).toBe(1);
       expect(mockRequestRepository.findAndCount).toHaveBeenCalledWith({
         where: {
           targetAssociation: { id: mockAssociation.id },
           status: RequestStatus.PENDING,
           requestedBy: { id: mockUser.id },
+        },
+        relations,
+        skip: 0,
+        take: 10,
+        order: { id: "ASC" },
+      });
+    });
+
+    it("should filter by targetAssociationId and action when activeAssociationId is not provided", async () => {
+      mockRequestRepository.findAndCount.mockResolvedValue([[mockRequest], 1]);
+
+      const result = await service.findAll({
+        targetAssociationId: "target-assoc-id",
+        action: RequestAction.CREATE,
+        page: 1,
+        limit: 10,
+      });
+
+      expect(result.data).toEqual([mockRequest]);
+      expect(mockRequestRepository.findAndCount).toHaveBeenCalledWith({
+        where: {
+          targetAssociation: { id: "target-assoc-id" },
+          action: RequestAction.CREATE,
         },
         relations,
         skip: 0,

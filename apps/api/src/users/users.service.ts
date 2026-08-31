@@ -4,10 +4,12 @@ import { InjectRepository } from "@nestjs/typeorm";
 import * as bcrypt from "bcrypt";
 import { Repository } from "typeorm";
 import { Association } from "@/associations/entities/association.entity";
-import { PaginationDto } from "@/common/dto/pagination.dto";
+import { PaginatedResponseDto, paginate } from "@/common/pagination";
+import { buildOrderClause } from "@/common/sorting";
 import { validateAndGetRelations } from "@/common/utils/entity-relation.utils";
 import { UpdateUserDto } from "@/users/dto/update-user.dto";
 import { CreateUserDto } from "./dto/create-user.dto";
+import { UserFilterDto } from "./dto/user-filter.dto";
 import { User } from "./entities/user.entity";
 
 @Injectable()
@@ -69,16 +71,16 @@ export class UsersService implements OnApplicationBootstrap {
     return this.userRepository.save(user);
   }
 
-  async findAll(pagination: PaginationDto): Promise<User[]> {
-    const { page, limit } = pagination;
+  async findAll(filters: UserFilterDto): Promise<PaginatedResponseDto<User>> {
+    const { isAdmin, associationId } = filters;
 
-    const [items] = await this.userRepository.findAndCount({
-      skip: (page - 1) * limit,
-      take: limit,
-      order: { id: "ASC" },
+    return paginate(this.userRepository, filters, {
+      where: {
+        ...(isAdmin !== undefined && { isAdmin }),
+        ...(associationId && { associations: { id: associationId } }),
+      },
+      order: buildOrderClause(filters),
     });
-
-    return items;
   }
 
   findOne(id: string): Promise<User> {

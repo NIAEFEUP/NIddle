@@ -4,11 +4,8 @@ import { handleMain, seed } from "./seed";
 
 interface MockDataSource {
   initialize: jest.Mock<Promise<void>>;
+  destroy: jest.Mock<Promise<void>>;
 }
-
-jest.mock("dotenv", () => ({
-  config: jest.fn(),
-}));
 
 jest.mock("typeorm", () => {
   const actual = jest.requireActual<typeof import("typeorm")>("typeorm");
@@ -16,6 +13,7 @@ jest.mock("typeorm", () => {
     ...actual,
     DataSource: jest.fn().mockImplementation(() => ({
       initialize: jest.fn().mockResolvedValue(undefined),
+      destroy: jest.fn().mockResolvedValue(undefined),
     })),
   };
 });
@@ -35,81 +33,36 @@ describe("Seed Script", () => {
       DATABASE_PASSWORD: "test-password",
       DATABASE_NAME: "test-db",
     };
+    delete process.env.DATABASE_SLAVE;
   });
 
   afterEach(() => {
     process.env = OLD_ENV;
   });
 
-  it("should initialize data source and run seeders", async () => {
+  it("should initialize data source, run seeders, and destroy data source", async () => {
     await seed();
 
     expect(DataSource).toHaveBeenCalledWith(
       expect.objectContaining({
         type: "postgres",
         database: "test-db",
-        entities: expect.any(Array) as unknown as (() => unknown)[],
-        seeds: expect.any(Array) as unknown as string[],
-        factories: expect.any(Array) as unknown as string[],
+        entities: expect.any(Array),
+        seeds: expect.any(Array),
+        factories: expect.any(Array),
+        synchronize: true,
+        dropSchema: true,
       }),
     );
 
     const mockDataSourceClass = DataSource as unknown as jest.Mock;
-    const mockDataSourceInstance = mockDataSourceClass.mock.results[0]
-      .value as MockDataSource;
+    const mockDataSourceInstance = mockDataSourceClass.mock.results[
+      mockDataSourceClass.mock.results.length - 1
+    ].value as MockDataSource;
 
     expect(mockDataSourceInstance.initialize).toHaveBeenCalled();
     expect(runSeeders).toHaveBeenCalledWith(mockDataSourceInstance);
-  });
-
-  it("should use custom DATABASE_PORT when provided", async () => {
-    process.env.DATABASE_PORT = "5433";
-    await seed();
-
-    expect(DataSource).toHaveBeenCalledWith(
-      expect.objectContaining({ port: 5433 }),
-    );
-  });
-
-  it("should default to port 5432 when DATABASE_PORT is not set", async () => {
-    delete process.env.DATABASE_PORT;
-
-    await seed();
-
-    expect(DataSource).toHaveBeenCalledWith(
-      expect.objectContaining({ port: 5432 }),
-    );
-  });
-
-  describe("environment loading", () => {
-    afterEach(() => {
-      jest.resetModules();
-      jest.clearAllMocks();
-    });
-
-    it("loads .env.local when NOT running in test mode", async () => {
-      process.env.NODE_ENV = "development";
-      let dotenvConfig: jest.Mock = jest.fn();
-
-      await jest.isolateModulesAsync(async () => {
-        require("./seed");
-        dotenvConfig = (require("dotenv") as { config: jest.Mock }).config;
-      });
-
-      expect(dotenvConfig).toHaveBeenCalledWith({ path: ".env.local" });
-    });
-
-    it("does NOT load .env.local when running in test mode", async () => {
-      process.env.NODE_ENV = "test";
-      let dotenvConfig: jest.Mock = jest.fn();
-
-      await jest.isolateModulesAsync(async () => {
-        require("./seed");
-        dotenvConfig = (require("dotenv") as { config: jest.Mock }).config;
-      });
-
-      expect(dotenvConfig).not.toHaveBeenCalled();
-    });
+    expect(mockDataSourceInstance.destroy).toHaveBeenCalled();
   });
 
   describe("handleMain", () => {

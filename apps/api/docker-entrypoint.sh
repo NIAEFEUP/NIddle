@@ -2,8 +2,9 @@
 
 set -e
 
-echo "Running database schema creation..."
-npm run schema:create
+# TODO: Add automated migration execution here (e.g. `npm run migration:run`)
+# The legacy manual `schema:create` script was removed because development uses automatic
+# entity synchronization on startup, and production will rely on automated migrations.
 
 echo "Starting application..."
 exec "$@"

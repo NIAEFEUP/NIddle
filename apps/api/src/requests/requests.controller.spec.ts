@@ -1,8 +1,8 @@
 import { GUARDS_METADATA } from "@nestjs/common/constants";
 import { Test, TestingModule } from "@nestjs/testing";
-import { ActiveAssociationGuard } from "@/auth/guards/active-association.guard";
-import { AdminOnlyGuard } from "@/auth/guards/admin-only.guard";
 import { JwtAuthGuard } from "@/auth/guards/jwt-auth.guard";
+import { ActiveAssociationGuard } from "@/common/guards/active-association.guard";
+import { AdminOnlyGuard } from "@/common/guards/admin-only.guard";
 import { RequestStatus, RequestType } from "@/requests/entities/request.entity";
 import { User } from "@/users/entities/user.entity";
 import { RequestsController } from "./requests.controller";
@@ -110,14 +110,26 @@ describe("RequestsController", () => {
 
   describe("findAll", () => {
     it("forwards the filters and activeAssociationId set by the guard", async () => {
-      mockRequestsService.findAll.mockResolvedValue([mockRequest]);
+      const response = {
+        data: [mockRequest],
+        meta: {
+          page: 1,
+          limit: 10,
+          itemCount: 1,
+          totalItems: 1,
+          totalPages: 1,
+          hasPreviousPage: false,
+          hasNextPage: false,
+        },
+      };
+      mockRequestsService.findAll.mockResolvedValue(response);
 
       const result = await controller.findAll(
         { activeAssociationId: "3" },
         { status: RequestStatus.PENDING, page: 1, limit: 10 },
       );
 
-      expect(result).toEqual([mockRequest]);
+      expect(result).toEqual(response);
       expect(mockRequestsService.findAll).toHaveBeenCalledWith(
         { status: RequestStatus.PENDING, page: 1, limit: 10 },
         "3",
@@ -125,10 +137,23 @@ describe("RequestsController", () => {
     });
 
     it("forwards undefined when the guard left no activeAssociationId (admin, no header)", async () => {
-      mockRequestsService.findAll.mockResolvedValue([]);
+      const response = {
+        data: [],
+        meta: {
+          page: 1,
+          limit: 10,
+          itemCount: 0,
+          totalItems: 0,
+          totalPages: 1,
+          hasPreviousPage: false,
+          hasNextPage: false,
+        },
+      };
+      mockRequestsService.findAll.mockResolvedValue(response);
 
-      await controller.findAll({}, { page: 1, limit: 10 });
+      const result = await controller.findAll({}, { page: 1, limit: 10 });
 
+      expect(result).toEqual(response);
       expect(mockRequestsService.findAll).toHaveBeenCalledWith(
         { page: 1, limit: 10 },
         undefined,

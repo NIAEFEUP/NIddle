@@ -9,15 +9,19 @@ import {
   Patch,
   Post,
   Query,
-  UseGuards,
   UseInterceptors,
 } from "@nestjs/common";
-import { ApiBearerAuth, ApiOperation, ApiResponse } from "@nestjs/swagger";
-import { AdminOnlyGuard } from "@/auth/guards/admin-only.guard";
-import { JwtAuthGuard } from "@/auth/guards/jwt-auth.guard";
-import { PaginationDto } from "@/common/dto/pagination.dto";
+import { PaginatedResponseDto } from "@/common/pagination";
 import { CreateUserDto } from "@/users/dto/create-user.dto";
 import { UpdateUserDto } from "@/users/dto/update-user.dto";
+import {
+  CreateUserDecorator,
+  DeleteUserDecorator,
+  GetAllUsersDecorator,
+  GetOneUserDecorator,
+  UpdateUserDecorator,
+} from "./decorators/users.decorators";
+import { UserFilterDto } from "./dto/user-filter.dto";
 import { User } from "./entities/user.entity";
 import { UsersService } from "./users.service";
 
@@ -26,39 +30,27 @@ import { UsersService } from "./users.service";
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
+  @GetAllUsersDecorator()
   @Get()
-  @ApiOperation({ summary: "Get all users" })
-  @ApiResponse({ status: 200, description: "List of users returned." })
-  findAll(@Query() pagination: PaginationDto): Promise<User[]> {
-    return this.usersService.findAll(pagination);
+  findAll(
+    @Query() filters: UserFilterDto,
+  ): Promise<PaginatedResponseDto<User>> {
+    return this.usersService.findAll(filters);
   }
 
-  @ApiBearerAuth("access-token")
-  @ApiOperation({ summary: "Create a new user" })
-  @ApiResponse({ status: 201, description: "User created." })
-  @ApiResponse({ status: 401, description: "Unauthorized." })
-  @ApiResponse({ status: 403, description: "Forbidden." })
-  @UseGuards(JwtAuthGuard, AdminOnlyGuard)
+  @GetOneUserDecorator()
+  @Get(":id")
+  findOne(@Param("id", ParseUUIDPipe) id: string): Promise<User> {
+    return this.usersService.findOne(id);
+  }
+
+  @CreateUserDecorator()
   @Post()
   create(@Body() createUserDto: CreateUserDto): Promise<User> {
     return this.usersService.create(createUserDto);
   }
 
-  @Get(":id")
-  @ApiOperation({ summary: "Get user by UUID" })
-  @ApiResponse({ status: 200, description: "User found." })
-  @ApiResponse({ status: 204, description: "User not found." })
-  findOne(@Param("id", ParseUUIDPipe) id: string): Promise<User> {
-    return this.usersService.findOne(id);
-  }
-
-  @ApiBearerAuth("access-token")
-  @ApiOperation({ summary: "Update a user by UUID" })
-  @ApiResponse({ status: 200, description: "User updated." })
-  @ApiResponse({ status: 204, description: "User not found." })
-  @ApiResponse({ status: 401, description: "Unauthorized." })
-  @ApiResponse({ status: 403, description: "Forbidden." })
-  @UseGuards(JwtAuthGuard, AdminOnlyGuard)
+  @UpdateUserDecorator()
   @Patch(":id")
   update(
     @Param("id", ParseUUIDPipe) id: string,
@@ -67,13 +59,7 @@ export class UsersController {
     return this.usersService.update(id, updateUserDto);
   }
 
-  @ApiBearerAuth("access-token")
-  @ApiOperation({ summary: "Delete a user by UUID" })
-  @ApiResponse({ status: 200, description: "User deleted." })
-  @ApiResponse({ status: 204, description: "User not found." })
-  @ApiResponse({ status: 401, description: "Unauthorized." })
-  @ApiResponse({ status: 403, description: "Forbidden." })
-  @UseGuards(JwtAuthGuard, AdminOnlyGuard)
+  @DeleteUserDecorator()
   @Delete(":id")
   remove(@Param("id", ParseUUIDPipe) id: string): Promise<User> {
     return this.usersService.remove(id);

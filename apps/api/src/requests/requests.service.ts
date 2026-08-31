@@ -7,6 +7,8 @@ import {
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { Association } from "@/associations/entities/association.entity";
+import { PaginatedResponseDto, paginate } from "@/common/pagination";
+import { buildOrderClause } from "@/common/sorting";
 import { Event } from "@/events/entities/event.entity";
 import {
   Request,
@@ -137,7 +139,7 @@ export class RequestsService {
   async findAll(
     filters: RequestFilterDto,
     activeAssociationId?: string,
-  ): Promise<Request[]> {
+  ): Promise<PaginatedResponseDto<Request>> {
     const relations = {
       requestedBy: true,
       targetAssociation: true,
@@ -145,32 +147,23 @@ export class RequestsService {
       targetService: true,
     };
 
-    const { type, status, requestedBy, sortBy, sortOrder, limit, page } =
-      filters;
+    const { type, action, status, requestedBy, targetAssociationId } = filters;
+
+    const assocId = activeAssociationId ?? targetAssociationId;
 
     const whereFilter = {
       ...(type !== undefined && { type }),
+      ...(action !== undefined && { action }),
       ...(status !== undefined && { status }),
       ...(requestedBy !== undefined && { requestedBy: { id: requestedBy } }),
+      ...(assocId !== undefined && { targetAssociation: { id: assocId } }),
     };
 
-    const [items] = await this.requestRepository.findAndCount({
-      where: {
-        ...(activeAssociationId !== undefined && {
-          targetAssociation: { id: activeAssociationId },
-        }),
-        ...whereFilter,
-      },
+    return paginate(this.requestRepository, filters, {
+      where: whereFilter,
       relations,
-      skip: (page - 1) * limit,
-      take: limit,
-      order: {
-        ...(sortBy && { [sortBy]: sortOrder ?? "ASC" }),
-        id: "ASC",
-      },
+      order: buildOrderClause(filters),
     });
-
-    return items;
   }
 
   async approve(id: string): Promise<Event | Service> {

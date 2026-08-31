@@ -1,9 +1,11 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
-import { PaginationDto } from "@/common/dto/pagination.dto";
+import { FindOptionsWhere, Repository } from "typeorm";
+import { PaginatedResponseDto, paginate } from "@/common/pagination";
+import { buildOrderClause } from "@/common/sorting";
 import { validateAndGetRelations } from "@/common/utils/entity-relation.utils";
 import { Faculty } from "@/faculties/entities/faculty.entity";
+import { CourseFilterDto } from "./dto/course-filter.dto";
 import { CreateCourseDto } from "./dto/create-course.dto";
 import { UpdateCourseDto } from "./dto/update-course.dto";
 import { Course } from "./entities/course.entity";
@@ -32,17 +34,21 @@ export class CoursesService {
     return this.courseRepository.save(course);
   }
 
-  async findAll(pagination: PaginationDto): Promise<Course[]> {
-    const { page, limit } = pagination;
+  async findAll(
+    filters: CourseFilterDto,
+  ): Promise<PaginatedResponseDto<Course>> {
+    const { facultyId } = filters;
 
-    const [items] = await this.courseRepository.findAndCount({
+    const where: FindOptionsWhere<Course> = {};
+    if (facultyId) {
+      where.faculties = { id: facultyId };
+    }
+
+    return paginate(this.courseRepository, filters, {
+      where,
       relations: ["faculties"],
-      skip: (page - 1) * limit,
-      take: limit,
-      order: { id: "ASC" },
+      order: buildOrderClause(filters),
     });
-
-    return items;
   }
 
   findOne(id: string): Promise<Course> {

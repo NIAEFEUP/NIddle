@@ -1,7 +1,7 @@
 import { GUARDS_METADATA } from "@nestjs/common/constants";
 import { Test, TestingModule } from "@nestjs/testing";
-import { AdminOnlyGuard } from "@/auth/guards/admin-only.guard";
 import { JwtAuthGuard } from "@/auth/guards/jwt-auth.guard";
+import { AdminOnlyGuard } from "@/common/guards/admin-only.guard";
 import { CreateServiceDto } from "./dto/create-service.dto";
 import { UpdateServiceDto } from "./dto/update-service.dto";
 import { Schedule } from "./entity/schedule.entity";
@@ -77,10 +77,25 @@ describe("ServicesController", () => {
     });
 
     it("findAll should call service.findAll and return its value", async () => {
-      mockService.findAll.mockResolvedValue([svc]);
+      const response = {
+        data: [svc],
+        meta: {
+          page: 1,
+          limit: 10,
+          itemCount: 1,
+          totalItems: 1,
+          totalPages: 1,
+          hasPreviousPage: false,
+          hasNextPage: false,
+        },
+      };
+      mockService.findAll.mockResolvedValue(response);
       const res = await controller.findAll({ page: 1, limit: 10 });
-      expect(mockService.findAll).toHaveBeenCalledWith({ page: 1, limit: 10 });
-      expect(res).toEqual([svc]);
+      expect(mockService.findAll).toHaveBeenCalledWith({
+        page: 1,
+        limit: 10,
+      });
+      expect(res).toEqual(response);
     });
 
     it("findOne should call service.findOne with string id", async () => {

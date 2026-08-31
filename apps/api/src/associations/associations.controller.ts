@@ -9,14 +9,18 @@ import {
   Patch,
   Post,
   Query,
-  UseGuards,
   UseInterceptors,
 } from "@nestjs/common";
-import { ApiBearerAuth, ApiOperation, ApiResponse } from "@nestjs/swagger";
-import { AdminOnlyGuard } from "@/auth/guards/admin-only.guard";
-import { JwtAuthGuard } from "@/auth/guards/jwt-auth.guard";
-import { PaginationDto } from "@/common/dto/pagination.dto";
+import { PaginatedResponseDto } from "@/common/pagination";
 import { AssociationsService } from "./associations.service";
+import {
+  CreateAssociationDecorator,
+  DeleteAssociationDecorator,
+  GetAllAssociationsDecorator,
+  GetOneAssociationDecorator,
+  UpdateAssociationDecorator,
+} from "./decorators/associations.decorators";
+import { AssociationFilterDto } from "./dto/association-filter.dto";
 import { CreateAssociationDto } from "./dto/create-association.dto";
 import { UpdateAssociationDto } from "./dto/update-association.dto";
 import { Association } from "./entities/association.entity";
@@ -26,27 +30,21 @@ import { Association } from "./entities/association.entity";
 export class AssociationsController {
   constructor(private readonly associationsService: AssociationsService) {}
 
-  @ApiOperation({ summary: "Get all associations" })
-  @ApiResponse({ status: 200, description: "List of associations returned." })
+  @GetAllAssociationsDecorator()
   @Get()
-  findAll(@Query() pagination: PaginationDto): Promise<Association[]> {
-    return this.associationsService.findAll(pagination);
+  findAll(
+    @Query() filters: AssociationFilterDto,
+  ): Promise<PaginatedResponseDto<Association>> {
+    return this.associationsService.findAll(filters);
   }
 
-  @ApiOperation({ summary: "Get association by UUID" })
-  @ApiResponse({ status: 200, description: "Association found." })
-  @ApiResponse({ status: 204, description: "Association not found." })
+  @GetOneAssociationDecorator()
   @Get(":id")
   findOne(@Param("id", ParseUUIDPipe) id: string): Promise<Association> {
     return this.associationsService.findOne(id);
   }
 
-  @ApiBearerAuth("access-token")
-  @ApiOperation({ summary: "Create a new association" })
-  @ApiResponse({ status: 201, description: "Association created." })
-  @ApiResponse({ status: 401, description: "Unauthorized." })
-  @ApiResponse({ status: 403, description: "Forbidden." })
-  @UseGuards(JwtAuthGuard, AdminOnlyGuard)
+  @CreateAssociationDecorator()
   @Post()
   create(
     @Body() createAssociationDto: CreateAssociationDto,
@@ -54,13 +52,7 @@ export class AssociationsController {
     return this.associationsService.create(createAssociationDto);
   }
 
-  @ApiBearerAuth("access-token")
-  @ApiOperation({ summary: "Update an association by UUID" })
-  @ApiResponse({ status: 200, description: "Association updated." })
-  @ApiResponse({ status: 204, description: "Association not found." })
-  @ApiResponse({ status: 401, description: "Unauthorized." })
-  @ApiResponse({ status: 403, description: "Forbidden." })
-  @UseGuards(JwtAuthGuard, AdminOnlyGuard)
+  @UpdateAssociationDecorator()
   @Patch(":id")
   update(
     @Param("id", ParseUUIDPipe) id: string,
@@ -69,13 +61,7 @@ export class AssociationsController {
     return this.associationsService.update(id, updateAssociationDto);
   }
 
-  @ApiBearerAuth("access-token")
-  @ApiOperation({ summary: "Delete an association by UUID" })
-  @ApiResponse({ status: 200, description: "Association deleted." })
-  @ApiResponse({ status: 204, description: "Association not found." })
-  @ApiResponse({ status: 401, description: "Unauthorized." })
-  @ApiResponse({ status: 403, description: "Forbidden." })
-  @UseGuards(JwtAuthGuard, AdminOnlyGuard)
+  @DeleteAssociationDecorator()
   @Delete(":id")
   remove(@Param("id", ParseUUIDPipe) id: string): Promise<Association> {
     return this.associationsService.remove(id);

@@ -1,7 +1,9 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
-import { PaginationDto } from "@/common/dto/pagination.dto";
+import { PaginatedResponseDto, paginate } from "@/common/pagination";
+import { buildOrderClause } from "@/common/sorting";
+import { AssociationFilterDto } from "./dto/association-filter.dto";
 import { CreateAssociationDto } from "./dto/create-association.dto";
 import { UpdateAssociationDto } from "./dto/update-association.dto";
 import { Association } from "./entities/association.entity";
@@ -21,17 +23,18 @@ export class AssociationsService {
     return this.associationRepository.save(association);
   }
 
-  async findAll(pagination: PaginationDto): Promise<Association[]> {
-    const { page, limit } = pagination;
+  async findAll(
+    filters: AssociationFilterDto,
+  ): Promise<PaginatedResponseDto<Association>> {
+    const { userId } = filters;
 
-    const [items] = await this.associationRepository.findAndCount({
+    return paginate(this.associationRepository, filters, {
+      where: {
+        ...(userId && { users: { id: userId } }),
+      },
       relations: ["users"],
-      skip: (page - 1) * limit,
-      take: limit,
-      order: { id: "ASC" },
+      order: buildOrderClause(filters),
     });
-
-    return items;
   }
 
   findOne(id: string): Promise<Association> {
