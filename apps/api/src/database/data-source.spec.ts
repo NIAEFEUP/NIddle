@@ -1,9 +1,15 @@
+import * as dotenv from "dotenv";
 import { ENTITIES, getDataSourceOptions } from "./data-source";
+
+jest.mock("dotenv", () => ({
+  config: jest.fn(),
+}));
 
 describe("DataSource Configuration", () => {
   const OLD_ENV = process.env;
 
   beforeEach(() => {
+    jest.clearAllMocks();
     process.env = {
       ...OLD_ENV,
       DATABASE_MASTER: "test-master",
@@ -16,6 +22,14 @@ describe("DataSource Configuration", () => {
 
   afterEach(() => {
     process.env = OLD_ENV;
+  });
+
+  it("should load .env.local when NODE_ENV is not test", () => {
+    process.env.NODE_ENV = "development";
+    jest.isolateModules(() => {
+      require("./data-source");
+    });
+    expect(dotenv.config).toHaveBeenCalledWith({ path: ".env.local" });
   });
 
   it("should define all entities", () => {
