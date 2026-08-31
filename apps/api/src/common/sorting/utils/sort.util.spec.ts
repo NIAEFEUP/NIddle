@@ -7,6 +7,11 @@ describe("buildOrderClause", () => {
     expect(result).toEqual({ id: "ASC" });
   });
 
+  it("should return default tiebreaker when sortDto is undefined", () => {
+    const result = buildOrderClause();
+    expect(result).toEqual({ id: "ASC" });
+  });
+
   it("should return default ASC order when sortOrder is omitted", () => {
     const result = buildOrderClause({ sortBy: "name" });
     expect(result).toEqual({ name: "ASC", id: "ASC" });

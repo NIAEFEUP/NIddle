@@ -57,4 +57,22 @@ describe("paginate utility", () => {
     expect(result.meta.hasNextPage).toBe(false);
     expect(result.meta.hasPreviousPage).toBe(false);
   });
+
+  it("uses default page 1 and limit 10 when pagination values are not provided", async () => {
+    const items = [{ id: "1", name: "Test 1" }];
+    const totalCount = 1;
+
+    const mockRepo = {
+      findAndCount: jest.fn().mockResolvedValue([items, totalCount]),
+    } as unknown as Repository<{ id: string; name: string }>;
+
+    const result = await paginate(mockRepo, {} as any);
+
+    expect(mockRepo.findAndCount).toHaveBeenCalledWith({
+      skip: 0,
+      take: 10,
+    });
+    expect(result.meta.page).toBe(1);
+    expect(result.meta.limit).toBe(10);
+  });
 });

@@ -5,7 +5,7 @@ export class PaginatedResponseDto<T> {
   @ApiProperty({ isArray: true })
   readonly data: T[];
 
-  @ApiProperty({ type: () => PaginationMetaDto })
+  @ApiProperty({ type: PaginationMetaDto })
   readonly meta: PaginationMetaDto;
 
   constructor(data: T[], meta: PaginationMetaDto) {

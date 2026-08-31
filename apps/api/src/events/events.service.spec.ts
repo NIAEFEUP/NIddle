@@ -1,6 +1,6 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { getRepositoryToken } from "@nestjs/typeorm";
-import { Between } from "typeorm";
+import { Between, LessThanOrEqual, MoreThanOrEqual } from "typeorm";
 import { Association } from "@/associations/entities/association.entity";
 import { Course } from "@/courses/entities/course.entity";
 import { Faculty } from "@/faculties/entities/faculty.entity";
@@ -216,6 +216,60 @@ describe("EventsService", () => {
         where: {
           createdBy: { id: "assoc-1" },
           startDate: Between(fromDate, toDate),
+        },
+        relations: ["faculty", "courses", "createdBy"],
+        skip: 0,
+        take: 10,
+        order: { id: "ASC" },
+      });
+    });
+
+    it("should return events filtered by startDateFrom only", async () => {
+      const events = [mockEvent];
+      const fromDate = new Date("2025-01-01");
+      const filters: EventFilterDto = {
+        startDateFrom: fromDate,
+        page: 1,
+        limit: 10,
+      };
+      mockEventRepository.findAndCount.mockResolvedValue([
+        events,
+        events.length,
+      ]);
+
+      const result = await service.findAll(filters);
+
+      expect(result.data).toEqual(events);
+      expect(mockEventRepository.findAndCount).toHaveBeenCalledWith({
+        where: {
+          startDate: MoreThanOrEqual(fromDate),
+        },
+        relations: ["faculty", "courses", "createdBy"],
+        skip: 0,
+        take: 10,
+        order: { id: "ASC" },
+      });
+    });
+
+    it("should return events filtered by startDateTo only", async () => {
+      const events = [mockEvent];
+      const toDate = new Date("2025-12-31");
+      const filters: EventFilterDto = {
+        startDateTo: toDate,
+        page: 1,
+        limit: 10,
+      };
+      mockEventRepository.findAndCount.mockResolvedValue([
+        events,
+        events.length,
+      ]);
+
+      const result = await service.findAll(filters);
+
+      expect(result.data).toEqual(events);
+      expect(mockEventRepository.findAndCount).toHaveBeenCalledWith({
+        where: {
+          startDate: LessThanOrEqual(toDate),
         },
         relations: ["faculty", "courses", "createdBy"],
         skip: 0,
