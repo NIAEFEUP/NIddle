@@ -228,6 +228,30 @@ describe("ServicesService", () => {
       });
     });
 
+    it("should filter by createdById", async () => {
+      const services = [mockService];
+      mockServiceRepository.findAndCount.mockResolvedValue([
+        services,
+        services.length,
+      ]);
+
+      await service.findAll({
+        createdById: "assoc-1",
+        page: 1,
+        limit: 10,
+      });
+
+      expect(mockServiceRepository.findAndCount).toHaveBeenCalledWith({
+        where: {
+          createdBy: { id: "assoc-1" },
+        },
+        relations: ["schedule", "faculty", "course", "createdBy"],
+        skip: 0,
+        take: 10,
+        order: { id: "ASC" },
+      });
+    });
+
     it("orders by the requested sortBy field before the id tiebreaker", async () => {
       const services = [mockService];
       mockServiceRepository.findAndCount.mockResolvedValue([

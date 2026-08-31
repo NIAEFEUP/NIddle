@@ -11,7 +11,7 @@ import {
   Query,
   UseInterceptors,
 } from "@nestjs/common";
-import { PaginatedResponseDto, PaginationDto } from "@/common/pagination";
+import { PaginatedResponseDto } from "@/common/pagination";
 import { CreateUserDto } from "@/users/dto/create-user.dto";
 import { UpdateUserDto } from "@/users/dto/update-user.dto";
 import {
@@ -21,6 +21,7 @@ import {
   GetOneUserDecorator,
   UpdateUserDecorator,
 } from "./decorators/users.decorators";
+import { UserFilterDto } from "./dto/user-filter.dto";
 import { User } from "./entities/user.entity";
 import { UsersService } from "./users.service";
 
@@ -32,9 +33,9 @@ export class UsersController {
   @GetAllUsersDecorator()
   @Get()
   findAll(
-    @Query() pagination: PaginationDto,
+    @Query() filters: UserFilterDto,
   ): Promise<PaginatedResponseDto<User>> {
-    return this.usersService.findAll(pagination);
+    return this.usersService.findAll(filters);
   }
 
   @GetOneUserDecorator()

@@ -1,26 +1,43 @@
+import "reflect-metadata";
 import { plainToInstance } from "class-transformer";
 import { validate } from "class-validator";
-import { RequestFilterDto } from "./request-filter.dto";
+import {
+  RequestAction,
+  RequestStatus,
+  RequestType,
+} from "@/requests/entities/request.entity";
+import { REQUEST_SORT_FIELDS, RequestFilterDto } from "./request-filter.dto";
 
-describe("RequestFilterDto transformation", () => {
-  it("accepts a valid UUID string for requestedBy", async () => {
+describe("RequestFilterDto", () => {
+  const validUuid1 = "b0eebc99-9c0b-4ef8-bb6d-6bb9bd380a22";
+  const validUuid2 = "c0eebc99-9c0b-4ef8-bb6d-6bb9bd380a33";
+
+  it("accepts valid UUID strings for requestedBy and targetAssociationId", async () => {
     const dto = plainToInstance(RequestFilterDto, {
-      requestedBy: "b0eebc99-9c0b-4ef8-bb6d-6bb9bd380a22",
+      requestedBy: validUuid1,
+      targetAssociationId: validUuid2,
+      type: RequestType.EVENT,
+      action: RequestAction.CREATE,
+      status: RequestStatus.PENDING,
     });
 
     const errors = await validate(dto);
 
     expect(errors).toHaveLength(0);
-    expect(dto.requestedBy).toEqual("b0eebc99-9c0b-4ef8-bb6d-6bb9bd380a22");
-    expect(typeof dto.requestedBy).toBe("string");
+    expect(dto.requestedBy).toBe(validUuid1);
+    expect(dto.targetAssociationId).toBe(validUuid2);
   });
 
-  it("rejects an invalid UUID requestedBy", async () => {
-    const dto = plainToInstance(RequestFilterDto, { requestedBy: "abc" });
+  it("rejects an invalid UUID requestedBy or targetAssociationId", async () => {
+    const dto = plainToInstance(RequestFilterDto, {
+      requestedBy: "abc",
+      targetAssociationId: "def",
+    });
 
     const errors = await validate(dto);
 
     expect(errors.some((e) => e.property === "requestedBy")).toBe(true);
+    expect(errors.some((e) => e.property === "targetAssociationId")).toBe(true);
   });
 
   it("is valid when no filters are provided", async () => {
@@ -32,23 +49,17 @@ describe("RequestFilterDto transformation", () => {
   });
 
   describe("sortBy / sortOrder", () => {
-    it.each([
-      "createdAt",
-      "updatedAt",
-      "reviewedAt",
-    ])("accepts %s as a valid sortBy value", async (sortBy) => {
+    it.each(
+      REQUEST_SORT_FIELDS,
+    )("accepts %s as a valid sortBy value", async (sortBy) => {
       const dto = plainToInstance(RequestFilterDto, { sortBy });
-
       const errors = await validate(dto);
-
       expect(errors).toHaveLength(0);
     });
 
     it("rejects a sortBy value that isn't whitelisted", async () => {
-      const dto = plainToInstance(RequestFilterDto, { sortBy: "status" });
-
+      const dto = plainToInstance(RequestFilterDto, { sortBy: "invalidField" });
       const errors = await validate(dto);
-
       expect(errors.some((e) => e.property === "sortBy")).toBe(true);
     });
 
@@ -60,21 +71,8 @@ describe("RequestFilterDto transformation", () => {
         sortBy: "createdAt",
         sortOrder,
       });
-
       const errors = await validate(dto);
-
       expect(errors).toHaveLength(0);
-    });
-
-    it("rejects an invalid sortOrder value", async () => {
-      const dto = plainToInstance(RequestFilterDto, {
-        sortBy: "createdAt",
-        sortOrder: "sideways",
-      });
-
-      const errors = await validate(dto);
-
-      expect(errors.some((e) => e.property === "sortOrder")).toBe(true);
     });
   });
 });

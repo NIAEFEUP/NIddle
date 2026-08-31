@@ -1,7 +1,9 @@
 import { NotFoundException } from "@nestjs/common";
 import { Test, TestingModule } from "@nestjs/testing";
+import { SortOrder } from "@/common/sorting";
 import { CoursesController } from "./courses.controller";
 import { CoursesService } from "./courses.service";
+import { CourseFilterDto } from "./dto/course-filter.dto";
 import { CreateCourseDto } from "./dto/create-course.dto";
 import { UpdateCourseDto } from "./dto/update-course.dto";
 import { Course } from "./entities/course.entity";
@@ -70,6 +72,34 @@ describe("CoursesController", () => {
         page: 1,
         limit: 10,
       });
+    });
+
+    it("should pass filtering and sorting params to service", async () => {
+      const response = {
+        data: [mockCourse],
+        meta: {
+          page: 1,
+          limit: 10,
+          itemCount: 1,
+          totalItems: 1,
+          totalPages: 1,
+          hasPreviousPage: false,
+          hasNextPage: false,
+        },
+      };
+      mockCoursesService.findAll.mockResolvedValue(response);
+
+      const filters: CourseFilterDto = {
+        page: 1,
+        limit: 10,
+        facultyId: "fac-1",
+        sortBy: "name",
+        sortOrder: SortOrder.ASC,
+      };
+      const result = await controller.findAll(filters);
+
+      expect(result).toEqual(response);
+      expect(mockCoursesService.findAll).toHaveBeenCalledWith(filters);
     });
   });
 

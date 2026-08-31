@@ -11,7 +11,7 @@ import {
   Query,
   UseInterceptors,
 } from "@nestjs/common";
-import { PaginatedResponseDto, PaginationDto } from "@/common/pagination";
+import { PaginatedResponseDto } from "@/common/pagination";
 import { CoursesService } from "./courses.service";
 import {
   CreateCourseDecorator,
@@ -20,6 +20,7 @@ import {
   GetOneCourseDecorator,
   UpdateCourseDecorator,
 } from "./decorators/courses.decorators";
+import { CourseFilterDto } from "./dto/course-filter.dto";
 import { CreateCourseDto } from "./dto/create-course.dto";
 import { UpdateCourseDto } from "./dto/update-course.dto";
 import { Course } from "./entities/course.entity";
@@ -32,9 +33,9 @@ export class CoursesController {
   @GetAllCoursesDecorator()
   @Get()
   findAll(
-    @Query() pagination: PaginationDto,
+    @Query() filters: CourseFilterDto,
   ): Promise<PaginatedResponseDto<Course>> {
-    return this.coursesService.findAll(pagination);
+    return this.coursesService.findAll(filters);
   }
 
   @GetOneCourseDecorator()

@@ -1,6 +1,8 @@
 import { Test, TestingModule } from "@nestjs/testing";
+import { SortOrder } from "@/common/sorting";
 import { AssociationsController } from "./associations.controller";
 import { AssociationsService } from "./associations.service";
+import { AssociationFilterDto } from "./dto/association-filter.dto";
 import { CreateAssociationDto } from "./dto/create-association.dto";
 import { UpdateAssociationDto } from "./dto/update-association.dto";
 
@@ -75,6 +77,33 @@ describe("AssociationsController", () => {
       page: 1,
       limit: 10,
     });
+    expect(result).toBe(expected);
+  });
+
+  it("finds all associations with sortBy and sortOrder", async () => {
+    const expected = {
+      data: [{ id: "1", name: "Chess Club", acronym: "CC" }],
+      meta: {
+        page: 1,
+        limit: 10,
+        itemCount: 1,
+        totalItems: 1,
+        totalPages: 1,
+        hasPreviousPage: false,
+        hasNextPage: false,
+      },
+    };
+    service.findAll.mockResolvedValue(expected);
+
+    const filters: AssociationFilterDto = {
+      page: 1,
+      limit: 10,
+      sortBy: "name",
+      sortOrder: SortOrder.ASC,
+    };
+    const result = await controller.findAll(filters);
+
+    expect(service.findAll).toHaveBeenCalledWith(filters);
     expect(result).toBe(expected);
   });
 

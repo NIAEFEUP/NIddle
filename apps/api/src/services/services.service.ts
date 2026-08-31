@@ -3,6 +3,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { Association } from "@/associations/entities/association.entity";
 import { PaginatedResponseDto, paginate } from "@/common/pagination";
+import { buildOrderClause } from "@/common/sorting";
 import { Course } from "@/courses/entities/course.entity";
 import { Faculty } from "@/faculties/entities/faculty.entity";
 import { Requestable } from "@/requests/interfaces/requestable.interface";
@@ -128,18 +129,16 @@ export class ServicesService
   async findAll(
     filters: ServiceFilterDto,
   ): Promise<PaginatedResponseDto<Service>> {
-    const { facultyId, courseId, sortBy, sortOrder } = filters;
+    const { facultyId, courseId, createdById } = filters;
 
     return paginate(this.serviceRepository, filters, {
       where: {
         ...(facultyId && { faculty: { id: facultyId } }),
         ...(courseId && { course: { id: courseId } }),
+        ...(createdById && { createdBy: { id: createdById } }),
       },
       relations: ["schedule", "faculty", "course", "createdBy"],
-      order: {
-        ...(sortBy && { [sortBy]: sortOrder ?? "ASC" }),
-        id: "ASC",
-      },
+      order: buildOrderClause(filters),
     });
   }
 

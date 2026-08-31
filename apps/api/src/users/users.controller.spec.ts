@@ -1,7 +1,9 @@
 import { NotFoundException } from "@nestjs/common";
 import { Test, TestingModule } from "@nestjs/testing";
+import { SortOrder } from "@/common/sorting";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
+import { UserFilterDto } from "./dto/user-filter.dto";
 import { User } from "./entities/user.entity";
 import { UsersController } from "./users.controller";
 import { UsersService } from "./users.service";
@@ -88,6 +90,33 @@ describe("UsersController", () => {
         page: 1,
         limit: 10,
       });
+    });
+
+    it("should pass sorting params to service", async () => {
+      const response = {
+        data: [mockUser],
+        meta: {
+          page: 1,
+          limit: 10,
+          itemCount: 1,
+          totalItems: 1,
+          totalPages: 1,
+          hasPreviousPage: false,
+          hasNextPage: false,
+        },
+      };
+      mockUsersService.findAll.mockResolvedValue(response);
+
+      const filters: UserFilterDto = {
+        page: 1,
+        limit: 10,
+        sortBy: "email",
+        sortOrder: SortOrder.DESC,
+      };
+      const result = await controller.findAll(filters);
+
+      expect(result).toEqual(response);
+      expect(mockUsersService.findAll).toHaveBeenCalledWith(filters);
     });
   });
 

@@ -1,5 +1,6 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { getRepositoryToken } from "@nestjs/typeorm";
+import { Between } from "typeorm";
 import { Association } from "@/associations/entities/association.entity";
 import { Course } from "@/courses/entities/course.entity";
 import { Faculty } from "@/faculties/entities/faculty.entity";
@@ -185,6 +186,37 @@ describe("EventsService", () => {
       expect(result.data).toEqual(events);
       expect(mockEventRepository.findAndCount).toHaveBeenCalledWith({
         where: { courses: { id: "1" } },
+        relations: ["faculty", "courses", "createdBy"],
+        skip: 0,
+        take: 10,
+        order: { id: "ASC" },
+      });
+    });
+
+    it("should return events filtered by createdById and date range", async () => {
+      const events = [mockEvent];
+      const fromDate = new Date("2025-01-01");
+      const toDate = new Date("2025-12-31");
+      const filters: EventFilterDto = {
+        createdById: "assoc-1",
+        startDateFrom: fromDate,
+        startDateTo: toDate,
+        page: 1,
+        limit: 10,
+      };
+      mockEventRepository.findAndCount.mockResolvedValue([
+        events,
+        events.length,
+      ]);
+
+      const result = await service.findAll(filters);
+
+      expect(result.data).toEqual(events);
+      expect(mockEventRepository.findAndCount).toHaveBeenCalledWith({
+        where: {
+          createdBy: { id: "assoc-1" },
+          startDate: Between(fromDate, toDate),
+        },
         relations: ["faculty", "courses", "createdBy"],
         skip: 0,
         take: 10,

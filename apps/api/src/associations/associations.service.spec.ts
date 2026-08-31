@@ -1,5 +1,6 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { getRepositoryToken } from "@nestjs/typeorm";
+import { SortOrder } from "@/common/sorting";
 import { User } from "@/users/entities/user.entity";
 import { AssociationsService } from "./associations.service";
 import { CreateAssociationDto } from "./dto/create-association.dto";
@@ -82,7 +83,7 @@ describe("AssociationsService", () => {
   });
 
   describe("findAll", () => {
-    it("should return a paginated response of associations", async () => {
+    it("should return a paginated response of associations with default sort", async () => {
       mockAssociationRepository.findAndCount.mockResolvedValue([
         [mockAssociation],
         1,
@@ -94,10 +95,34 @@ describe("AssociationsService", () => {
       expect(result.meta.totalItems).toBe(1);
       expect(result.meta.totalPages).toBe(1);
       expect(mockAssociationRepository.findAndCount).toHaveBeenCalledWith({
+        where: {},
         relations: ["users"],
         skip: 0,
         take: 10,
         order: { id: "ASC" },
+      });
+    });
+
+    it("should filter by userId and apply sortBy with id tiebreaker", async () => {
+      mockAssociationRepository.findAndCount.mockResolvedValue([
+        [mockAssociation],
+        1,
+      ]);
+
+      await service.findAll({
+        page: 1,
+        limit: 10,
+        userId: "user-123",
+        sortBy: "name",
+        sortOrder: SortOrder.DESC,
+      });
+
+      expect(mockAssociationRepository.findAndCount).toHaveBeenCalledWith({
+        where: { users: { id: "user-123" } },
+        relations: ["users"],
+        skip: 0,
+        take: 10,
+        order: { name: "DESC", id: "ASC" },
       });
     });
   });

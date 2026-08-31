@@ -11,7 +11,7 @@ import {
   Query,
   UseInterceptors,
 } from "@nestjs/common";
-import { PaginatedResponseDto, PaginationDto } from "@/common/pagination";
+import { PaginatedResponseDto } from "@/common/pagination";
 import { AssociationsService } from "./associations.service";
 import {
   CreateAssociationDecorator,
@@ -20,6 +20,7 @@ import {
   GetOneAssociationDecorator,
   UpdateAssociationDecorator,
 } from "./decorators/associations.decorators";
+import { AssociationFilterDto } from "./dto/association-filter.dto";
 import { CreateAssociationDto } from "./dto/create-association.dto";
 import { UpdateAssociationDto } from "./dto/update-association.dto";
 import { Association } from "./entities/association.entity";
@@ -32,9 +33,9 @@ export class AssociationsController {
   @GetAllAssociationsDecorator()
   @Get()
   findAll(
-    @Query() pagination: PaginationDto,
+    @Query() filters: AssociationFilterDto,
   ): Promise<PaginatedResponseDto<Association>> {
-    return this.associationsService.findAll(pagination);
+    return this.associationsService.findAll(filters);
   }
 
   @GetOneAssociationDecorator()

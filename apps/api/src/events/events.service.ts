@@ -1,8 +1,9 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
+import { Between, LessThanOrEqual, MoreThanOrEqual, Repository } from "typeorm";
 import { Association } from "@/associations/entities/association.entity";
 import { PaginatedResponseDto, paginate } from "@/common/pagination";
+import { buildOrderClause } from "@/common/sorting";
 import { validateAndGetRelations } from "@/common/utils/entity-relation.utils";
 import { Course } from "@/courses/entities/course.entity";
 import { Faculty } from "@/faculties/entities/faculty.entity";
@@ -98,19 +99,34 @@ export class EventsService
   }
 
   async findAll(filters: EventFilterDto): Promise<PaginatedResponseDto<Event>> {
-    const { year, facultyId, courseId, sortBy, sortOrder } = filters;
+    const {
+      year,
+      facultyId,
+      courseId,
+      createdById,
+      startDateFrom,
+      startDateTo,
+    } = filters;
+
+    let startDateWhere: any;
+    if (startDateFrom && startDateTo) {
+      startDateWhere = Between(startDateFrom, startDateTo);
+    } else if (startDateFrom) {
+      startDateWhere = MoreThanOrEqual(startDateFrom);
+    } else if (startDateTo) {
+      startDateWhere = LessThanOrEqual(startDateTo);
+    }
 
     return paginate(this.eventRepository, filters, {
       where: {
         ...(year !== undefined && { year }),
         ...(facultyId && { faculty: { id: facultyId } }),
         ...(courseId && { courses: { id: courseId } }),
+        ...(createdById && { createdBy: { id: createdById } }),
+        ...(startDateWhere && { startDate: startDateWhere }),
       },
       relations: ["faculty", "courses", "createdBy"],
-      order: {
-        ...(sortBy && { [sortBy]: sortOrder ?? "ASC" }),
-        id: "ASC",
-      },
+      order: buildOrderClause(filters),
     });
   }
 

@@ -8,6 +8,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { Association } from "@/associations/entities/association.entity";
 import { PaginatedResponseDto, paginate } from "@/common/pagination";
+import { buildOrderClause } from "@/common/sorting";
 import { Event } from "@/events/entities/event.entity";
 import {
   Request,
@@ -146,26 +147,22 @@ export class RequestsService {
       targetService: true,
     };
 
-    const { type, status, requestedBy, sortBy, sortOrder } = filters;
+    const { type, action, status, requestedBy, targetAssociationId } = filters;
+
+    const assocId = activeAssociationId ?? targetAssociationId;
 
     const whereFilter = {
       ...(type !== undefined && { type }),
+      ...(action !== undefined && { action }),
       ...(status !== undefined && { status }),
       ...(requestedBy !== undefined && { requestedBy: { id: requestedBy } }),
+      ...(assocId !== undefined && { targetAssociation: { id: assocId } }),
     };
 
     return paginate(this.requestRepository, filters, {
-      where: {
-        ...(activeAssociationId !== undefined && {
-          targetAssociation: { id: activeAssociationId },
-        }),
-        ...whereFilter,
-      },
+      where: whereFilter,
       relations,
-      order: {
-        ...(sortBy && { [sortBy]: sortOrder ?? "ASC" }),
-        id: "ASC",
-      },
+      order: buildOrderClause(filters),
     });
   }
 

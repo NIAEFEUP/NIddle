@@ -4,14 +4,12 @@ import { InjectRepository } from "@nestjs/typeorm";
 import * as bcrypt from "bcrypt";
 import { Repository } from "typeorm";
 import { Association } from "@/associations/entities/association.entity";
-import {
-  PaginatedResponseDto,
-  PaginationDto,
-  paginate,
-} from "@/common/pagination";
+import { PaginatedResponseDto, paginate } from "@/common/pagination";
+import { buildOrderClause } from "@/common/sorting";
 import { validateAndGetRelations } from "@/common/utils/entity-relation.utils";
 import { UpdateUserDto } from "@/users/dto/update-user.dto";
 import { CreateUserDto } from "./dto/create-user.dto";
+import { UserFilterDto } from "./dto/user-filter.dto";
 import { User } from "./entities/user.entity";
 
 @Injectable()
@@ -73,11 +71,15 @@ export class UsersService implements OnApplicationBootstrap {
     return this.userRepository.save(user);
   }
 
-  async findAll(
-    pagination: PaginationDto,
-  ): Promise<PaginatedResponseDto<User>> {
-    return paginate(this.userRepository, pagination, {
-      order: { id: "ASC" },
+  async findAll(filters: UserFilterDto): Promise<PaginatedResponseDto<User>> {
+    const { isAdmin, associationId } = filters;
+
+    return paginate(this.userRepository, filters, {
+      where: {
+        ...(isAdmin !== undefined && { isAdmin }),
+        ...(associationId && { associations: { id: associationId } }),
+      },
+      order: buildOrderClause(filters),
     });
   }
 
