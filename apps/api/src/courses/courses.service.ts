@@ -1,7 +1,11 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
-import { PaginationDto } from "@/common/dto/pagination.dto";
+import {
+  PaginatedResponseDto,
+  PaginationDto,
+  paginate,
+} from "@/common/pagination";
 import { validateAndGetRelations } from "@/common/utils/entity-relation.utils";
 import { Faculty } from "@/faculties/entities/faculty.entity";
 import { CreateCourseDto } from "./dto/create-course.dto";
@@ -32,17 +36,13 @@ export class CoursesService {
     return this.courseRepository.save(course);
   }
 
-  async findAll(pagination: PaginationDto): Promise<Course[]> {
-    const { page, limit } = pagination;
-
-    const [items] = await this.courseRepository.findAndCount({
+  async findAll(
+    pagination: PaginationDto,
+  ): Promise<PaginatedResponseDto<Course>> {
+    return paginate(this.courseRepository, pagination, {
       relations: ["faculties"],
-      skip: (page - 1) * limit,
-      take: limit,
       order: { id: "ASC" },
     });
-
-    return items;
   }
 
   findOne(id: string): Promise<Course> {

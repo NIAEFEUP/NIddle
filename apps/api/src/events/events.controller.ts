@@ -12,6 +12,7 @@ import {
   Req,
   UseInterceptors,
 } from "@nestjs/common";
+import { PaginatedResponseDto } from "@/common/pagination";
 import {
   CreateEventDecorator,
   DeleteEventDecorator,
@@ -32,7 +33,9 @@ export class EventsController {
 
   @GetAllEventsDecorator()
   @Get()
-  findAll(@Query() filters: EventFilterDto): Promise<Event[]> {
+  findAll(
+    @Query() filters: EventFilterDto,
+  ): Promise<PaginatedResponseDto<Event>> {
     return this.eventsService.findAll(filters);
   }
 

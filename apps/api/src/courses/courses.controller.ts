@@ -11,7 +11,7 @@ import {
   Query,
   UseInterceptors,
 } from "@nestjs/common";
-import { PaginationDto } from "@/common/dto/pagination.dto";
+import { PaginatedResponseDto, PaginationDto } from "@/common/pagination";
 import { CoursesService } from "./courses.service";
 import {
   CreateCourseDecorator,
@@ -31,7 +31,9 @@ export class CoursesController {
 
   @GetAllCoursesDecorator()
   @Get()
-  findAll(@Query() pagination: PaginationDto): Promise<Course[]> {
+  findAll(
+    @Query() pagination: PaginationDto,
+  ): Promise<PaginatedResponseDto<Course>> {
     return this.coursesService.findAll(pagination);
   }
 

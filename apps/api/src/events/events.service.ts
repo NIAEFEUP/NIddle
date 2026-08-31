@@ -2,6 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { Association } from "@/associations/entities/association.entity";
+import { PaginatedResponseDto, paginate } from "@/common/pagination";
 import { validateAndGetRelations } from "@/common/utils/entity-relation.utils";
 import { Course } from "@/courses/entities/course.entity";
 import { Faculty } from "@/faculties/entities/faculty.entity";
@@ -96,26 +97,21 @@ export class EventsService
     return this.update(id, payload);
   }
 
-  async findAll(filters: EventFilterDto): Promise<Event[]> {
-    const { year, facultyId, courseId, sortBy, sortOrder, limit, page } =
-      filters;
+  async findAll(filters: EventFilterDto): Promise<PaginatedResponseDto<Event>> {
+    const { year, facultyId, courseId, sortBy, sortOrder } = filters;
 
-    const [items] = await this.eventRepository.findAndCount({
+    return paginate(this.eventRepository, filters, {
       where: {
         ...(year !== undefined && { year }),
         ...(facultyId && { faculty: { id: facultyId } }),
         ...(courseId && { courses: { id: courseId } }),
       },
       relations: ["faculty", "courses", "createdBy"],
-      skip: (page - 1) * limit,
-      take: limit,
       order: {
         ...(sortBy && { [sortBy]: sortOrder ?? "ASC" }),
         id: "ASC",
       },
     });
-
-    return items;
   }
 
   findOne(id: string): Promise<Event> {

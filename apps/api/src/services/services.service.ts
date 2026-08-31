@@ -2,6 +2,7 @@ import { BadRequestException, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { Association } from "@/associations/entities/association.entity";
+import { PaginatedResponseDto, paginate } from "@/common/pagination";
 import { Course } from "@/courses/entities/course.entity";
 import { Faculty } from "@/faculties/entities/faculty.entity";
 import { Requestable } from "@/requests/interfaces/requestable.interface";
@@ -124,24 +125,22 @@ export class ServicesService
     return this.update(id, payload);
   }
 
-  async findAll(filters: ServiceFilterDto): Promise<Service[]> {
-    const { facultyId, courseId, sortBy, sortOrder, limit, page } = filters;
+  async findAll(
+    filters: ServiceFilterDto,
+  ): Promise<PaginatedResponseDto<Service>> {
+    const { facultyId, courseId, sortBy, sortOrder } = filters;
 
-    const [items] = await this.serviceRepository.findAndCount({
+    return paginate(this.serviceRepository, filters, {
       where: {
         ...(facultyId && { faculty: { id: facultyId } }),
         ...(courseId && { course: { id: courseId } }),
       },
       relations: ["schedule", "faculty", "course", "createdBy"],
-      skip: (page - 1) * limit,
-      take: limit,
       order: {
         ...(sortBy && { [sortBy]: sortOrder ?? "ASC" }),
         id: "ASC",
       },
     });
-
-    return items;
   }
 
   async findOne(id: string): Promise<Service> {

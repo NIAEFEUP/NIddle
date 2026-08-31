@@ -1,5 +1,5 @@
 import { IsIn, IsOptional, IsUUID } from "class-validator";
-import { PaginationDto } from "@/common/dto/pagination.dto";
+import { PaginationDto } from "@/common/pagination";
 
 export class ServiceFilterDto extends PaginationDto {
   /**

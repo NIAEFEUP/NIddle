@@ -2,11 +2,17 @@ import { applyDecorators, UseGuards } from "@nestjs/common";
 import { ApiBearerAuth, ApiOperation, ApiResponse } from "@nestjs/swagger";
 import { JwtAuthGuard } from "@/auth/guards/jwt-auth.guard";
 import { AdminOnlyGuard } from "@/common/guards/admin-only.guard";
+import { ApiPaginatedResponse } from "@/common/pagination";
+import { User } from "@/users/entities/user.entity";
 
 export function GetAllUsersDecorator() {
   return applyDecorators(
+    ApiBearerAuth("access-token"),
+    UseGuards(JwtAuthGuard, AdminOnlyGuard),
     ApiOperation({ summary: "Get all users" }),
-    ApiResponse({ status: 200, description: "List of users returned." }),
+    ApiPaginatedResponse(User, "List of users returned."),
+    ApiResponse({ status: 401, description: "Unauthorized." }),
+    ApiResponse({ status: 403, description: "Forbidden." }),
   );
 }
 

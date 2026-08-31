@@ -1,12 +1,14 @@
 import { applyDecorators, UseGuards } from "@nestjs/common";
 import { ApiBearerAuth, ApiOperation, ApiResponse } from "@nestjs/swagger";
+import { Association } from "@/associations/entities/association.entity";
 import { JwtAuthGuard } from "@/auth/guards/jwt-auth.guard";
 import { AdminOnlyGuard } from "@/common/guards/admin-only.guard";
+import { ApiPaginatedResponse } from "@/common/pagination";
 
 export function GetAllAssociationsDecorator() {
   return applyDecorators(
     ApiOperation({ summary: "Get all associations" }),
-    ApiResponse({ status: 200, description: "List of associations returned." }),
+    ApiPaginatedResponse(Association, "List of associations returned."),
   );
 }
 

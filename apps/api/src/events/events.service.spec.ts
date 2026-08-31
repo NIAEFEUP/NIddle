@@ -110,7 +110,7 @@ describe("EventsService", () => {
   });
 
   describe("findAll", () => {
-    it("should return an array of events without filters", async () => {
+    it("should return a paginated response of events without filters", async () => {
       const events = [mockEvent];
       const filters: EventFilterDto = { page: 1, limit: 10 };
       mockEventRepository.findAndCount.mockResolvedValue([
@@ -120,7 +120,9 @@ describe("EventsService", () => {
 
       const result = await service.findAll(filters);
 
-      expect(result).toEqual(events);
+      expect(result.data).toEqual(events);
+      expect(result.meta.totalItems).toBe(events.length);
+      expect(result.meta.totalPages).toBe(1);
       expect(mockEventRepository.findAndCount).toHaveBeenCalledWith({
         where: {},
         relations: ["faculty", "courses", "createdBy"],
@@ -140,7 +142,7 @@ describe("EventsService", () => {
 
       const result = await service.findAll(filters);
 
-      expect(result).toEqual(events);
+      expect(result.data).toEqual(events);
       expect(mockEventRepository.findAndCount).toHaveBeenCalledWith({
         where: { year: 2025 },
         relations: ["faculty", "courses", "createdBy"],
@@ -160,7 +162,7 @@ describe("EventsService", () => {
 
       const result = await service.findAll(filters);
 
-      expect(result).toEqual(events);
+      expect(result.data).toEqual(events);
       expect(mockEventRepository.findAndCount).toHaveBeenCalledWith({
         where: { faculty: { id: "1" } },
         relations: ["faculty", "courses", "createdBy"],
@@ -180,7 +182,7 @@ describe("EventsService", () => {
 
       const result = await service.findAll(filters);
 
-      expect(result).toEqual(events);
+      expect(result.data).toEqual(events);
       expect(mockEventRepository.findAndCount).toHaveBeenCalledWith({
         where: { courses: { id: "1" } },
         relations: ["faculty", "courses", "createdBy"],

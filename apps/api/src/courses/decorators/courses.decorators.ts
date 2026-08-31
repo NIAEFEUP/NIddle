@@ -2,11 +2,13 @@ import { applyDecorators, UseGuards } from "@nestjs/common";
 import { ApiBearerAuth, ApiOperation, ApiResponse } from "@nestjs/swagger";
 import { JwtAuthGuard } from "@/auth/guards/jwt-auth.guard";
 import { AdminOnlyGuard } from "@/common/guards/admin-only.guard";
+import { ApiPaginatedResponse } from "@/common/pagination";
+import { Course } from "@/courses/entities/course.entity";
 
 export function GetAllCoursesDecorator() {
   return applyDecorators(
     ApiOperation({ summary: "Get all courses" }),
-    ApiResponse({ status: 200, description: "List of courses returned." }),
+    ApiPaginatedResponse(Course, "List of courses returned."),
   );
 }
 

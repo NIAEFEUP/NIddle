@@ -48,13 +48,24 @@ describe("CoursesController", () => {
   });
 
   describe("findAll", () => {
-    it("should return an array of courses", async () => {
-      const courses = [mockCourse];
-      mockCoursesService.findAll.mockResolvedValue(courses);
+    it("should return a paginated response of courses", async () => {
+      const response = {
+        data: [mockCourse],
+        meta: {
+          page: 1,
+          limit: 10,
+          itemCount: 1,
+          totalItems: 1,
+          totalPages: 1,
+          hasPreviousPage: false,
+          hasNextPage: false,
+        },
+      };
+      mockCoursesService.findAll.mockResolvedValue(response);
 
       const result = await controller.findAll({ page: 1, limit: 10 });
 
-      expect(result).toEqual(courses);
+      expect(result).toEqual(response);
       expect(mockCoursesService.findAll).toHaveBeenCalledWith({
         page: 1,
         limit: 10,

@@ -12,6 +12,7 @@ import {
   Req,
   UseInterceptors,
 } from "@nestjs/common";
+import { PaginatedResponseDto } from "@/common/pagination";
 import { Event } from "@/events/entities/event.entity";
 import { Request } from "@/requests/entities/request.entity";
 import { Service } from "@/services/entity/service.entity";
@@ -41,7 +42,7 @@ export class RequestsController {
   async findAll(
     @Req() req: { activeAssociationId?: string },
     @Query() filters: RequestFilterDto,
-  ): Promise<Request[]> {
+  ): Promise<PaginatedResponseDto<Request>> {
     return this.requestsService.findAll(filters, req.activeAssociationId);
   }
 

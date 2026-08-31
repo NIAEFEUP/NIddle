@@ -1,7 +1,11 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
-import { PaginationDto } from "@/common/dto/pagination.dto";
+import {
+  PaginatedResponseDto,
+  PaginationDto,
+  paginate,
+} from "@/common/pagination";
 import { CreateAssociationDto } from "./dto/create-association.dto";
 import { UpdateAssociationDto } from "./dto/update-association.dto";
 import { Association } from "./entities/association.entity";
@@ -21,17 +25,13 @@ export class AssociationsService {
     return this.associationRepository.save(association);
   }
 
-  async findAll(pagination: PaginationDto): Promise<Association[]> {
-    const { page, limit } = pagination;
-
-    const [items] = await this.associationRepository.findAndCount({
+  async findAll(
+    pagination: PaginationDto,
+  ): Promise<PaginatedResponseDto<Association>> {
+    return paginate(this.associationRepository, pagination, {
       relations: ["users"],
-      skip: (page - 1) * limit,
-      take: limit,
       order: { id: "ASC" },
     });
-
-    return items;
   }
 
   findOne(id: string): Promise<Association> {

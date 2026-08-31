@@ -4,10 +4,14 @@ import { IsInt, IsOptional, Max, Min } from "class-validator";
 
 export class PaginationDto {
   /**
-   * The page of the data we want to search'
-   * @example 2
+   * The page of the data we want to search
+   * @example 1
    */
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({
+    default: 1,
+    minimum: 1,
+    description: "The page number of data to retrieve",
+  })
   @IsOptional()
   @IsInt()
   @Min(1)
@@ -18,7 +22,12 @@ export class PaginationDto {
    * The number of rows to be returned per page
    * @example 10
    */
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({
+    default: 10,
+    minimum: 1,
+    maximum: 100,
+    description: "The number of rows to be returned per page",
+  })
   @IsOptional()
   @IsInt()
   @Min(1)

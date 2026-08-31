@@ -82,7 +82,7 @@ describe("AssociationsService", () => {
   });
 
   describe("findAll", () => {
-    it("should return an array of associations", async () => {
+    it("should return a paginated response of associations", async () => {
       mockAssociationRepository.findAndCount.mockResolvedValue([
         [mockAssociation],
         1,
@@ -90,7 +90,9 @@ describe("AssociationsService", () => {
 
       const result = await service.findAll({ page: 1, limit: 10 });
 
-      expect(result).toEqual([mockAssociation]);
+      expect(result.data).toEqual([mockAssociation]);
+      expect(result.meta.totalItems).toBe(1);
+      expect(result.meta.totalPages).toBe(1);
       expect(mockAssociationRepository.findAndCount).toHaveBeenCalledWith({
         relations: ["users"],
         skip: 0,

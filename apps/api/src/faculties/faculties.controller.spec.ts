@@ -48,13 +48,24 @@ describe("FacultiesController", () => {
   });
 
   describe("findAll", () => {
-    it("should return an array of faculties", async () => {
-      const faculties = [mockFaculty];
-      mockFacultiesService.findAll.mockResolvedValue(faculties);
+    it("should return a paginated response of faculties", async () => {
+      const response = {
+        data: [mockFaculty],
+        meta: {
+          page: 1,
+          limit: 10,
+          itemCount: 1,
+          totalItems: 1,
+          totalPages: 1,
+          hasPreviousPage: false,
+          hasNextPage: false,
+        },
+      };
+      mockFacultiesService.findAll.mockResolvedValue(response);
 
       const result = await controller.findAll({ page: 1, limit: 10 });
 
-      expect(result).toEqual(faculties);
+      expect(result).toEqual(response);
       expect(mockFacultiesService.findAll).toHaveBeenCalledWith({
         page: 1,
         limit: 10,

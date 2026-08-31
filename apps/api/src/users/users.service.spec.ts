@@ -220,13 +220,15 @@ describe("UsersService", () => {
   });
 
   describe("findAll", () => {
-    it("should return an array of users", async () => {
+    it("should return a paginated response of users", async () => {
       const users = [mockUser];
       mockUserRepository.findAndCount.mockResolvedValue([users, users.length]);
 
       const result = await service.findAll({ page: 1, limit: 10 });
 
-      expect(result).toEqual(users);
+      expect(result.data).toEqual(users);
+      expect(result.meta.totalItems).toBe(users.length);
+      expect(result.meta.totalPages).toBe(1);
       expect(mockUserRepository.findAndCount).toHaveBeenCalledWith({
         skip: 0,
         take: 10,

@@ -785,7 +785,9 @@ describe("RequestsService", () => {
 
       const result = await service.findAll({ page: 1, limit: 10 });
 
-      expect(result).toEqual([mockRequest]);
+      expect(result.data).toEqual([mockRequest]);
+      expect(result.meta.totalItems).toBe(1);
+      expect(result.meta.totalPages).toBe(1);
       expect(mockRequestRepository.findAndCount).toHaveBeenCalledWith({
         relations,
         where: {},
@@ -846,7 +848,9 @@ describe("RequestsService", () => {
         mockAssociation.id,
       );
 
-      expect(result).toEqual([mockRequest]);
+      expect(result.data).toEqual([mockRequest]);
+      expect(result.meta.totalItems).toBe(1);
+      expect(result.meta.totalPages).toBe(1);
       expect(mockRequestRepository.findAndCount).toHaveBeenCalledWith({
         where: {
           targetAssociation: { id: mockAssociation.id },

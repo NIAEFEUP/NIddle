@@ -7,6 +7,7 @@ import {
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { Association } from "@/associations/entities/association.entity";
+import { PaginatedResponseDto, paginate } from "@/common/pagination";
 import { Event } from "@/events/entities/event.entity";
 import {
   Request,
@@ -137,7 +138,7 @@ export class RequestsService {
   async findAll(
     filters: RequestFilterDto,
     activeAssociationId?: string,
-  ): Promise<Request[]> {
+  ): Promise<PaginatedResponseDto<Request>> {
     const relations = {
       requestedBy: true,
       targetAssociation: true,
@@ -145,8 +146,7 @@ export class RequestsService {
       targetService: true,
     };
 
-    const { type, status, requestedBy, sortBy, sortOrder, limit, page } =
-      filters;
+    const { type, status, requestedBy, sortBy, sortOrder } = filters;
 
     const whereFilter = {
       ...(type !== undefined && { type }),
@@ -154,7 +154,7 @@ export class RequestsService {
       ...(requestedBy !== undefined && { requestedBy: { id: requestedBy } }),
     };
 
-    const [items] = await this.requestRepository.findAndCount({
+    return paginate(this.requestRepository, filters, {
       where: {
         ...(activeAssociationId !== undefined && {
           targetAssociation: { id: activeAssociationId },
@@ -162,15 +162,11 @@ export class RequestsService {
         ...whereFilter,
       },
       relations,
-      skip: (page - 1) * limit,
-      take: limit,
       order: {
         ...(sortBy && { [sortBy]: sortOrder ?? "ASC" }),
         id: "ASC",
       },
     });
-
-    return items;
   }
 
   async approve(id: string): Promise<Event | Service> {

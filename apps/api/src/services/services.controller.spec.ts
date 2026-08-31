@@ -77,10 +77,25 @@ describe("ServicesController", () => {
     });
 
     it("findAll should call service.findAll and return its value", async () => {
-      mockService.findAll.mockResolvedValue([svc]);
+      const response = {
+        data: [svc],
+        meta: {
+          page: 1,
+          limit: 10,
+          itemCount: 1,
+          totalItems: 1,
+          totalPages: 1,
+          hasPreviousPage: false,
+          hasNextPage: false,
+        },
+      };
+      mockService.findAll.mockResolvedValue(response);
       const res = await controller.findAll({ page: 1, limit: 10 });
-      expect(mockService.findAll).toHaveBeenCalledWith({ page: 1, limit: 10 });
-      expect(res).toEqual([svc]);
+      expect(mockService.findAll).toHaveBeenCalledWith({
+        page: 1,
+        limit: 10,
+      });
+      expect(res).toEqual(response);
     });
 
     it("findOne should call service.findOne with string id", async () => {

@@ -68,7 +68,7 @@ describe("FacultiesService", () => {
   });
 
   describe("findAll", () => {
-    it("should return an array of faculties", async () => {
+    it("should return a paginated response of faculties", async () => {
       const faculties = [mockFaculty];
       mockFacultyRepository.findAndCount.mockResolvedValue([
         faculties,
@@ -77,7 +77,9 @@ describe("FacultiesService", () => {
 
       const result = await service.findAll({ page: 1, limit: 10 });
 
-      expect(result).toEqual(faculties);
+      expect(result.data).toEqual(faculties);
+      expect(result.meta.totalItems).toBe(faculties.length);
+      expect(result.meta.totalPages).toBe(1);
       expect(mockFacultyRepository.findAndCount).toHaveBeenCalledWith({
         relations: ["courses"],
         skip: 0,

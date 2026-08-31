@@ -8,11 +8,13 @@ import {
 import { JwtAuthGuard } from "@/auth/guards/jwt-auth.guard";
 import { ActiveAssociationGuard } from "@/common/guards/active-association.guard";
 import { AdminOnlyGuard } from "@/common/guards/admin-only.guard";
+import { ApiPaginatedResponse } from "@/common/pagination";
+import { Event } from "@/events/entities/event.entity";
 
 export function GetAllEventsDecorator() {
   return applyDecorators(
     ApiOperation({ summary: "Get all events" }),
-    ApiResponse({ status: 200, description: "List of events returned." }),
+    ApiPaginatedResponse(Event, "List of events returned."),
   );
 }
 

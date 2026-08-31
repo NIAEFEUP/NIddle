@@ -11,6 +11,8 @@ import {
   OptionalActiveAssociationForAdmin,
 } from "@/common/guards/active-association.guard";
 import { AdminOnlyGuard } from "@/common/guards/admin-only.guard";
+import { ApiPaginatedResponse } from "@/common/pagination";
+import { Request } from "@/requests/entities/request.entity";
 
 export function GetAllRequestsDecorator() {
   return applyDecorators(
@@ -24,7 +26,7 @@ export function GetAllRequestsDecorator() {
       required: false,
     }),
     ApiOperation({ summary: "Get all requests" }),
-    ApiResponse({ status: 200, description: "List of requests returned." }),
+    ApiPaginatedResponse(Request, "List of requests returned."),
     ApiResponse({ status: 401, description: "Unauthorized." }),
     ApiResponse({ status: 403, description: "Forbidden." }),
   );

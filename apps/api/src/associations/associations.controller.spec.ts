@@ -55,12 +55,26 @@ describe("AssociationsController", () => {
   });
 
   it("finds all associations", async () => {
-    const expected = [{ id: "1", name: "Chess Club", acronym: "CC" }];
+    const expected = {
+      data: [{ id: "1", name: "Chess Club", acronym: "CC" }],
+      meta: {
+        page: 1,
+        limit: 10,
+        itemCount: 1,
+        totalItems: 1,
+        totalPages: 1,
+        hasPreviousPage: false,
+        hasNextPage: false,
+      },
+    };
     service.findAll.mockResolvedValue(expected);
 
     const result = await controller.findAll({ page: 1, limit: 10 });
 
-    expect(service.findAll).toHaveBeenCalledWith({ page: 1, limit: 10 });
+    expect(service.findAll).toHaveBeenCalledWith({
+      page: 1,
+      limit: 10,
+    });
     expect(result).toBe(expected);
   });
 

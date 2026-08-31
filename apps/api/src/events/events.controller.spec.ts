@@ -84,14 +84,25 @@ describe("EventsController", () => {
   });
 
   describe("findAll", () => {
-    it("should return an array of events", async () => {
-      const events = [mockEvent];
+    it("should return a paginated response of events", async () => {
+      const response = {
+        data: [mockEvent],
+        meta: {
+          page: 1,
+          limit: 10,
+          itemCount: 1,
+          totalItems: 1,
+          totalPages: 1,
+          hasPreviousPage: false,
+          hasNextPage: false,
+        },
+      };
       const filters: EventFilterDto = { page: 1, limit: 10 };
-      mockEventsService.findAll.mockResolvedValue(events);
+      mockEventsService.findAll.mockResolvedValue(response);
 
       const result = await controller.findAll(filters);
 
-      expect(result).toEqual(events);
+      expect(result).toEqual(response);
       expect(mockEventsService.findAll).toHaveBeenCalledWith(filters);
     });
   });

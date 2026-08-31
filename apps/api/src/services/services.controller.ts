@@ -12,6 +12,7 @@ import {
   Req,
   UseInterceptors,
 } from "@nestjs/common";
+import { PaginatedResponseDto } from "@/common/pagination";
 import {
   CreateServiceDecorator,
   DeleteServiceDecorator,
@@ -32,7 +33,9 @@ export class ServicesController {
 
   @GetAllServicesDecorator()
   @Get()
-  findAll(@Query() filters: ServiceFilterDto): Promise<Service[]> {
+  findAll(
+    @Query() filters: ServiceFilterDto,
+  ): Promise<PaginatedResponseDto<Service>> {
     return this.servicesService.findAll(filters);
   }
 
