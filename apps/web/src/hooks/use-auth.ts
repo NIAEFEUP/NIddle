@@ -1,12 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect } from "react";
-import {
-  ApiError,
-  apiClient,
-  getToken,
-  removeToken,
-  setToken,
-} from "@/lib/api-client";
+import { apiClient, getToken, removeToken, setToken } from "@/lib/api-client";
 
 export interface Association {
   id: number;
@@ -34,7 +27,6 @@ export function useAuth() {
     data: user,
     isLoading: isProfileLoading,
     isError: isProfileError,
-    error: profileError,
     refetch,
   } = useQuery<User>({
     queryKey: ["auth-user"],
@@ -43,13 +35,6 @@ export function useAuth() {
     retry: false,
     staleTime: 5 * 60 * 1000,
   });
-
-  useEffect(() => {
-    if (profileError instanceof ApiError && profileError.status === 401) {
-      removeToken();
-      queryClient.setQueryData(["auth-user"], null);
-    }
-  }, [profileError, queryClient]);
 
   const loginMutation = useMutation({
     mutationFn: (credentials: SignInDto) =>
