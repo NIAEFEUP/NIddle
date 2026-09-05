@@ -7,17 +7,6 @@ import { getDatabaseSynchronize } from "./synchronize";
 @Injectable()
 export class DatabaseService implements TypeOrmOptionsFactory {
   createTypeOrmOptions(): TypeOrmModuleOptions {
-    const isTest = process.env.NODE_ENV === "test";
-    if (isTest) {
-      return {
-        type: "sqlite",
-        database: ":memory:",
-        dropSchema: true,
-        autoLoadEntities: true,
-        synchronize: true,
-      };
-    }
-
     const host = requiredEnv("DATABASE_MASTER");
     const port = parseInt(process.env.DATABASE_PORT || "5432", 10);
     const username = requiredEnv("DATABASE_USER");
