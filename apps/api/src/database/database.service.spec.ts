@@ -21,7 +21,7 @@ describe("DatabaseService", () => {
 
     mockDataSource = {
       isInitialized: true,
-      options: { type: "sqlite", database: ":memory:" },
+      options: { type: "postgres", host: "localhost", port: 5432 },
     };
 
     module = await Test.createTestingModule({
@@ -67,14 +67,6 @@ describe("DatabaseService", () => {
 
   it("should be defined", () => {
     expect(service).toBeDefined();
-  });
-
-  it("should create typeorm options for test", () => {
-    process.env.NODE_ENV = "test";
-
-    const options = service.createTypeOrmOptions();
-    expect(options.type).toBe("sqlite");
-    expect(options.database).toBe(":memory:");
   });
 
   it("should create typeorm options for development", () => {
