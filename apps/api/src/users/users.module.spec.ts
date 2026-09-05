@@ -14,6 +14,10 @@ describe("UsersModule", () => {
     }).compile();
   });
 
+  afterAll(async () => {
+    await module.close();
+  });
+
   it("should compile the module", () => {
     expect(module).toBeDefined();
   });
