@@ -1,6 +1,7 @@
 import { ConfigModule } from "@nestjs/config";
 import { Test, TestingModule } from "@nestjs/testing";
 import { TypeOrmModule } from "@nestjs/typeorm";
+import { getTestDatabaseOptions } from "@/test/test-database";
 import { AppController } from "./app.controller";
 import { AppModule } from "./app.module";
 import { DatabaseModule } from "./database/database.module";
@@ -24,14 +25,7 @@ describe("AppModule", () => {
       ],
     })
       .overrideModule(DatabaseModule)
-      .useModule(
-        TypeOrmModule.forRoot({
-          type: "sqlite",
-          database: ":memory:",
-          autoLoadEntities: true,
-          synchronize: true,
-        }),
-      )
+      .useModule(TypeOrmModule.forRoot(getTestDatabaseOptions()))
       .compile();
   });
 

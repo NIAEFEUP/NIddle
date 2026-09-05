@@ -1,6 +1,7 @@
 import { ConfigModule } from "@nestjs/config";
 import { Test, TestingModule } from "@nestjs/testing";
 import { TypeOrmModule } from "@nestjs/typeorm";
+import { getTestDatabaseOptions } from "@/test/test-database";
 import { AuthController } from "./auth.controller";
 import { AuthModule } from "./auth.module";
 import { AuthService } from "./auth.service";
@@ -13,12 +14,7 @@ describe("AuthModule", () => {
   beforeAll(async () => {
     module = await Test.createTestingModule({
       imports: [
-        TypeOrmModule.forRoot({
-          type: "sqlite",
-          database: ":memory:",
-          entities: [`${__dirname}/../**/*.entity{.ts,.js}`],
-          synchronize: true,
-        }),
+        TypeOrmModule.forRoot(getTestDatabaseOptions()),
         ConfigModule.forRoot({
           isGlobal: true,
           load: [
