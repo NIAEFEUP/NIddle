@@ -3,6 +3,8 @@ import { DataSource, DataSourceOptions } from "typeorm";
 import { runSeeders, SeederOptions } from "typeorm-extension";
 import { Association } from "@/associations/entities/association.entity";
 import { Course } from "@/courses/entities/course.entity";
+import { Document } from "@/docs/entities/document.entity";
+import { DocumentHistory } from "@/docs/entities/document-history.entity";
 import { Event } from "@/events/entities/event.entity";
 import { Faculty } from "@/faculties/entities/faculty.entity";
 import { Request } from "@/requests/entities/request.entity";
@@ -35,6 +37,8 @@ export const seed = async () => {
       Schedule,
       Event,
       Request,
+      Document,
+      DocumentHistory,
     ],
     seeds: ["src/database/seeds/*.seeder.{ts,js}"],
     factories: ["src/database/factories/*.factory.{ts,js}"],

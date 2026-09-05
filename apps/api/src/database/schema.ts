@@ -2,6 +2,8 @@ import { config } from "dotenv";
 import { DataSource, DataSourceOptions } from "typeorm";
 import { Association } from "@/associations/entities/association.entity";
 import { Course } from "@/courses/entities/course.entity";
+import { Document } from "@/docs/entities/document.entity";
+import { DocumentHistory } from "@/docs/entities/document-history.entity";
 import { Event } from "@/events/entities/event.entity";
 import { Faculty } from "@/faculties/entities/faculty.entity";
 import { Request } from "@/requests/entities/request.entity";
@@ -37,6 +39,8 @@ export const createSchema = async () => {
       Service,
       Schedule,
       Request,
+      Document,
+      DocumentHistory,
     ],
   };
 

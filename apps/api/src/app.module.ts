@@ -7,6 +7,7 @@ import { AssociationsModule } from "./associations/associations.module";
 import { AuthModule } from "./auth/auth.module";
 import { CoursesModule } from "./courses/courses.module";
 import { DatabaseModule } from "./database/database.module";
+import { DocsModule } from "./docs/docs.module";
 import { EventsModule } from "./events/events.module";
 import { FacultiesModule } from "./faculties/faculties.module";
 import { EntityNotFoundFilter } from "./filters/entity-not-found.filter";
@@ -30,6 +31,7 @@ import { UsersModule } from "./users/users.module";
     EventsModule,
     CoursesModule,
     RequestsModule,
+    DocsModule,
   ],
   controllers: [AppController],
   providers: [
