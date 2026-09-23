@@ -27,7 +27,7 @@ export class ServicesService
 
   async create(
     createServiceDto: CreateServiceDto,
-    activeAssociationId: number,
+    activeAssociationId: string,
   ): Promise<Service> {
     const { facultyId, courseId, ...serviceData } = createServiceDto;
 
@@ -65,7 +65,7 @@ export class ServicesService
   }
 
   async update(
-    id: number,
+    id: string,
     updateServiceDto: UpdateServiceDto,
   ): Promise<Service> {
     const { facultyId, courseId, ...serviceData } = updateServiceDto;
@@ -115,35 +115,43 @@ export class ServicesService
 
   createFromRequest(
     payload: CreateServiceDto,
-    associationId: number,
+    associationId: string,
   ): Promise<Service> {
     return this.create(payload, associationId);
   }
 
-  updateFromRequest(id: number, payload: UpdateServiceDto): Promise<Service> {
+  updateFromRequest(id: string, payload: UpdateServiceDto): Promise<Service> {
     return this.update(id, payload);
   }
 
-  findAll(filters: ServiceFilterDto): Promise<Service[]> {
-    const { facultyId, courseId } = filters;
+  async findAll(filters: ServiceFilterDto): Promise<Service[]> {
+    const { facultyId, courseId, sortBy, sortOrder, limit, page } = filters;
 
-    return this.serviceRepository.find({
+    const [items] = await this.serviceRepository.findAndCount({
       where: {
         ...(facultyId && { faculty: { id: facultyId } }),
         ...(courseId && { course: { id: courseId } }),
       },
       relations: ["schedule", "faculty", "course", "createdBy"],
+      skip: (page - 1) * limit,
+      take: limit,
+      order: {
+        ...(sortBy && { [sortBy]: sortOrder ?? "ASC" }),
+        id: "ASC",
+      },
     });
+
+    return items;
   }
 
-  async findOne(id: number): Promise<Service> {
+  async findOne(id: string): Promise<Service> {
     return await this.serviceRepository.findOneOrFail({
       where: { id },
       relations: ["schedule", "faculty", "course", "createdBy"],
     });
   }
 
-  async remove(id: number): Promise<Service> {
+  async remove(id: string): Promise<Service> {
     const service = await this.serviceRepository.findOneOrFail({
       where: { id },
       relations: ["createdBy"],
@@ -153,7 +161,7 @@ export class ServicesService
     return service;
   }
 
-  removeFromRequest(id: number): Promise<Service> {
+  removeFromRequest(id: string): Promise<Service> {
     return this.remove(id);
   }
 }

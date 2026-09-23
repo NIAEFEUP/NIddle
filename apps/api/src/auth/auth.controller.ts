@@ -9,6 +9,7 @@ import {
   UseInterceptors,
 } from "@nestjs/common";
 import { ApiBearerAuth, ApiOperation, ApiResponse } from "@nestjs/swagger";
+import { User } from "@/users/entities/user.entity";
 import { AuthService } from "./auth.service";
 import { SignInDto } from "./dto/signin.dto";
 import { JwtAuthGuard } from "./guards/jwt-auth.guard";
@@ -31,10 +32,8 @@ export class AuthController {
   })
   @UseGuards(JwtAuthGuard)
   @Get("profile")
-  getProfile(
-    @Request() req: { user: { id: number; name: string; email: string } },
-  ) {
-    return req.user;
+  getProfile(@Request() req: { user: User }) {
+    return this.authService.getProfile(req.user);
   }
 
   @ApiOperation({ summary: "User login (JWT issuance)" })

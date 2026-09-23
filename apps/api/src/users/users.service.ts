@@ -4,6 +4,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import * as bcrypt from "bcrypt";
 import { Repository } from "typeorm";
 import { Association } from "@/associations/entities/association.entity";
+import { PaginationDto } from "@/common/dto/pagination.dto";
 import { validateAndGetRelations } from "@/common/utils/entity-relation.utils";
 import { UpdateUserDto } from "@/users/dto/update-user.dto";
 import { CreateUserDto } from "./dto/create-user.dto";
@@ -68,20 +69,31 @@ export class UsersService implements OnApplicationBootstrap {
     return this.userRepository.save(user);
   }
 
-  findAll(): Promise<User[]> {
-    return this.userRepository.find({ relations: ["associations"] });
-  }
+  async findAll(pagination: PaginationDto): Promise<User[]> {
+    const { page, limit } = pagination;
 
-  findOne(id: number): Promise<User> {
-    return this.userRepository.findOneOrFail({ where: { id } });
-  }
-
-  async findOneWithAssociations(id: number): Promise<User> {
-    const user = await this.userRepository.findOneOrFail({
-      where: { id },
+    const [items] = await this.userRepository.findAndCount({
+      skip: (page - 1) * limit,
+      take: limit,
+      order: { id: "ASC" },
       relations: ["associations"],
     });
 
+    return items;
+  }
+
+  findOne(id: string): Promise<User> {
+    return this.userRepository.findOneOrFail({ where: { id } });
+  }
+
+  findOneWithAssociations(id: string): Promise<User> {
+    return this.userRepository.findOneOrFail({
+      where: { id },
+      relations: ["associations"],
+    });
+  }
+
+  async withAccessibleAssociations(user: User): Promise<User> {
     if (user.isAdmin) {
       user.associations = await this.associationRepository.find();
     }
@@ -93,7 +105,7 @@ export class UsersService implements OnApplicationBootstrap {
     return this.userRepository.findOneByOrFail({ email: email });
   }
 
-  async update(id: number, updateUserDto: UpdateUserDto): Promise<User> {
+  async update(id: string, updateUserDto: UpdateUserDto): Promise<User> {
     const { password, associationIds, ...userData } = updateUserDto;
 
     const user = await this.userRepository.findOneOrFail({ where: { id } });
@@ -115,7 +127,7 @@ export class UsersService implements OnApplicationBootstrap {
     return this.userRepository.save(user);
   }
 
-  async remove(id: number): Promise<User> {
+  async remove(id: string): Promise<User> {
     const user = await this.userRepository.findOneOrFail({ where: { id } });
     await this.userRepository.delete(id);
     return user;

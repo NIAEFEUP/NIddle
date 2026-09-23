@@ -14,7 +14,7 @@ describe("UsersService", () => {
   let service: UsersService;
 
   const mockUser: User = {
-    id: 1,
+    id: "1",
     name: "John Doe",
     email: "john@example.com",
     password: "hashedPassword",
@@ -26,7 +26,7 @@ describe("UsersService", () => {
   const mockUserRepository = {
     create: jest.fn(),
     save: jest.fn(),
-    find: jest.fn(),
+    findAndCount: jest.fn(),
     findOne: jest.fn(),
     findOneOrFail: jest.fn(),
     findOneByOrFail: jest.fn(),
@@ -176,12 +176,12 @@ describe("UsersService", () => {
     });
 
     it("should create a user with associations", async () => {
-      const mockAssociation = { id: 3, name: "Chess Club" };
+      const mockAssociation = { id: "3", name: "Chess Club" };
       const createUserDto: CreateUserDto = {
         name: "John Doe",
         email: "john@example.com",
         password: "Password#123",
-        associationIds: [3],
+        associationIds: ["3"],
       };
       mockUserRepository.create.mockReturnValue(mockUser);
       (bcrypt.hash as jest.Mock).mockResolvedValue("hashedPassword");
@@ -198,6 +198,7 @@ describe("UsersService", () => {
         associations: [mockAssociation],
       });
       expect(mockAssociationRepository.findBy).toHaveBeenCalled();
+      expect(mockUserRepository.save).toHaveBeenCalled();
     });
 
     it("should ignore null associationIds", async () => {
@@ -222,12 +223,17 @@ describe("UsersService", () => {
   describe("findAll", () => {
     it("should return an array of users", async () => {
       const users = [mockUser];
-      mockUserRepository.find.mockResolvedValue(users);
+      mockUserRepository.findAndCount.mockResolvedValue([users, users.length]);
 
-      const result = await service.findAll();
+      const result = await service.findAll({ page: 1, limit: 10 });
 
       expect(result).toEqual(users);
-      expect(mockUserRepository.find).toHaveBeenCalled();
+      expect(mockUserRepository.findAndCount).toHaveBeenCalledWith({
+        skip: 0,
+        take: 10,
+        order: { id: "ASC" },
+        relations: ["associations"],
+      });
     });
   });
 
@@ -235,11 +241,11 @@ describe("UsersService", () => {
     it("should return a user by ID", async () => {
       mockUserRepository.findOneOrFail.mockResolvedValue(mockUser);
 
-      const result = await service.findOne(1);
+      const result = await service.findOne("1");
 
       expect(result).toEqual(mockUser);
       expect(mockUserRepository.findOneOrFail).toHaveBeenCalledWith({
-        where: { id: 1 },
+        where: { id: "1" },
       });
     });
 
@@ -248,7 +254,7 @@ describe("UsersService", () => {
         new Error("Not found"),
       );
 
-      await expect(service.findOne(1)).rejects.toThrow("Not found");
+      await expect(service.findOne("1")).rejects.toThrow("Not found");
     });
   });
 
@@ -256,11 +262,11 @@ describe("UsersService", () => {
     it("should return a user with associations by ID", async () => {
       mockUserRepository.findOneOrFail.mockResolvedValue(mockUser);
 
-      const result = await service.findOneWithAssociations(1);
+      const result = await service.findOneWithAssociations("1");
 
       expect(result).toEqual(mockUser);
       expect(mockUserRepository.findOneOrFail).toHaveBeenCalledWith({
-        where: { id: 1 },
+        where: { id: "1" },
         relations: ["associations"],
       });
     });
@@ -270,28 +276,42 @@ describe("UsersService", () => {
         new Error("Not found"),
       );
 
-      await expect(service.findOneWithAssociations(1)).rejects.toThrow(
+      await expect(service.findOneWithAssociations("1")).rejects.toThrow(
         "Not found",
       );
     });
 
-    it("should return all associations if the user is an admin", async () => {
+    it("should not load all associations if the user is an admin", async () => {
       const mockAdminUser = { ...mockUser, isAdmin: true, associations: [] };
       mockUserRepository.findOneOrFail.mockResolvedValue(mockAdminUser);
+
+      const result = await service.findOneWithAssociations("1");
+
+      expect(result.associations).toEqual([]);
+      expect(mockAssociationRepository.find).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("withAccessibleAssociations", () => {
+    it("should return all associations if the user is an admin", async () => {
+      const mockAdminUser = { ...mockUser, isAdmin: true, associations: [] };
       const mockAllAssociations = [
-        { id: 1, name: "Association 1" },
-        { id: 2, name: "Association 2" },
+        { id: "1", name: "Association 1" },
+        { id: "2", name: "Association 2" },
       ] as Association[];
       mockAssociationRepository.find.mockResolvedValue(mockAllAssociations);
 
-      const result = await service.findOneWithAssociations(1);
+      const result = await service.withAccessibleAssociations(mockAdminUser);
 
       expect(result.associations).toEqual(mockAllAssociations);
-      expect(mockUserRepository.findOneOrFail).toHaveBeenCalledWith({
-        where: { id: 1 },
-        relations: ["associations"],
-      });
       expect(mockAssociationRepository.find).toHaveBeenCalled();
+    });
+
+    it("should keep the user's own associations if not an admin", async () => {
+      const result = await service.withAccessibleAssociations(mockUser);
+
+      expect(result.associations).toEqual(mockUser.associations);
+      expect(mockAssociationRepository.find).not.toHaveBeenCalled();
     });
   });
 
@@ -328,11 +348,11 @@ describe("UsersService", () => {
       });
       mockUserRepository.save.mockResolvedValue(updatedUser);
 
-      const result = await service.update(1, updateUserDto);
+      const result = await service.update("1", updateUserDto);
 
       expect(result).toEqual(updatedUser);
       expect(mockUserRepository.findOneOrFail).toHaveBeenCalledWith({
-        where: { id: 1 },
+        where: { id: "1" },
       });
       expect(mockUserRepository.save).toHaveBeenCalled();
     });
@@ -349,15 +369,15 @@ describe("UsersService", () => {
         password: "newHashedPassword",
       });
 
-      await service.update(1, updateUserDto);
+      await service.update("1", updateUserDto);
 
       expect(bcrypt.hash).toHaveBeenCalledWith("NewPassword#1", 10);
       expect(mockUserRepository.save).toHaveBeenCalled();
     });
 
     it("should update user associations if associationIds provided", async () => {
-      const mockAssociation = { id: 3, name: "Chess Club" };
-      const updateUserDto: UpdateUserDto = { associationIds: [3] };
+      const mockAssociation = { id: "3", name: "Chess Club" };
+      const updateUserDto: UpdateUserDto = { associationIds: ["3"] };
       mockUserRepository.findOneOrFail.mockResolvedValue(mockUser);
       mockUserRepository.merge.mockImplementation((target, source) => {
         Object.assign(target, source);
@@ -368,7 +388,7 @@ describe("UsersService", () => {
         associations: [mockAssociation],
       });
 
-      await service.update(1, updateUserDto);
+      await service.update("1", updateUserDto);
 
       expect(mockAssociationRepository.findBy).toHaveBeenCalled();
       expect(mockUserRepository.save).toHaveBeenCalled();
@@ -382,7 +402,7 @@ describe("UsersService", () => {
       });
       mockUserRepository.save.mockResolvedValue(mockUser);
 
-      await service.update(1, updateUserDto);
+      await service.update("1", updateUserDto);
 
       expect(mockAssociationRepository.findBy).not.toHaveBeenCalled();
       expect(mockUserRepository.save).toHaveBeenCalled();
@@ -394,13 +414,13 @@ describe("UsersService", () => {
       mockUserRepository.findOneOrFail.mockResolvedValue(mockUser);
       mockUserRepository.delete.mockResolvedValue({ affected: 1 });
 
-      const result = await service.remove(1);
+      const result = await service.remove("1");
 
       expect(result).toEqual(mockUser);
       expect(mockUserRepository.findOneOrFail).toHaveBeenCalledWith({
-        where: { id: 1 },
+        where: { id: "1" },
       });
-      expect(mockUserRepository.delete).toHaveBeenCalledWith(1);
+      expect(mockUserRepository.delete).toHaveBeenCalledWith("1");
     });
   });
 });

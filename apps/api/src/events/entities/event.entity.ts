@@ -14,11 +14,11 @@ import { Faculty } from "@/faculties/entities/faculty.entity";
 @Entity()
 export class Event {
   /**
-   * The unique identifier of the event.
-   * @example 1
+   * The unique identifier (UUID) of the event.
+   * @example '123e4567-e89b-12d3-a456-426614174000'
    */
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn("uuid")
+  id: string;
 
   /**
    * The event name.

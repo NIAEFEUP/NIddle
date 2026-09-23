@@ -56,24 +56,24 @@ describe("UpdateServiceDto", () => {
 
   it("should allow updating only courseId", async () => {
     const dto = plainToInstance(UpdateServiceDto, {
-      courseId: 1,
+      courseId: "b0eebc99-9c0b-4ef8-bb6d-6bb9bd380a22",
     });
 
     const errors = await validate(dto);
 
     expect(errors).toHaveLength(0);
-    expect(dto.courseId).toEqual(1);
+    expect(dto.courseId).toEqual("b0eebc99-9c0b-4ef8-bb6d-6bb9bd380a22");
   });
 
   it("should allow updating only facultyId", async () => {
     const dto = plainToInstance(UpdateServiceDto, {
-      facultyId: 5,
+      facultyId: "b0eebc99-9c0b-4ef8-bb6d-6bb9bd380a22",
     });
 
     const errors = await validate(dto);
 
     expect(errors).toHaveLength(0);
-    expect(dto.facultyId).toBe(5);
+    expect(dto.facultyId).toBe("b0eebc99-9c0b-4ef8-bb6d-6bb9bd380a22");
   });
 
   it("should allow updating multiple fields at once", async () => {
@@ -133,14 +133,14 @@ describe("UpdateServiceDto", () => {
     expect(dto.courseId).toBeUndefined();
   });
 
-  it("should transform string courseIds to numbers", () => {
+  it("should keep string courseId as string", () => {
     const dto = plainToInstance(UpdateServiceDto, {
-      courseId: 3,
+      courseId: "b0eebc99-9c0b-4ef8-bb6d-6bb9bd380a22",
     });
 
-    expect(dto.courseId).toEqual(3);
+    expect(dto.courseId).toEqual("b0eebc99-9c0b-4ef8-bb6d-6bb9bd380a22");
     if (dto.courseId) {
-      expect(typeof dto.courseId).toBe("number");
+      expect(typeof dto.courseId).toBe("string");
     }
   });
 

@@ -1,6 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
+import { PaginationDto } from "@/common/dto/pagination.dto";
 import { validateAndGetRelations } from "@/common/utils/entity-relation.utils";
 import { Course } from "@/courses/entities/course.entity";
 import { CreateFacultyDto } from "./dto/create-faculty.dto";
@@ -31,11 +32,20 @@ export class FacultiesService {
     return this.facultyRepository.save(faculty);
   }
 
-  findAll(): Promise<Faculty[]> {
-    return this.facultyRepository.find({ relations: ["courses"] });
+  async findAll(pagination: PaginationDto): Promise<Faculty[]> {
+    const { page, limit } = pagination;
+
+    const [items] = await this.facultyRepository.findAndCount({
+      relations: ["courses"],
+      skip: (page - 1) * limit,
+      take: limit,
+      order: { id: "ASC" },
+    });
+
+    return items;
   }
 
-  findOne(id: number): Promise<Faculty> {
+  findOne(id: string): Promise<Faculty> {
     return this.facultyRepository.findOneOrFail({
       where: { id },
       relations: ["courses"],
@@ -43,7 +53,7 @@ export class FacultiesService {
   }
 
   async update(
-    id: number,
+    id: string,
     updateFacultyDto: UpdateFacultyDto,
   ): Promise<Faculty> {
     const { courseIds, ...facultyData } = updateFacultyDto;
@@ -63,7 +73,7 @@ export class FacultiesService {
     return this.facultyRepository.save(faculty);
   }
 
-  async remove(id: number): Promise<Faculty> {
+  async remove(id: string): Promise<Faculty> {
     const faculty = await this.facultyRepository.findOneByOrFail({ id });
     await this.facultyRepository.delete(id);
     return faculty;

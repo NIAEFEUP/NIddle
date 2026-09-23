@@ -49,7 +49,7 @@ describe("JwtStrategy", () => {
 
   it("should validate and return user payload", async () => {
     const mockUser = {
-      id: 1,
+      id: "1",
       email: "test@example.com",
       isAdmin: false,
       associations: [],
@@ -58,10 +58,10 @@ describe("JwtStrategy", () => {
       .spyOn(usersService, "findOneWithAssociations")
       .mockResolvedValue(mockUser as any);
 
-    const payload = { sub: 1, email: "test@example.com" };
+    const payload = { sub: "1", email: "test@example.com" };
     const result = await strategy.validate(payload);
     expect(result).toEqual(mockUser);
-    expect(usersService.findOneWithAssociations).toHaveBeenCalledWith(1);
+    expect(usersService.findOneWithAssociations).toHaveBeenCalledWith("1");
   });
 
   it("should return null if user is not found (EntityNotFoundError)", async () => {
@@ -69,10 +69,10 @@ describe("JwtStrategy", () => {
       .spyOn(usersService, "findOneWithAssociations")
       .mockRejectedValue(new EntityNotFoundError(User, {}));
 
-    const payload = { sub: 1, email: "test@example.com" };
+    const payload = { sub: "1", email: "test@example.com" };
     const result = await strategy.validate(payload);
     expect(result).toBeNull();
-    expect(usersService.findOneWithAssociations).toHaveBeenCalledWith(1);
+    expect(usersService.findOneWithAssociations).toHaveBeenCalledWith("1");
   });
 
   it("should rethrow unexpected errors", async () => {
@@ -81,8 +81,8 @@ describe("JwtStrategy", () => {
       .spyOn(usersService, "findOneWithAssociations")
       .mockRejectedValue(dbError);
 
-    const payload = { sub: 1, email: "test@example.com" };
+    const payload = { sub: "1", email: "test@example.com" };
     await expect(strategy.validate(payload)).rejects.toThrow(dbError);
-    expect(usersService.findOneWithAssociations).toHaveBeenCalledWith(1);
+    expect(usersService.findOneWithAssociations).toHaveBeenCalledWith("1");
   });
 });

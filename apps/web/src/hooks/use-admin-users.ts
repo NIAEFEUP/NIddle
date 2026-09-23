@@ -8,7 +8,7 @@ export interface UserFormData {
   email: string;
   password?: string;
   isAdmin: boolean;
-  associationIds: number[];
+  associationIds: string[];
 }
 
 export function useAdminUsers() {
@@ -52,7 +52,7 @@ export function useAdminUsers() {
       id,
       payload,
     }: {
-      id: number;
+      id: string;
       payload: Partial<UserFormData>;
     }) =>
       apiClient<User>(`/api/users/${id}`, {
@@ -77,7 +77,7 @@ export function useAdminUsers() {
   });
 
   const deleteUserMutation = useMutation({
-    mutationFn: (id: number) =>
+    mutationFn: (id: string) =>
       apiClient<void>(`/api/users/${id}`, {
         method: "DELETE",
       }),
@@ -99,7 +99,7 @@ export function useAdminUsers() {
   });
 
   const bulkDeleteUsersMutation = useMutation({
-    mutationFn: async (ids: number[]) => {
+    mutationFn: async (ids: string[]) => {
       await Promise.all(
         ids.map((id) =>
           apiClient<void>(`/api/users/${id}`, {

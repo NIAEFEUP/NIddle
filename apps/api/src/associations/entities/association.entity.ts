@@ -14,11 +14,11 @@ import { User } from "@/users/entities/user.entity";
 @Entity()
 export class Association {
   /**
-   * The unique identifier of the association.
-   * @example 1
+   * The unique identifier (UUID) of the association.
+   * @example '123e4567-e89b-12d3-a456-426614174000'
    */
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn("uuid")
+  id: string;
 
   /**
    * The name of the association.

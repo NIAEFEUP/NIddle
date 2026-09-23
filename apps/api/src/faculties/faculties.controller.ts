@@ -5,15 +5,17 @@ import {
   Delete,
   Get,
   Param,
-  ParseIntPipe,
+  ParseUUIDPipe,
   Patch,
   Post,
+  Query,
   UseGuards,
   UseInterceptors,
 } from "@nestjs/common";
 import { ApiBearerAuth, ApiOperation, ApiResponse } from "@nestjs/swagger";
 import { AdminOnlyGuard } from "@/auth/guards/admin-only.guard";
 import { JwtAuthGuard } from "@/auth/guards/jwt-auth.guard";
+import { PaginationDto } from "@/common/dto/pagination.dto";
 import { CreateFacultyDto } from "./dto/create-faculty.dto";
 import { UpdateFacultyDto } from "./dto/update-faculty.dto";
 import { Faculty } from "./entities/faculty.entity";
@@ -27,15 +29,15 @@ export class FacultiesController {
   @ApiOperation({ summary: "Get all faculties" })
   @ApiResponse({ status: 200, description: "List of faculties returned." })
   @Get()
-  findAll(): Promise<Faculty[]> {
-    return this.facultiesService.findAll();
+  findAll(@Query() pagination: PaginationDto): Promise<Faculty[]> {
+    return this.facultiesService.findAll(pagination);
   }
 
-  @ApiOperation({ summary: "Get faculty by ID" })
+  @ApiOperation({ summary: "Get faculty by UUID" })
   @ApiResponse({ status: 200, description: "Faculty found." })
   @ApiResponse({ status: 204, description: "Faculty not found." })
   @Get(":id")
-  findOne(@Param("id", ParseIntPipe) id: number): Promise<Faculty> {
+  findOne(@Param("id", ParseUUIDPipe) id: string): Promise<Faculty> {
     return this.facultiesService.findOne(id);
   }
 
@@ -51,7 +53,7 @@ export class FacultiesController {
   }
 
   @ApiBearerAuth("access-token")
-  @ApiOperation({ summary: "Update a faculty by ID" })
+  @ApiOperation({ summary: "Update a faculty by UUID" })
   @ApiResponse({ status: 200, description: "Faculty updated." })
   @ApiResponse({ status: 204, description: "Faculty not found." })
   @ApiResponse({ status: 401, description: "Unauthorized." })
@@ -59,21 +61,21 @@ export class FacultiesController {
   @UseGuards(JwtAuthGuard, AdminOnlyGuard)
   @Patch(":id")
   update(
-    @Param("id", ParseIntPipe) id: number,
+    @Param("id", ParseUUIDPipe) id: string,
     @Body() updateFacultyDto: UpdateFacultyDto,
   ): Promise<Faculty> {
     return this.facultiesService.update(id, updateFacultyDto);
   }
 
   @ApiBearerAuth("access-token")
-  @ApiOperation({ summary: "Delete a faculty by ID" })
+  @ApiOperation({ summary: "Delete a faculty by UUID" })
   @ApiResponse({ status: 200, description: "Faculty deleted." })
   @ApiResponse({ status: 204, description: "Faculty not found." })
   @ApiResponse({ status: 401, description: "Unauthorized." })
   @ApiResponse({ status: 403, description: "Forbidden." })
   @UseGuards(JwtAuthGuard, AdminOnlyGuard)
   @Delete(":id")
-  remove(@Param("id", ParseIntPipe) id: number): Promise<Faculty> {
+  remove(@Param("id", ParseUUIDPipe) id: string): Promise<Faculty> {
     return this.facultiesService.remove(id);
   }
 }

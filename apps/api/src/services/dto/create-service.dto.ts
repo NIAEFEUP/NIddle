@@ -1,10 +1,10 @@
 import { Type } from "class-transformer";
 import {
   IsEmail,
-  IsInt,
   IsNotEmpty,
   IsOptional,
   IsString,
+  IsUUID,
   ValidateNested,
 } from "class-validator";
 import { CreateScheduleDto } from "@/services/dto/create-schedule.dto";
@@ -53,20 +53,18 @@ export class CreateServiceDto {
   phoneNumber?: string;
 
   /**
-   * The faculty ID this service belongs to.
-   * @example 1
+   * The faculty UUID this service belongs to.
+   * @example '123e4567-e89b-12d3-a456-426614174000'
    */
-  @IsInt()
+  @IsUUID()
   @IsOptional()
-  @Type(() => Number)
-  facultyId?: number;
+  facultyId?: string;
 
   /**
-   * The course ID associated with this service.
-   * @example 1
+   * The course UUID associated with this service.
+   * @example '123e4567-e89b-12d3-a456-426614174000'
    */
-  @IsInt()
+  @IsUUID()
   @IsOptional()
-  @Type(() => Number)
-  courseId?: number;
+  courseId?: string;
 }

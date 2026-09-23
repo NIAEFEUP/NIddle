@@ -33,6 +33,7 @@ describe("createSchema", () => {
   });
   afterEach(() => {
     process.env = OLD_ENV;
+    jest.restoreAllMocks();
     jest.clearAllMocks();
   });
 
@@ -44,7 +45,6 @@ describe("createSchema", () => {
     expect(logSpy).toHaveBeenCalledWith(
       "Database schema created successfully.",
     );
-    logSpy.mockRestore();
   });
 
   it("should log when schema sync is disabled in production", async () => {
@@ -55,7 +55,6 @@ describe("createSchema", () => {
     expect(logSpy).toHaveBeenCalledWith(
       "Database connection initialized; schema synchronization is disabled (set DATABASE_SYNCHRONIZE=true to enable it).",
     );
-    logSpy.mockRestore();
   });
 
   it("should enable schema sync when override is set in production", async () => {
@@ -69,8 +68,32 @@ describe("createSchema", () => {
     expect(logSpy).toHaveBeenCalledWith(
       "Database schema created successfully.",
     );
+  });
 
-    logSpy.mockRestore();
+  it("should use custom DATABASE_PORT when provided", async () => {
+    process.env.NODE_ENV = "development";
+    process.env.DATABASE_PORT = "5433";
+    const logSpy = jest.spyOn(console, "log").mockImplementation(() => {});
+
+    await createSchema();
+
+    expect(DataSource).toHaveBeenCalledWith(
+      expect.objectContaining({ port: 5433 }),
+    );
+    expect(logSpy).toHaveBeenCalled();
+  });
+
+  it("should default to port 5432 when DATABASE_PORT is not set", async () => {
+    process.env.NODE_ENV = "development";
+    delete process.env.DATABASE_PORT;
+    const logSpy = jest.spyOn(console, "log").mockImplementation(() => {});
+
+    await createSchema();
+
+    expect(DataSource).toHaveBeenCalledWith(
+      expect.objectContaining({ port: 5432 }),
+    );
+    expect(logSpy).toHaveBeenCalled();
   });
 
   it("should handle schema creation failure", async () => {
@@ -97,8 +120,7 @@ describe("createSchema", () => {
       expect.stringContaining("Schema creation failed:"),
     );
     expect(errorSpy.mock.calls[0][1]).toBeInstanceOf(Error);
-    errorSpy.mockRestore();
-    exitSpy.mockRestore();
+    expect(exitSpy).not.toHaveBeenCalled();
   });
 
   describe("environment loading", () => {
@@ -160,6 +182,11 @@ describe("createSchema", () => {
 
       handleMain(mockModule, otherModule);
       expect(DataSource).not.toHaveBeenCalled();
+    });
+
+    it("should use require.main by default when mainModule argument is omitted", () => {
+      const mockModule = { id: "mock" } as NodeJS.Module;
+      expect(() => handleMain(mockModule)).not.toThrow();
     });
 
     it("should handle errors and exit process", async () => {

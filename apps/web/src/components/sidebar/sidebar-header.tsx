@@ -57,7 +57,7 @@ export function SidebarHeaderComponent() {
   const associationUUID =
     !isAdminPath && pathSegments[0] ? pathSegments[0] : null;
   const activeAssociation = associations.find(
-    (assoc) => assoc.id.toString() === associationUUID,
+    (assoc) => assoc.id === associationUUID,
   );
 
   React.useEffect(() => {
@@ -136,7 +136,7 @@ export function SidebarHeaderComponent() {
     setIsOpen(false);
   };
 
-  const handleSelectAssociation = (id: number) => {
+  const handleSelectAssociation = (id: string) => {
     navigate(`/${id}`);
     setIsOpen(false);
   };

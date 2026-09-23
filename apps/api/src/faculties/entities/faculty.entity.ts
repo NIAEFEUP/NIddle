@@ -12,11 +12,11 @@ import { Event } from "@/events/entities/event.entity";
 @Entity()
 export class Faculty {
   /**
-   * The unique identifier of the faculty.
-   * @example 1
+   * The unique identifier (UUID) of the faculty.
+   * @example '123e4567-e89b-12d3-a456-426614174000'
    */
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn("uuid")
+  id: string;
 
   /**
    * The name of the faculty.
@@ -34,7 +34,7 @@ export class Faculty {
 
   /**
    * The courses associated with the faculty.
-   * @example [{ id: 1, name: 'Bachelor in Informatics and Computing Engineering', acronym: 'LEIC' }]
+   * @example [{ id: '123e4567-e89b-12d3-a456-426614174000', name: 'Bachelor in Informatics and Computing Engineering', acronym: 'LEIC' }]
    */
   @ManyToMany(
     () => Course,

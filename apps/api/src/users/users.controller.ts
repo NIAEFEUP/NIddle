@@ -5,15 +5,17 @@ import {
   Delete,
   Get,
   Param,
-  ParseIntPipe,
+  ParseUUIDPipe,
   Patch,
   Post,
+  Query,
   UseGuards,
   UseInterceptors,
 } from "@nestjs/common";
 import { ApiBearerAuth, ApiOperation, ApiResponse } from "@nestjs/swagger";
 import { AdminOnlyGuard } from "@/auth/guards/admin-only.guard";
 import { JwtAuthGuard } from "@/auth/guards/jwt-auth.guard";
+import { PaginationDto } from "@/common/dto/pagination.dto";
 import { CreateUserDto } from "@/users/dto/create-user.dto";
 import { UpdateUserDto } from "@/users/dto/update-user.dto";
 import { User } from "./entities/user.entity";
@@ -27,8 +29,8 @@ export class UsersController {
   @Get()
   @ApiOperation({ summary: "Get all users" })
   @ApiResponse({ status: 200, description: "List of users returned." })
-  findAll(): Promise<User[]> {
-    return this.usersService.findAll();
+  findAll(@Query() pagination: PaginationDto): Promise<User[]> {
+    return this.usersService.findAll(pagination);
   }
 
   @ApiBearerAuth("access-token")
@@ -43,15 +45,15 @@ export class UsersController {
   }
 
   @Get(":id")
-  @ApiOperation({ summary: "Get user by ID" })
+  @ApiOperation({ summary: "Get user by UUID" })
   @ApiResponse({ status: 200, description: "User found." })
   @ApiResponse({ status: 204, description: "User not found." })
-  findOne(@Param("id", ParseIntPipe) id: number): Promise<User> {
+  findOne(@Param("id", ParseUUIDPipe) id: string): Promise<User> {
     return this.usersService.findOne(id);
   }
 
   @ApiBearerAuth("access-token")
-  @ApiOperation({ summary: "Update a user by ID" })
+  @ApiOperation({ summary: "Update a user by UUID" })
   @ApiResponse({ status: 200, description: "User updated." })
   @ApiResponse({ status: 204, description: "User not found." })
   @ApiResponse({ status: 401, description: "Unauthorized." })
@@ -59,21 +61,21 @@ export class UsersController {
   @UseGuards(JwtAuthGuard, AdminOnlyGuard)
   @Patch(":id")
   update(
-    @Param("id", ParseIntPipe) id: number,
+    @Param("id", ParseUUIDPipe) id: string,
     @Body() updateUserDto: UpdateUserDto,
   ): Promise<User> {
     return this.usersService.update(id, updateUserDto);
   }
 
   @ApiBearerAuth("access-token")
-  @ApiOperation({ summary: "Delete a user by ID" })
+  @ApiOperation({ summary: "Delete a user by UUID" })
   @ApiResponse({ status: 200, description: "User deleted." })
   @ApiResponse({ status: 204, description: "User not found." })
   @ApiResponse({ status: 401, description: "Unauthorized." })
   @ApiResponse({ status: 403, description: "Forbidden." })
   @UseGuards(JwtAuthGuard, AdminOnlyGuard)
   @Delete(":id")
-  remove(@Param("id", ParseIntPipe) id: number): Promise<User> {
+  remove(@Param("id", ParseUUIDPipe) id: string): Promise<User> {
     return this.usersService.remove(id);
   }
 }

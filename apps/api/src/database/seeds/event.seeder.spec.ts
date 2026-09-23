@@ -13,21 +13,21 @@ describe("EventSeeder", () => {
 
   const mockAssociations: any[] = [
     {
-      id: 1,
+      id: "1",
       name: "Chess Club",
     },
   ];
 
   const mockFaculties: Faculty[] = [
     {
-      id: 1,
+      id: "1",
       name: "Engineering Faculty",
       acronym: "FEUP",
       courses: [],
       events: [],
     },
     {
-      id: 2,
+      id: "2",
       name: "Science Faculty",
       acronym: "FCUP",
       courses: [],
@@ -37,14 +37,14 @@ describe("EventSeeder", () => {
 
   const mockCourses: Course[] = [
     {
-      id: 1,
+      id: "1",
       name: "Computer Science",
       acronym: "CS",
       faculties: [],
       events: [],
     },
     {
-      id: 2,
+      id: "2",
       name: "Engineering",
       acronym: "ENG",
       faculties: [],
@@ -53,7 +53,7 @@ describe("EventSeeder", () => {
   ];
 
   const mockEvent: Event = {
-    id: 1,
+    id: "1",
     name: "FEUP Week",
     description: "Annual FEUP event",
     year: 2025,

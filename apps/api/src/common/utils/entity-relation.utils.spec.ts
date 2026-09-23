@@ -2,7 +2,7 @@ import { In, ObjectLiteral, Repository } from "typeorm";
 import { validateAndGetRelations } from "./entity-relation.utils";
 
 interface TestEntity extends ObjectLiteral {
-  id: number;
+  id: string;
 }
 
 type MockRepository<T extends ObjectLiteral> = Partial<
@@ -19,8 +19,8 @@ describe("validateAndGetRelations", () => {
   });
 
   it("should handle duplicate IDs correctly", async () => {
-    const ids = [1, 1, 2];
-    const entities: TestEntity[] = [{ id: 1 }, { id: 2 }];
+    const ids = ["id-1", "id-1", "id-2"];
+    const entities: TestEntity[] = [{ id: "id-1" }, { id: "id-2" }];
 
     mockRepository.findBy?.mockResolvedValue(entities);
 
@@ -32,13 +32,13 @@ describe("validateAndGetRelations", () => {
 
     expect(result).toEqual(entities);
     expect(mockRepository.findBy).toHaveBeenCalledWith({
-      id: In([1, 2]),
+      id: In(["id-1", "id-2"]),
     });
   });
 
   it("should throw NotFoundException if strictly unique entities count mismatch", async () => {
-    const ids = [1, 2, 3];
-    const entities: TestEntity[] = [{ id: 1 }, { id: 2 }];
+    const ids = ["id-1", "id-2", "id-3"];
+    const entities: TestEntity[] = [{ id: "id-1" }, { id: "id-2" }];
 
     mockRepository.findBy?.mockResolvedValue(entities);
 
@@ -48,11 +48,11 @@ describe("validateAndGetRelations", () => {
         ids,
         "TestEntity",
       ),
-    ).rejects.toThrow("One or more TestEntity not found. Missing IDs: 3");
+    ).rejects.toThrow("One or more TestEntity not found. Missing IDs: id-3");
   });
 
   it("should return empty array if input ids list is empty", async () => {
-    const ids: number[] = [];
+    const ids: string[] = [];
 
     const result = await validateAndGetRelations(
       mockRepository as unknown as Repository<TestEntity>,
@@ -65,8 +65,8 @@ describe("validateAndGetRelations", () => {
   });
 
   it("should list all missing IDs in the error message", async () => {
-    const ids = [1, 2, 3, 4];
-    const entities: TestEntity[] = [{ id: 1 }, { id: 4 }];
+    const ids = ["id-1", "id-2", "id-3", "id-4"];
+    const entities: TestEntity[] = [{ id: "id-1" }, { id: "id-4" }];
 
     mockRepository.findBy?.mockResolvedValue(entities);
 
@@ -76,6 +76,8 @@ describe("validateAndGetRelations", () => {
         ids,
         "TestEntity",
       ),
-    ).rejects.toThrow("One or more TestEntity not found. Missing IDs: 2, 3");
+    ).rejects.toThrow(
+      "One or more TestEntity not found. Missing IDs: id-2, id-3",
+    );
   });
 });

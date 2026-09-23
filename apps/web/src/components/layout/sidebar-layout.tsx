@@ -5,25 +5,18 @@ import type { User as UserType } from "@/hooks/use-auth";
 
 interface SidebarLayoutProps {
   user: UserType | null;
-  isAuthenticated: boolean;
   onLogout: () => Promise<void>;
   currentPath: string;
 }
 
 export function SidebarLayout({
   user,
-  isAuthenticated,
   onLogout,
   currentPath,
 }: SidebarLayoutProps) {
   return (
     <SidebarProvider>
-      <AppSidebar
-        user={user}
-        isAuthenticated={isAuthenticated}
-        onLogout={onLogout}
-        currentPath={currentPath}
-      />
+      <AppSidebar user={user} onLogout={onLogout} currentPath={currentPath} />
       <SidebarInset>
         <div className="flex-1 p-6 py-4">
           <Outlet />

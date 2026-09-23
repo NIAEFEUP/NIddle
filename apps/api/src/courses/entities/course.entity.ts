@@ -5,11 +5,11 @@ import { Faculty } from "@/faculties/entities/faculty.entity";
 @Entity()
 export class Course {
   /**
-   * The unique identifier of the course.
-   * @example 1
+   * The unique identifier (UUID) of the course.
+   * @example '123e4567-e89b-12d3-a456-426614174000'
    */
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn("uuid")
+  id: string;
 
   /**
    * The name of the course.
@@ -27,7 +27,7 @@ export class Course {
 
   /**
    * The faculties associated with the course.
-   * @example [{ id: 1, name: 'Faculty of Engineering', acronym: 'FEUP' }]
+   * @example [{ id: '123e4567-e89b-12d3-a456-426614174000', name: 'Faculty of Engineering', acronym: 'FEUP' }]
    */
   @ManyToMany(
     () => Faculty,

@@ -10,7 +10,7 @@ describe("AssociationsService", () => {
   let service: AssociationsService;
 
   const mockUser: User = {
-    id: 1,
+    id: "1",
     name: "Chess Club Admin",
     email: "chess@example.com",
     password: "hashedpassword",
@@ -20,7 +20,7 @@ describe("AssociationsService", () => {
   };
 
   const mockAssociation: Association = {
-    id: 1,
+    id: "1",
     name: "Chess Club",
     acronym: "CC",
     users: [mockUser],
@@ -32,7 +32,7 @@ describe("AssociationsService", () => {
   const mockAssociationRepository = {
     create: jest.fn(),
     save: jest.fn(),
-    find: jest.fn(),
+    findAndCount: jest.fn(),
     findOneOrFail: jest.fn(),
     findOneByOrFail: jest.fn(),
     merge: jest.fn(),
@@ -83,13 +83,19 @@ describe("AssociationsService", () => {
 
   describe("findAll", () => {
     it("should return an array of associations", async () => {
-      mockAssociationRepository.find.mockResolvedValue([mockAssociation]);
+      mockAssociationRepository.findAndCount.mockResolvedValue([
+        [mockAssociation],
+        1,
+      ]);
 
-      const result = await service.findAll();
+      const result = await service.findAll({ page: 1, limit: 10 });
 
       expect(result).toEqual([mockAssociation]);
-      expect(mockAssociationRepository.find).toHaveBeenCalledWith({
+      expect(mockAssociationRepository.findAndCount).toHaveBeenCalledWith({
         relations: ["users"],
+        skip: 0,
+        take: 10,
+        order: { id: "ASC" },
       });
     });
   });
@@ -100,11 +106,11 @@ describe("AssociationsService", () => {
         mockAssociation,
       );
 
-      const result = await service.findOne(1);
+      const result = await service.findOne("1");
 
       expect(result).toEqual(mockAssociation);
       expect(mockAssociationRepository.findOneOrFail).toHaveBeenCalledWith({
-        where: { id: 1 },
+        where: { id: "1" },
         relations: ["users"],
       });
     });
@@ -114,7 +120,7 @@ describe("AssociationsService", () => {
         new Error("Not found"),
       );
 
-      await expect(service.findOne(999)).rejects.toThrow("Not found");
+      await expect(service.findOne("999")).rejects.toThrow("Not found");
     });
   });
 
@@ -134,11 +140,11 @@ describe("AssociationsService", () => {
         name: "New Name",
       });
 
-      const result = await service.update(1, updateDto);
+      const result = await service.update("1", updateDto);
 
       expect(result.name).toEqual("New Name");
       expect(mockAssociationRepository.findOneOrFail).toHaveBeenCalledWith({
-        where: { id: 1 },
+        where: { id: "1" },
         relations: ["users"],
       });
       expect(mockAssociationRepository.save).toHaveBeenCalled();
@@ -152,13 +158,13 @@ describe("AssociationsService", () => {
       );
       mockAssociationRepository.delete.mockResolvedValue({ affected: 1 });
 
-      const result = await service.remove(1);
+      const result = await service.remove("1");
 
       expect(result).toEqual(mockAssociation);
       expect(mockAssociationRepository.findOneByOrFail).toHaveBeenCalledWith({
-        id: 1,
+        id: "1",
       });
-      expect(mockAssociationRepository.delete).toHaveBeenCalledWith(1);
+      expect(mockAssociationRepository.delete).toHaveBeenCalledWith("1");
     });
   });
 });

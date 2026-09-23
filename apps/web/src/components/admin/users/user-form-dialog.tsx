@@ -30,7 +30,7 @@ export interface UserFormDialogProps {
 
 function sortAssociationsWithSelectedFirst(
   items: Association[],
-  selectedIds: number[],
+  selectedIds: string[],
 ) {
   const selectedSet = new Set(selectedIds);
   const selected = items.filter((assoc) => selectedSet.has(assoc.id));
@@ -168,7 +168,7 @@ export function UserFormDialog({
     onSubmit(formData);
   };
 
-  const toggleAssociation = (id: number) => {
+  const toggleAssociation = (id: string) => {
     setFormData((prev) => {
       const activeIds = prev.associationIds.includes(id)
         ? prev.associationIds.filter((aid) => aid !== id)

@@ -8,7 +8,7 @@ describe("AuthController", () => {
   let controller: AuthController;
 
   const mockUser: User = {
-    id: 1,
+    id: "1",
     name: "Test User",
     email: "test@example.com",
     password: "hashedPassword",
@@ -23,6 +23,7 @@ describe("AuthController", () => {
 
   const mockAuthService = {
     signIn: jest.fn(),
+    getProfile: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -48,12 +49,14 @@ describe("AuthController", () => {
   });
 
   describe("getProfile", () => {
-    it("should return the user from the request", () => {
-      const req = {
-        user: { id: mockUser.id, name: mockUser.name, email: mockUser.email },
-      };
-      const result = controller.getProfile(req);
-      expect(result).toEqual(req.user);
+    it("should return the profile of the user from the request", async () => {
+      const req = { user: mockUser };
+      mockAuthService.getProfile.mockResolvedValue(mockUser);
+
+      const result = await controller.getProfile(req);
+
+      expect(mockAuthService.getProfile).toHaveBeenCalledWith(mockUser);
+      expect(result).toEqual(mockUser);
     });
   });
 

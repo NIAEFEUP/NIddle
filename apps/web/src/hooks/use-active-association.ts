@@ -10,8 +10,6 @@ export function useActiveAssociation() {
   }
 
   return (
-    user.associations.find(
-      (assoc) => assoc.id.toString() === associationUUID,
-    ) || null
+    user.associations.find((assoc) => assoc.id === associationUUID) || null
   );
 }

@@ -1,6 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
+import { PaginationDto } from "@/common/dto/pagination.dto";
 import { CreateAssociationDto } from "./dto/create-association.dto";
 import { UpdateAssociationDto } from "./dto/update-association.dto";
 import { Association } from "./entities/association.entity";
@@ -20,13 +21,20 @@ export class AssociationsService {
     return this.associationRepository.save(association);
   }
 
-  findAll(): Promise<Association[]> {
-    return this.associationRepository.find({
+  async findAll(pagination: PaginationDto): Promise<Association[]> {
+    const { page, limit } = pagination;
+
+    const [items] = await this.associationRepository.findAndCount({
       relations: ["users"],
+      skip: (page - 1) * limit,
+      take: limit,
+      order: { id: "ASC" },
     });
+
+    return items;
   }
 
-  findOne(id: number): Promise<Association> {
+  findOne(id: string): Promise<Association> {
     return this.associationRepository.findOneOrFail({
       where: { id },
       relations: ["users"],
@@ -34,7 +42,7 @@ export class AssociationsService {
   }
 
   async update(
-    id: number,
+    id: string,
     updateAssociationDto: UpdateAssociationDto,
   ): Promise<Association> {
     const association = await this.associationRepository.findOneOrFail({
@@ -47,7 +55,7 @@ export class AssociationsService {
     return this.associationRepository.save(association);
   }
 
-  async remove(id: number): Promise<Association> {
+  async remove(id: string): Promise<Association> {
     const association = await this.associationRepository.findOneByOrFail({
       id,
     });

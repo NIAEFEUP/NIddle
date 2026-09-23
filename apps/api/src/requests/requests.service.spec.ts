@@ -27,7 +27,7 @@ describe("RequestsService", () => {
   };
 
   const mockAssociation: Association = {
-    id: 3,
+    id: "3",
     name: "Chess Club",
     users: [],
     events: [],
@@ -36,7 +36,7 @@ describe("RequestsService", () => {
   };
 
   const mockOtherAssociation: Association = {
-    id: 4,
+    id: "4",
     name: "Rowing Club",
     users: [],
     events: [],
@@ -45,7 +45,7 @@ describe("RequestsService", () => {
   };
 
   const mockUser: User = {
-    id: 9,
+    id: "9",
     name: "John Doe",
     email: "john.doe@example.com",
     password: "hashed",
@@ -70,7 +70,7 @@ describe("RequestsService", () => {
       location: "B-142",
       schedule: [],
       phoneNumber: "+315 999999999",
-      facultyId: 1,
+      facultyId: "1",
     } as any,
     targetEvent: null,
     targetService: null,
@@ -80,7 +80,7 @@ describe("RequestsService", () => {
   const mockRequestRepository = {
     create: jest.fn(),
     save: jest.fn(),
-    find: jest.fn(),
+    findAndCount: jest.fn(),
     findOneOrFail: jest.fn(),
     findOneByOrFail: jest.fn(),
     merge: jest.fn(),
@@ -174,7 +174,7 @@ describe("RequestsService", () => {
       );
       mockRequestRepository.save.mockImplementation(async (r) => r);
 
-      const result = await service.create(dto as any, mockUser, 3);
+      const result = await service.create(dto as any, mockUser, "3");
 
       expect(mockRequestRegistry.validateCreatePayload).toHaveBeenCalledWith(
         dto.type,
@@ -188,7 +188,7 @@ describe("RequestsService", () => {
       });
       expect(mockRequestRegistry.findTarget).not.toHaveBeenCalled();
       expect(mockAssociationRepository.findOneByOrFail).toHaveBeenCalledWith({
-        id: 3,
+        id: "3",
       });
       expect(result.targetAssociation).toEqual(mockAssociation);
       expect(mockRequestRepository.save).toHaveBeenCalledWith(result);
@@ -198,7 +198,7 @@ describe("RequestsService", () => {
       const dto = {
         type: RequestType.SERVICE,
         action: RequestAction.CREATE,
-        targetId: 5,
+        targetId: "5",
         payload: { name: "Papelaria Nova" } as any,
       };
       mockRequestRepository.create.mockReturnValue({});
@@ -207,7 +207,7 @@ describe("RequestsService", () => {
       );
       mockRequestRepository.save.mockImplementation(async (r) => r);
 
-      const result = await service.create(dto as any, mockUser, 3);
+      const result = await service.create(dto as any, mockUser, "3");
 
       expect(mockRequestRegistry.findTarget).not.toHaveBeenCalled();
       expect(result.targetService).toBeUndefined();
@@ -218,10 +218,10 @@ describe("RequestsService", () => {
       const dto = {
         type: RequestType.SERVICE,
         action: RequestAction.UPDATE_EXISTING,
-        targetId: 5,
+        targetId: "5",
         payload: { name: "Papelaria Editada" } as any,
       };
-      const mockTargetService = { id: 5, name: "Papelaria Antiga" };
+      const mockTargetService = { id: "5", name: "Papelaria Antiga" };
       mockRequestRepository.create.mockReturnValue({});
       mockRequestRegistry.findTarget.mockResolvedValue(mockTargetService);
       mockAssociationRepository.findOneByOrFail.mockResolvedValue(
@@ -229,11 +229,11 @@ describe("RequestsService", () => {
       );
       mockRequestRepository.save.mockImplementation(async (r) => r);
 
-      const result = await service.create(dto as any, mockUser, 3);
+      const result = await service.create(dto as any, mockUser, "3");
 
       expect(mockRequestRegistry.findTarget).toHaveBeenCalledWith(
         RequestType.SERVICE,
-        5,
+        "5",
       );
       expect(result.targetService).toEqual(mockTargetService);
     });
@@ -242,10 +242,10 @@ describe("RequestsService", () => {
       const dto = {
         type: RequestType.EVENT,
         action: RequestAction.UPDATE_EXISTING,
-        targetId: 7,
+        targetId: "7",
         payload: { name: "FEUP Week" } as any,
       };
-      const mockTargetEvent = { id: 7, name: "FEUP Week Antigo" };
+      const mockTargetEvent = { id: "7", name: "FEUP Week Antigo" };
       mockRequestRepository.create.mockReturnValue({});
       mockRequestRegistry.findTarget.mockResolvedValue(mockTargetEvent);
       mockAssociationRepository.findOneByOrFail.mockResolvedValue(
@@ -253,11 +253,11 @@ describe("RequestsService", () => {
       );
       mockRequestRepository.save.mockImplementation(async (r) => r);
 
-      const result = await service.create(dto as any, mockUser, 3);
+      const result = await service.create(dto as any, mockUser, "3");
 
       expect(mockRequestRegistry.findTarget).toHaveBeenCalledWith(
         RequestType.EVENT,
-        7,
+        "7",
       );
       expect(result.targetEvent).toEqual(mockTargetEvent);
     });
@@ -266,9 +266,9 @@ describe("RequestsService", () => {
       const dto = {
         type: RequestType.SERVICE,
         action: RequestAction.DELETE_EXISTING,
-        targetId: 5,
+        targetId: "5",
       };
-      const mockTargetService = { id: 5, name: "Papelaria Antiga" };
+      const mockTargetService = { id: "5", name: "Papelaria Antiga" };
       mockRequestRepository.create.mockReturnValue({});
       mockRequestRegistry.findTarget.mockResolvedValue(mockTargetService);
       mockAssociationRepository.findOneByOrFail.mockResolvedValue(
@@ -276,11 +276,11 @@ describe("RequestsService", () => {
       );
       mockRequestRepository.save.mockImplementation(async (r) => r);
 
-      const result = await service.create(dto as any, mockUser, 3);
+      const result = await service.create(dto as any, mockUser, "3");
 
       expect(mockRequestRegistry.findTarget).toHaveBeenCalledWith(
         RequestType.SERVICE,
-        5,
+        "5",
       );
       expect(result.targetService).toEqual(mockTargetService);
     });
@@ -289,16 +289,16 @@ describe("RequestsService", () => {
       const dto = {
         type: RequestType.SERVICE,
         action: RequestAction.DELETE_EXISTING,
-        targetId: 5,
+        targetId: "5",
       };
       mockRequestRepository.create.mockReturnValue({});
-      mockRequestRegistry.findTarget.mockResolvedValue({ id: 5 });
+      mockRequestRegistry.findTarget.mockResolvedValue({ id: "5" });
       mockAssociationRepository.findOneByOrFail.mockResolvedValue(
         mockAssociation,
       );
       mockRequestRepository.save.mockImplementation(async (r) => r);
 
-      await service.create(dto as any, mockUser, 3);
+      await service.create(dto as any, mockUser, "3");
 
       expect(mockRequestRegistry.validateCreatePayload).not.toHaveBeenCalled();
       expect(mockRequestRepository.create).toHaveBeenCalledWith(
@@ -316,7 +316,7 @@ describe("RequestsService", () => {
         new BadRequestException("Invalid payload."),
       );
 
-      await expect(service.create(dto as any, mockUser, 3)).rejects.toThrow(
+      await expect(service.create(dto as any, mockUser, "3")).rejects.toThrow(
         BadRequestException,
       );
       expect(mockRequestRepository.save).not.toHaveBeenCalled();
@@ -483,7 +483,7 @@ describe("RequestsService", () => {
         ...mockRequest,
       });
 
-      const createdService = { id: 1, name: " Papelaria D. Beatriz" };
+      const createdService = { id: "1", name: " Papelaria D. Beatriz" };
       mockServiceHandler.createFromRequest.mockResolvedValue(createdService);
 
       mockRequestRepository.save.mockResolvedValue({
@@ -523,11 +523,11 @@ describe("RequestsService", () => {
       const eventRequest: Request = {
         ...mockRequest,
         type: RequestType.EVENT,
-        payload: { name: "FEUP Week", year: 2025, facultyId: 1 } as any,
+        payload: { name: "FEUP Week", year: 2025, facultyId: "1" } as any,
       };
       mockRequestRepository.findOneOrFail.mockResolvedValue(eventRequest);
 
-      const createdEvent = { id: 1, name: "FEUP Week" };
+      const createdEvent = { id: "1", name: "FEUP Week" };
       mockEventHandler.createFromRequest.mockResolvedValue(createdEvent);
       mockRequestRepository.save.mockResolvedValue({
         ...eventRequest,
@@ -545,7 +545,7 @@ describe("RequestsService", () => {
     });
 
     it("approves an Update Existing action for a Service", async () => {
-      const mockTargetService = { id: 5, name: "Papelaria Antiga" };
+      const mockTargetService = { id: "5", name: "Papelaria Antiga" };
       const editRequest: Request = {
         ...mockRequest,
         action: RequestAction.UPDATE_EXISTING,
@@ -553,7 +553,7 @@ describe("RequestsService", () => {
       };
       mockRequestRepository.findOneOrFail.mockResolvedValue(editRequest);
 
-      const updatedService = { id: 5, name: "Papelaria D. Beatriz" };
+      const updatedService = { id: "5", name: "Papelaria D. Beatriz" };
       mockServiceHandler.updateFromRequest.mockResolvedValue(updatedService);
       mockRequestRepository.save.mockResolvedValue({
         ...editRequest,
@@ -563,7 +563,7 @@ describe("RequestsService", () => {
       const result = await service.approve("req-1");
 
       expect(mockServiceHandler.updateFromRequest).toHaveBeenCalledWith(
-        5,
+        "5",
         editRequest.payload,
       );
       expect(mockServiceHandler.createFromRequest).not.toHaveBeenCalled();
@@ -572,7 +572,7 @@ describe("RequestsService", () => {
     });
 
     it("approves an Update Existing action for an Event", async () => {
-      const mockTargetEvent = { id: 7, name: "FEUP Week Antigo" };
+      const mockTargetEvent = { id: "7", name: "FEUP Week Antigo" };
       const editRequest: Request = {
         ...mockRequest,
         type: RequestType.EVENT,
@@ -581,7 +581,7 @@ describe("RequestsService", () => {
       };
       mockRequestRepository.findOneOrFail.mockResolvedValue(editRequest);
 
-      const updatedEvent = { id: 7, name: "FEUP Week Novo" };
+      const updatedEvent = { id: "7", name: "FEUP Week Novo" };
       mockEventHandler.updateFromRequest.mockResolvedValue(updatedEvent);
       mockRequestRepository.save.mockResolvedValue({
         ...editRequest,
@@ -591,7 +591,7 @@ describe("RequestsService", () => {
       const result = await service.approve("req-1");
 
       expect(mockEventHandler.updateFromRequest).toHaveBeenCalledWith(
-        7,
+        "7",
         editRequest.payload,
       );
       expect(mockEventHandler.createFromRequest).not.toHaveBeenCalled();
@@ -599,7 +599,7 @@ describe("RequestsService", () => {
     });
 
     it("approves a Delete Existing action for a Service", async () => {
-      const mockTargetService = { id: 5, name: "Papelaria Antiga" };
+      const mockTargetService = { id: "5", name: "Papelaria Antiga" };
       const deleteRequest: Request = {
         ...mockRequest,
         action: RequestAction.DELETE_EXISTING,
@@ -608,7 +608,7 @@ describe("RequestsService", () => {
       };
       mockRequestRepository.findOneOrFail.mockResolvedValue(deleteRequest);
 
-      const removedService = { id: 5, name: "Papelaria D. Beatriz" };
+      const removedService = { id: "5", name: "Papelaria D. Beatriz" };
       mockServiceHandler.removeFromRequest.mockResolvedValue(removedService);
       mockRequestRepository.save.mockResolvedValue({
         ...deleteRequest,
@@ -617,14 +617,14 @@ describe("RequestsService", () => {
 
       const result = await service.approve("req-1");
 
-      expect(mockServiceHandler.removeFromRequest).toHaveBeenCalledWith(5);
+      expect(mockServiceHandler.removeFromRequest).toHaveBeenCalledWith("5");
       expect(mockServiceHandler.createFromRequest).not.toHaveBeenCalled();
       expect(mockServiceHandler.updateFromRequest).not.toHaveBeenCalled();
       expect(result).toEqual(removedService);
     });
 
     it("approves a Delete Existing action for an Event", async () => {
-      const mockTargetEvent = { id: 7, name: "FEUP Week Antigo" };
+      const mockTargetEvent = { id: "7", name: "FEUP Week Antigo" };
       const deleteRequest: Request = {
         ...mockRequest,
         type: RequestType.EVENT,
@@ -634,7 +634,7 @@ describe("RequestsService", () => {
       };
       mockRequestRepository.findOneOrFail.mockResolvedValue(deleteRequest);
 
-      const removedEvent = { id: 7, name: "FEUP Week Antigo" };
+      const removedEvent = { id: "7", name: "FEUP Week Antigo" };
       mockEventHandler.removeFromRequest.mockResolvedValue(removedEvent);
       mockRequestRepository.save.mockResolvedValue({
         ...deleteRequest,
@@ -643,7 +643,7 @@ describe("RequestsService", () => {
 
       const result = await service.approve("req-1");
 
-      expect(mockEventHandler.removeFromRequest).toHaveBeenCalledWith(7);
+      expect(mockEventHandler.removeFromRequest).toHaveBeenCalledWith("7");
       expect(result).toEqual(removedEvent);
     });
 
@@ -683,7 +683,7 @@ describe("RequestsService", () => {
         ...mockRequest,
         action: RequestAction.UPDATE_EXISTING,
         payload: null,
-        targetService: { id: 5 } as any,
+        targetService: { id: "5" } as any,
       });
 
       await expect(service.approve("req-1")).rejects.toThrow(
@@ -777,63 +777,114 @@ describe("RequestsService", () => {
   describe("findAll", () => {
     // Header parsing and association-membership checks now live entirely in
     // ActiveAssociationGuard (see active-association.guard.spec.ts) — by the
-    // time this method runs, activeAssociationId is already a valid number
+    // time this method runs, activeAssociationId is already a valid string
     // or undefined. This describe block only covers query construction.
 
     it("without an activeAssociationId or filters returns everything", async () => {
-      mockRequestRepository.find.mockResolvedValue([mockRequest]);
+      mockRequestRepository.findAndCount.mockResolvedValue([[mockRequest], 1]);
 
-      const result = await service.findAll({});
+      const result = await service.findAll({ page: 1, limit: 10 });
 
       expect(result).toEqual([mockRequest]);
-      expect(mockRequestRepository.find).toHaveBeenCalledWith({
+      expect(mockRequestRepository.findAndCount).toHaveBeenCalledWith({
         relations,
         where: {},
+        skip: 0,
+        take: 10,
+        order: { id: "ASC" },
       });
     });
 
     it("a status filter narrows the where clause", async () => {
-      mockRequestRepository.find.mockResolvedValue([mockRequest]);
+      mockRequestRepository.findAndCount.mockResolvedValue([[mockRequest], 1]);
 
-      await service.findAll({ status: RequestStatus.PENDING });
+      await service.findAll({
+        status: RequestStatus.PENDING,
+        page: 1,
+        limit: 10,
+      });
 
-      expect(mockRequestRepository.find).toHaveBeenCalledWith({
+      expect(mockRequestRepository.findAndCount).toHaveBeenCalledWith({
         relations,
         where: { status: RequestStatus.PENDING },
+        skip: 0,
+        take: 10,
+        order: { id: "ASC" },
       });
     });
 
     it("scopes results to the given activeAssociationId", async () => {
-      mockRequestRepository.find.mockResolvedValue([mockRequest]);
+      mockRequestRepository.findAndCount.mockResolvedValue([[mockRequest], 1]);
 
-      await service.findAll({ type: RequestType.EVENT }, 3);
+      await service.findAll(
+        { type: RequestType.EVENT, page: 1, limit: 10 },
+        "3",
+      );
 
-      expect(mockRequestRepository.find).toHaveBeenCalledWith({
+      expect(mockRequestRepository.findAndCount).toHaveBeenCalledWith({
         where: {
-          targetAssociation: { id: 3 },
+          targetAssociation: { id: "3" },
           type: RequestType.EVENT,
         },
         relations,
+        skip: 0,
+        take: 10,
+        order: { id: "ASC" },
       });
     });
 
     it("combines an activeAssociationId with the other filters", async () => {
-      mockRequestRepository.find.mockResolvedValue([mockRequest]);
+      mockRequestRepository.findAndCount.mockResolvedValue([[mockRequest], 1]);
 
       const result = await service.findAll(
-        { status: RequestStatus.PENDING, requestedBy: mockUser.id },
+        {
+          status: RequestStatus.PENDING,
+          requestedBy: mockUser.id,
+          page: 1,
+          limit: 10,
+        },
         mockAssociation.id,
       );
 
       expect(result).toEqual([mockRequest]);
-      expect(mockRequestRepository.find).toHaveBeenCalledWith({
+      expect(mockRequestRepository.findAndCount).toHaveBeenCalledWith({
         where: {
           targetAssociation: { id: mockAssociation.id },
           status: RequestStatus.PENDING,
           requestedBy: { id: mockUser.id },
         },
         relations,
+        skip: 0,
+        take: 10,
+        order: { id: "ASC" },
       });
+    });
+
+    it("orders by the requested sortBy field before the id tiebreaker", async () => {
+      mockRequestRepository.findAndCount.mockResolvedValue([[mockRequest], 1]);
+
+      await service.findAll({
+        sortBy: "createdAt",
+        sortOrder: "DESC",
+        page: 1,
+        limit: 10,
+      });
+
+      const { order } = mockRequestRepository.findAndCount.mock.calls[0][0];
+      expect(order).toEqual({ createdAt: "DESC", id: "ASC" });
+      // Key order matters: TypeORM builds ORDER BY in object-key insertion
+      // order, so the requested field must come before the id tiebreaker.
+      expect(Object.keys(order)).toEqual(["createdAt", "id"]);
+    });
+
+    it("defaults sortOrder to ASC when only sortBy is provided", async () => {
+      mockRequestRepository.findAndCount.mockResolvedValue([[mockRequest], 1]);
+
+      await service.findAll({ sortBy: "createdAt", page: 1, limit: 10 });
+
+      expect(mockRequestRepository.findAndCount).toHaveBeenCalledWith(
+        expect.objectContaining({ order: { createdAt: "ASC", id: "ASC" } }),
+      );
     });
   });
 });

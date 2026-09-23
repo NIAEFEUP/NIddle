@@ -16,8 +16,8 @@ export enum EnumDays {
 @Entity()
 export class Schedule {
   @Exclude()
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn("uuid")
+  id: string;
 
   @Column({ type: "time" })
   @IsString()

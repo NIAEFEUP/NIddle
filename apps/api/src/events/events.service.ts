@@ -28,7 +28,7 @@ export class EventsService
 
   async create(
     createEventDto: CreateEventDto,
-    activeAssociationId: number,
+    activeAssociationId: string,
   ): Promise<Event> {
     const { facultyId, courseIds, ...eventData } = createEventDto;
     const event = this.eventRepository.create(eventData);
@@ -54,7 +54,7 @@ export class EventsService
     return this.eventRepository.save(event);
   }
 
-  async update(id: number, updateEventDto: UpdateEventDto): Promise<Event> {
+  async update(id: string, updateEventDto: UpdateEventDto): Promise<Event> {
     const { facultyId, courseIds, ...eventData } = updateEventDto;
 
     const event = await this.eventRepository.findOneOrFail({
@@ -87,36 +87,45 @@ export class EventsService
 
   createFromRequest(
     payload: CreateEventDto,
-    associationId: number,
+    associationId: string,
   ): Promise<Event> {
     return this.create(payload, associationId);
   }
 
-  updateFromRequest(id: number, payload: UpdateEventDto): Promise<Event> {
+  updateFromRequest(id: string, payload: UpdateEventDto): Promise<Event> {
     return this.update(id, payload);
   }
 
-  findAll(filters: EventFilterDto): Promise<Event[]> {
-    const { year, facultyId, courseId } = filters;
+  async findAll(filters: EventFilterDto): Promise<Event[]> {
+    const { year, facultyId, courseId, sortBy, sortOrder, limit, page } =
+      filters;
 
-    return this.eventRepository.find({
+    const [items] = await this.eventRepository.findAndCount({
       where: {
         ...(year !== undefined && { year }),
         ...(facultyId && { faculty: { id: facultyId } }),
         ...(courseId && { courses: { id: courseId } }),
       },
       relations: ["faculty", "courses", "createdBy"],
+      skip: (page - 1) * limit,
+      take: limit,
+      order: {
+        ...(sortBy && { [sortBy]: sortOrder ?? "ASC" }),
+        id: "ASC",
+      },
     });
+
+    return items;
   }
 
-  findOne(id: number): Promise<Event> {
+  findOne(id: string): Promise<Event> {
     return this.eventRepository.findOneOrFail({
       where: { id },
       relations: ["faculty", "courses", "createdBy"],
     });
   }
 
-  async remove(id: number): Promise<Event> {
+  async remove(id: string): Promise<Event> {
     const event = await this.eventRepository.findOneOrFail({
       where: { id },
       relations: ["createdBy"],
@@ -126,7 +135,7 @@ export class EventsService
     return event;
   }
 
-  removeFromRequest(id: number): Promise<Event> {
+  removeFromRequest(id: string): Promise<Event> {
     return this.remove(id);
   }
 }

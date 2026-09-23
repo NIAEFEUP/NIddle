@@ -1,19 +1,28 @@
-import { Type } from "class-transformer";
-import { IsOptional } from "class-validator";
+import { IsIn, IsOptional, IsUUID } from "class-validator";
+import { PaginationDto } from "@/common/dto/pagination.dto";
 
-export class ServiceFilterDto {
+export class ServiceFilterDto extends PaginationDto {
   /**
-   * The faculty ID to filter services by.
-   * @example 1
+   * The faculty UUID to filter services by.
+   * @example '123e4567-e89b-12d3-a456-426614174000'
    */
   @IsOptional()
-  @Type(() => Number)
-  facultyId?: number;
+  @IsUUID()
+  facultyId?: string;
 
   /**
-   * The course ID to filter services by.
+   * The course UUID to filter services by.
+   * @example '123e4567-e89b-12d3-a456-426614174000'
    */
   @IsOptional()
-  @Type(() => Number)
-  courseId?: number;
+  @IsUUID()
+  courseId?: string;
+
+  @IsOptional()
+  @IsIn(["name"])
+  sortBy?: string;
+
+  @IsOptional()
+  @IsIn(["ASC", "DESC"])
+  sortOrder?: "ASC" | "DESC";
 }

@@ -74,7 +74,7 @@ describe("CreateRequestDto validation", () => {
     const dto = new CreateRequestDto();
     dto.type = RequestType.SERVICE;
     dto.action = RequestAction.UPDATE_EXISTING;
-    dto.targetId = 5;
+    dto.targetId = "b0eebc99-9c0b-4ef8-bb6d-6bb9bd380a22";
     dto.payload = { name: "Papelaria D. Beatriz" };
 
     const errors = await validate(dto);
@@ -96,7 +96,7 @@ describe("CreateRequestDto validation", () => {
     const dto = new CreateRequestDto();
     dto.type = RequestType.SERVICE;
     dto.action = RequestAction.DELETE_EXISTING;
-    dto.targetId = 5;
+    dto.targetId = "b0eebc99-9c0b-4ef8-bb6d-6bb9bd380a22";
 
     const errors = await validate(dto);
 
@@ -107,7 +107,7 @@ describe("CreateRequestDto validation", () => {
     const dto = new CreateRequestDto();
     dto.type = RequestType.SERVICE;
     dto.action = RequestAction.DELETE_EXISTING;
-    dto.targetId = 5;
+    dto.targetId = "b0eebc99-9c0b-4ef8-bb6d-6bb9bd380a22";
 
     const errors = await validate(dto);
 

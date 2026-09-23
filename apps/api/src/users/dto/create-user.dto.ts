@@ -2,11 +2,11 @@ import {
   IsArray,
   IsBoolean,
   IsEmail,
-  IsInt,
   IsNotEmpty,
   IsOptional,
   IsString,
   IsStrongPassword,
+  IsUUID,
   MaxLength,
   MinLength,
 } from "class-validator";
@@ -59,8 +59,12 @@ export class CreateUserDto {
   @IsBoolean()
   isAdmin?: boolean;
 
+  /**
+   * The IDs of associations the user belongs to.
+   * @example ['123e4567-e89b-12d3-a456-426614174000']
+   */
   @IsOptional()
   @IsArray()
-  @IsInt({ each: true })
-  associationIds?: number[];
+  @IsUUID("all", { each: true })
+  associationIds?: string[];
 }

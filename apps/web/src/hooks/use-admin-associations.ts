@@ -45,7 +45,7 @@ export function useAdminAssociations() {
       id,
       payload,
     }: {
-      id: number;
+      id: string;
       payload: Partial<AssociationFormData>;
     }) =>
       apiClient<Association>(`/api/associations/${id}`, {
@@ -71,7 +71,7 @@ export function useAdminAssociations() {
   });
 
   const deleteAssociationMutation = useMutation({
-    mutationFn: (id: number) =>
+    mutationFn: (id: string) =>
       apiClient<void>(`/api/associations/${id}`, {
         method: "DELETE",
       }),
@@ -94,7 +94,7 @@ export function useAdminAssociations() {
   });
 
   const bulkDeleteAssociationsMutation = useMutation({
-    mutationFn: async (ids: number[]) => {
+    mutationFn: async (ids: string[]) => {
       await Promise.all(
         ids.map((id) =>
           apiClient<void>(`/api/associations/${id}`, {
