@@ -46,6 +46,10 @@ export class AuthService {
     };
   }
 
+  getProfile(user: User): Promise<User> {
+    return this.usersService.withAccessibleAssociations(user);
+  }
+
   async validateUser(signInDto: SignInDto): Promise<User | null> {
     let user: User | null = null;
 

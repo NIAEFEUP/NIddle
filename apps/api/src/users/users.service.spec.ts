@@ -279,23 +279,37 @@ describe("UsersService", () => {
       );
     });
 
-    it("should return all associations if the user is an admin", async () => {
+    it("should not load all associations if the user is an admin", async () => {
       const mockAdminUser = { ...mockUser, isAdmin: true, associations: [] };
       mockUserRepository.findOneOrFail.mockResolvedValue(mockAdminUser);
+
+      const result = await service.findOneWithAssociations("1");
+
+      expect(result.associations).toEqual([]);
+      expect(mockAssociationRepository.find).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("withAccessibleAssociations", () => {
+    it("should return all associations if the user is an admin", async () => {
+      const mockAdminUser = { ...mockUser, isAdmin: true, associations: [] };
       const mockAllAssociations = [
         { id: "1", name: "Association 1" },
         { id: "2", name: "Association 2" },
       ] as Association[];
       mockAssociationRepository.find.mockResolvedValue(mockAllAssociations);
 
-      const result = await service.findOneWithAssociations("1");
+      const result = await service.withAccessibleAssociations(mockAdminUser);
 
       expect(result.associations).toEqual(mockAllAssociations);
-      expect(mockUserRepository.findOneOrFail).toHaveBeenCalledWith({
-        where: { id: "1" },
-        relations: ["associations"],
-      });
       expect(mockAssociationRepository.find).toHaveBeenCalled();
+    });
+
+    it("should keep the user's own associations if not an admin", async () => {
+      const result = await service.withAccessibleAssociations(mockUser);
+
+      expect(result.associations).toEqual(mockUser.associations);
+      expect(mockAssociationRepository.find).not.toHaveBeenCalled();
     });
   });
 

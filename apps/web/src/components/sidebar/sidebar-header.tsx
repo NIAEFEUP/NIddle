@@ -30,7 +30,7 @@ export function SidebarHeaderComponent() {
   const associationUUID =
     !isAdminPath && pathSegments[0] ? pathSegments[0] : null;
   const activeAssociation = associations.find(
-    (assoc) => assoc.id.toString() === associationUUID,
+    (assoc) => assoc.id === associationUUID,
   );
 
   const getInitials = (name: string) => {
@@ -58,10 +58,6 @@ export function SidebarHeaderComponent() {
     headerInitials = getInitials(
       activeAssociation.acronym || activeAssociation.name,
     );
-  } else if (user?.isAdmin) {
-    headerTitle = "Admin Dashboard";
-    headerSubtitle = "System Administration";
-    headerInitials = "AD";
   } else if (associations.length > 0) {
     headerTitle = "Select Association";
     headerSubtitle = `${associations.length} available`;
@@ -72,7 +68,7 @@ export function SidebarHeaderComponent() {
     navigate("/admin");
   };
 
-  const handleSelectAssociation = (id: number) => {
+  const handleSelectAssociation = (id: string) => {
     navigate(`/${id}`);
   };
 

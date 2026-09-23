@@ -85,12 +85,14 @@ export class UsersService implements OnApplicationBootstrap {
     return this.userRepository.findOneOrFail({ where: { id } });
   }
 
-  async findOneWithAssociations(id: string): Promise<User> {
-    const user = await this.userRepository.findOneOrFail({
+  findOneWithAssociations(id: string): Promise<User> {
+    return this.userRepository.findOneOrFail({
       where: { id },
       relations: ["associations"],
     });
+  }
 
+  async withAccessibleAssociations(user: User): Promise<User> {
     if (user.isAdmin) {
       user.associations = await this.associationRepository.find();
     }

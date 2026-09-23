@@ -5,7 +5,7 @@ import { useAuth } from "@/hooks/use-auth";
 export function SidebarLayoutRoute() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, isAuthenticated, logout } = useAuth();
+  const { user, logout } = useAuth();
 
   const handleLogout = async () => {
     await logout();
@@ -15,7 +15,6 @@ export function SidebarLayoutRoute() {
   return (
     <VisualSidebarLayout
       user={user}
-      isAuthenticated={isAuthenticated}
       onLogout={handleLogout}
       currentPath={location.pathname}
     />

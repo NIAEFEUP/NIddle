@@ -11,17 +11,11 @@ import { SidebarHeaderComponent } from "./sidebar-header";
 
 interface AppSidebarProps {
   user: UserType | null;
-  isAuthenticated: boolean;
   onLogout: () => Promise<void>;
   currentPath: string;
 }
 
-export function AppSidebar({
-  user,
-  isAuthenticated,
-  onLogout,
-  currentPath,
-}: AppSidebarProps) {
+export function AppSidebar({ user, onLogout, currentPath }: AppSidebarProps) {
   return (
     <Sidebar variant="inset" collapsible="icon">
       <SidebarHeader>
@@ -31,11 +25,7 @@ export function AppSidebar({
         <SidebarContentComponent currentPath={currentPath} />
       </SidebarContent>
       <SidebarFooter className="border-t border-border/60">
-        <SidebarFooterComponent
-          user={user}
-          isAuthenticated={isAuthenticated}
-          onLogout={onLogout}
-        />
+        <SidebarFooterComponent user={user} onLogout={onLogout} />
       </SidebarFooter>
     </Sidebar>
   );
