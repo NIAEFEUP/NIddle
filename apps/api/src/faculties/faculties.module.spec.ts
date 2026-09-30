@@ -1,13 +1,6 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { TypeOrmModule } from "@nestjs/typeorm";
-import { Association } from "@/associations/entities/association.entity";
-import { Course } from "@/courses/entities/course.entity";
-import { Event } from "@/events/entities/event.entity";
-import { Request } from "@/requests/entities/request.entity";
-import { Schedule } from "@/services/entity/schedule.entity";
-import { Service } from "@/services/entity/service.entity";
-import { User } from "@/users/entities/user.entity";
-import { Faculty } from "./entities/faculty.entity";
+import { getTestDatabaseOptions } from "@/test/test-database";
 import { FacultiesController } from "./faculties.controller";
 import { FacultiesModule } from "./faculties.module";
 import { FacultiesService } from "./faculties.service";
@@ -18,24 +11,14 @@ describe("FacultiesModule", () => {
   beforeAll(async () => {
     module = await Test.createTestingModule({
       imports: [
-        TypeOrmModule.forRoot({
-          type: "sqlite",
-          database: ":memory:",
-          entities: [
-            Association,
-            Faculty,
-            Course,
-            Event,
-            Service,
-            Schedule,
-            User,
-            Request,
-          ],
-          synchronize: true,
-        }),
+        TypeOrmModule.forRoot(getTestDatabaseOptions()),
         FacultiesModule,
       ],
     }).compile();
+  });
+
+  afterAll(async () => {
+    await module.close();
   });
 
   it("should compile the module", () => {

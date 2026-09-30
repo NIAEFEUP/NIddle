@@ -1,8 +1,11 @@
 import { INestApplication } from "@nestjs/common";
 import { Test, TestingModule } from "@nestjs/testing";
+import { TypeOrmModule } from "@nestjs/typeorm";
 import * as request from "supertest";
 import { App } from "supertest/types";
 import { AppModule } from "@/app.module";
+import { DatabaseModule } from "@/database/database.module";
+import { getTestDatabaseOptions } from "@/test/test-database";
 
 describe("AppController (e2e)", () => {
   let app: INestApplication<App>;
@@ -10,10 +13,19 @@ describe("AppController (e2e)", () => {
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
-    }).compile();
+    })
+      .overrideModule(DatabaseModule)
+      .useModule(TypeOrmModule.forRoot(getTestDatabaseOptions()))
+      .compile();
 
     app = moduleFixture.createNestApplication();
     await app.init();
+  });
+
+  afterEach(async () => {
+    if (app) {
+      await app.close();
+    }
   });
 
   it("/ (GET)", () => {
