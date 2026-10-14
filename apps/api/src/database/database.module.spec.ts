@@ -1,5 +1,5 @@
 import { Test, TestingModule } from "@nestjs/testing";
-import { TypeOrmModuleOptions } from "@nestjs/typeorm";
+import { getTestDatabaseOptions } from "@/test/test-database";
 import { DatabaseModule } from "./database.module";
 import { DatabaseService } from "./database.service";
 
@@ -12,13 +12,7 @@ describe("DatabaseModule", () => {
     })
       .overrideProvider(DatabaseService)
       .useValue({
-        createTypeOrmOptions: (): TypeOrmModuleOptions => ({
-          type: "sqlite",
-          database: ":memory:",
-          synchronize: true,
-          dropSchema: true,
-          autoLoadEntities: true,
-        }),
+        createTypeOrmOptions: () => getTestDatabaseOptions(),
       })
       .compile();
   });

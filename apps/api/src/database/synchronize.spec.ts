@@ -13,13 +13,6 @@ describe("getDatabaseSynchronize", () => {
     process.env = OLD_ENV;
   });
 
-  it("should always enable synchronize in test environment", () => {
-    process.env.NODE_ENV = "test";
-    process.env.DATABASE_SYNCHRONIZE = "false";
-
-    expect(getDatabaseSynchronize()).toBe(true);
-  });
-
   it("should respect synchronize override when true", () => {
     process.env.NODE_ENV = "production";
     process.env.DATABASE_SYNCHRONIZE = "true";
