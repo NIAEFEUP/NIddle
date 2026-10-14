@@ -76,6 +76,7 @@ export class UsersService implements OnApplicationBootstrap {
       skip: (page - 1) * limit,
       take: limit,
       order: { id: "ASC" },
+      relations: ["associations"],
     });
 
     return items;
