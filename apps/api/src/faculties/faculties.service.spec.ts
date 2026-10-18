@@ -1,6 +1,7 @@
 import { NotFoundException } from "@nestjs/common";
 import { Test, TestingModule } from "@nestjs/testing";
 import { getRepositoryToken } from "@nestjs/typeorm";
+import { SortOrder } from "@/common/sorting";
 import { Course } from "@/courses/entities/course.entity";
 import { CreateFacultyDto } from "./dto/create-faculty.dto";
 import { UpdateFacultyDto } from "./dto/update-faculty.dto";
@@ -68,7 +69,7 @@ describe("FacultiesService", () => {
   });
 
   describe("findAll", () => {
-    it("should return an array of faculties", async () => {
+    it("should return a paginated response of faculties with default sort", async () => {
       const faculties = [mockFaculty];
       mockFacultyRepository.findAndCount.mockResolvedValue([
         faculties,
@@ -77,12 +78,39 @@ describe("FacultiesService", () => {
 
       const result = await service.findAll({ page: 1, limit: 10 });
 
-      expect(result).toEqual(faculties);
+      expect(result.data).toEqual(faculties);
+      expect(result.meta.totalItems).toBe(faculties.length);
+      expect(result.meta.totalPages).toBe(1);
       expect(mockFacultyRepository.findAndCount).toHaveBeenCalledWith({
+        where: {},
         relations: ["courses"],
         skip: 0,
         take: 10,
         order: { id: "ASC" },
+      });
+    });
+
+    it("should filter by courseId and apply sortBy with id tiebreaker", async () => {
+      const faculties = [mockFaculty];
+      mockFacultyRepository.findAndCount.mockResolvedValue([
+        faculties,
+        faculties.length,
+      ]);
+
+      await service.findAll({
+        page: 1,
+        limit: 10,
+        courseId: "course-123",
+        sortBy: "name",
+        sortOrder: SortOrder.DESC,
+      });
+
+      expect(mockFacultyRepository.findAndCount).toHaveBeenCalledWith({
+        where: { courses: { id: "course-123" } },
+        relations: ["courses"],
+        skip: 0,
+        take: 10,
+        order: { name: "DESC", id: "ASC" },
       });
     });
   });

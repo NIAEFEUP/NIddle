@@ -1,48 +1,23 @@
-import {
-  Body,
-  ClassSerializerInterceptor,
-  Controller,
-  Get,
-  Post,
-  Request,
-  UseGuards,
-  UseInterceptors,
-} from "@nestjs/common";
-import { ApiBearerAuth, ApiOperation, ApiResponse } from "@nestjs/swagger";
+import { Body, Controller, Get, Post, Request } from "@nestjs/common";
 import { User } from "@/users/entities/user.entity";
 import { AuthService } from "./auth.service";
+import {
+  GetProfileDecorator,
+  SignInDecorator,
+} from "./decorators/auth.decorators";
 import { SignInDto } from "./dto/signin.dto";
-import { JwtAuthGuard } from "./guards/jwt-auth.guard";
-import { LocalAuthGuard } from "./guards/local-auth.guard";
 
-@UseInterceptors(ClassSerializerInterceptor)
 @Controller("auth")
 export class AuthController {
   constructor(private authService: AuthService) {}
 
-  @ApiBearerAuth("access-token")
-  @ApiOperation({ summary: "Get user profile" })
-  @ApiResponse({
-    status: 200,
-    description: "User profile returned successfully.",
-  })
-  @ApiResponse({
-    status: 401,
-    description: "Unauthorized: Missing or invalid JWT.",
-  })
-  @UseGuards(JwtAuthGuard)
+  @GetProfileDecorator()
   @Get("profile")
   getProfile(@Request() req: { user: User }) {
     return this.authService.getProfile(req.user);
   }
 
-  @ApiOperation({ summary: "User login (JWT issuance)" })
-  @ApiResponse({ status: 201, description: "Login successful, JWT returned." })
-  @ApiResponse({
-    status: 401,
-    description: "Unauthorized: Invalid credentials.",
-  })
-  @UseGuards(LocalAuthGuard)
+  @SignInDecorator()
   @Post("login")
   async signIn(@Body() signInDto: SignInDto) {
     return this.authService.signIn(signInDto);

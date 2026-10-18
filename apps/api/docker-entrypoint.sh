@@ -2,8 +2,8 @@
 
 set -e
 
-echo "Running database schema creation..."
-npm run schema:create
+echo "Running database migrations..."
+npm run migration:run
 
 echo "Starting application..."
 exec "$@"

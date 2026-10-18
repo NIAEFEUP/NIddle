@@ -3,11 +3,14 @@ import "./instrument";
 import { ValidationPipe } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
+import * as compression from "compression";
 import { AppModule } from "./app.module";
-import { EntityNotFoundFilter } from "./filters/entity-not-found.filter";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  app.enableShutdownHooks();
+  app.use(compression());
 
   app.useGlobalPipes(
     new ValidationPipe({
@@ -15,7 +18,6 @@ async function bootstrap() {
       transform: true,
     }),
   );
-  app.useGlobalFilters(new EntityNotFoundFilter());
 
   const port = process.env.PORT ?? 3001;
   const config = new DocumentBuilder()

@@ -28,18 +28,18 @@ describe("EntityNotFoundFilter", () => {
     expect(filter).toBeDefined();
   });
 
-  it("should return 204 with entity name and id", () => {
+  it("should return 404 with entity name and id", () => {
     const message =
       'Could not find any entity of type "User" matching: { "id": 1 }';
     const exception = { message } as EntityNotFoundError;
 
     filter.catch(exception, mockArgumentsHost as ArgumentsHost);
 
-    expect(mockResponse.status).toHaveBeenCalledWith(HttpStatus.NO_CONTENT);
+    expect(mockResponse.status).toHaveBeenCalledWith(HttpStatus.NOT_FOUND);
     expect(mockResponse.json).toHaveBeenCalledWith({
-      statusCode: HttpStatus.NO_CONTENT,
+      statusCode: HttpStatus.NOT_FOUND,
       message: "User with id 1 not found",
-      error: "No Content",
+      error: "Not Found",
     });
   });
 
@@ -50,26 +50,26 @@ describe("EntityNotFoundFilter", () => {
 
     filter.catch(exception, mockArgumentsHost as ArgumentsHost);
 
-    expect(mockResponse.status).toHaveBeenCalledWith(HttpStatus.NO_CONTENT);
+    expect(mockResponse.status).toHaveBeenCalledWith(HttpStatus.NOT_FOUND);
     expect(mockResponse.json).toHaveBeenCalledWith({
-      statusCode: HttpStatus.NO_CONTENT,
+      statusCode: HttpStatus.NOT_FOUND,
       message: "Course with id 123 not found",
-      error: "No Content",
+      error: "Not Found",
     });
   });
 
-  it('should return 204 with default "Resource" and "specified" id if message does not match', () => {
+  it('should return 404 with default "Resource" and "specified" id if message does not match', () => {
     const exception = {
       message: "Something went wrong",
     } as EntityNotFoundError;
 
     filter.catch(exception, mockArgumentsHost as ArgumentsHost);
 
-    expect(mockResponse.status).toHaveBeenCalledWith(HttpStatus.NO_CONTENT);
+    expect(mockResponse.status).toHaveBeenCalledWith(HttpStatus.NOT_FOUND);
     expect(mockResponse.json).toHaveBeenCalledWith({
-      statusCode: HttpStatus.NO_CONTENT,
+      statusCode: HttpStatus.NOT_FOUND,
       message: "Resource with id specified not found",
-      error: "No Content",
+      error: "Not Found",
     });
   });
 
@@ -80,11 +80,11 @@ describe("EntityNotFoundFilter", () => {
 
     filter.catch(exception, mockArgumentsHost as ArgumentsHost);
 
-    expect(mockResponse.status).toHaveBeenCalledWith(HttpStatus.NO_CONTENT);
+    expect(mockResponse.status).toHaveBeenCalledWith(HttpStatus.NOT_FOUND);
     expect(mockResponse.json).toHaveBeenCalledWith({
-      statusCode: HttpStatus.NO_CONTENT,
+      statusCode: HttpStatus.NOT_FOUND,
       message: "User with id abc not found",
-      error: "No Content",
+      error: "Not Found",
     });
   });
 });

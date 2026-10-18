@@ -7,6 +7,8 @@ import {
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { Association } from "@/associations/entities/association.entity";
+import { PaginatedResponseDto, paginate } from "@/common/pagination";
+import { buildOrderClause } from "@/common/sorting";
 import { Event } from "@/events/entities/event.entity";
 import {
   Request,
@@ -38,10 +40,18 @@ export class RequestsService {
   ): Promise<Request> {
     const { targetId, type, action, payload: rawPayload } = createRequestDto;
 
-    const payload =
-      action === RequestAction.DELETE_EXISTING
-        ? null
-        : await this.requestRegistry.validateCreatePayload(type, rawPayload);
+    let payload: any = null;
+    if (action === RequestAction.CREATE) {
+      payload = await this.requestRegistry.validateCreatePayload(
+        type,
+        rawPayload,
+      );
+    } else if (action === RequestAction.UPDATE_EXISTING) {
+      payload = await this.requestRegistry.validateUpdatePayload(
+        type,
+        rawPayload,
+      );
+    }
 
     const request = this.requestRepository.create({
       type,
@@ -50,8 +60,19 @@ export class RequestsService {
       requestedBy,
     });
 
-    if (action !== RequestAction.CREATE && targetId) {
+    if (action !== RequestAction.CREATE) {
+      if (!targetId) {
+        throw new BadRequestException("Target ID is required for this action.");
+      }
       const target = await this.requestRegistry.findTarget(type, targetId);
+      if (
+        (target as any)?.createdBy?.id &&
+        (target as any).createdBy.id !== activeAssociationId
+      ) {
+        throw new ForbiddenException(
+          "Cannot request modifications to resources of another association.",
+        );
+      }
       this.requestRegistry.attachTarget(request, type, target);
     }
 
@@ -119,11 +140,24 @@ export class RequestsService {
     return request;
   }
 
-  async findOne(id: string, activeAssociationId: string): Promise<Request> {
+  async findOne(
+    id: string,
+    user: User,
+    activeAssociationId?: string,
+  ): Promise<Request> {
     const request = await this.requestRepository.findOneOrFail({
       where: { id },
-      relations: { targetAssociation: true },
+      relations: {
+        requestedBy: true,
+        targetAssociation: true,
+        targetEvent: true,
+        targetService: true,
+      },
     });
+
+    if (user.isAdmin) {
+      return request;
+    }
 
     if (request.targetAssociation.id !== activeAssociationId) {
       throw new ForbiddenException(
@@ -137,7 +171,7 @@ export class RequestsService {
   async findAll(
     filters: RequestFilterDto,
     activeAssociationId?: string,
-  ): Promise<Request[]> {
+  ): Promise<PaginatedResponseDto<Request>> {
     const relations = {
       requestedBy: true,
       targetAssociation: true,
@@ -145,32 +179,23 @@ export class RequestsService {
       targetService: true,
     };
 
-    const { type, status, requestedBy, sortBy, sortOrder, limit, page } =
-      filters;
+    const { type, action, status, requestedBy, targetAssociationId } = filters;
+
+    const assocId = activeAssociationId ?? targetAssociationId;
 
     const whereFilter = {
       ...(type !== undefined && { type }),
+      ...(action !== undefined && { action }),
       ...(status !== undefined && { status }),
       ...(requestedBy !== undefined && { requestedBy: { id: requestedBy } }),
+      ...(assocId !== undefined && { targetAssociation: { id: assocId } }),
     };
 
-    const [items] = await this.requestRepository.findAndCount({
-      where: {
-        ...(activeAssociationId !== undefined && {
-          targetAssociation: { id: activeAssociationId },
-        }),
-        ...whereFilter,
-      },
+    return paginate(this.requestRepository, filters, {
+      where: whereFilter,
       relations,
-      skip: (page - 1) * limit,
-      take: limit,
-      order: {
-        ...(sortBy && { [sortBy]: sortOrder ?? "ASC" }),
-        id: "ASC",
-      },
+      order: buildOrderClause(filters),
     });
-
-    return items;
   }
 
   async approve(id: string): Promise<Event | Service> {

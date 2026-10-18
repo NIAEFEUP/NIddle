@@ -1,8 +1,8 @@
 import { NotFoundException } from "@nestjs/common";
 import { GUARDS_METADATA } from "@nestjs/common/constants";
 import { Test, TestingModule } from "@nestjs/testing";
-import { AdminOnlyGuard } from "@/auth/guards/admin-only.guard";
 import { JwtAuthGuard } from "@/auth/guards/jwt-auth.guard";
+import { AdminOnlyGuard } from "@/common/guards/admin-only.guard";
 import { CreateEventDto } from "./dto/create-event.dto";
 import { EventFilterDto } from "./dto/event-filter.dto";
 import { UpdateEventDto } from "./dto/update-event.dto";
@@ -84,14 +84,25 @@ describe("EventsController", () => {
   });
 
   describe("findAll", () => {
-    it("should return an array of events", async () => {
-      const events = [mockEvent];
+    it("should return a paginated response of events", async () => {
+      const response = {
+        data: [mockEvent],
+        meta: {
+          page: 1,
+          limit: 10,
+          itemCount: 1,
+          totalItems: 1,
+          totalPages: 1,
+          hasPreviousPage: false,
+          hasNextPage: false,
+        },
+      };
       const filters: EventFilterDto = { page: 1, limit: 10 };
-      mockEventsService.findAll.mockResolvedValue(events);
+      mockEventsService.findAll.mockResolvedValue(response);
 
       const result = await controller.findAll(filters);
 
-      expect(result).toEqual(events);
+      expect(result).toEqual(response);
       expect(mockEventsService.findAll).toHaveBeenCalledWith(filters);
     });
   });
