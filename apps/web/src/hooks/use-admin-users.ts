@@ -1,7 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "@/components/ui/toast";
 import type { Association, User } from "@/hooks/use-auth";
-import { apiClient, getErrorMessage } from "@/lib/api-client";
+import {
+  apiClient,
+  getErrorMessage,
+  type PaginatedResponse,
+  unwrapData,
+} from "@/lib/api-client";
 
 export interface UserFormData {
   name: string;
@@ -16,12 +21,22 @@ export function useAdminUsers() {
 
   const usersQuery = useQuery<User[], Error>({
     queryKey: ["admin-users-list"],
-    queryFn: () => apiClient<User[]>("/api/users"),
+    queryFn: async () => {
+      const res = await apiClient<User[] | PaginatedResponse<User>>(
+        "/api/users?limit=100",
+      );
+      return unwrapData(res);
+    },
   });
 
-  const associationsQuery = useQuery<Association[]>({
+  const associationsQuery = useQuery<Association[], Error>({
     queryKey: ["admin-associations-all"],
-    queryFn: () => apiClient<Association[]>("/api/associations"),
+    queryFn: async () => {
+      const res = await apiClient<
+        Association[] | PaginatedResponse<Association>
+      >("/api/associations?limit=100");
+      return unwrapData(res);
+    },
   });
 
   const createUserMutation = useMutation({
@@ -127,8 +142,8 @@ export function useAdminUsers() {
   });
 
   return {
-    users: usersQuery.data ?? [],
-    associations: associationsQuery.data ?? [],
+    users: unwrapData(usersQuery.data),
+    associations: unwrapData(associationsQuery.data),
     isLoading: usersQuery.isLoading,
     isError: usersQuery.isError,
     error: usersQuery.error,

@@ -30,12 +30,16 @@ export interface CourseFormDialogProps {
 }
 
 function sortFacultiesWithSelectedFirst(
-  items: Faculty[],
-  selectedIds: number[] = [],
+  items: Faculty[] = [],
+  selectedIds: string[] = [],
 ) {
   const selectedSet = new Set(selectedIds);
-  const selected = items.filter((faculty) => selectedSet.has(faculty.id));
-  const unselected = items.filter((faculty) => !selectedSet.has(faculty.id));
+  const selected = (items || []).filter((faculty) =>
+    selectedSet.has(faculty.id),
+  );
+  const unselected = (items || []).filter(
+    (faculty) => !selectedSet.has(faculty.id),
+  );
   return [...selected, ...unselected];
 }
 
@@ -44,7 +48,7 @@ export function CourseFormDialog({
   open,
   onOpenChange,
   course,
-  faculties,
+  faculties = [],
   isLoading,
   onSubmit,
 }: CourseFormDialogProps) {
@@ -126,7 +130,7 @@ export function CourseFormDialog({
     });
   };
 
-  const toggleFaculty = (id: number) => {
+  const toggleFaculty = (id: string) => {
     setFormData((prev) => {
       const activeIds = (prev.facultyIds || []).includes(id)
         ? (prev.facultyIds || []).filter((fid) => fid !== id)
@@ -150,7 +154,7 @@ export function CourseFormDialog({
   }, [orderedFaculties, facultySearch]);
 
   const selectedFaculties = React.useMemo(() => {
-    return faculties.filter((faculty) =>
+    return (faculties || []).filter((faculty) =>
       (formData.facultyIds || []).includes(faculty.id),
     );
   }, [faculties, formData.facultyIds]);
@@ -218,11 +222,11 @@ export function CourseFormDialog({
                 role="combobox"
                 aria-expanded={isDropdownOpen}
                 className="w-full justify-between font-normal h-9 px-3 text-xs border-input hover:bg-accent/50"
-                disabled={isLoading || faculties.length === 0}
+                disabled={isLoading || (faculties || []).length === 0}
               >
                 {selectedFaculties.length === 0 ? (
                   <span className="text-muted-foreground font-medium">
-                    {faculties.length === 0
+                    {(faculties || []).length === 0
                       ? "No faculties available"
                       : "Select faculties..."}
                   </span>

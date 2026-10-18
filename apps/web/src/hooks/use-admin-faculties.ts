@@ -1,15 +1,20 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "@/components/ui/toast";
-import { apiClient, getErrorMessage } from "@/lib/api-client";
+import {
+  apiClient,
+  getErrorMessage,
+  type PaginatedResponse,
+  unwrapData,
+} from "@/lib/api-client";
 
 export interface Course {
-  id: number;
+  id: string;
   name: string;
   acronym: string;
 }
 
 export interface Faculty {
-  id: number;
+  id: string;
   name: string;
   acronym: string;
   courses?: Course[];
@@ -18,7 +23,7 @@ export interface Faculty {
 export interface FacultyFormData {
   name: string;
   acronym: string;
-  courseIds?: number[];
+  courseIds?: string[];
 }
 
 export function useAdminFaculties() {
@@ -26,12 +31,22 @@ export function useAdminFaculties() {
 
   const facultiesQuery = useQuery<Faculty[], Error>({
     queryKey: ["admin-faculties-list"],
-    queryFn: () => apiClient<Faculty[]>("/api/faculties"),
+    queryFn: async () => {
+      const res = await apiClient<Faculty[] | PaginatedResponse<Faculty>>(
+        "/api/faculties?limit=100",
+      );
+      return unwrapData(res);
+    },
   });
 
-  const coursesQuery = useQuery<Course[]>({
+  const coursesQuery = useQuery<Course[], Error>({
     queryKey: ["admin-courses-all"],
-    queryFn: () => apiClient<Course[]>("/api/courses"),
+    queryFn: async () => {
+      const res = await apiClient<Course[] | PaginatedResponse<Course>>(
+        "/api/courses?limit=100",
+      );
+      return unwrapData(res);
+    },
   });
 
   const createFacultyMutation = useMutation({
@@ -63,7 +78,7 @@ export function useAdminFaculties() {
       id,
       payload,
     }: {
-      id: number;
+      id: string;
       payload: Partial<FacultyFormData>;
     }) =>
       apiClient<Faculty>(`/api/faculties/${id}`, {
@@ -89,7 +104,7 @@ export function useAdminFaculties() {
   });
 
   const deleteFacultyMutation = useMutation({
-    mutationFn: (id: number) =>
+    mutationFn: (id: string) =>
       apiClient<void>(`/api/faculties/${id}`, {
         method: "DELETE",
       }),
@@ -112,7 +127,7 @@ export function useAdminFaculties() {
   });
 
   const bulkDeleteFacultiesMutation = useMutation({
-    mutationFn: async (ids: number[]) => {
+    mutationFn: async (ids: string[]) => {
       await Promise.all(
         ids.map((id) =>
           apiClient<void>(`/api/faculties/${id}`, {
@@ -142,8 +157,8 @@ export function useAdminFaculties() {
   });
 
   return {
-    faculties: facultiesQuery.data ?? [],
-    courses: coursesQuery.data ?? [],
+    faculties: unwrapData(facultiesQuery.data),
+    courses: unwrapData(coursesQuery.data),
     isLoading: facultiesQuery.isLoading,
     isError: facultiesQuery.isError,
     error: facultiesQuery.error,

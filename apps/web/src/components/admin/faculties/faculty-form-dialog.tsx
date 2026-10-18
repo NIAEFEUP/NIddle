@@ -30,12 +30,14 @@ export interface FacultyFormDialogProps {
 }
 
 function sortCoursesWithSelectedFirst(
-  items: Course[],
-  selectedIds: number[] = [],
+  items: Course[] = [],
+  selectedIds: string[] = [],
 ) {
   const selectedSet = new Set(selectedIds);
-  const selected = items.filter((course) => selectedSet.has(course.id));
-  const unselected = items.filter((course) => !selectedSet.has(course.id));
+  const selected = (items || []).filter((course) => selectedSet.has(course.id));
+  const unselected = (items || []).filter(
+    (course) => !selectedSet.has(course.id),
+  );
   return [...selected, ...unselected];
 }
 
@@ -44,7 +46,7 @@ export function FacultyFormDialog({
   open,
   onOpenChange,
   faculty,
-  courses,
+  courses = [],
   isLoading,
   onSubmit,
 }: FacultyFormDialogProps) {
@@ -126,7 +128,7 @@ export function FacultyFormDialog({
     });
   };
 
-  const toggleCourse = (id: number) => {
+  const toggleCourse = (id: string) => {
     setFormData((prev) => {
       const activeIds = (prev.courseIds || []).includes(id)
         ? (prev.courseIds || []).filter((cid) => cid !== id)
@@ -150,7 +152,7 @@ export function FacultyFormDialog({
   }, [orderedCourses, courseSearch]);
 
   const selectedCourses = React.useMemo(() => {
-    return courses.filter((course) =>
+    return (courses || []).filter((course) =>
       (formData.courseIds || []).includes(course.id),
     );
   }, [courses, formData.courseIds]);
@@ -218,11 +220,11 @@ export function FacultyFormDialog({
                 role="combobox"
                 aria-expanded={isDropdownOpen}
                 className="w-full justify-between font-normal h-9 px-3 text-xs border-input hover:bg-accent/50"
-                disabled={isLoading || courses.length === 0}
+                disabled={isLoading || (courses || []).length === 0}
               >
                 {selectedCourses.length === 0 ? (
                   <span className="text-muted-foreground font-medium">
-                    {courses.length === 0
+                    {(courses || []).length === 0
                       ? "No courses available"
                       : "Select courses..."}
                   </span>

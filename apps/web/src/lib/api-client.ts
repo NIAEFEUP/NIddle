@@ -13,13 +13,15 @@ export function removeToken(): void {
 }
 
 export class ApiError extends Error {
-  status: number;
-  data?: unknown;
+  readonly status: number;
+  readonly statusCode: number;
+  readonly data?: unknown;
 
   constructor(status: number, message: string, data?: unknown) {
     super(message);
     this.name = "ApiError";
     this.status = status;
+    this.statusCode = status;
     this.data = data;
   }
 }
@@ -28,6 +30,34 @@ export function getErrorMessage(err: unknown): string {
   if (err instanceof Error) return err.message;
   if (typeof err === "string") return err;
   return "An unexpected error occurred";
+}
+
+export interface PaginatedResponse<T> {
+  data: T[];
+  meta?: {
+    page: number;
+    limit: number;
+    itemCount: number;
+    totalItems: number;
+    totalPages: number;
+    hasPreviousPage: boolean;
+    hasNextPage: boolean;
+  };
+}
+
+export function unwrapData<T>(
+  response: T[] | PaginatedResponse<T> | null | undefined,
+): T[] {
+  if (!response) return [];
+  if (Array.isArray(response)) return response;
+  if (
+    typeof response === "object" &&
+    "data" in response &&
+    Array.isArray((response as { data: unknown }).data)
+  ) {
+    return (response as { data: T[] }).data;
+  }
+  return [];
 }
 
 export async function apiClient<T>(
