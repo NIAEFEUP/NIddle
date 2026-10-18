@@ -28,10 +28,12 @@ jest.mock("@nestjs/core", () => ({
   NestFactory: mockNestFactory,
 }));
 
-jest.mock("compression", () => ({
-  __esModule: true,
-  default: jest.fn(() => "mock-compression-middleware"),
-}));
+const mockCompressionFn = jest.fn(() => "mock-compression-middleware");
+jest.mock("compression", () =>
+  Object.assign(mockCompressionFn, {
+    default: mockCompressionFn,
+  }),
+);
 
 jest.mock("@nestjs/swagger", () => ({
   SwaggerModule: mockSwaggerModule,
