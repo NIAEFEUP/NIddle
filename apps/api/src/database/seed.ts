@@ -13,8 +13,11 @@ export const seed = async () => {
 
   const dataSource = new DataSource(options);
   await dataSource.initialize();
-  await runSeeders(dataSource);
-  await dataSource.destroy();
+  try {
+    await runSeeders(dataSource);
+  } finally {
+    await dataSource.destroy();
+  }
 };
 
 export const handleMain = (

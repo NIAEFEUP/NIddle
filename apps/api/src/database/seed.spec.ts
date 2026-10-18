@@ -65,6 +65,20 @@ describe("Seed Script", () => {
     expect(mockDataSourceInstance.destroy).toHaveBeenCalled();
   });
 
+  it("should destroy data source even if runSeeders fails", async () => {
+    const error = new Error("Seeding failed");
+    (runSeeders as jest.Mock).mockRejectedValueOnce(error);
+
+    await expect(seed()).rejects.toThrow("Seeding failed");
+
+    const mockDataSourceClass = DataSource as unknown as jest.Mock;
+    const mockDataSourceInstance = mockDataSourceClass.mock.results[
+      mockDataSourceClass.mock.results.length - 1
+    ].value as MockDataSource;
+
+    expect(mockDataSourceInstance.destroy).toHaveBeenCalled();
+  });
+
   describe("handleMain", () => {
     let consoleErrorSpy: jest.SpyInstance;
     let processExitSpy: jest.SpyInstance;
