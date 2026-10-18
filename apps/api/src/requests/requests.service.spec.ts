@@ -221,7 +221,11 @@ describe("RequestsService", () => {
         targetId: "5",
         payload: { name: "Papelaria Editada" } as any,
       };
-      const mockTargetService = { id: "5", name: "Papelaria Antiga" };
+      const mockTargetService = {
+        id: "5",
+        name: "Papelaria Antiga",
+        createdBy: mockAssociation,
+      };
       mockRequestRepository.create.mockReturnValue({});
       mockRequestRegistry.findTarget.mockResolvedValue(mockTargetService);
       mockAssociationRepository.findOneByOrFail.mockResolvedValue(
@@ -231,6 +235,11 @@ describe("RequestsService", () => {
 
       const result = await service.create(dto as any, mockUser, "3");
 
+      expect(mockRequestRegistry.validateUpdatePayload).toHaveBeenCalledWith(
+        RequestType.SERVICE,
+        dto.payload,
+      );
+      expect(mockRequestRegistry.validateCreatePayload).not.toHaveBeenCalled();
       expect(mockRequestRegistry.findTarget).toHaveBeenCalledWith(
         RequestType.SERVICE,
         "5",
@@ -245,7 +254,11 @@ describe("RequestsService", () => {
         targetId: "7",
         payload: { name: "FEUP Week" } as any,
       };
-      const mockTargetEvent = { id: "7", name: "FEUP Week Antigo" };
+      const mockTargetEvent = {
+        id: "7",
+        name: "FEUP Week Antigo",
+        createdBy: mockAssociation,
+      };
       mockRequestRepository.create.mockReturnValue({});
       mockRequestRegistry.findTarget.mockResolvedValue(mockTargetEvent);
       mockAssociationRepository.findOneByOrFail.mockResolvedValue(
@@ -255,6 +268,11 @@ describe("RequestsService", () => {
 
       const result = await service.create(dto as any, mockUser, "3");
 
+      expect(mockRequestRegistry.validateUpdatePayload).toHaveBeenCalledWith(
+        RequestType.EVENT,
+        dto.payload,
+      );
+      expect(mockRequestRegistry.validateCreatePayload).not.toHaveBeenCalled();
       expect(mockRequestRegistry.findTarget).toHaveBeenCalledWith(
         RequestType.EVENT,
         "7",
@@ -268,7 +286,11 @@ describe("RequestsService", () => {
         action: RequestAction.DELETE_EXISTING,
         targetId: "5",
       };
-      const mockTargetService = { id: "5", name: "Papelaria Antiga" };
+      const mockTargetService = {
+        id: "5",
+        name: "Papelaria Antiga",
+        createdBy: mockAssociation,
+      };
       mockRequestRepository.create.mockReturnValue({});
       mockRequestRegistry.findTarget.mockResolvedValue(mockTargetService);
       mockAssociationRepository.findOneByOrFail.mockResolvedValue(
@@ -285,6 +307,38 @@ describe("RequestsService", () => {
       expect(result.targetService).toEqual(mockTargetService);
     });
 
+    it("throws ForbiddenException when target belongs to another association", async () => {
+      const dto = {
+        type: RequestType.SERVICE,
+        action: RequestAction.UPDATE_EXISTING,
+        targetId: "5",
+        payload: { name: "Papelaria Editada" } as any,
+      };
+      const foreignTarget = {
+        id: "5",
+        name: "Papelaria Outra",
+        createdBy: { id: "999" },
+      };
+      mockRequestRepository.create.mockReturnValue({});
+      mockRequestRegistry.findTarget.mockResolvedValue(foreignTarget);
+
+      await expect(service.create(dto as any, mockUser, "3")).rejects.toThrow(
+        ForbiddenException,
+      );
+    });
+
+    it("throws BadRequestException when targetId is missing for update or delete requests", async () => {
+      const dto = {
+        type: RequestType.SERVICE,
+        action: RequestAction.UPDATE_EXISTING,
+        payload: { name: "Papelaria Editada" } as any,
+      };
+
+      await expect(service.create(dto as any, mockUser, "3")).rejects.toThrow(
+        BadRequestException,
+      );
+    });
+
     it("skips payload validation and stores a null payload for a Delete Existing request", async () => {
       const dto = {
         type: RequestType.SERVICE,
@@ -292,7 +346,10 @@ describe("RequestsService", () => {
         targetId: "5",
       };
       mockRequestRepository.create.mockReturnValue({});
-      mockRequestRegistry.findTarget.mockResolvedValue({ id: "5" });
+      mockRequestRegistry.findTarget.mockResolvedValue({
+        id: "5",
+        createdBy: mockAssociation,
+      });
       mockAssociationRepository.findOneByOrFail.mockResolvedValue(
         mockAssociation,
       );
@@ -457,22 +514,42 @@ describe("RequestsService", () => {
         ...mockRequest,
       });
 
-      const result = await service.findOne("req-1", mockAssociation.id);
+      const result = await service.findOne(
+        "req-1",
+        mockUser,
+        mockAssociation.id,
+      );
 
       expect(mockRequestRepository.findOneOrFail).toHaveBeenCalledWith({
         where: { id: "req-1" },
-        relations: { targetAssociation: true },
+        relations: {
+          requestedBy: true,
+          targetAssociation: true,
+          targetEvent: true,
+          targetService: true,
+        },
       });
       expect(result.id).toEqual(mockRequest.id);
     });
 
-    it("throws ForbiddenException when the request belongs to another association", async () => {
+    it("returns the request for admin users even when activeAssociationId is not provided", async () => {
+      mockRequestRepository.findOneOrFail.mockResolvedValue({
+        ...mockRequest,
+      });
+
+      const adminUser: User = { ...mockUser, isAdmin: true };
+      const result = await service.findOne("req-1", adminUser, undefined);
+
+      expect(result.id).toEqual(mockRequest.id);
+    });
+
+    it("throws ForbiddenException when the request belongs to another association for non-admins", async () => {
       mockRequestRepository.findOneOrFail.mockResolvedValue({
         ...mockRequest,
       });
 
       await expect(
-        service.findOne("req-1", mockOtherAssociation.id),
+        service.findOne("req-1", mockUser, mockOtherAssociation.id),
       ).rejects.toThrow(ForbiddenException);
     });
   });

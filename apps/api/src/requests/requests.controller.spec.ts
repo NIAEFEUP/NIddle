@@ -69,22 +69,24 @@ describe("RequestsController", () => {
   });
 
   describe("guards", () => {
-    it("findAll requires JwtAuthGuard + ActiveAssociationGuard, marked optional for admins", () => {
-      const guards = Reflect.getMetadata(
-        GUARDS_METADATA,
-        RequestsController.prototype.findAll,
-      );
-      expect(guards).toEqual([JwtAuthGuard, ActiveAssociationGuard]);
+    it("findAll and findOne require JwtAuthGuard + ActiveAssociationGuard, marked optional for admins", () => {
+      for (const method of ["findAll", "findOne"] as const) {
+        const guards = Reflect.getMetadata(
+          GUARDS_METADATA,
+          RequestsController.prototype[method],
+        );
+        expect(guards).toEqual([JwtAuthGuard, ActiveAssociationGuard]);
 
-      const optionalForAdmin = Reflect.getMetadata(
-        "activeAssociationOptionalForAdmin",
-        RequestsController.prototype.findAll,
-      );
-      expect(optionalForAdmin).toBe(true);
+        const optionalForAdmin = Reflect.getMetadata(
+          "activeAssociationOptionalForAdmin",
+          RequestsController.prototype[method],
+        );
+        expect(optionalForAdmin).toBe(true);
+      }
     });
 
-    it("findOne, create, update and remove require JwtAuthGuard + ActiveAssociationGuard", () => {
-      for (const method of ["findOne", "create", "update", "remove"] as const) {
+    it("create, update and remove require JwtAuthGuard + ActiveAssociationGuard", () => {
+      for (const method of ["create", "update", "remove"] as const) {
         const guards = Reflect.getMetadata(
           GUARDS_METADATA,
           RequestsController.prototype[method],
@@ -166,11 +168,16 @@ describe("RequestsController", () => {
       mockRequestsService.findOne.mockResolvedValue(mockRequest);
 
       const result = await controller.findOne("req-1", {
+        user: mockUser,
         activeAssociationId: "3",
       });
 
       expect(result).toEqual(mockRequest);
-      expect(mockRequestsService.findOne).toHaveBeenCalledWith("req-1", "3");
+      expect(mockRequestsService.findOne).toHaveBeenCalledWith(
+        "req-1",
+        mockUser,
+        "3",
+      );
     });
   });
 

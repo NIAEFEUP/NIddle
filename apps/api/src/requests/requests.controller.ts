@@ -14,9 +14,6 @@ import {
 } from "@nestjs/common";
 import { PaginatedResponseDto } from "@/common/pagination";
 import { Event } from "@/events/entities/event.entity";
-import { Request } from "@/requests/entities/request.entity";
-import { Service } from "@/services/entity/service.entity";
-import { User } from "@/users/entities/user.entity";
 import {
   ApproveRequestDecorator,
   CreateRequestDecorator,
@@ -25,11 +22,14 @@ import {
   GetOneRequestDecorator,
   RejectRequestDecorator,
   UpdateRequestDecorator,
-} from "./decorators/requests.decorators";
+} from "@/requests/decorators/requests.decorators";
+import { Service } from "@/services/entity/service.entity";
+import { User } from "@/users/entities/user.entity";
 import { CreateRequestDto } from "./dto/create-request.dto";
 import { RejectRequestDto } from "./dto/reject-request.dto";
 import { RequestFilterDto } from "./dto/request-filter.dto";
 import { UpdateRequestDto } from "./dto/update-request.dto";
+import { Request } from "./entities/request.entity";
 import { RequestsService } from "./requests.service";
 
 @UseInterceptors(ClassSerializerInterceptor)
@@ -50,9 +50,9 @@ export class RequestsController {
   @Get(":id")
   async findOne(
     @Param("id", ParseUUIDPipe) id: string,
-    @Req() req: { activeAssociationId: string },
+    @Req() req: { user: User; activeAssociationId?: string },
   ): Promise<Request> {
-    return this.requestsService.findOne(id, req.activeAssociationId);
+    return this.requestsService.findOne(id, req.user, req.activeAssociationId);
   }
 
   @CreateRequestDecorator()

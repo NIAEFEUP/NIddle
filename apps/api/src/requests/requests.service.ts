@@ -40,10 +40,18 @@ export class RequestsService {
   ): Promise<Request> {
     const { targetId, type, action, payload: rawPayload } = createRequestDto;
 
-    const payload =
-      action === RequestAction.DELETE_EXISTING
-        ? null
-        : await this.requestRegistry.validateCreatePayload(type, rawPayload);
+    let payload: any = null;
+    if (action === RequestAction.CREATE) {
+      payload = await this.requestRegistry.validateCreatePayload(
+        type,
+        rawPayload,
+      );
+    } else if (action === RequestAction.UPDATE_EXISTING) {
+      payload = await this.requestRegistry.validateUpdatePayload(
+        type,
+        rawPayload,
+      );
+    }
 
     const request = this.requestRepository.create({
       type,
@@ -52,8 +60,19 @@ export class RequestsService {
       requestedBy,
     });
 
-    if (action !== RequestAction.CREATE && targetId) {
+    if (action !== RequestAction.CREATE) {
+      if (!targetId) {
+        throw new BadRequestException("Target ID is required for this action.");
+      }
       const target = await this.requestRegistry.findTarget(type, targetId);
+      if (
+        (target as any)?.createdBy?.id &&
+        (target as any).createdBy.id !== activeAssociationId
+      ) {
+        throw new ForbiddenException(
+          "Cannot request modifications to resources of another association.",
+        );
+      }
       this.requestRegistry.attachTarget(request, type, target);
     }
 
@@ -121,11 +140,24 @@ export class RequestsService {
     return request;
   }
 
-  async findOne(id: string, activeAssociationId: string): Promise<Request> {
+  async findOne(
+    id: string,
+    user: User,
+    activeAssociationId?: string,
+  ): Promise<Request> {
     const request = await this.requestRepository.findOneOrFail({
       where: { id },
-      relations: { targetAssociation: true },
+      relations: {
+        requestedBy: true,
+        targetAssociation: true,
+        targetEvent: true,
+        targetService: true,
+      },
     });
+
+    if (user.isAdmin) {
+      return request;
+    }
 
     if (request.targetAssociation.id !== activeAssociationId) {
       throw new ForbiddenException(
