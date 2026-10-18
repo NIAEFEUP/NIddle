@@ -1,6 +1,6 @@
-import { Module } from "@nestjs/common";
+import { ClassSerializerInterceptor, Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
-import { APP_FILTER } from "@nestjs/core";
+import { APP_FILTER, APP_INTERCEPTOR } from "@nestjs/core";
 import { SentryGlobalFilter, SentryModule } from "@sentry/nestjs/setup";
 import { AppController } from "./app.controller";
 import { AssociationsModule } from "./associations/associations.module";
@@ -33,6 +33,7 @@ import { UsersModule } from "./users/users.module";
   ],
   controllers: [AppController],
   providers: [
+    { provide: APP_INTERCEPTOR, useClass: ClassSerializerInterceptor },
     { provide: APP_FILTER, useClass: SentryGlobalFilter },
     { provide: APP_FILTER, useClass: EntityNotFoundFilter },
     { provide: APP_FILTER, useClass: QueryFailedErrorFilter },

@@ -1,6 +1,5 @@
 import {
   Body,
-  ClassSerializerInterceptor,
   Controller,
   Delete,
   Get,
@@ -9,7 +8,6 @@ import {
   Patch,
   Post,
   Query,
-  UseInterceptors,
 } from "@nestjs/common";
 import { PaginatedResponseDto } from "@/common/pagination";
 import {
@@ -25,7 +23,6 @@ import { UpdateFacultyDto } from "./dto/update-faculty.dto";
 import { Faculty } from "./entities/faculty.entity";
 import { FacultiesService } from "./faculties.service";
 
-@UseInterceptors(ClassSerializerInterceptor)
 @Controller("faculties")
 export class FacultiesController {
   constructor(private readonly facultiesService: FacultiesService) {}

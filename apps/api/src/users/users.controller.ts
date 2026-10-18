@@ -1,6 +1,5 @@
 import {
   Body,
-  ClassSerializerInterceptor,
   Controller,
   Delete,
   Get,
@@ -9,7 +8,6 @@ import {
   Patch,
   Post,
   Query,
-  UseInterceptors,
 } from "@nestjs/common";
 import { PaginatedResponseDto } from "@/common/pagination";
 import { CreateUserDto } from "@/users/dto/create-user.dto";
@@ -25,7 +23,6 @@ import { UserFilterDto } from "./dto/user-filter.dto";
 import { User } from "./entities/user.entity";
 import { UsersService } from "./users.service";
 
-@UseInterceptors(ClassSerializerInterceptor)
 @Controller("users")
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}

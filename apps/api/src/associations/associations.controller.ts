@@ -1,6 +1,5 @@
 import {
   Body,
-  ClassSerializerInterceptor,
   Controller,
   Delete,
   Get,
@@ -9,7 +8,6 @@ import {
   Patch,
   Post,
   Query,
-  UseInterceptors,
 } from "@nestjs/common";
 import { PaginatedResponseDto } from "@/common/pagination";
 import { AssociationsService } from "./associations.service";
@@ -25,7 +23,6 @@ import { CreateAssociationDto } from "./dto/create-association.dto";
 import { UpdateAssociationDto } from "./dto/update-association.dto";
 import { Association } from "./entities/association.entity";
 
-@UseInterceptors(ClassSerializerInterceptor)
 @Controller("associations")
 export class AssociationsController {
   constructor(private readonly associationsService: AssociationsService) {}

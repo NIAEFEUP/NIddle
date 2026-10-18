@@ -1,6 +1,5 @@
 import {
   Body,
-  ClassSerializerInterceptor,
   Controller,
   Delete,
   Get,
@@ -10,7 +9,6 @@ import {
   Post,
   Query,
   Req,
-  UseInterceptors,
 } from "@nestjs/common";
 import { PaginatedResponseDto } from "@/common/pagination";
 import {
@@ -26,7 +24,6 @@ import { UpdateEventDto } from "./dto/update-event.dto";
 import { Event } from "./entities/event.entity";
 import { EventsService } from "./events.service";
 
-@UseInterceptors(ClassSerializerInterceptor)
 @Controller("events")
 export class EventsController {
   constructor(private readonly eventsService: EventsService) {}

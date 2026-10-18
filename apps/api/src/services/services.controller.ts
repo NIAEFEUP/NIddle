@@ -1,6 +1,5 @@
 import {
   Body,
-  ClassSerializerInterceptor,
   Controller,
   Delete,
   Get,
@@ -10,7 +9,6 @@ import {
   Post,
   Query,
   Req,
-  UseInterceptors,
 } from "@nestjs/common";
 import { PaginatedResponseDto } from "@/common/pagination";
 import {
@@ -26,7 +24,6 @@ import { UpdateServiceDto } from "./dto/update-service.dto";
 import { Service } from "./entity/service.entity";
 import { ServicesService } from "./services.service";
 
-@UseInterceptors(ClassSerializerInterceptor)
 @Controller("services")
 export class ServicesController {
   constructor(private readonly servicesService: ServicesService) {}

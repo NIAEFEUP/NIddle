@@ -30,6 +30,7 @@ describe("UsersService", () => {
     findAndCount: jest.fn(),
     findOne: jest.fn(),
     findOneOrFail: jest.fn(),
+    findOneBy: jest.fn(),
     findOneByOrFail: jest.fn(),
     merge: jest.fn(),
     delete: jest.fn(),
@@ -343,24 +344,22 @@ describe("UsersService", () => {
 
   describe("findOneByEmail", () => {
     it("should return a user by email", async () => {
-      mockUserRepository.findOneByOrFail.mockResolvedValue(mockUser);
+      mockUserRepository.findOneBy.mockResolvedValue(mockUser);
 
       const result = await service.findOneByEmail("john@example.com");
 
       expect(result).toEqual(mockUser);
-      expect(mockUserRepository.findOneByOrFail).toHaveBeenCalledWith({
+      expect(mockUserRepository.findOneBy).toHaveBeenCalledWith({
         email: "john@example.com",
       });
     });
 
-    it("should throw if user email not found", async () => {
-      mockUserRepository.findOneByOrFail.mockRejectedValue(
-        new Error("Not found"),
-      );
+    it("should return null if user email not found", async () => {
+      mockUserRepository.findOneBy.mockResolvedValue(null);
 
-      await expect(service.findOneByEmail("john@example.com")).rejects.toThrow(
-        "Not found",
-      );
+      const result = await service.findOneByEmail("john@example.com");
+
+      expect(result).toBeNull();
     });
   });
 
