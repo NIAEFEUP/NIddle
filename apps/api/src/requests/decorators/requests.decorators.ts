@@ -22,7 +22,7 @@ export function GetAllRequestsDecorator() {
     ApiHeader({
       name: "x-active-association",
       description:
-        "The UUID of the association the user is acting on. Required for non-admin users. Omitting this returns requests across every association.",
+        "The UUID of the association the user is acting on. Required for non-admin users. For administrators, omitting this header returns requests across every association.",
       required: false,
     }),
     ApiOperation({ summary: "Get all requests" }),
@@ -40,7 +40,7 @@ export function GetOneRequestDecorator() {
     ApiHeader({
       name: "x-active-association",
       description:
-        "The UUID of the association the user is acting on. Required for non-admin users.",
+        "The UUID of the association the user is acting on. Required for non-admin users. For administrators, omitting this header allows retrieving requests across any association.",
       required: false,
     }),
     ApiOperation({ summary: "Get request by UUID" }),
