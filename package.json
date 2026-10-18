@@ -23,6 +23,7 @@
     "check:fix": "biome check --write ./apps",
     "seed": "npm run seed -w apps/api",
     "migration:run": "npm run migration:run -w apps/api",
+    "migration:run:prod": "npm run migration:run:prod -w apps/api",
     "migration:generate": "npm run migration:generate -w apps/api",
     "migration:revert": "npm run migration:revert -w apps/api",
     "migration:show": "npm run migration:show -w apps/api",
