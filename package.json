@@ -25,6 +25,8 @@
     "migration:run": "npm run migration:run -w apps/api",
     "migration:generate": "npm run migration:generate -w apps/api",
     "migration:revert": "npm run migration:revert -w apps/api",
+    "migration:show": "npm run migration:show -w apps/api",
+    "migration:create": "npm run migration:create -w apps/api",
     "test": "npm test -w apps/api",
     "test:watch": "npm run test:watch -w apps/api",
     "test:cov": "npm run test:cov -w apps/api",
