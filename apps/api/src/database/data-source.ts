@@ -1,3 +1,4 @@
+import * as path from "node:path";
 import { config } from "dotenv";
 import { DataSource, DataSourceOptions } from "typeorm";
 import { Association } from "@/associations/entities/association.entity";
@@ -43,9 +44,11 @@ export const getDataSourceOptions = (): DataSourceOptions => {
     schema: "public",
     entities: ENTITIES,
     migrations: [
-      process.env.NODE_ENV === "production"
-        ? "dist/database/migrations/*.js"
-        : "src/database/migrations/*.ts",
+      path.join(
+        __dirname,
+        "migrations",
+        process.env.NODE_ENV === "production" ? "*.js" : "*{.ts,.js}",
+      ),
     ],
     synchronize: process.env.NODE_ENV === "development",
     ...(slaveHost
