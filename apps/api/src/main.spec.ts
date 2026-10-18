@@ -3,6 +3,8 @@ const mockApp = {
   useGlobalFilters: jest.fn(),
   setGlobalPrefix: jest.fn(),
   listen: jest.fn(),
+  enableShutdownHooks: jest.fn(),
+  use: jest.fn(),
 };
 
 const mockNestFactory = {
@@ -26,6 +28,11 @@ jest.mock("@nestjs/core", () => ({
   NestFactory: mockNestFactory,
 }));
 
+jest.mock("compression", () => ({
+  __esModule: true,
+  default: jest.fn(() => "mock-compression-middleware"),
+}));
+
 jest.mock("@nestjs/swagger", () => ({
   SwaggerModule: mockSwaggerModule,
   DocumentBuilder: jest.fn(() => mockDocumentBuilderInstance),
@@ -33,10 +40,6 @@ jest.mock("@nestjs/swagger", () => ({
 
 jest.mock("./app.module", () => ({
   AppModule: class MockAppModule {},
-}));
-
-jest.mock("./common/filters/entity-not-found.filter", () => ({
-  EntityNotFoundFilter: class MockFilter {},
 }));
 
 jest.mock("@nestjs/common", () => {
@@ -72,6 +75,9 @@ describe("Main (bootstrap)", () => {
       require("./main");
     });
     await new Promise((resolve) => setImmediate(resolve));
+
+    expect(mockApp.enableShutdownHooks).toHaveBeenCalled();
+    expect(mockApp.use).toHaveBeenCalledWith("mock-compression-middleware");
 
     expect(mockSwaggerModule.setup).toHaveBeenCalledWith(
       "docs",
