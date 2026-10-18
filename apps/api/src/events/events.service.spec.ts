@@ -420,7 +420,7 @@ describe("EventsService", () => {
 
       const result = await service.update("1", updateEventDto);
 
-      expect(result.faculty).toBeUndefined();
+      expect(result.faculty).toBeNull();
     });
 
     it("should update courses if courseIds is provided", async () => {

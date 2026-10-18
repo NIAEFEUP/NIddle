@@ -68,7 +68,7 @@ export class EventsService
 
     if (facultyId !== undefined) {
       if (facultyId === null) {
-        event.faculty = undefined;
+        event.faculty = null;
       } else {
         event.faculty = await this.facultyRepository.findOneByOrFail({
           id: facultyId,
