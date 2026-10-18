@@ -69,7 +69,7 @@ export class Event {
     (faculty) => faculty.events,
     { nullable: true },
   )
-  faculty?: Faculty;
+  faculty?: Faculty | null;
 
   /**
    * The courses associated with the event.

@@ -10,7 +10,6 @@ describe("DatabaseService", () => {
 
   const ORIGINAL_NODE_ENV = process.env.NODE_ENV;
   const ORIGINAL_DATABASE_PORT = process.env.DATABASE_PORT;
-  const ORIGINAL_DATABASE_SYNCHRONIZE = process.env.DATABASE_SYNCHRONIZE;
 
   beforeEach(async () => {
     process.env.DATABASE_MASTER = "test-master";
@@ -56,12 +55,6 @@ describe("DatabaseService", () => {
       process.env.DATABASE_PORT = ORIGINAL_DATABASE_PORT;
     }
 
-    if (ORIGINAL_DATABASE_SYNCHRONIZE === undefined) {
-      delete process.env.DATABASE_SYNCHRONIZE;
-    } else {
-      process.env.DATABASE_SYNCHRONIZE = ORIGINAL_DATABASE_SYNCHRONIZE;
-    }
-
     await module.close();
   });
 
@@ -75,6 +68,7 @@ describe("DatabaseService", () => {
     const options = service.createTypeOrmOptions();
     expect(options.type).toBe("sqlite");
     expect(options.database).toBe(":memory:");
+    expect(options.synchronize).toBe(true);
   });
 
   it("should create typeorm options for development", () => {
@@ -100,17 +94,8 @@ describe("DatabaseService", () => {
     expect((options as { database: string }).database).toBe("test-db");
   });
 
-  it("should allow synchronize override in production", () => {
+  it("should create typeorm options for production with synchronize false", () => {
     process.env.NODE_ENV = "production";
-    process.env.DATABASE_SYNCHRONIZE = "true";
-
-    const options = service.createTypeOrmOptions();
-    expect(options.synchronize).toBe(true);
-  });
-
-  it("should create typeorm options for production", () => {
-    process.env.NODE_ENV = "production";
-    delete process.env.DATABASE_SYNCHRONIZE;
 
     const options = service.createTypeOrmOptions();
     expect(options.type).toBe("postgres");

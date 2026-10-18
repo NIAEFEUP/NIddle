@@ -2,7 +2,6 @@ import { UnauthorizedException } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { Test, TestingModule } from "@nestjs/testing";
 import * as bcrypt from "bcrypt";
-import { EntityNotFoundError } from "typeorm";
 import { User } from "@/users/entities/user.entity";
 import { UsersService } from "@/users/users.service";
 import { AuthService } from "./auth.service";
@@ -82,9 +81,7 @@ describe("AuthService", () => {
     });
 
     it("should throw UnauthorizedException if user not found", async () => {
-      mockUsersService.findOneByEmail.mockRejectedValue(
-        new EntityNotFoundError(User, {}),
-      );
+      mockUsersService.findOneByEmail.mockResolvedValue(null);
 
       await expect(service.signIn(signInDto)).rejects.toThrow(
         UnauthorizedException,
@@ -137,9 +134,7 @@ describe("AuthService", () => {
     });
 
     it("should return null if user not found", async () => {
-      mockUsersService.findOneByEmail.mockRejectedValue(
-        new EntityNotFoundError(User, {}),
-      );
+      mockUsersService.findOneByEmail.mockResolvedValue(null);
 
       const result = await service.validateUser(signInDto);
 

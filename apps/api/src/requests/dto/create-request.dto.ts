@@ -7,10 +7,17 @@ import {
   ValidateIf,
 } from "class-validator";
 import { CreateEventDto } from "@/events/dto/create-event.dto";
+import { UpdateEventDto } from "@/events/dto/update-event.dto";
 import { RequestAction, RequestType } from "@/requests/entities/request.entity";
 import { CreateServiceDto } from "@/services/dto/create-service.dto";
+import { UpdateServiceDto } from "@/services/dto/update-service.dto";
 
-@ApiExtraModels(CreateEventDto, CreateServiceDto)
+@ApiExtraModels(
+  CreateEventDto,
+  CreateServiceDto,
+  UpdateEventDto,
+  UpdateServiceDto,
+)
 export class CreateRequestDto {
   /**
    * The type of the request, either "Service" or "Event".
@@ -44,6 +51,8 @@ export class CreateRequestDto {
     oneOf: [
       { $ref: getSchemaPath(CreateEventDto) },
       { $ref: getSchemaPath(CreateServiceDto) },
+      { $ref: getSchemaPath(UpdateEventDto) },
+      { $ref: getSchemaPath(UpdateServiceDto) },
     ],
     additionalProperties: false,
   })

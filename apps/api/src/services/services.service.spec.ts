@@ -130,7 +130,7 @@ describe("ServicesService", () => {
   });
 
   describe("findAll", () => {
-    it("should return an array of services", async () => {
+    it("should return a paginated response of services", async () => {
       const services = [mockService];
       mockServiceRepository.findAndCount.mockResolvedValue([
         services,
@@ -139,7 +139,9 @@ describe("ServicesService", () => {
 
       const result = await service.findAll({ page: 1, limit: 10 });
 
-      expect(result).toEqual(services);
+      expect(result.data).toEqual(services);
+      expect(result.meta.totalItems).toBe(services.length);
+      expect(result.meta.totalPages).toBe(1);
       expect(mockServiceRepository.findAndCount).toHaveBeenCalledWith({
         where: {},
         relations: ["schedule", "faculty", "course", "createdBy"],
@@ -162,7 +164,7 @@ describe("ServicesService", () => {
         limit: 10,
       });
 
-      expect(result).toEqual(services);
+      expect(result.data).toEqual(services);
       expect(mockServiceRepository.findAndCount).toHaveBeenCalledWith({
         where: {
           faculty: { id: "1" },
@@ -187,7 +189,7 @@ describe("ServicesService", () => {
         limit: 10,
       });
 
-      expect(result).toEqual(services);
+      expect(result.data).toEqual(services);
       expect(mockServiceRepository.findAndCount).toHaveBeenCalledWith({
         where: {
           course: { id: "2" },
@@ -213,11 +215,35 @@ describe("ServicesService", () => {
         limit: 10,
       });
 
-      expect(result).toEqual(services);
+      expect(result.data).toEqual(services);
       expect(mockServiceRepository.findAndCount).toHaveBeenCalledWith({
         where: {
           faculty: { id: "1" },
           course: { id: "2" },
+        },
+        relations: ["schedule", "faculty", "course", "createdBy"],
+        skip: 0,
+        take: 10,
+        order: { id: "ASC" },
+      });
+    });
+
+    it("should filter by createdById", async () => {
+      const services = [mockService];
+      mockServiceRepository.findAndCount.mockResolvedValue([
+        services,
+        services.length,
+      ]);
+
+      await service.findAll({
+        createdById: "assoc-1",
+        page: 1,
+        limit: 10,
+      });
+
+      expect(mockServiceRepository.findAndCount).toHaveBeenCalledWith({
+        where: {
+          createdBy: { id: "assoc-1" },
         },
         relations: ["schedule", "faculty", "course", "createdBy"],
         skip: 0,
