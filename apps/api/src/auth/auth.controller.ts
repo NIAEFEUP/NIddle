@@ -7,6 +7,7 @@ import {
   Request,
   UseInterceptors,
 } from "@nestjs/common";
+import { User } from "@/users/entities/user.entity";
 import { AuthService } from "./auth.service";
 import {
   GetProfileDecorator,
@@ -21,10 +22,8 @@ export class AuthController {
 
   @GetProfileDecorator()
   @Get("profile")
-  getProfile(
-    @Request() req: { user: { id: string; name: string; email: string } },
-  ) {
-    return req.user;
+  getProfile(@Request() req: { user: User }) {
+    return this.authService.getProfile(req.user);
   }
 
   @SignInDecorator()

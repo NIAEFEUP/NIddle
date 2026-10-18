@@ -24,6 +24,7 @@ describe("AuthService", () => {
 
   const mockUsersService = {
     findOneByEmail: jest.fn(),
+    withAccessibleAssociations: jest.fn(),
   };
 
   const mockJwtService = {
@@ -104,6 +105,19 @@ describe("AuthService", () => {
       mockUsersService.findOneByEmail.mockRejectedValue(error);
 
       await expect(service.signIn(signInDto)).rejects.toThrow(error);
+    });
+  });
+
+  describe("getProfile", () => {
+    it("should return the user with its accessible associations", async () => {
+      mockUsersService.withAccessibleAssociations.mockResolvedValue(mockUser);
+
+      const result = await service.getProfile(mockUser);
+
+      expect(mockUsersService.withAccessibleAssociations).toHaveBeenCalledWith(
+        mockUser,
+      );
+      expect(result).toEqual(mockUser);
     });
   });
 

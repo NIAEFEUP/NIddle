@@ -20,7 +20,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Upload API to Registry
-        uses: NIAEFEUP/push-to-niployments@v2.2
+        uses: NIAEFEUP/push-to-niployments@v2.3
         with:
           docker_dockerfile: apps/api/Dockerfile
           docker_context: .
@@ -31,7 +31,7 @@ jobs:
           NIPLOYMENTS_REGISTRY_PASSWORD: ${{ secrets.NIPLOYMENTS_REGISTRY_PASSWORD }}
 
       - name: Upload Web to Registry
-        uses: NIAEFEUP/push-to-niployments@v2.2
+        uses: NIAEFEUP/push-to-niployments@v2.3
         with:
           docker_dockerfile: apps/web/Dockerfile
           docker_context: .
