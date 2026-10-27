@@ -1,4 +1,9 @@
-import { flexRender, type Table as ReactTable } from "@tanstack/react-table";
+import {
+  flexRender,
+  type Table as ReactTable,
+  type Row,
+} from "@tanstack/react-table";
+import * as React from "react";
 
 import {
   Table,
@@ -11,9 +16,13 @@ import {
 
 interface DataTableProps<TData> {
   table: ReactTable<TData>;
+  renderSubComponent?: (row: Row<TData>) => React.ReactNode;
 }
 
-export function DataTable<TData>({ table }: DataTableProps<TData>) {
+export function DataTable<TData>({
+  table,
+  renderSubComponent,
+}: DataTableProps<TData>) {
   const columnsCount = table.getAllColumns().length;
 
   return (
@@ -40,17 +49,31 @@ export function DataTable<TData>({ table }: DataTableProps<TData>) {
         <TableBody>
           {table.getRowModel().rows?.length ? (
             table.getRowModel().rows.map((row) => (
-              <TableRow
-                key={row.id}
-                data-state={row.getIsSelected() && "selected"}
-                className="group hover:bg-muted/30"
-              >
-                {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id}>
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </TableCell>
-                ))}
-              </TableRow>
+              <React.Fragment key={row.id}>
+                <TableRow
+                  data-state={row.getIsSelected() && "selected"}
+                  className="group hover:bg-muted/30"
+                >
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell key={cell.id}>
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext(),
+                      )}
+                    </TableCell>
+                  ))}
+                </TableRow>
+                {renderSubComponent && row.getIsExpanded() && (
+                  <TableRow className="bg-muted/20 hover:bg-muted/20">
+                    <TableCell
+                      colSpan={row.getVisibleCells().length}
+                      className="p-0 whitespace-normal"
+                    >
+                      {renderSubComponent(row)}
+                    </TableCell>
+                  </TableRow>
+                )}
+              </React.Fragment>
             ))
           ) : (
             <TableRow>

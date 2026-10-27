@@ -31,7 +31,7 @@ export interface CourseFormDialogProps {
 
 function sortFacultiesWithSelectedFirst(
   items: Faculty[],
-  selectedIds: number[] = [],
+  selectedIds: string[] = [],
 ) {
   const selectedSet = new Set(selectedIds);
   const selected = items.filter((faculty) => selectedSet.has(faculty.id));
@@ -126,7 +126,7 @@ export function CourseFormDialog({
     });
   };
 
-  const toggleFaculty = (id: number) => {
+  const toggleFaculty = (id: string) => {
     setFormData((prev) => {
       const activeIds = (prev.facultyIds || []).includes(id)
         ? (prev.facultyIds || []).filter((fid) => fid !== id)

@@ -6,6 +6,7 @@ import {
   getActionsColumn,
   getSelectColumn,
 } from "@/components/data-table/data-table-column-helpers";
+import { Button } from "@/components/ui/button";
 import type { Association } from "@/hooks/use-auth";
 import { getInitials } from "@/lib/utils";
 
@@ -18,11 +19,13 @@ export const associationColumnLabels: Record<string, string> = {
 export interface GetAssociationColumnsProps {
   onEdit: (association: Association) => void;
   onDelete: (association: Association) => void;
+  onManageMembers: (association: Association) => void;
 }
 
 export function getAssociationColumns({
   onEdit,
   onDelete,
+  onManageMembers,
 }: GetAssociationColumnsProps): ColumnDef<Association>[] {
   return [
     getSelectColumn<Association>(),
@@ -62,15 +65,34 @@ export function getAssociationColumns({
       cell: ({ row }) => {
         const count = row.original.users?.length ?? 0;
         return (
-          <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+          <button
+            type="button"
+            onClick={() => onManageMembers(row.original)}
+            className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground hover:underline underline-offset-4 cursor-pointer"
+          >
             <Users className="size-3.5" />
             <span>
               {count} {count === 1 ? "member" : "members"}
             </span>
-          </div>
+          </button>
         );
       },
     },
-    getActionsColumn<Association>({ onEdit, onDelete }),
+    getActionsColumn<Association>({
+      onEdit,
+      onDelete,
+      extraActions: (association) => (
+        <Button
+          variant="outline"
+          size="icon-xs"
+          className="h-7 w-7"
+          onClick={() => onManageMembers(association)}
+          aria-label="Manage members"
+          title="Manage members"
+        >
+          <Users className="size-3" />
+        </Button>
+      ),
+    }),
   ];
 }

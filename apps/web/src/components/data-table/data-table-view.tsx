@@ -1,4 +1,4 @@
-import type { Table } from "@tanstack/react-table";
+import type { Row, Table } from "@tanstack/react-table";
 import * as React from "react";
 import {
   DataEmptyState,
@@ -20,6 +20,7 @@ export interface DataTableViewProps<T> {
   emptyTitle?: string;
   emptyDescription?: string;
   renderGrid?: (table: Table<T>) => React.ReactNode;
+  renderSubComponent?: (row: Row<T>) => React.ReactNode;
 }
 
 export function DataTableView<T>({
@@ -33,6 +34,7 @@ export function DataTableView<T>({
   emptyTitle = "No results found",
   emptyDescription = "Try resetting your filters or search query.",
   renderGrid,
+  renderSubComponent,
 }: DataTableViewProps<T>) {
   const paginatedRows = table.getRowModel().rows;
 
@@ -51,7 +53,7 @@ export function DataTableView<T>({
   return (
     <>
       {viewMode === "list" || !renderGrid ? (
-        <DataTable table={table} />
+        <DataTable table={table} renderSubComponent={renderSubComponent} />
       ) : (
         renderGrid(table)
       )}

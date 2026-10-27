@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "@/components/ui/toast";
 import type { Association, User } from "@/hooks/use-auth";
-import { apiClient, getErrorMessage } from "@/lib/api-client";
+import { apiClient, fetchAllPages, getErrorMessage } from "@/lib/api-client";
 
 export interface UserFormData {
   name: string;
@@ -16,12 +16,12 @@ export function useAdminUsers() {
 
   const usersQuery = useQuery<User[], Error>({
     queryKey: ["admin-users-list"],
-    queryFn: () => apiClient<User[]>("/api/users"),
+    queryFn: () => fetchAllPages<User>("/api/users"),
   });
 
   const associationsQuery = useQuery<Association[]>({
     queryKey: ["admin-associations-all"],
-    queryFn: () => apiClient<Association[]>("/api/associations"),
+    queryFn: () => fetchAllPages<Association>("/api/associations"),
   });
 
   const createUserMutation = useMutation({

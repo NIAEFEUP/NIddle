@@ -1,5 +1,12 @@
-import type { Column, ColumnDef } from "@tanstack/react-table";
-import { ArrowDown, ArrowUp, ArrowUpDown, Edit2, Trash2 } from "lucide-react";
+import type { Column, ColumnDef, FilterFn } from "@tanstack/react-table";
+import {
+  ArrowDown,
+  ArrowUp,
+  ArrowUpDown,
+  ChevronRight,
+  Edit2,
+  Trash2,
+} from "lucide-react";
 import { InitialsAvatar } from "@/components/common/initials-avatar";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -59,10 +66,50 @@ export function getSelectColumn<T>(): ColumnDef<T> {
   };
 }
 
+/** Filter for columns driven by a multi-select DataTableFilter. */
+export function multiValueFilter<T>(): FilterFn<T> {
+  return (row, columnId, filterValue: string[]) => {
+    if (!filterValue || filterValue.length === 0) return true;
+    return filterValue.includes(String(row.getValue(columnId)));
+  };
+}
+
+/** Chevron toggle for tables rendered with `renderSubComponent`. */
+export function getExpandColumn<T>(): ColumnDef<T> {
+  return {
+    id: "expand",
+    header: () => null,
+    cell: ({ row }) => {
+      const label = row.getIsExpanded() ? "Hide details" : "Show details";
+      return (
+        <Button
+          variant="ghost"
+          size="icon-xs"
+          className="h-6 w-6 text-muted-foreground"
+          onClick={row.getToggleExpandedHandler()}
+          aria-expanded={row.getIsExpanded()}
+          aria-label={label}
+          title={label}
+        >
+          <ChevronRight
+            className={cn(
+              "size-3.5 transition-transform",
+              row.getIsExpanded() && "rotate-90",
+            )}
+          />
+        </Button>
+      );
+    },
+    enableSorting: false,
+    enableHiding: false,
+  };
+}
+
 export interface DataTableActionsCellProps<T> {
   item: T;
   onEdit?: (item: T) => void;
   onDelete?: (item: T) => void;
+  extraActions?: (item: T) => React.ReactNode;
   className?: string;
 }
 
@@ -70,6 +117,7 @@ export function DataTableActionsCell<T>({
   item,
   onEdit,
   onDelete,
+  extraActions,
   className,
 }: DataTableActionsCellProps<T>) {
   return (
@@ -79,6 +127,7 @@ export function DataTableActionsCell<T>({
         className,
       )}
     >
+      {extraActions?.(item)}
       {onEdit && (
         <Button
           variant="outline"
@@ -108,11 +157,13 @@ export function DataTableActionsCell<T>({
 export interface GetActionsColumnOptions<T> {
   onEdit?: (item: T) => void;
   onDelete?: (item: T) => void;
+  extraActions?: (item: T) => React.ReactNode;
 }
 
 export function getActionsColumn<T>({
   onEdit,
   onDelete,
+  extraActions,
 }: GetActionsColumnOptions<T>): ColumnDef<T> {
   return {
     id: "actions",
@@ -121,6 +172,7 @@ export function getActionsColumn<T>({
         item={row.original}
         onEdit={onEdit}
         onDelete={onDelete}
+        extraActions={extraActions}
       />
     ),
     enableSorting: false,

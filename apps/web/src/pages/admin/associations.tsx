@@ -16,6 +16,7 @@ import {
 } from "@/components/admin/associations/association-columns";
 import { AssociationFormDialog } from "@/components/admin/associations/association-form-dialog";
 import { AssociationGridCard } from "@/components/admin/associations/association-grid-card";
+import { AssociationMembersSheet } from "@/components/admin/associations/association-members-sheet";
 import {
   BulkDeleteDialog,
   DeleteDialog,
@@ -82,6 +83,7 @@ export function AdminAssociationsPage() {
   const [isEditOpen, setIsEditOpen] = React.useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = React.useState(false);
   const [isBulkDeleteOpen, setIsBulkDeleteOpen] = React.useState(false);
+  const [isMembersOpen, setIsMembersOpen] = React.useState(false);
   const [selectedAssociation, setSelectedAssociation] =
     React.useState<Association | null>(null);
 
@@ -99,13 +101,19 @@ export function AdminAssociationsPage() {
     setIsDeleteOpen(true);
   }, []);
 
+  const handleOpenMembers = React.useCallback((association: Association) => {
+    setSelectedAssociation(association);
+    setIsMembersOpen(true);
+  }, []);
+
   const columns = React.useMemo(
     () =>
       getAssociationColumns({
         onEdit: handleOpenEdit,
         onDelete: handleOpenDelete,
+        onManageMembers: handleOpenMembers,
       }),
-    [handleOpenEdit, handleOpenDelete],
+    [handleOpenEdit, handleOpenDelete, handleOpenMembers],
   );
 
   const table = useReactTable({
@@ -277,6 +285,7 @@ export function AdminAssociationsPage() {
                 onSelectChange={onSelectChange}
                 onEdit={handleOpenEdit}
                 onDelete={handleOpenDelete}
+                onManageMembers={handleOpenMembers}
               />
             )}
           />
@@ -321,6 +330,12 @@ export function AdminAssociationsPage() {
         }
         isLoading={deleteAssociationMutation.isPending}
         onConfirm={handleDeleteConfirm}
+      />
+
+      <AssociationMembersSheet
+        association={selectedAssociation}
+        open={isMembersOpen}
+        onOpenChange={setIsMembersOpen}
       />
 
       <BulkDeleteDialog

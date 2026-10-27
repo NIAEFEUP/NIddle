@@ -42,6 +42,8 @@ export function SidebarContentComponent({ currentPath }: SidebarContentProps) {
       { title: "Associations", path: "/admin/associations", icon: Building },
       { title: "Faculties", path: "/admin/faculties", icon: GraduationCap },
       { title: "Courses", path: "/admin/courses", icon: BookOpen },
+      { title: "Events", path: "/admin/events", icon: Calendar },
+      { title: "Services", path: "/admin/services", icon: Briefcase },
       { title: "Requests", path: "/admin/requests", icon: Inbox },
     ];
   } else if (associationUUID) {

@@ -2,8 +2,10 @@ import { BrowserRouter, Route, Routes } from "react-router";
 import AdminAssociationsPage from "@/pages/admin/associations";
 import AdminCoursesPage from "@/pages/admin/courses";
 import AdminDashboardPage from "@/pages/admin/dashboard";
+import AdminEventsPage from "@/pages/admin/events";
 import AdminFacultiesPage from "@/pages/admin/faculties";
 import AdminRequestsPage from "@/pages/admin/requests";
+import AdminServicesPage from "@/pages/admin/services";
 import AdminUsersPage from "@/pages/admin/users";
 import AssociationEventsPage from "@/pages/association/events";
 import AssociationHomePage from "@/pages/association/home";
@@ -33,6 +35,8 @@ export function App() {
               />
               <Route path="/admin/faculties" element={<AdminFacultiesPage />} />
               <Route path="/admin/courses" element={<AdminCoursesPage />} />
+              <Route path="/admin/events" element={<AdminEventsPage />} />
+              <Route path="/admin/services" element={<AdminServicesPage />} />
               <Route path="/admin/requests" element={<AdminRequestsPage />} />
             </Route>
 

@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "@/components/ui/toast";
 import type { Association } from "@/hooks/use-auth";
-import { apiClient, getErrorMessage } from "@/lib/api-client";
+import { apiClient, fetchAllPages, getErrorMessage } from "@/lib/api-client";
 
 export interface AssociationFormData {
   name: string;
@@ -13,7 +13,7 @@ export function useAdminAssociations() {
 
   const associationsQuery = useQuery<Association[], Error>({
     queryKey: ["admin-associations-list"],
-    queryFn: () => apiClient<Association[]>("/api/associations"),
+    queryFn: () => fetchAllPages<Association>("/api/associations"),
   });
 
   const createAssociationMutation = useMutation({
