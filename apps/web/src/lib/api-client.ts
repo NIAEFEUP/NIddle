@@ -55,6 +55,10 @@ export async function apiClient<T>(
   });
 
   if (!response.ok) {
+    if (response.status === 401) {
+      removeToken();
+    }
+
     let errorMessage = response.statusText || "An unexpected error occurred";
     let errorData: unknown = null;
 
@@ -78,4 +82,37 @@ export async function apiClient<T>(
   }
 
   return response.json();
+}
+
+interface PaginatedResponse<T> {
+  data: T[];
+  meta: {
+    page: number;
+    limit: number;
+    itemCount: number;
+    totalItems: number;
+    totalPages: number;
+    hasPreviousPage: boolean;
+    hasNextPage: boolean;
+  };
+}
+
+const MAX_PAGE_LIMIT = 100;
+
+export async function fetchAllPages<T>(endpoint: string): Promise<T[]> {
+  const items: T[] = [];
+  const separator = endpoint.includes("?") ? "&" : "?";
+  let page = 1;
+  let hasNextPage = true;
+
+  while (hasNextPage) {
+    const response = await apiClient<PaginatedResponse<T>>(
+      `${endpoint}${separator}page=${page}&limit=${MAX_PAGE_LIMIT}`,
+    );
+    items.push(...response.data);
+    hasNextPage = response.meta.hasNextPage;
+    page++;
+  }
+
+  return items;
 }

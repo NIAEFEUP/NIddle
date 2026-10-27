@@ -200,6 +200,7 @@ describe("UsersService", () => {
         associations: [mockAssociation],
       });
       expect(mockAssociationRepository.findBy).toHaveBeenCalled();
+      expect(mockUserRepository.save).toHaveBeenCalled();
     });
 
     it("should ignore null associationIds", async () => {
@@ -236,6 +237,7 @@ describe("UsersService", () => {
         skip: 0,
         take: 10,
         order: { id: "ASC" },
+        relations: ["associations"],
       });
     });
 
@@ -260,6 +262,7 @@ describe("UsersService", () => {
         skip: 0,
         take: 10,
         order: { email: "DESC", id: "ASC" },
+        relations: ["associations"],
       });
     });
   });

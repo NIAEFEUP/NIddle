@@ -43,6 +43,9 @@ export class Schedule {
   @ManyToOne(
     () => Service,
     (service) => service.schedule,
+    // Replacing a service's schedule drops the old slots instead of nulling
+    // their FK, and deleting a service takes its slots with it.
+    { onDelete: "CASCADE", orphanedRowAction: "delete" },
   )
   @Type(() => Service)
   @Exclude({ toPlainOnly: true })
