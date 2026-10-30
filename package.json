@@ -32,10 +32,12 @@
     "test:watch": "npm run test:watch -w apps/api",
     "test:cov": "npm run test:cov -w apps/api",
     "test:e2e": "npm run test:e2e -w apps/api",
-    "prepare": "husky || true"
+    "prepare": "husky || true",
+    "commit": "cz"
   },
   "devDependencies": {
     "@biomejs/biome": "2.4.6",
+    "commitizen": "^4.3.2",
     "cz-conventional-changelog": "^3.3.0",
     "husky": "^9.1.7",
     "lint-staged": "^16.4.0"
