@@ -17,6 +17,9 @@ export interface EventFormDialogProps {
   courses: FacultyOrCourse[];
   isLoading: boolean;
   onSubmit: (formData: EventFormData) => void;
+  title?: string;
+  description?: string;
+  submitLabel?: string;
 }
 
 interface EventFormState {
@@ -61,6 +64,9 @@ export function EventFormDialog({
   courses,
   isLoading,
   onSubmit,
+  title = "Edit Event",
+  description = "Update the event details below.",
+  submitLabel,
 }: EventFormDialogProps) {
   const [formData, setFormData] = React.useState<EventFormState>(() =>
     toFormState(event),
@@ -127,10 +133,11 @@ export function EventFormDialog({
     <FormDialog
       open={open}
       onOpenChange={onOpenChange}
-      title="Edit Event"
-      description="Update the event details below."
+      title={title}
+      description={description}
       isEdit
       isLoading={isLoading}
+      submitLabel={submitLabel}
       onSubmit={handleSubmit}
       className="max-w-lg max-h-[90vh] overflow-y-auto"
     >
