@@ -99,7 +99,10 @@ interface PaginatedResponse<T> {
 
 const MAX_PAGE_LIMIT = 100;
 
-export async function fetchAllPages<T>(endpoint: string): Promise<T[]> {
+export async function fetchAllPages<T>(
+  endpoint: string,
+  options: RequestInit = {},
+): Promise<T[]> {
   const items: T[] = [];
   const separator = endpoint.includes("?") ? "&" : "?";
   let page = 1;
@@ -108,6 +111,7 @@ export async function fetchAllPages<T>(endpoint: string): Promise<T[]> {
   while (hasNextPage) {
     const response = await apiClient<PaginatedResponse<T>>(
       `${endpoint}${separator}page=${page}&limit=${MAX_PAGE_LIMIT}`,
+      options,
     );
     items.push(...response.data);
     hasNextPage = response.meta.hasNextPage;
