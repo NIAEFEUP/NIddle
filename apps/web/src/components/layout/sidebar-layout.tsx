@@ -18,7 +18,7 @@ export function SidebarLayout({
     <SidebarProvider>
       <AppSidebar user={user} onLogout={onLogout} currentPath={currentPath} />
       <SidebarInset>
-        <div className="flex-1 p-6">
+        <div className="flex-1 p-6 py-4">
           <Outlet />
         </div>
       </SidebarInset>

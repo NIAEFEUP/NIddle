@@ -80,6 +80,7 @@ export class UsersService implements OnApplicationBootstrap {
         ...(associationId && { associations: { id: associationId } }),
       },
       order: buildOrderClause(filters),
+      relations: ["associations"],
     });
   }
 
