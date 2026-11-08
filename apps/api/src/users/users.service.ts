@@ -2,7 +2,7 @@ import { Injectable, Logger, OnApplicationBootstrap } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { InjectRepository } from "@nestjs/typeorm";
 import * as bcrypt from "bcrypt";
-import { Repository } from "typeorm";
+import { In, Repository } from "typeorm";
 import { Association } from "@/associations/entities/association.entity";
 import { PaginatedResponseDto, paginate } from "@/common/pagination";
 import { buildOrderClause } from "@/common/sorting";
@@ -74,13 +74,28 @@ export class UsersService implements OnApplicationBootstrap {
   async findAll(filters: UserFilterDto): Promise<PaginatedResponseDto<User>> {
     const { isAdmin, associationId } = filters;
 
-    return paginate(this.userRepository, filters, {
+    const result = await paginate(this.userRepository, filters, {
       where: {
         ...(isAdmin !== undefined && { isAdmin }),
         ...(associationId && { associations: { id: associationId } }),
       },
       order: buildOrderClause(filters),
+      relations: ["associations"],
     });
+
+    if (associationId && result.data.length > 0) {
+      const userIds = result.data.map((u) => u.id);
+      const fullUsers = await this.userRepository.find({
+        where: { id: In(userIds) },
+        relations: ["associations"],
+      });
+      const userMap = new Map(fullUsers.map((u) => [u.id, u.associations]));
+      for (const user of result.data) {
+        user.associations = userMap.get(user.id) || user.associations;
+      }
+    }
+
+    return result;
   }
 
   findOne(id: string): Promise<User> {
