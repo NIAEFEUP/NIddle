@@ -48,7 +48,6 @@ export class Product {
 
   /**
    * Links related to the product, such as its repository, website or app store pages.
-   * @example [{"label": "GitHub", "url": "https://github.com/niaefeup/uni"}]
    */
   @Column({ type: "simple-json", nullable: true })
   links?: ProductLinkDto[];
@@ -83,7 +82,6 @@ export class Product {
 
   /**
    * The technologies used to build the product.
-   * @example [{"label": "Flutter", "url": "https://flutter.dev"}]
    */
   // Uses ProductLinkDto because technologies and links have the same fields.
   @Column({ type: "simple-json", nullable: true })

@@ -52,7 +52,6 @@ export class CreateProductDto {
 
   /**
    * Links related to the product, such as its repository, website or app store pages.
-   * @example [{"label": "GitHub", "url": "https://github.com/niaefeup/uni"}]
    */
   @IsArray()
   @ValidateNested({ each: true })
@@ -95,7 +94,6 @@ export class CreateProductDto {
 
   /**
    * The technologies used to build the product.
-   * @example [{"label": "Flutter", "url": "https://flutter.dev"}]
    */
   @IsArray()
   @ValidateNested({ each: true })
