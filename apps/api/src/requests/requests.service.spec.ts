@@ -33,6 +33,7 @@ describe("RequestsService", () => {
     events: [],
     services: [],
     requests: [],
+    products: [],
   };
 
   const mockOtherAssociation: Association = {
@@ -42,6 +43,7 @@ describe("RequestsService", () => {
     events: [],
     services: [],
     requests: [],
+    products: [],
   };
 
   const mockUser: User = {
