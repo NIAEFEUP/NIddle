@@ -175,11 +175,8 @@ export function AdminRequestsPage() {
       const r = row.original;
       const title = getRequestTitle(r).toLowerCase();
       const subtitle = getRequestSubtitle(r).toLowerCase();
-      const assoc = (
-        r.targetAssociation?.name ||
-        r.targetAssociation?.acronym ||
-        ""
-      ).toLowerCase();
+      const assocName = (r.targetAssociation?.name || "").toLowerCase();
+      const assocAcronym = (r.targetAssociation?.acronym || "").toLowerCase();
       const requester = (r.requestedBy?.name || "").toLowerCase();
       const email = (r.requestedBy?.email || "").toLowerCase();
       const reason = (r.rejectionReason || "").toLowerCase();
@@ -189,7 +186,8 @@ export function AdminRequestsPage() {
       return (
         title.includes(q) ||
         subtitle.includes(q) ||
-        assoc.includes(q) ||
+        assocName.includes(q) ||
+        assocAcronym.includes(q) ||
         requester.includes(q) ||
         email.includes(q) ||
         reason.includes(q) ||
@@ -251,11 +249,8 @@ export function AdminRequestsPage() {
   };
 
   const selectedRequests = React.useMemo(() => {
-    const selectedIndices = Object.keys(rowSelection);
-    return selectedIndices
-      .map((index) => table.getRowModel().rowsById[index]?.original)
-      .filter((item): item is RequestItem => !!item);
-  }, [rowSelection, table]);
+    return table.getSelectedRowModel().rows.map((row) => row.original);
+  }, [table]);
 
   const pendingSelectedRequests = React.useMemo(
     () => selectedRequests.filter((r) => r.status === "Pending"),
@@ -267,7 +262,10 @@ export function AdminRequestsPage() {
   };
 
   const handleExportAll = () => {
-    exportRequestsToCsv(requests);
+    const filteredRequests = table
+      .getFilteredRowModel()
+      .rows.map((row) => row.original);
+    exportRequestsToCsv(filteredRequests);
   };
 
   const statusOptions: DataTableFilterOption[] = [
@@ -589,12 +587,18 @@ export function AdminRequestsPage() {
         isLoading={deleteRequestMutation.isPending}
         onConfirm={() => {
           if (!selectedRequest) return;
-          deleteRequestMutation.mutate(selectedRequest.id, {
-            onSuccess: () => {
-              setIsDeleteOpen(false);
-              setSelectedRequest(null);
+          deleteRequestMutation.mutate(
+            {
+              id: selectedRequest.id,
+              associationId: selectedRequest.targetAssociation?.id,
             },
-          });
+            {
+              onSuccess: () => {
+                setIsDeleteOpen(false);
+                setSelectedRequest(null);
+              },
+            },
+          );
         }}
       />
 
@@ -606,7 +610,10 @@ export function AdminRequestsPage() {
         isLoading={bulkDeleteRequestsMutation.isPending}
         onConfirm={() => {
           bulkDeleteRequestsMutation.mutate(
-            selectedRequests.map((r) => r.id),
+            selectedRequests.map((r) => ({
+              id: r.id,
+              associationId: r.targetAssociation?.id,
+            })),
             {
               onSuccess: () => {
                 setIsBulkDeleteOpen(false);

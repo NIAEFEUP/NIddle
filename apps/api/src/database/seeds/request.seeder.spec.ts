@@ -8,6 +8,8 @@ import {
   RequestStatus,
   RequestType,
 } from "@/requests/entities/request.entity";
+import type { CreateServiceDto } from "@/services/dto/create-service.dto";
+import { EnumDays } from "@/services/entity/schedule.entity";
 import { Service } from "@/services/entity/service.entity";
 import { User } from "@/users/entities/user.entity";
 import RequestSeeder from "./7-request.seeder";
@@ -118,10 +120,9 @@ describe("RequestSeeder", () => {
 
     expect(mockAssociationRepository.find).toHaveBeenCalled();
     expect(mockRequestRepository.create).toHaveBeenCalled();
-    expect(mockRequestRepository.save).toHaveBeenCalled();
-
     const savedRequests: Partial<Request>[] =
       mockRequestRepository.create.mock.calls[0][0];
+    expect(mockRequestRepository.save).toHaveBeenCalledWith(savedRequests);
 
     // Ensure we have pending, approved, and rejected requests
     const pendingReqs = savedRequests.filter(
@@ -155,6 +156,33 @@ describe("RequestSeeder", () => {
 
     for (const rej of rejectedReqs) {
       expect(rej.rejectionReason).toBeTruthy();
+    }
+
+    const approvedDeletion = savedRequests.find(
+      (r) =>
+        r.action === RequestAction.DELETE_EXISTING &&
+        r.status === RequestStatus.APPROVED,
+    );
+    if (approvedDeletion) {
+      expect(approvedDeletion.targetService).toBeNull();
+    }
+
+    const serviceRequestsWithSchedule = savedRequests.filter(
+      (r) =>
+        r.type === RequestType.SERVICE &&
+        r.payload &&
+        "schedule" in r.payload &&
+        Array.isArray((r.payload as CreateServiceDto).schedule),
+    );
+    for (const req of serviceRequestsWithSchedule) {
+      const schedule = (req.payload as CreateServiceDto).schedule;
+      if (schedule) {
+        for (const slot of schedule) {
+          expect(Object.values(EnumDays)).toContain(slot.dayOfWeek);
+          expect(slot.startTime).toMatch(/^\d{2}:\d{2}$/);
+          expect(slot.endTime).toMatch(/^\d{2}:\d{2}$/);
+        }
+      }
     }
   });
 

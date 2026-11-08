@@ -42,8 +42,10 @@ export function useAuth() {
         return await apiClient<User>("/api/auth/profile");
       } catch (err) {
         if (err instanceof ApiError && err.status === 401) {
-          removeToken();
-          queryClient.setQueryData(["auth-user"], null);
+          if (token && getToken() === token) {
+            removeToken();
+            queryClient.setQueryData(["auth-user"], null);
+          }
         }
         throw err;
       }

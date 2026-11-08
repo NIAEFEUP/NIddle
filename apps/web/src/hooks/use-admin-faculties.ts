@@ -2,8 +2,8 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "@/components/ui/toast";
 import {
   apiClient,
+  fetchAllPages,
   getErrorMessage,
-  type PaginatedResponse,
   unwrapData,
 } from "@/lib/api-client";
 
@@ -31,22 +31,12 @@ export function useAdminFaculties() {
 
   const facultiesQuery = useQuery<Faculty[], Error>({
     queryKey: ["admin-faculties-list"],
-    queryFn: async () => {
-      const res = await apiClient<Faculty[] | PaginatedResponse<Faculty>>(
-        "/api/faculties?limit=100",
-      );
-      return unwrapData(res);
-    },
+    queryFn: () => fetchAllPages<Faculty>("/api/faculties"),
   });
 
   const coursesQuery = useQuery<Course[], Error>({
     queryKey: ["admin-courses-all"],
-    queryFn: async () => {
-      const res = await apiClient<Course[] | PaginatedResponse<Course>>(
-        "/api/courses?limit=100",
-      );
-      return unwrapData(res);
-    },
+    queryFn: () => fetchAllPages<Course>("/api/courses"),
   });
 
   const createFacultyMutation = useMutation({
@@ -128,13 +118,23 @@ export function useAdminFaculties() {
 
   const bulkDeleteFacultiesMutation = useMutation({
     mutationFn: async (ids: string[]) => {
-      await Promise.all(
+      const results = await Promise.allSettled(
         ids.map((id) =>
           apiClient<void>(`/api/faculties/${id}`, {
             method: "DELETE",
           }),
         ),
       );
+      const failures = results.filter((r) => r.status === "rejected");
+      if (failures.length > 0) {
+        throw new Error(
+          `Failed to delete ${failures.length} of ${ids.length} faculties.`,
+        );
+      }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-faculties-list"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-faculties-all"] });
     },
     onSuccess: (_, ids) => {
       toast.add({
@@ -142,8 +142,6 @@ export function useAdminFaculties() {
         title: "Faculties deleted",
         description: `Successfully deleted ${ids.length} ${ids.length === 1 ? "faculty" : "faculties"}.`,
       });
-      queryClient.invalidateQueries({ queryKey: ["admin-faculties-list"] });
-      queryClient.invalidateQueries({ queryKey: ["admin-faculties-all"] });
     },
     onError: (err) => {
       toast.add({
@@ -151,8 +149,6 @@ export function useAdminFaculties() {
         title: "Delete failed",
         description: getErrorMessage(err),
       });
-      queryClient.invalidateQueries({ queryKey: ["admin-faculties-list"] });
-      queryClient.invalidateQueries({ queryKey: ["admin-faculties-all"] });
     },
   });
 

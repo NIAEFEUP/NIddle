@@ -42,7 +42,13 @@ export function FormDialog({
   const defaultLoadingText = isEdit ? "Saving..." : "Creating...";
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog
+      open={open}
+      onOpenChange={(nextOpen) => {
+        if (!nextOpen && isLoading) return;
+        onOpenChange(nextOpen);
+      }}
+    >
       <DialogContent className={cn("max-w-md", className)}>
         <form onSubmit={onSubmit} className="flex flex-col gap-4">
           <DialogHeader>

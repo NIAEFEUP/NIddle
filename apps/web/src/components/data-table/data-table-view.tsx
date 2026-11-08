@@ -34,7 +34,15 @@ export function DataTableView<T>({
   emptyDescription = "Try resetting your filters or search query.",
   renderGrid,
 }: DataTableViewProps<T>) {
-  const paginatedRows = table.getRowModel().rows;
+  const filteredRows = table.getFilteredRowModel().rows;
+  const pageIndex = table.getState().pagination.pageIndex;
+  const pageCount = table.getPageCount();
+
+  React.useEffect(() => {
+    if (pageCount > 0 && pageIndex >= pageCount) {
+      table.setPageIndex(pageCount - 1);
+    }
+  }, [pageCount, pageIndex, table]);
 
   if (isLoading) {
     return <DataLoadingState message={loadingMessage} />;
@@ -44,7 +52,7 @@ export function DataTableView<T>({
     return <DataErrorState title={errorTitle} message={errorMessage} />;
   }
 
-  if (paginatedRows.length === 0) {
+  if (filteredRows.length === 0) {
     return <DataEmptyState title={emptyTitle} description={emptyDescription} />;
   }
 

@@ -4,8 +4,8 @@ import { toast } from "@/components/ui/toast";
 import type { Association } from "@/hooks/use-auth";
 import {
   apiClient,
+  fetchAllPages,
   getErrorMessage,
-  type PaginatedResponse,
   unwrapData,
 } from "@/lib/api-client";
 
@@ -14,22 +14,12 @@ export function useAdminRequests() {
 
   const requestsQuery = useQuery<RequestItem[], Error>({
     queryKey: ["admin-requests-list"],
-    queryFn: async () => {
-      const res = await apiClient<
-        RequestItem[] | PaginatedResponse<RequestItem>
-      >("/api/requests?limit=100");
-      return unwrapData(res);
-    },
+    queryFn: () => fetchAllPages<RequestItem>("/api/requests"),
   });
 
   const associationsQuery = useQuery<Association[], Error>({
     queryKey: ["admin-associations-all"],
-    queryFn: async () => {
-      const res = await apiClient<
-        Association[] | PaginatedResponse<Association>
-      >("/api/associations?limit=100");
-      return unwrapData(res);
-    },
+    queryFn: () => fetchAllPages<Association>("/api/associations"),
   });
 
   const approveRequestMutation = useMutation({
@@ -84,10 +74,17 @@ export function useAdminRequests() {
   });
 
   const deleteRequestMutation = useMutation({
-    mutationFn: (id: string) =>
-      apiClient<void>(`/api/requests/${id}`, {
+    mutationFn: (param: string | { id: string; associationId?: string }) => {
+      const id = typeof param === "string" ? param : param.id;
+      const associationId =
+        typeof param === "string" ? undefined : param.associationId;
+      return apiClient<void>(`/api/requests/${id}`, {
         method: "DELETE",
-      }),
+        headers: associationId
+          ? { "x-active-association": associationId }
+          : undefined,
+      });
+    },
     onSuccess: () => {
       toast.add({
         type: "success",
@@ -107,13 +104,22 @@ export function useAdminRequests() {
 
   const bulkApproveRequestsMutation = useMutation({
     mutationFn: async (ids: string[]) => {
-      await Promise.all(
+      const results = await Promise.allSettled(
         ids.map((id) =>
           apiClient<unknown>(`/api/requests/${id}/approve`, {
             method: "PATCH",
           }),
         ),
       );
+      const failures = results.filter((r) => r.status === "rejected");
+      if (failures.length > 0) {
+        throw new Error(
+          `Failed to approve ${failures.length} of ${ids.length} requests.`,
+        );
+      }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-requests-list"] });
     },
     onSuccess: (_, ids) => {
       toast.add({
@@ -121,7 +127,6 @@ export function useAdminRequests() {
         title: "Requests approved",
         description: `Successfully approved ${ids.length} ${ids.length === 1 ? "request" : "requests"}.`,
       });
-      queryClient.invalidateQueries({ queryKey: ["admin-requests-list"] });
     },
     onError: (err) => {
       toast.add({
@@ -129,7 +134,6 @@ export function useAdminRequests() {
         title: "Bulk approval failed",
         description: getErrorMessage(err),
       });
-      queryClient.invalidateQueries({ queryKey: ["admin-requests-list"] });
     },
   });
 
@@ -141,7 +145,7 @@ export function useAdminRequests() {
       ids: string[];
       rejectionReason: string;
     }) => {
-      await Promise.all(
+      const results = await Promise.allSettled(
         ids.map((id) =>
           apiClient<RequestItem>(`/api/requests/${id}/reject`, {
             method: "PATCH",
@@ -149,6 +153,15 @@ export function useAdminRequests() {
           }),
         ),
       );
+      const failures = results.filter((r) => r.status === "rejected");
+      if (failures.length > 0) {
+        throw new Error(
+          `Failed to reject ${failures.length} of ${ids.length} requests.`,
+        );
+      }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-requests-list"] });
     },
     onSuccess: (_, { ids }) => {
       toast.add({
@@ -156,7 +169,6 @@ export function useAdminRequests() {
         title: "Requests rejected",
         description: `Successfully rejected ${ids.length} ${ids.length === 1 ? "request" : "requests"}.`,
       });
-      queryClient.invalidateQueries({ queryKey: ["admin-requests-list"] });
     },
     onError: (err) => {
       toast.add({
@@ -164,27 +176,42 @@ export function useAdminRequests() {
         title: "Bulk rejection failed",
         description: getErrorMessage(err),
       });
-      queryClient.invalidateQueries({ queryKey: ["admin-requests-list"] });
     },
   });
 
   const bulkDeleteRequestsMutation = useMutation({
-    mutationFn: async (ids: string[]) => {
-      await Promise.all(
-        ids.map((id) =>
-          apiClient<void>(`/api/requests/${id}`, {
+    mutationFn: async (
+      items: Array<string | { id: string; associationId?: string }>,
+    ) => {
+      const results = await Promise.allSettled(
+        items.map((item) => {
+          const id = typeof item === "string" ? item : item.id;
+          const associationId =
+            typeof item === "string" ? undefined : item.associationId;
+          return apiClient<void>(`/api/requests/${id}`, {
             method: "DELETE",
-          }),
-        ),
+            headers: associationId
+              ? { "x-active-association": associationId }
+              : undefined,
+          });
+        }),
       );
+      const failures = results.filter((r) => r.status === "rejected");
+      if (failures.length > 0) {
+        throw new Error(
+          `Failed to delete ${failures.length} of ${items.length} requests.`,
+        );
+      }
     },
-    onSuccess: (_, ids) => {
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-requests-list"] });
+    },
+    onSuccess: (_, items) => {
       toast.add({
         type: "success",
         title: "Requests deleted",
-        description: `Successfully deleted ${ids.length} ${ids.length === 1 ? "request" : "requests"}.`,
+        description: `Successfully deleted ${items.length} ${items.length === 1 ? "request" : "requests"}.`,
       });
-      queryClient.invalidateQueries({ queryKey: ["admin-requests-list"] });
     },
     onError: (err) => {
       toast.add({
@@ -192,7 +219,6 @@ export function useAdminRequests() {
         title: "Bulk delete failed",
         description: getErrorMessage(err),
       });
-      queryClient.invalidateQueries({ queryKey: ["admin-requests-list"] });
     },
   });
 

@@ -1,3 +1,14 @@
+const FORMULA_PREFIXES = ["=", "+", "-", "@", "\t", "\r"];
+
+function sanitizeCsvCell(cell: string | number | null | undefined): string {
+  let stringVal = String(cell ?? "");
+  const trimmed = stringVal.trimStart();
+  if (FORMULA_PREFIXES.some((prefix) => trimmed.startsWith(prefix))) {
+    stringVal = `'${stringVal}`;
+  }
+  return `"${stringVal.replace(/"/g, '""')}"`;
+}
+
 export function downloadCsv(
   filename: string,
   headers: string[],
@@ -5,14 +16,7 @@ export function downloadCsv(
 ) {
   const csvRows = [
     headers.join(","),
-    ...rows.map((row) =>
-      row
-        .map((cell) => {
-          const stringVal = String(cell ?? "");
-          return `"${stringVal.replace(/"/g, '""')}"`;
-        })
-        .join(","),
-    ),
+    ...rows.map((row) => row.map(sanitizeCsvCell).join(",")),
   ];
 
   const blob = new Blob([csvRows.join("\n")], {

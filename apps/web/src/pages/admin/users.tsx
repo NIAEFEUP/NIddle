@@ -142,6 +142,7 @@ export function AdminUsersPage() {
     data: users,
     columns,
     autoResetPageIndex: false,
+    getRowId: (user) => String(user.id),
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),

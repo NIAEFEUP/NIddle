@@ -161,7 +161,7 @@ function areSchedulesEqual(schedA: any[], schedB: any[]): boolean {
   });
 }
 
-function areValuesEqual(valA: any, valB: any): boolean {
+function areValuesEqual(key: string, valA: any, valB: any): boolean {
   if (valA === valB) return true;
   if (
     (valA === undefined || valA === null || valA === "") &&
@@ -170,14 +170,16 @@ function areValuesEqual(valA: any, valB: any): boolean {
     return true;
   }
 
-  if (
-    valA instanceof Date ||
-    (typeof valA === "string" && !Number.isNaN(Date.parse(valA)))
-  ) {
-    const timeA = new Date(valA).getTime();
-    const timeB = new Date(valB).getTime();
-    if (!Number.isNaN(timeA) && !Number.isNaN(timeB)) {
-      return timeA === timeB;
+  if (key === "startDate" || key === "endDate") {
+    if (
+      valA instanceof Date ||
+      (typeof valA === "string" && !Number.isNaN(Date.parse(valA)))
+    ) {
+      const timeA = new Date(valA).getTime();
+      const timeB = new Date(valB).getTime();
+      if (!Number.isNaN(timeA) && !Number.isNaN(timeB)) {
+        return timeA === timeB;
+      }
     }
   }
 
@@ -311,7 +313,7 @@ export function RequestDiffViewer({ request }: RequestDiffViewerProps) {
     const newVal = payload?.[key];
     const oldVal = target?.[key];
 
-    if (!areValuesEqual(oldVal, newVal)) {
+    if (!areValuesEqual(key, oldVal, newVal)) {
       changedFields.push({
         key,
         label: FIELD_LABELS[key] || key,

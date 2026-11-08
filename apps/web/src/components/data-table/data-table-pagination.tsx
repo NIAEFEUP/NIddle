@@ -27,6 +27,18 @@ export function DataTablePagination<TData>({
   const pageCount = table.getPageCount();
   const totalItems = table.getFilteredRowModel().rows.length;
 
+  const windowSize = Math.min(5, pageCount);
+  let startPage = 1;
+  if (pageCount > windowSize) {
+    if (pageIndex <= Math.floor(windowSize / 2)) {
+      startPage = 1;
+    } else if (pageIndex >= pageCount - Math.floor(windowSize / 2)) {
+      startPage = pageCount - windowSize + 1;
+    } else {
+      startPage = pageIndex - Math.floor(windowSize / 2) + 1;
+    }
+  }
+
   return (
     <div className="flex flex-col items-center justify-between gap-4 border-t pt-4 sm:flex-row">
       <div className="flex items-center gap-2">
@@ -37,7 +49,10 @@ export function DataTablePagination<TData>({
             table.setPageSize(Number(value));
           }}
         >
-          <SelectTrigger className="h-8 w-16 text-xs">
+          <SelectTrigger
+            className="h-8 w-16 text-xs"
+            aria-label="Rows per page"
+          >
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -52,8 +67,8 @@ export function DataTablePagination<TData>({
 
       <div className="text-xs text-muted-foreground">
         {totalItems > 0
-          ? `${pageIndex * pageSize + 1}-${Math.min((pageIndex + 1) * pageSize, totalItems)} of ${pageCount} pages`
-          : "0-0 of 0 pages"}
+          ? `${pageIndex * pageSize + 1}-${Math.min((pageIndex + 1) * pageSize, totalItems)} of ${totalItems}`
+          : "0-0 of 0"}
       </div>
 
       <div className="flex items-center gap-1">
@@ -63,6 +78,7 @@ export function DataTablePagination<TData>({
           className="h-8 w-8"
           onClick={() => table.setPageIndex(0)}
           disabled={!table.getCanPreviousPage()}
+          aria-label="Go to first page"
         >
           <ChevronsLeft className="size-4" />
         </Button>
@@ -72,22 +88,13 @@ export function DataTablePagination<TData>({
           className="h-8 w-8"
           onClick={() => table.previousPage()}
           disabled={!table.getCanPreviousPage()}
+          aria-label="Go to previous page"
         >
           <ChevronLeft className="size-4" />
         </Button>
 
-        {Array.from({ length: Math.min(5, pageCount) }, (_, i) => {
-          let pageNum = pageIndex + 1;
-          if (pageIndex <= 2) {
-            pageNum = i + 1;
-          } else if (pageIndex >= pageCount - 2) {
-            pageNum = pageCount - 4 + i;
-          } else {
-            pageNum = pageIndex - 2 + i;
-          }
-
-          if (pageNum < 1 || pageNum > pageCount) return null;
-
+        {Array.from({ length: windowSize }, (_, i) => {
+          const pageNum = startPage + i;
           return (
             <Button
               key={pageNum}
@@ -95,6 +102,8 @@ export function DataTablePagination<TData>({
               size="sm"
               className="h-8 w-8 text-xs p-0"
               onClick={() => table.setPageIndex(pageNum - 1)}
+              aria-label={`Go to page ${pageNum}`}
+              aria-current={pageIndex + 1 === pageNum ? "page" : undefined}
             >
               {pageNum}
             </Button>
@@ -107,6 +116,7 @@ export function DataTablePagination<TData>({
           className="h-8 w-8"
           onClick={() => table.nextPage()}
           disabled={!table.getCanNextPage()}
+          aria-label="Go to next page"
         >
           <ChevronRight className="size-4" />
         </Button>
@@ -116,6 +126,7 @@ export function DataTablePagination<TData>({
           className="h-8 w-8"
           onClick={() => table.setPageIndex(table.getPageCount() - 1)}
           disabled={!table.getCanNextPage()}
+          aria-label="Go to last page"
         >
           <ChevronsRight className="size-4" />
         </Button>

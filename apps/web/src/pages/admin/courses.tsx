@@ -131,6 +131,7 @@ export function AdminCoursesPage() {
     data: courses,
     columns,
     autoResetPageIndex: false,
+    getRowId: (course) => String(course.id),
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),

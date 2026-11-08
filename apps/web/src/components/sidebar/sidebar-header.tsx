@@ -230,7 +230,15 @@ export function SidebarHeaderComponent() {
                         placeholder="Search associations..."
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
-                        onKeyDown={(e) => e.stopPropagation()}
+                        onKeyDown={(e) => {
+                          if (
+                            (e.metaKey || e.ctrlKey) &&
+                            /^[0-9]$/.test(e.key)
+                          ) {
+                            return;
+                          }
+                          e.stopPropagation();
+                        }}
                         className="h-8 pl-8 pr-2 text-xs"
                         autoFocus
                       />

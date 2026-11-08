@@ -3,8 +3,8 @@ import { toast } from "@/components/ui/toast";
 import type { Association, User } from "@/hooks/use-auth";
 import {
   apiClient,
+  fetchAllPages,
   getErrorMessage,
-  type PaginatedResponse,
   unwrapData,
 } from "@/lib/api-client";
 
@@ -21,22 +21,12 @@ export function useAdminUsers() {
 
   const usersQuery = useQuery<User[], Error>({
     queryKey: ["admin-users-list"],
-    queryFn: async () => {
-      const res = await apiClient<User[] | PaginatedResponse<User>>(
-        "/api/users?limit=100",
-      );
-      return unwrapData(res);
-    },
+    queryFn: () => fetchAllPages<User>("/api/users"),
   });
 
   const associationsQuery = useQuery<Association[], Error>({
     queryKey: ["admin-associations-all"],
-    queryFn: async () => {
-      const res = await apiClient<
-        Association[] | PaginatedResponse<Association>
-      >("/api/associations?limit=100");
-      return unwrapData(res);
-    },
+    queryFn: () => fetchAllPages<Association>("/api/associations"),
   });
 
   const createUserMutation = useMutation({
@@ -52,6 +42,7 @@ export function useAdminUsers() {
         description: "New user successfully registered.",
       });
       queryClient.invalidateQueries({ queryKey: ["admin-users-list"] });
+      queryClient.invalidateQueries({ queryKey: ["auth-user"] });
     },
     onError: (err) => {
       toast.add({
@@ -115,13 +106,22 @@ export function useAdminUsers() {
 
   const bulkDeleteUsersMutation = useMutation({
     mutationFn: async (ids: string[]) => {
-      await Promise.all(
+      const results = await Promise.allSettled(
         ids.map((id) =>
           apiClient<void>(`/api/users/${id}`, {
             method: "DELETE",
           }),
         ),
       );
+      const failures = results.filter((r) => r.status === "rejected");
+      if (failures.length > 0) {
+        throw new Error(
+          `Failed to delete ${failures.length} of ${ids.length} users.`,
+        );
+      }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-users-list"] });
     },
     onSuccess: (_, ids) => {
       toast.add({
@@ -129,7 +129,6 @@ export function useAdminUsers() {
         title: "Users deleted",
         description: `Successfully deleted ${ids.length} ${ids.length === 1 ? "user" : "users"}.`,
       });
-      queryClient.invalidateQueries({ queryKey: ["admin-users-list"] });
     },
     onError: (err) => {
       toast.add({
@@ -137,7 +136,6 @@ export function useAdminUsers() {
         title: "Delete failed",
         description: getErrorMessage(err),
       });
-      queryClient.invalidateQueries({ queryKey: ["admin-users-list"] });
     },
   });
 

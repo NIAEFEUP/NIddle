@@ -60,6 +60,65 @@ export function unwrapData<T>(
   return [];
 }
 
+export async function fetchAllPages<T>(
+  endpoint: string,
+  options: RequestInit = {},
+  pageSize = 100,
+): Promise<T[]> {
+  const [base, query = ""] = endpoint.split("?");
+  const searchParams = new URLSearchParams(query);
+  searchParams.set("limit", String(pageSize));
+  searchParams.set("page", "1");
+
+  const firstUrl = `${base}?${searchParams.toString()}`;
+  const firstRes = await apiClient<T[] | PaginatedResponse<T>>(
+    firstUrl,
+    options,
+  );
+
+  if (Array.isArray(firstRes)) {
+    return firstRes;
+  }
+
+  if (
+    !firstRes ||
+    typeof firstRes !== "object" ||
+    !("data" in firstRes) ||
+    !Array.isArray(firstRes.data)
+  ) {
+    return unwrapData(firstRes);
+  }
+
+  const items = [...firstRes.data];
+  const totalPages = firstRes.meta?.totalPages ?? 1;
+
+  if (totalPages > 1) {
+    const pagePromises: Promise<T[] | PaginatedResponse<T>>[] = [];
+    for (let p = 2; p <= totalPages; p++) {
+      searchParams.set("page", String(p));
+      const pageUrl = `${base}?${searchParams.toString()}`;
+      pagePromises.push(
+        apiClient<T[] | PaginatedResponse<T>>(pageUrl, options),
+      );
+    }
+    const subsequentPages = await Promise.all(pagePromises);
+    for (const pageRes of subsequentPages) {
+      if (
+        pageRes &&
+        typeof pageRes === "object" &&
+        "data" in pageRes &&
+        Array.isArray(pageRes.data)
+      ) {
+        items.push(...pageRes.data);
+      } else if (Array.isArray(pageRes)) {
+        items.push(...pageRes);
+      }
+    }
+  }
+
+  return items;
+}
+
 export async function apiClient<T>(
   endpoint: string,
   options: RequestInit = {},
@@ -86,7 +145,9 @@ export async function apiClient<T>(
 
   if (!response.ok) {
     if (response.status === 401) {
-      removeToken();
+      if (token && getToken() === token) {
+        removeToken();
+      }
     }
 
     let errorMessage = response.statusText || "An unexpected error occurred";

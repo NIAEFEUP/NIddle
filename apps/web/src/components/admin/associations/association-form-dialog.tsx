@@ -1,17 +1,21 @@
 import * as React from "react";
 import { FormDialog } from "@/components/common/form-dialog";
-import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import type { AssociationFormData } from "@/hooks/use-admin-associations";
+import { Label } from "@/components/ui/label";
 import type { Association } from "@/hooks/use-auth";
 
-export interface AssociationFormDialogProps {
-  mode: "create" | "edit";
+export interface AssociationFormData {
+  name: string;
+  acronym?: string;
+}
+
+interface AssociationFormDialogProps {
+  mode?: "create" | "edit";
   open: boolean;
   onOpenChange: (open: boolean) => void;
   association?: Association | null;
-  isLoading: boolean;
-  onSubmit: (formData: AssociationFormData) => void;
+  onSubmit: (data: AssociationFormData) => void;
+  isLoading?: boolean;
 }
 
 export function AssociationFormDialog({
@@ -19,10 +23,10 @@ export function AssociationFormDialog({
   open,
   onOpenChange,
   association,
-  isLoading,
   onSubmit,
+  isLoading,
 }: AssociationFormDialogProps) {
-  const isEdit = mode === "edit";
+  const isEdit = mode === "edit" || Boolean(association);
 
   const [formData, setFormData] = React.useState<AssociationFormData>({
     name: "",
@@ -34,21 +38,20 @@ export function AssociationFormDialog({
   );
 
   React.useEffect(() => {
-    if (open) {
-      if (isEdit && association) {
-        setFormData({
-          name: association.name,
-          acronym: association.acronym || "",
-        });
-      } else {
-        setFormData({
-          name: "",
-          acronym: "",
-        });
-      }
-      setFormErrors({});
+    if (!open) return;
+    if (association) {
+      setFormData({
+        name: association.name,
+        acronym: association.acronym || "",
+      });
+    } else {
+      setFormData({
+        name: "",
+        acronym: "",
+      });
     }
-  }, [open, isEdit, association]);
+    setFormErrors({});
+  }, [association, open]);
 
   const validate = () => {
     const errors: Record<string, string> = {};
@@ -65,7 +68,9 @@ export function AssociationFormDialog({
 
     onSubmit({
       name: formData.name.trim(),
-      acronym: formData.acronym?.trim() || undefined,
+      acronym: isEdit
+        ? (formData.acronym?.trim() ?? "")
+        : formData.acronym?.trim() || undefined,
     });
   };
 
@@ -79,45 +84,47 @@ export function AssociationFormDialog({
           ? "Update the association details below."
           : "Enter the details to create a new association."
       }
-      isEdit={isEdit}
       isLoading={isLoading}
       submitLabel={isEdit ? "Save Changes" : "Create Association"}
       onSubmit={handleSubmit}
     >
-      <Field data-invalid={!!formErrors.name}>
-        <FieldLabel htmlFor="association-name">Name</FieldLabel>
-        <Input
-          id="association-name"
-          placeholder="e.g. Núcleo de Informática"
-          value={formData.name}
-          onChange={(e) => {
-            setFormData((prev) => ({ ...prev, name: e.target.value }));
-            if (formErrors.name) {
-              setFormErrors((prev) => ({ ...prev, name: "" }));
-            }
-          }}
-          disabled={isLoading}
-        />
-        {formErrors.name && <FieldError>{formErrors.name}</FieldError>}
-      </Field>
+      <div className="grid gap-4 py-4">
+        <div className="grid gap-2">
+          <Label htmlFor="association-name">Name</Label>
+          <Input
+            id="association-name"
+            placeholder="e.g. Núcleo de Informática da AEFESP"
+            value={formData.name}
+            onChange={(e) => {
+              setFormData((prev) => ({ ...prev, name: e.target.value }));
+              if (formErrors.name) {
+                setFormErrors((prev) => ({ ...prev, name: "" }));
+              }
+            }}
+            disabled={isLoading}
+            autoFocus
+          />
+          {formErrors.name && (
+            <p className="text-xs text-destructive">{formErrors.name}</p>
+          )}
+        </div>
 
-      <Field>
-        <FieldLabel htmlFor="association-acronym">
-          Acronym{" "}
-          <span className="text-xs text-muted-foreground font-normal">
-            (optional)
-          </span>
-        </FieldLabel>
-        <Input
-          id="association-acronym"
-          placeholder="e.g. NIAEFEUP"
-          value={formData.acronym}
-          onChange={(e) => {
-            setFormData((prev) => ({ ...prev, acronym: e.target.value }));
-          }}
-          disabled={isLoading}
-        />
-      </Field>
+        <div className="grid gap-2">
+          <Label htmlFor="association-acronym">Acronym</Label>
+          <Input
+            id="association-acronym"
+            placeholder="e.g. NIAEFESP"
+            value={formData.acronym}
+            onChange={(e) =>
+              setFormData((prev) => ({ ...prev, acronym: e.target.value }))
+            }
+            disabled={isLoading}
+          />
+          <p className="text-[11px] text-muted-foreground">
+            Optional short name or abbreviation for the association.
+          </p>
+        </div>
+      </div>
     </FormDialog>
   );
 }

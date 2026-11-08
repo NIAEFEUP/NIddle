@@ -2,8 +2,8 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "@/components/ui/toast";
 import {
   apiClient,
+  fetchAllPages,
   getErrorMessage,
-  type PaginatedResponse,
   unwrapData,
 } from "@/lib/api-client";
 
@@ -31,22 +31,12 @@ export function useAdminCourses() {
 
   const coursesQuery = useQuery<Course[], Error>({
     queryKey: ["admin-courses-list"],
-    queryFn: async () => {
-      const res = await apiClient<Course[] | PaginatedResponse<Course>>(
-        "/api/courses?limit=100",
-      );
-      return unwrapData(res);
-    },
+    queryFn: () => fetchAllPages<Course>("/api/courses"),
   });
 
   const facultiesQuery = useQuery<Faculty[], Error>({
     queryKey: ["admin-faculties-all"],
-    queryFn: async () => {
-      const res = await apiClient<Faculty[] | PaginatedResponse<Faculty>>(
-        "/api/faculties?limit=100",
-      );
-      return unwrapData(res);
-    },
+    queryFn: () => fetchAllPages<Faculty>("/api/faculties"),
   });
 
   const createCourseMutation = useMutation({
@@ -108,14 +98,17 @@ export function useAdminCourses() {
       apiClient<void>(`/api/courses/${id}`, {
         method: "DELETE",
       }),
-    onSuccess: () => {
+    onSuccess: async () => {
       toast.add({
         type: "success",
         title: "Course deleted",
         description: "Course deleted successfully.",
       });
-      queryClient.invalidateQueries({ queryKey: ["admin-courses-list"] });
-      queryClient.invalidateQueries({ queryKey: ["admin-courses-all"] });
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["admin-courses-list"] }),
+        queryClient.invalidateQueries({ queryKey: ["admin-courses-all"] }),
+        queryClient.invalidateQueries({ queryKey: ["admin-faculties-all"] }),
+      ]);
     },
     onError: (err) => {
       toast.add({
@@ -128,13 +121,26 @@ export function useAdminCourses() {
 
   const bulkDeleteCoursesMutation = useMutation({
     mutationFn: async (ids: string[]) => {
-      await Promise.all(
+      const results = await Promise.allSettled(
         ids.map((id) =>
           apiClient<void>(`/api/courses/${id}`, {
             method: "DELETE",
           }),
         ),
       );
+      const failures = results.filter((r) => r.status === "rejected");
+      if (failures.length > 0) {
+        throw new Error(
+          `Failed to delete ${failures.length} of ${ids.length} courses.`,
+        );
+      }
+    },
+    onSettled: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["admin-courses-list"] }),
+        queryClient.invalidateQueries({ queryKey: ["admin-courses-all"] }),
+        queryClient.invalidateQueries({ queryKey: ["admin-faculties-all"] }),
+      ]);
     },
     onSuccess: (_, ids) => {
       toast.add({
@@ -142,8 +148,6 @@ export function useAdminCourses() {
         title: "Courses deleted",
         description: `Successfully deleted ${ids.length} ${ids.length === 1 ? "course" : "courses"}.`,
       });
-      queryClient.invalidateQueries({ queryKey: ["admin-courses-list"] });
-      queryClient.invalidateQueries({ queryKey: ["admin-courses-all"] });
     },
     onError: (err) => {
       toast.add({
@@ -151,8 +155,6 @@ export function useAdminCourses() {
         title: "Delete failed",
         description: getErrorMessage(err),
       });
-      queryClient.invalidateQueries({ queryKey: ["admin-courses-list"] });
-      queryClient.invalidateQueries({ queryKey: ["admin-courses-all"] });
     },
   });
 

@@ -131,6 +131,7 @@ export function AdminFacultiesPage() {
     data: faculties,
     columns,
     autoResetPageIndex: false,
+    getRowId: (row) => String(row.id),
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),

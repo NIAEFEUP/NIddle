@@ -112,6 +112,7 @@ export function AdminAssociationsPage() {
     data: associations,
     columns,
     autoResetPageIndex: false,
+    getRowId: (row) => String(row.id),
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),

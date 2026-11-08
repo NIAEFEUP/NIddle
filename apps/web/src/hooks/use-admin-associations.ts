@@ -3,8 +3,8 @@ import { toast } from "@/components/ui/toast";
 import type { Association } from "@/hooks/use-auth";
 import {
   apiClient,
+  fetchAllPages,
   getErrorMessage,
-  type PaginatedResponse,
   unwrapData,
 } from "@/lib/api-client";
 
@@ -18,12 +18,7 @@ export function useAdminAssociations() {
 
   const associationsQuery = useQuery<Association[], Error>({
     queryKey: ["admin-associations-list"],
-    queryFn: async () => {
-      const res = await apiClient<
-        Association[] | PaginatedResponse<Association>
-      >("/api/associations?limit=100");
-      return unwrapData(res);
-    },
+    queryFn: () => fetchAllPages<Association>("/api/associations"),
   });
 
   const createAssociationMutation = useMutation({
@@ -105,13 +100,23 @@ export function useAdminAssociations() {
 
   const bulkDeleteAssociationsMutation = useMutation({
     mutationFn: async (ids: string[]) => {
-      await Promise.all(
+      const results = await Promise.allSettled(
         ids.map((id) =>
           apiClient<void>(`/api/associations/${id}`, {
             method: "DELETE",
           }),
         ),
       );
+      const failures = results.filter((r) => r.status === "rejected");
+      if (failures.length > 0) {
+        throw new Error(
+          `Failed to delete ${failures.length} of ${ids.length} associations.`,
+        );
+      }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-associations-list"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-associations-all"] });
     },
     onSuccess: (_, ids) => {
       toast.add({
@@ -119,8 +124,6 @@ export function useAdminAssociations() {
         title: "Associations deleted",
         description: `Successfully deleted ${ids.length} ${ids.length === 1 ? "association" : "associations"}.`,
       });
-      queryClient.invalidateQueries({ queryKey: ["admin-associations-list"] });
-      queryClient.invalidateQueries({ queryKey: ["admin-associations-all"] });
     },
     onError: (err) => {
       toast.add({
@@ -128,8 +131,6 @@ export function useAdminAssociations() {
         title: "Delete failed",
         description: getErrorMessage(err),
       });
-      queryClient.invalidateQueries({ queryKey: ["admin-associations-list"] });
-      queryClient.invalidateQueries({ queryKey: ["admin-associations-all"] });
     },
   });
 

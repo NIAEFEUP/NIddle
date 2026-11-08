@@ -107,6 +107,7 @@ export function getUserColumns({
       },
       filterFn: (row, _columnId, filterValue) => {
         if (!filterValue || filterValue === "all") return true;
+        if (row.original.isAdmin) return true;
         const userAssocs = row.original.associations || [];
         if (Array.isArray(filterValue)) {
           if (filterValue.length === 0 || filterValue.includes("all"))
