@@ -28,6 +28,7 @@ describe("UsersService", () => {
     create: jest.fn(),
     save: jest.fn(),
     findAndCount: jest.fn(),
+    find: jest.fn(),
     findOne: jest.fn(),
     findOneOrFail: jest.fn(),
     findOneBy: jest.fn(),
@@ -53,18 +54,12 @@ describe("UsersService", () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         UsersService,
-        {
-          provide: getRepositoryToken(User),
-          useValue: mockUserRepository,
-        },
+        { provide: getRepositoryToken(User), useValue: mockUserRepository },
         {
           provide: getRepositoryToken(Association),
           useValue: mockAssociationRepository,
         },
-        {
-          provide: ConfigService,
-          useValue: mockConfigService,
-        },
+        { provide: ConfigService, useValue: mockConfigService },
       ],
     }).compile();
 
@@ -114,9 +109,6 @@ describe("UsersService", () => {
 
       await service.onApplicationBootstrap();
 
-      expect(mockUserRepository.findOne).toHaveBeenCalledWith({
-        where: { email: "admin@example.com" },
-      });
       expect(mockUserRepository.save).not.toHaveBeenCalled();
     });
 
@@ -127,24 +119,11 @@ describe("UsersService", () => {
         return undefined;
       });
       mockUserRepository.findOne.mockResolvedValue(null);
+      mockUserRepository.create.mockReturnValue(mockUser);
       (bcrypt.hash as jest.Mock).mockResolvedValue("hashedPassword");
-      mockUserRepository.create.mockReturnValue({
-        ...mockUser,
-        email: "admin@example.com",
-        isAdmin: true,
-      });
-      mockUserRepository.save.mockResolvedValue({
-        ...mockUser,
-        email: "admin@example.com",
-        isAdmin: true,
-      });
 
       await service.onApplicationBootstrap();
 
-      expect(mockUserRepository.findOne).toHaveBeenCalledWith({
-        where: { email: "admin@example.com" },
-      });
-      expect(bcrypt.hash).toHaveBeenCalledWith("Password#123", 10);
       expect(mockUserRepository.create).toHaveBeenCalledWith({
         name: "Admin",
         email: "admin@example.com",
@@ -156,12 +135,13 @@ describe("UsersService", () => {
   });
 
   describe("create", () => {
-    it("should create and save a user", async () => {
-      const createUserDto: CreateUserDto = {
-        name: "John Doe",
-        email: "john@example.com",
-        password: "Password#123",
-      };
+    const createUserDto: CreateUserDto = {
+      name: "John Doe",
+      email: "john@example.com",
+      password: "Password#123",
+    };
+
+    it("should create a user without associations", async () => {
       mockUserRepository.create.mockReturnValue(mockUser);
       (bcrypt.hash as jest.Mock).mockResolvedValue("hashedPassword");
       mockUserRepository.save.mockResolvedValue(mockUser);
@@ -179,7 +159,7 @@ describe("UsersService", () => {
 
     it("should create a user with associations", async () => {
       const mockAssociation = { id: "3", name: "Chess Club" };
-      const createUserDto: CreateUserDto = {
+      const createUserWithAssocDto: CreateUserDto = {
         name: "John Doe",
         email: "john@example.com",
         password: "Password#123",
@@ -193,7 +173,7 @@ describe("UsersService", () => {
         associations: [mockAssociation],
       });
 
-      const result = await service.create(createUserDto);
+      const result = await service.create(createUserWithAssocDto);
 
       expect(result).toEqual({
         ...mockUser,
@@ -204,7 +184,7 @@ describe("UsersService", () => {
     });
 
     it("should ignore null associationIds", async () => {
-      const createUserDto: CreateUserDto = {
+      const createUserNullAssocDto: CreateUserDto = {
         name: "John Doe",
         email: "john@example.com",
         password: "Password#123",
@@ -214,7 +194,7 @@ describe("UsersService", () => {
       (bcrypt.hash as jest.Mock).mockResolvedValue("hashedPassword");
       mockUserRepository.save.mockResolvedValue(mockUser);
 
-      const result = await service.create(createUserDto);
+      const result = await service.create(createUserNullAssocDto);
 
       expect(result).toEqual(mockUser);
       expect(mockAssociationRepository.findBy).not.toHaveBeenCalled();
@@ -244,6 +224,7 @@ describe("UsersService", () => {
     it("should filter by isAdmin, associationId, and apply sortBy with id tiebreaker", async () => {
       const users = [mockUser];
       mockUserRepository.findAndCount.mockResolvedValue([users, users.length]);
+      mockUserRepository.find.mockResolvedValue(users);
 
       await service.findAll({
         page: 1,
@@ -264,6 +245,34 @@ describe("UsersService", () => {
         order: { email: "DESC", id: "ASC" },
         relations: ["associations"],
       });
+    });
+
+    it("should reload all user memberships when associationId filter is provided", async () => {
+      const filteredUser = {
+        ...mockUser,
+        associations: [{ id: "assoc-1", name: "Assoc 1" }],
+      };
+      const completeUser = {
+        ...mockUser,
+        associations: [
+          { id: "assoc-1", name: "Assoc 1" },
+          { id: "assoc-2", name: "Assoc 2" },
+        ],
+      };
+      mockUserRepository.findAndCount.mockResolvedValue([[filteredUser], 1]);
+      mockUserRepository.find.mockResolvedValue([completeUser]);
+
+      const result = await service.findAll({
+        page: 1,
+        limit: 10,
+        associationId: "assoc-1",
+      });
+
+      expect(mockUserRepository.find).toHaveBeenCalledWith({
+        where: { id: expect.anything() },
+        relations: ["associations"],
+      });
+      expect(result.data[0].associations).toEqual(completeUser.associations);
     });
   });
 

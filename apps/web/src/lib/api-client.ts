@@ -99,25 +99,33 @@ export async function fetchAllPages<T>(
   const totalPages = firstRes.meta?.totalPages ?? 1;
 
   if (totalPages > 1) {
-    const pagePromises: Promise<T[] | PaginatedResponse<T>>[] = [];
+    const pageNumbers: number[] = [];
     for (let p = 2; p <= totalPages; p++) {
-      searchParams.set("page", String(p));
-      const pageUrl = `${base}?${searchParams.toString()}`;
-      pagePromises.push(
-        apiClient<T[] | PaginatedResponse<T>>(pageUrl, options),
-      );
+      pageNumbers.push(p);
     }
-    const subsequentPages = await Promise.all(pagePromises);
-    for (const pageRes of subsequentPages) {
-      if (
-        pageRes &&
-        typeof pageRes === "object" &&
-        "data" in pageRes &&
-        Array.isArray(pageRes.data)
-      ) {
-        items.push(...pageRes.data);
-      } else if (Array.isArray(pageRes)) {
-        items.push(...pageRes);
+
+    const CONCURRENCY_LIMIT = 3;
+    for (let i = 0; i < pageNumbers.length; i += CONCURRENCY_LIMIT) {
+      const chunk = pageNumbers.slice(i, i + CONCURRENCY_LIMIT);
+      const chunkPromises = chunk.map((p) => {
+        const nextParams = new URLSearchParams(query);
+        nextParams.set("limit", String(pageSize));
+        nextParams.set("page", String(p));
+        const pageUrl = `${base}?${nextParams.toString()}`;
+        return apiClient<T[] | PaginatedResponse<T>>(pageUrl, options);
+      });
+      const subsequentPages = await Promise.all(chunkPromises);
+      for (const pageRes of subsequentPages) {
+        if (
+          pageRes &&
+          typeof pageRes === "object" &&
+          "data" in pageRes &&
+          Array.isArray(pageRes.data)
+        ) {
+          items.push(...pageRes.data);
+        } else if (Array.isArray(pageRes)) {
+          items.push(...pageRes);
+        }
       }
     }
   }
