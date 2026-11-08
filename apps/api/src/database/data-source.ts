@@ -5,6 +5,7 @@ import { Association } from "@/associations/entities/association.entity";
 import { Course } from "@/courses/entities/course.entity";
 import { Event } from "@/events/entities/event.entity";
 import { Faculty } from "@/faculties/entities/faculty.entity";
+import { Product } from "@/products/entities/product.entity";
 import { Request } from "@/requests/entities/request.entity";
 import { Schedule } from "@/services/entity/schedule.entity";
 import { Service } from "@/services/entity/service.entity";
@@ -24,6 +25,7 @@ export const ENTITIES = [
   Service,
   Schedule,
   Request,
+  Product,
 ];
 
 export const getDataSourceOptions = (): DataSourceOptions => {
