@@ -158,6 +158,7 @@ export function AdminRequestsPage() {
   const table = useReactTable({
     data: requests,
     columns,
+    getRowId: (row) => row.id,
     autoResetPageIndex: false,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -227,7 +228,9 @@ export function AdminRequestsPage() {
 
   const handleTypeFilterChange = (values: string[]) => {
     setTypeFilter(values);
-    table.getColumn("type")?.setFilterValue(values.length ? values : undefined);
+    table
+      .getColumn("title")
+      ?.setFilterValue(values.length ? values : undefined);
     table.setPageIndex(0);
   };
 
@@ -242,7 +245,7 @@ export function AdminRequestsPage() {
   const handleAssociationFilterChange = (values: string[]) => {
     setAssociationFilter(values);
     table
-      .getColumn("targetAssociation")
+      .getColumn("requestedBy")
       ?.setFilterValue(values.length ? values : undefined);
     table.setPageIndex(0);
   };

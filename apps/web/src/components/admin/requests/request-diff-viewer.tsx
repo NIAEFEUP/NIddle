@@ -1,18 +1,9 @@
-import {
-  ArrowRight,
-  CheckCircle2,
-  ChevronDown,
-  ChevronRight,
-  Code2,
-  FileText,
-  Trash2,
-} from "lucide-react";
+import { ArrowRight, ChevronDown, ChevronRight } from "lucide-react";
 import * as React from "react";
 import type {
   RequestItem,
   ScheduleItem,
 } from "@/components/admin/requests/request-types";
-import { Badge } from "@/components/ui/badge";
 
 const FIELD_LABELS: Record<string, string> = {
   name: "Name",
@@ -38,6 +29,47 @@ const DAY_NAMES = [
   "Friday",
   "Saturday",
 ];
+
+function formatDayName(day: number | string | undefined | null): string {
+  if (day === undefined || day === null) return "Unknown";
+  if (typeof day === "number") {
+    return DAY_NAMES[day] ?? `Day ${day}`;
+  }
+  if (typeof day === "string") {
+    const num = Number.parseInt(day, 10);
+    if (!Number.isNaN(num) && DAY_NAMES[num]) {
+      return DAY_NAMES[num];
+    }
+    return day.charAt(0).toUpperCase() + day.slice(1).toLowerCase();
+  }
+  return String(day);
+}
+
+function cleanTime(timeStr?: any): string {
+  if (!timeStr || typeof timeStr !== "string") return "";
+  const match = timeStr.match(/^(\d{1,2}:\d{2})(?::\d{2})?$/);
+  return match ? match[1] : timeStr;
+}
+
+function formatScheduleTime(item: ScheduleItem | Record<string, any>): string {
+  const startRaw =
+    item.startTime ?? item.openingTime ?? item.start ?? item.open;
+  const endRaw = item.endTime ?? item.closingTime ?? item.end ?? item.close;
+
+  const start = cleanTime(startRaw);
+  const end = cleanTime(endRaw);
+
+  if (start && end) {
+    return `${start} – ${end}`;
+  }
+  if (start) {
+    return `From ${start}`;
+  }
+  if (end) {
+    return `Until ${end}`;
+  }
+  return "Hours not specified";
+}
 
 function formatFieldValue(key: string, value: any): React.ReactNode {
   if (value === undefined || value === null || value === "") {
@@ -74,19 +106,29 @@ function formatFieldValue(key: string, value: any): React.ReactNode {
     }
     return (
       <div className="flex flex-col gap-1 text-xs">
-        {value.map((item: ScheduleItem) => (
-          <div
-            key={`${item.dayOfWeek}-${item.openingTime}-${item.closingTime}`}
-            className="flex items-center gap-2 font-mono"
-          >
-            <span className="w-24 font-medium text-foreground">
-              {DAY_NAMES[item.dayOfWeek] ?? `Day ${item.dayOfWeek}`}:
-            </span>
-            <span className="text-muted-foreground">
-              {item.openingTime} – {item.closingTime}
-            </span>
-          </div>
-        ))}
+        {value.map((item: any) => {
+          if (typeof item === "string") {
+            return (
+              <div key={item} className="font-mono text-muted-foreground">
+                {item}
+              </div>
+            );
+          }
+          const dayName = formatDayName(item.dayOfWeek);
+          const time = formatScheduleTime(item);
+
+          return (
+            <div
+              key={`${dayName}-${time}`}
+              className="flex items-center gap-3 font-mono"
+            >
+              <span className="w-24 font-medium text-foreground">
+                {dayName}:
+              </span>
+              <span className="text-muted-foreground">{time}</span>
+            </div>
+          );
+        })}
       </div>
     );
   }
@@ -104,6 +146,19 @@ function formatFieldValue(key: string, value: any): React.ReactNode {
   }
 
   return String(value);
+}
+
+function areSchedulesEqual(schedA: any[], schedB: any[]): boolean {
+  if (schedA.length !== schedB.length) return false;
+  return schedA.every((itemA, i) => {
+    const itemB = schedB[i];
+    if (!itemB) return false;
+    const dayA = formatDayName(itemA.dayOfWeek);
+    const dayB = formatDayName(itemB.dayOfWeek);
+    const timeA = formatScheduleTime(itemA);
+    const timeB = formatScheduleTime(itemB);
+    return dayA === dayB && timeA === timeB;
+  });
 }
 
 function areValuesEqual(valA: any, valB: any): boolean {
@@ -126,6 +181,24 @@ function areValuesEqual(valA: any, valB: any): boolean {
     }
   }
 
+  if (Array.isArray(valA) && Array.isArray(valB)) {
+    const isSchedA =
+      valA.length > 0 &&
+      (valA[0]?.dayOfWeek !== undefined ||
+        valA[0]?.startTime !== undefined ||
+        valA[0]?.openingTime !== undefined);
+    const isSchedB =
+      valB.length > 0 &&
+      (valB[0]?.dayOfWeek !== undefined ||
+        valB[0]?.startTime !== undefined ||
+        valB[0]?.openingTime !== undefined);
+
+    if (isSchedA || isSchedB) {
+      return areSchedulesEqual(valA, valB);
+    }
+    return JSON.stringify(valA) === JSON.stringify(valB);
+  }
+
   if (typeof valA === "object" && typeof valB === "object") {
     return JSON.stringify(valA) === JSON.stringify(valB);
   }
@@ -138,81 +211,51 @@ export interface RequestDiffViewerProps {
 }
 
 export function RequestDiffViewer({ request }: RequestDiffViewerProps) {
-  const [showRawJson, setShowRawJson] = React.useState(false);
   const [showUnchanged, setShowUnchanged] = React.useState(false);
 
-  const { action, type, payload, targetEvent, targetService } = request;
+  const { action, payload, targetEvent, targetService } = request;
   const target = targetEvent || targetService || null;
 
   if (action === "Delete Existing") {
-    return (
-      <div className="space-y-4">
-        <div className="rounded-lg border border-destructive/30 bg-destructive/10 p-4">
-          <div className="flex items-start gap-3">
-            <Trash2 className="mt-0.5 size-5 shrink-0 text-destructive" />
-            <div className="space-y-1">
-              <h4 className="text-sm font-semibold text-destructive">
-                Resource Scheduled for Permanent Deletion
-              </h4>
-              <p className="text-xs text-muted-foreground">
-                Approving this request will permanently remove the live{" "}
-                {type.toLowerCase()}{" "}
-                <span className="font-semibold text-foreground">
-                  &ldquo;{target?.name || "Unknown item"}&rdquo;
-                </span>{" "}
-                from the database.
-              </p>
-            </div>
-          </div>
+    if (!target) {
+      return (
+        <div className="rounded-lg border bg-card p-4 text-center text-xs text-muted-foreground italic">
+          Resource details not found
         </div>
+      );
+    }
 
-        {target && (
-          <div className="rounded-lg border bg-card p-4 space-y-3">
-            <h5 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Current Live Resource Details
-            </h5>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
-              <div>
-                <span className="text-muted-foreground">Name:</span>{" "}
-                <span className="font-medium text-foreground">
-                  {target.name}
-                </span>
-              </div>
-              {target.description && (
-                <div className="col-span-full">
-                  <span className="text-muted-foreground">Description:</span>{" "}
-                  <span className="text-foreground">{target.description}</span>
-                </div>
-              )}
-              {target.location && (
-                <div>
-                  <span className="text-muted-foreground">Location:</span>{" "}
-                  <span className="font-medium text-foreground">
-                    {target.location}
-                  </span>
-                </div>
-              )}
-              {target.startDate && (
-                <div>
-                  <span className="text-muted-foreground">Start:</span>{" "}
-                  {formatFieldValue("startDate", target.startDate)}
-                </div>
-              )}
-              {target.endDate && (
-                <div>
-                  <span className="text-muted-foreground">End:</span>{" "}
-                  {formatFieldValue("endDate", target.endDate)}
-                </div>
-              )}
+    const targetEntries = Object.entries(target).filter(
+      ([key, val]) =>
+        !["id", "associationId", "createdAt", "updatedAt"].includes(key) &&
+        val !== undefined &&
+        val !== null &&
+        val !== "",
+    );
+
+    return (
+      <div className="space-y-3">
+        <div className="rounded-lg border bg-card divide-y">
+          {targetEntries.length === 0 ? (
+            <div className="p-3 text-center text-xs text-muted-foreground italic">
+              No resource attributes available
             </div>
-          </div>
-        )}
-
-        <RawJsonToggle
-          show={showRawJson}
-          onToggle={() => setShowRawJson(!showRawJson)}
-          data={{ target, requestInfo: { id: request.id, type, action } }}
-        />
+          ) : (
+            targetEntries.map(([key, val]) => (
+              <div
+                key={key}
+                className="grid grid-cols-1 sm:grid-cols-3 gap-2 px-3.5 py-2 text-xs"
+              >
+                <span className="font-medium text-muted-foreground">
+                  {FIELD_LABELS[key] || key}
+                </span>
+                <div className="sm:col-span-2 text-foreground font-medium break-words">
+                  {formatFieldValue(key, val)}
+                </div>
+              </div>
+            ))
+          )}
+        </div>
       </div>
     );
   }
@@ -221,49 +264,28 @@ export function RequestDiffViewer({ request }: RequestDiffViewerProps) {
     const payloadEntries = Object.entries(payload || {});
 
     return (
-      <div className="space-y-4">
-        <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/10 p-3.5 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <CheckCircle2 className="size-4 text-emerald-600 dark:text-emerald-400" />
-            <span className="text-xs font-medium text-emerald-700 dark:text-emerald-300">
-              New {type} Registration Request
-            </span>
-          </div>
-          <Badge
-            variant="outline"
-            className="border-emerald-500/30 text-emerald-600 dark:text-emerald-400"
-          >
-            {payloadEntries.length} configured fields
-          </Badge>
-        </div>
-
+      <div className="space-y-3">
         <div className="rounded-lg border bg-card divide-y">
           {payloadEntries.length === 0 ? (
-            <div className="p-4 text-center text-xs text-muted-foreground italic">
+            <div className="p-3 text-center text-xs text-muted-foreground italic">
               No payload data provided
             </div>
           ) : (
             payloadEntries.map(([key, val]) => (
               <div
                 key={key}
-                className="grid grid-cols-1 md:grid-cols-3 gap-2 p-3 text-xs"
+                className="grid grid-cols-1 sm:grid-cols-3 gap-2 px-3.5 py-2 text-xs"
               >
                 <span className="font-medium text-muted-foreground">
                   {FIELD_LABELS[key] || key}
                 </span>
-                <div className="md:col-span-2 text-foreground font-medium">
+                <div className="sm:col-span-2 text-foreground font-medium break-words">
                   {formatFieldValue(key, val)}
                 </div>
               </div>
             ))
           )}
         </div>
-
-        <RawJsonToggle
-          show={showRawJson}
-          onToggle={() => setShowRawJson(!showRawJson)}
-          data={{ payload }}
-        />
       </div>
     );
   }
@@ -306,77 +328,59 @@ export function RequestDiffViewer({ request }: RequestDiffViewerProps) {
   }
 
   return (
-    <div className="space-y-4">
-      {/* Diff overview header */}
-      <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border bg-muted/40 p-3">
-        <div className="flex items-center gap-2">
-          <FileText className="size-4 text-muted-foreground" />
-          <span className="text-xs font-medium text-foreground">
-            Changes for:{" "}
-            <span className="font-semibold">
-              {target?.name || "Existing Resource"}
-            </span>
+    <div className="space-y-3">
+      {/* Diff overview summary */}
+      <div className="flex items-center justify-between text-xs">
+        <span className="font-medium text-muted-foreground">
+          {changedFields.length}{" "}
+          {changedFields.length === 1 ? "field modified" : "fields modified"}
+        </span>
+        {unchangedFields.length > 0 && (
+          <span className="text-muted-foreground">
+            {unchangedFields.length} unchanged
           </span>
-        </div>
-        <div className="flex items-center gap-2">
-          <Badge
-            variant="secondary"
-            className="border-sky-500/30 bg-sky-500/10 text-sky-600 dark:text-sky-400 font-semibold"
-          >
-            {changedFields.length}{" "}
-            {changedFields.length === 1 ? "field modified" : "fields modified"}
-          </Badge>
-          {unchangedFields.length > 0 && (
-            <Badge variant="outline" className="text-muted-foreground">
-              {unchangedFields.length} unchanged
-            </Badge>
-          )}
-        </div>
+        )}
       </div>
 
       {/* Changed fields inspection table */}
-      <div className="rounded-lg border bg-card overflow-hidden">
-        <div className="bg-muted px-4 py-2 border-b text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-          Changed Attributes
-        </div>
+      <div className="rounded-lg border bg-card divide-y overflow-hidden">
         {changedFields.length === 0 ? (
-          <div className="p-4 text-center text-xs text-muted-foreground italic">
+          <div className="p-3 text-center text-xs text-muted-foreground italic">
             No fields differ from the current resource.
           </div>
         ) : (
-          <div className="divide-y">
-            {changedFields.map(({ key, label, oldVal, newVal }) => (
-              <div key={key} className="p-3.5 space-y-2 text-xs">
-                <div className="font-semibold text-foreground flex items-center justify-between">
-                  <span>{label}</span>
-                  <span className="text-[11px] font-mono text-muted-foreground">
-                    ({key})
-                  </span>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 items-start">
-                  {/* Current / Before */}
-                  <div className="rounded-md border border-rose-500/20 bg-rose-500/5 p-2.5">
-                    <div className="text-[10px] font-semibold uppercase tracking-wider text-rose-600 dark:text-rose-400 mb-1">
-                      Current Value
-                    </div>
-                    <div className="text-foreground line-through opacity-80">
-                      {formatFieldValue(key, oldVal)}
-                    </div>
+          changedFields.map(({ key, label, oldVal, newVal }) => (
+            <div key={key} className="p-3 space-y-1.5 text-xs">
+              <div className="font-medium text-foreground flex items-center justify-between">
+                <span>{label}</span>
+                <span className="text-[11px] font-mono text-muted-foreground">
+                  {key}
+                </span>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 items-start">
+                {/* Current / Before */}
+                <div className="rounded-md border bg-muted/40 p-2 space-y-0.5">
+                  <div className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">
+                    Current
                   </div>
+                  <div className="text-muted-foreground line-through break-words">
+                    {formatFieldValue(key, oldVal)}
+                  </div>
+                </div>
 
-                  {/* Proposed / After */}
-                  <div className="rounded-md border border-emerald-500/20 bg-emerald-500/5 p-2.5">
-                    <div className="text-[10px] font-semibold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 mb-1 flex items-center gap-1">
-                      <ArrowRight className="size-3" /> Proposed Value
-                    </div>
-                    <div className="text-foreground font-medium">
-                      {formatFieldValue(key, newVal)}
-                    </div>
+                {/* Proposed / After */}
+                <div className="rounded-md border bg-background p-2 space-y-0.5">
+                  <div className="text-[10px] font-medium text-foreground uppercase tracking-wider flex items-center gap-1">
+                    <ArrowRight className="size-3 text-muted-foreground" />{" "}
+                    Proposed
+                  </div>
+                  <div className="text-foreground font-medium break-words">
+                    {formatFieldValue(key, newVal)}
                   </div>
                 </div>
               </div>
-            ))}
-          </div>
+            </div>
+          ))
         )}
       </div>
 
@@ -386,7 +390,7 @@ export function RequestDiffViewer({ request }: RequestDiffViewerProps) {
           <button
             type="button"
             onClick={() => setShowUnchanged(!showUnchanged)}
-            className="w-full flex items-center justify-between px-4 py-2.5 text-xs text-muted-foreground hover:bg-muted/50 transition-colors"
+            className="w-full flex items-center justify-between px-3.5 py-2 text-xs text-muted-foreground hover:bg-muted/50 transition-colors"
           >
             <span>
               {showUnchanged ? "Hide" : "Show"} {unchangedFields.length}{" "}
@@ -403,60 +407,16 @@ export function RequestDiffViewer({ request }: RequestDiffViewerProps) {
               {unchangedFields.map(({ key, label, val }) => (
                 <div
                   key={key}
-                  className="grid grid-cols-1 md:grid-cols-3 gap-2 px-4 py-2 text-xs"
+                  className="grid grid-cols-1 sm:grid-cols-3 gap-2 px-3.5 py-1.5 text-xs"
                 >
                   <span className="text-muted-foreground">{label}</span>
-                  <div className="md:col-span-2 text-foreground">
+                  <div className="sm:col-span-2 text-foreground">
                     {formatFieldValue(key, val)}
                   </div>
                 </div>
               ))}
             </div>
           )}
-        </div>
-      )}
-
-      {/* Raw JSON toggle */}
-      <RawJsonToggle
-        show={showRawJson}
-        onToggle={() => setShowRawJson(!showRawJson)}
-        data={{ proposedPayload: payload, currentResource: target }}
-      />
-    </div>
-  );
-}
-
-function RawJsonToggle({
-  show,
-  onToggle,
-  data,
-}: {
-  show: boolean;
-  onToggle: () => void;
-  data: any;
-}) {
-  return (
-    <div className="rounded-lg border bg-card overflow-hidden">
-      <button
-        type="button"
-        onClick={onToggle}
-        className="w-full flex items-center justify-between px-4 py-2.5 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
-      >
-        <span className="flex items-center gap-1.5">
-          <Code2 className="size-3.5" />
-          Raw JSON Inspection
-        </span>
-        {show ? (
-          <ChevronDown className="size-4" />
-        ) : (
-          <ChevronRight className="size-4" />
-        )}
-      </button>
-      {show && (
-        <div className="border-t bg-muted/40 p-3 overflow-x-auto">
-          <pre className="text-[11px] font-mono leading-relaxed text-foreground">
-            {JSON.stringify(data, null, 2)}
-          </pre>
         </div>
       )}
     </div>

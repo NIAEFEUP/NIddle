@@ -1,7 +1,6 @@
-import { Calendar, Check, Clock, Layers, X, XCircle } from "lucide-react";
+import { AlertCircle, Check, Clock, Code2, FileText, X } from "lucide-react";
 import { RequestDiffViewer } from "@/components/admin/requests/request-diff-viewer";
 import {
-  getRequestSubtitle,
   getRequestTitle,
   type RequestItem,
 } from "@/components/admin/requests/request-types";
@@ -9,12 +8,22 @@ import { InitialsAvatar } from "@/components/common/initials-avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
+  CodeBlock,
+  CodeBlockActions,
+  CodeBlockContent,
+  CodeBlockCopyButton,
+  CodeBlockHeader,
+  CodeBlockTitle,
+} from "@/components/ui/code-block";
+import {
   Dialog,
   DialogContent,
   DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getInitials } from "@/lib/utils";
 
 export interface RequestDetailDialogProps {
@@ -35,14 +44,14 @@ export function RequestDetailDialog({
   if (!request) return null;
 
   const title = getRequestTitle(request);
-  const subtitle = getRequestSubtitle(request);
   const assocName =
-    request.targetAssociation?.acronym ||
     request.targetAssociation?.name ||
+    request.targetAssociation?.acronym ||
     "Unknown Association";
-  const assocInitials = getInitials(assocName, "A");
+  const assocAcronym = request.targetAssociation?.acronym;
+  const assocInitials = getInitials(assocAcronym || assocName, "A");
 
-  const requesterName = request.requestedBy?.name || "System/Unknown";
+  const requesterName = request.requestedBy?.name || "System";
   const requesterEmail = request.requestedBy?.email;
   const requesterInitials = getInitials(requesterName, "U");
 
@@ -58,164 +67,253 @@ export function RequestDetailDialog({
       })
     : null;
 
+  const hasActions =
+    request.status === "Pending" && (Boolean(onApprove) || Boolean(onReject));
+
+  const jsonData =
+    request.action === "Create"
+      ? { payload: request.payload }
+      : request.action === "Update Existing"
+        ? {
+            proposedPayload: request.payload,
+            currentResource:
+              request.targetEvent || request.targetService || null,
+          }
+        : {
+            target: request.targetEvent || request.targetService || null,
+            requestInfo: {
+              id: request.id,
+              type: request.type,
+              action: request.action,
+            },
+          };
+
+  const jsonString = JSON.stringify(jsonData, null, 2);
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader className="space-y-2">
-          <div className="flex flex-wrap items-center gap-2">
-            {/* Type badge */}
-            <Badge variant="secondary" className="gap-1 font-medium">
-              {request.type === "Event" ? (
-                <Calendar className="size-3" />
-              ) : (
-                <Layers className="size-3" />
-              )}
+      <DialogContent className="sm:max-w-3xl lg:max-w-4xl max-h-[85vh] flex flex-col p-0 gap-0 overflow-hidden">
+        {/* Header */}
+        <DialogHeader className="px-5 py-4 border-b space-y-1.5 shrink-0">
+          <div className="flex items-center gap-1.5">
+            <Badge
+              variant="secondary"
+              className="font-medium text-[11px] h-5 px-1.5"
+            >
               {request.type}
             </Badge>
-
-            {/* Action badge */}
             <Badge
               variant="outline"
-              className={
-                request.action === "Create"
-                  ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
-                  : request.action === "Update Existing"
-                    ? "border-sky-500/30 bg-sky-500/10 text-sky-600 dark:text-sky-400"
-                    : "border-rose-500/30 bg-rose-500/10 text-rose-600 dark:text-rose-400"
-              }
+              className="font-medium text-[11px] h-5 px-1.5"
             >
               {request.action}
             </Badge>
-
-            {/* Status badge */}
-            <Badge
-              variant="outline"
-              className={
-                request.status === "Pending"
-                  ? "border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400 gap-1"
-                  : request.status === "Approved"
-                    ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 gap-1"
-                    : "border-rose-500/30 bg-rose-500/10 text-rose-600 dark:text-rose-400 gap-1"
-              }
-            >
-              {request.status === "Pending" && <Clock className="size-3" />}
-              {request.status === "Approved" && <Check className="size-3" />}
-              {request.status === "Rejected" && <X className="size-3" />}
-              {request.status}
-            </Badge>
           </div>
-
-          <DialogTitle className="text-lg font-semibold tracking-tight">
+          <DialogTitle className="text-lg font-semibold tracking-tight text-foreground">
             {title}
           </DialogTitle>
-          {subtitle && (
-            <p className="text-xs text-muted-foreground">{subtitle}</p>
-          )}
         </DialogHeader>
 
-        {/* Metadata grid */}
-        <div className="rounded-lg border bg-muted/30 p-3.5 grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
-          <div className="space-y-1">
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-              Target Association
-            </span>
-            <div className="flex items-center gap-2">
-              <InitialsAvatar initials={assocInitials} size="sm" />
-              <span className="font-medium text-foreground">{assocName}</span>
-            </div>
+        {/* 2-Column Layout */}
+        <div className="flex-1 overflow-y-auto p-5 grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Main Column (Left, 2 cols): Switchable GUI Summary vs JSON Payload */}
+          <div className="md:col-span-2">
+            <Tabs defaultValue="summary" className="w-full space-y-3">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div>
+                  <h3 className="text-xs font-semibold text-foreground uppercase tracking-wider">
+                    {request.action === "Create"
+                      ? "Resource Details"
+                      : request.action === "Update Existing"
+                        ? "Proposed Changes"
+                        : "Resource to Delete"}
+                  </h3>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    {request.action === "Create"
+                      ? `Review details for the new ${request.type.toLowerCase()} submission.`
+                      : request.action === "Update Existing"
+                        ? "Review differences between current resource and proposed changes."
+                        : `This live ${request.type.toLowerCase()} has been requested for removal.`}
+                  </p>
+                </div>
+
+                <TabsList className="shrink-0 h-7 p-0.5">
+                  <TabsTrigger
+                    value="summary"
+                    className="text-xs gap-1 px-2.5 py-0.5"
+                  >
+                    <FileText className="size-3" />
+                    Summary
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="json"
+                    className="text-xs gap-1 px-2.5 py-0.5"
+                  >
+                    <Code2 className="size-3" />
+                    JSON
+                  </TabsTrigger>
+                </TabsList>
+              </div>
+
+              {/* GUI Summary View */}
+              <TabsContent value="summary" className="mt-0">
+                <RequestDiffViewer request={request} />
+              </TabsContent>
+
+              {/* JSON Payload View */}
+              <TabsContent value="json" className="mt-0">
+                <CodeBlock size="sm">
+                  <CodeBlockHeader className="px-3 pt-2">
+                    <CodeBlockTitle>payload.json</CodeBlockTitle>
+                    <CodeBlockActions>
+                      <CodeBlockCopyButton value={jsonString} />
+                    </CodeBlockActions>
+                  </CodeBlockHeader>
+                  <CodeBlockContent className="max-h-[48vh] text-xs px-3 py-2">
+                    {jsonString}
+                  </CodeBlockContent>
+                </CodeBlock>
+              </TabsContent>
+            </Tabs>
           </div>
 
-          <div className="space-y-1">
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-              Requested By
-            </span>
-            <div className="flex items-center gap-2">
-              <InitialsAvatar initials={requesterInitials} size="sm" />
-              <div className="flex flex-col truncate">
-                <span className="font-medium text-foreground truncate">
-                  {requesterName}
+          {/* Sidebar Column (Right, 1 col): Metadata & Context */}
+          <div className="md:col-span-1 space-y-4 md:border-l md:pl-5">
+            {/* Status Section */}
+            <div className="space-y-1.5">
+              <span className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground block">
+                Status
+              </span>
+              <div>
+                <Badge
+                  variant={
+                    request.status === "Approved"
+                      ? "default"
+                      : request.status === "Rejected"
+                        ? "destructive"
+                        : "secondary"
+                  }
+                  className="gap-1 font-medium text-xs"
+                >
+                  {request.status === "Pending" && <Clock className="size-3" />}
+                  {request.status === "Approved" && (
+                    <Check className="size-3" />
+                  )}
+                  {request.status === "Rejected" && <X className="size-3" />}
+                  {request.status}
+                </Badge>
+              </div>
+
+              {request.status === "Rejected" && request.rejectionReason && (
+                <div className="rounded-md border border-destructive/20 bg-destructive/10 p-2.5 mt-2 space-y-1">
+                  <div className="flex items-center gap-1.5 text-xs font-semibold text-destructive">
+                    <AlertCircle className="size-3.5" />
+                    Rejection Reason
+                  </div>
+                  <p className="text-xs text-foreground leading-relaxed">
+                    {request.rejectionReason}
+                  </p>
+                </div>
+              )}
+            </div>
+
+            <Separator />
+
+            {/* Target Association */}
+            <div className="space-y-1.5">
+              <span className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground block">
+                Association
+              </span>
+              <div className="flex items-center gap-2.5">
+                <InitialsAvatar initials={assocInitials} size="sm" />
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs font-medium text-foreground truncate leading-tight">
+                    {assocName}
+                  </p>
+                  {assocAcronym && assocAcronym !== assocName && (
+                    <p className="text-[11px] text-muted-foreground truncate mt-0.5">
+                      {assocAcronym}
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <Separator />
+
+            {/* Requested By */}
+            <div className="space-y-1.5">
+              <span className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground block">
+                Requested by
+              </span>
+              <div className="flex items-center gap-2.5">
+                <InitialsAvatar initials={requesterInitials} size="sm" />
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs font-medium text-foreground truncate leading-tight">
+                    {requesterName}
+                  </p>
+                  {requesterEmail && (
+                    <p className="text-[11px] text-muted-foreground truncate mt-0.5">
+                      {requesterEmail}
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <Separator />
+
+            {/* Timestamps */}
+            <div className="space-y-3 text-xs">
+              <div className="space-y-0.5">
+                <span className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground block">
+                  Submitted
                 </span>
-                {requesterEmail && (
-                  <span className="text-[10px] text-muted-foreground truncate">
-                    {requesterEmail}
+                <p className="text-foreground">{createdDate}</p>
+              </div>
+              {reviewedDate && (
+                <div className="space-y-0.5">
+                  <span className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground block">
+                    Reviewed
                   </span>
-                )}
-              </div>
+                  <p className="text-foreground">{reviewedDate}</p>
+                </div>
+              )}
             </div>
           </div>
+        </div>
 
-          <div className="space-y-1">
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-              Submitted
-            </span>
-            <div className="text-muted-foreground">{createdDate}</div>
-            {reviewedDate && (
-              <div className="text-[10px] text-muted-foreground">
-                Reviewed: {reviewedDate}
-              </div>
+        {/* Footer */}
+        {hasActions && (
+          <DialogFooter className="m-0 px-5 py-3 border-t bg-muted/20 flex flex-row items-center justify-end gap-2.5 sm:justify-end shrink-0">
+            {onReject && (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  onOpenChange(false);
+                  onReject(request);
+                }}
+                className="text-destructive hover:bg-destructive/10 border-destructive/30"
+              >
+                Reject
+              </Button>
             )}
-          </div>
-        </div>
-
-        {/* Rejection callout if rejected */}
-        {request.status === "Rejected" && request.rejectionReason && (
-          <div className="rounded-lg border border-rose-500/30 bg-rose-500/10 p-3.5 space-y-1">
-            <div className="flex items-center gap-1.5 text-xs font-semibold text-rose-600 dark:text-rose-400">
-              <XCircle className="size-4" />
-              Rejection Reason
-            </div>
-            <p className="text-xs text-foreground leading-relaxed pl-5.5">
-              {request.rejectionReason}
-            </p>
-          </div>
+            {onApprove && (
+              <Button
+                type="button"
+                size="sm"
+                onClick={() => {
+                  onOpenChange(false);
+                  onApprove(request);
+                }}
+              >
+                Approve Request
+              </Button>
+            )}
+          </DialogFooter>
         )}
-
-        {/* Diff / payload inspection */}
-        <div className="mt-2">
-          <RequestDiffViewer request={request} />
-        </div>
-
-        <DialogFooter className="gap-2 sm:gap-0 mt-4 border-t pt-3">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => onOpenChange(false)}
-          >
-            Close
-          </Button>
-
-          {request.status === "Pending" && (
-            <div className="flex items-center gap-2">
-              {onReject && (
-                <Button
-                  type="button"
-                  variant="destructive"
-                  onClick={() => {
-                    onOpenChange(false);
-                    onReject(request);
-                  }}
-                  className="gap-1.5"
-                >
-                  <X className="size-3.5" />
-                  Reject Request
-                </Button>
-              )}
-              {onApprove && (
-                <Button
-                  type="button"
-                  onClick={() => {
-                    onOpenChange(false);
-                    onApprove(request);
-                  }}
-                  className="gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white"
-                >
-                  <Check className="size-3.5" />
-                  Approve Request
-                </Button>
-              )}
-            </div>
-          )}
-        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

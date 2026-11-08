@@ -5,9 +5,15 @@ export type RequestType = "Service" | "Event";
 export type RequestAction = "Create" | "Update Existing" | "Delete Existing";
 
 export interface ScheduleItem {
-  dayOfWeek: number;
-  openingTime: string;
-  closingTime: string;
+  dayOfWeek: number | string;
+  startTime?: string;
+  endTime?: string;
+  openingTime?: string;
+  closingTime?: string;
+  start?: string;
+  end?: string;
+  open?: string;
+  close?: string;
 }
 
 export interface RequestItem {
@@ -43,30 +49,12 @@ export function getRequestTitle(request: RequestItem): string {
     return request.targetService.name;
   }
 
-  return `${request.action} ${request.type}`;
+  return "Untitled Request";
 }
 
 /**
- * Extracts a concise summary subtitle for the request
+ * Extracts a concise summary subtitle for the request (e.g. Event or Service)
  */
 export function getRequestSubtitle(request: RequestItem): string {
-  if (request.action === "Create") {
-    return `Proposed new ${request.type.toLowerCase()}`;
-  }
-
-  const targetName = request.targetEvent?.name || request.targetService?.name;
-
-  if (request.action === "Update Existing") {
-    return targetName
-      ? `Updating: ${targetName}`
-      : `Update existing ${request.type.toLowerCase()}`;
-  }
-
-  if (request.action === "Delete Existing") {
-    return targetName
-      ? `Target: ${targetName}`
-      : `Delete existing ${request.type.toLowerCase()}`;
-  }
-
-  return "";
+  return request.type;
 }

@@ -1,5 +1,5 @@
 import type { ColumnDef } from "@tanstack/react-table";
-import { Calendar, Check, Clock, Eye, Layers, Trash2, X } from "lucide-react";
+import { Check, Clock, Eye, Trash2, X } from "lucide-react";
 import {
   getRequestSubtitle,
   getRequestTitle,
@@ -21,10 +21,8 @@ import { getInitials } from "@/lib/utils";
 
 export const requestColumnLabels: Record<string, string> = {
   title: "Resource",
-  type: "Type",
   action: "Action",
-  targetAssociation: "Association",
-  requestedBy: "Requester",
+  requestedBy: "Requested by",
   status: "Status",
   createdAt: "Submitted",
 };
@@ -53,43 +51,22 @@ export function getRequestColumns({
       cell: ({ row }) => {
         const title = getRequestTitle(row.original);
         const subtitle = getRequestSubtitle(row.original);
-        const initials = getInitials(title, "R");
 
         return (
           <button
             type="button"
-            className="flex items-center gap-3 font-medium text-foreground text-sm py-1.5 cursor-pointer group text-left"
+            className="flex flex-col items-start font-medium text-foreground text-sm py-1.5 cursor-pointer group text-left"
             onClick={() => onViewDetails(row.original)}
           >
-            <InitialsAvatar initials={initials} size="sm" />
-            <div className="flex flex-col">
-              <span className="font-medium group-hover:text-primary transition-colors">
-                {title}
+            <span className="font-medium group-hover:text-primary transition-colors">
+              {title}
+            </span>
+            {subtitle && (
+              <span className="text-xs text-muted-foreground font-normal">
+                {subtitle}
               </span>
-              {subtitle && (
-                <span className="text-xs text-muted-foreground">
-                  {subtitle}
-                </span>
-              )}
-            </div>
-          </button>
-        );
-      },
-    },
-    {
-      accessorKey: "type",
-      header: "Type",
-      cell: ({ row }) => {
-        const type = row.original.type;
-        return (
-          <Badge variant="secondary" className="gap-1 font-medium text-[11px]">
-            {type === "Event" ? (
-              <Calendar className="size-3" />
-            ) : (
-              <Layers className="size-3" />
             )}
-            {type}
-          </Badge>
+          </button>
         );
       },
       filterFn: (row, _columnId, filterValue) => {
@@ -134,24 +111,31 @@ export function getRequestColumns({
       },
     },
     {
-      id: "targetAssociation",
-      accessorFn: (row) =>
-        row.targetAssociation?.acronym || row.targetAssociation?.name || "",
+      id: "requestedBy",
+      accessorFn: (row) => row.requestedBy?.name || "System",
       header: ({ column }) => (
-        <DataTableSortableHeader column={column} title="Association" />
+        <DataTableSortableHeader column={column} title="Requested by" />
       ),
       cell: ({ row }) => {
+        const user = row.original.requestedBy;
         const assoc = row.original.targetAssociation;
-        if (!assoc) {
-          return <span className="text-xs text-muted-foreground">—</span>;
-        }
-        const label = assoc.acronym || assoc.name;
-        const initials = getInitials(label, "A");
+        const userName = user?.name || "System";
+        const assocLabel = assoc?.acronym || assoc?.name;
+        const initials = getInitials(userName, "U");
 
         return (
           <div className="flex items-center gap-2">
             <InitialsAvatar initials={initials} size="sm" />
-            <span className="text-xs font-medium text-foreground">{label}</span>
+            <div className="flex flex-col">
+              <span className="text-xs font-medium text-foreground">
+                {userName}
+              </span>
+              {assocLabel && (
+                <span className="text-[10px] text-muted-foreground">
+                  on behalf of {assocLabel}
+                </span>
+              )}
+            </div>
           </div>
         );
       },
@@ -165,32 +149,6 @@ export function getRequestColumns({
           return filterValue.includes(String(assocId));
         }
         return String(assocId) === String(filterValue);
-      },
-    },
-    {
-      id: "requestedBy",
-      accessorFn: (row) => row.requestedBy?.name || "",
-      header: "Requester",
-      cell: ({ row }) => {
-        const user = row.original.requestedBy;
-        if (!user) {
-          return <span className="text-xs text-muted-foreground">System</span>;
-        }
-        const initials = getInitials(user.name, "U");
-
-        return (
-          <div className="flex items-center gap-2">
-            <InitialsAvatar initials={initials} size="sm" />
-            <div className="flex flex-col">
-              <span className="text-xs font-medium text-foreground">
-                {user.name}
-              </span>
-              <span className="text-[10px] text-muted-foreground">
-                {user.email}
-              </span>
-            </div>
-          </div>
-        );
       },
     },
     {
