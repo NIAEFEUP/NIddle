@@ -1,4 +1,6 @@
+import { useQuery } from "@tanstack/react-query";
 import { AlertCircle, Check, Clock, Code2, FileText, X } from "lucide-react";
+import * as React from "react";
 import { RequestDiffViewer } from "@/components/admin/requests/request-diff-viewer";
 import {
   getRequestTitle,
@@ -24,6 +26,7 @@ import {
 } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { apiClient } from "@/lib/api-client";
 import { getInitials } from "@/lib/utils";
 
 export interface RequestDetailDialogProps {
@@ -41,50 +44,80 @@ export function RequestDetailDialog({
   onApprove,
   onReject,
 }: RequestDetailDialogProps) {
-  if (!request) return null;
+  const isService =
+    request?.type === "Service" && Boolean(request.targetService?.id);
+  const targetServiceId = request?.targetService?.id;
 
-  const title = getRequestTitle(request);
-  const assocName =
-    request.targetAssociation?.name ||
-    request.targetAssociation?.acronym ||
-    "Unknown Association";
-  const assocAcronym = request.targetAssociation?.acronym;
-  const assocInitials = getInitials(assocAcronym || assocName, "A");
-
-  const requesterName = request.requestedBy?.name || "System";
-  const requesterEmail = request.requestedBy?.email;
-  const requesterInitials = getInitials(requesterName, "U");
-
-  const createdDate = new Date(request.createdAt).toLocaleString(undefined, {
-    dateStyle: "medium",
-    timeStyle: "short",
+  const { data: fullService } = useQuery({
+    queryKey: ["service-detail", targetServiceId],
+    queryFn: () =>
+      apiClient<Record<string, any>>(`/api/services/${targetServiceId}`),
+    enabled: Boolean(open && isService && !request?.targetService?.schedule),
   });
 
-  const reviewedDate = request.reviewedAt
-    ? new Date(request.reviewedAt).toLocaleString(undefined, {
+  const activeRequest = React.useMemo(() => {
+    if (!request) return null;
+    if (fullService && request.targetService) {
+      return {
+        ...request,
+        targetService: {
+          ...request.targetService,
+          ...fullService,
+        },
+      };
+    }
+    return request;
+  }, [request, fullService]);
+
+  if (!activeRequest) return null;
+
+  const title = getRequestTitle(activeRequest);
+  const assocName =
+    activeRequest.targetAssociation?.name ||
+    activeRequest.targetAssociation?.acronym ||
+    "Unknown Association";
+  const assocAcronym = activeRequest.targetAssociation?.acronym;
+  const assocInitials = getInitials(assocAcronym || assocName, "A");
+
+  const requesterName = activeRequest.requestedBy?.name || "System";
+  const requesterEmail = activeRequest.requestedBy?.email;
+  const requesterInitials = getInitials(requesterName, "U");
+
+  const createdDate = new Date(activeRequest.createdAt).toLocaleString(
+    undefined,
+    {
+      dateStyle: "medium",
+      timeStyle: "short",
+    },
+  );
+
+  const reviewedDate = activeRequest.reviewedAt
+    ? new Date(activeRequest.reviewedAt).toLocaleString(undefined, {
         dateStyle: "medium",
         timeStyle: "short",
       })
     : null;
 
   const hasActions =
-    request.status === "Pending" && (Boolean(onApprove) || Boolean(onReject));
+    activeRequest.status === "Pending" &&
+    (Boolean(onApprove) || Boolean(onReject));
 
   const jsonData =
-    request.action === "Create"
-      ? { payload: request.payload }
-      : request.action === "Update Existing"
+    activeRequest.action === "Create"
+      ? { payload: activeRequest.payload }
+      : activeRequest.action === "Update Existing"
         ? {
-            proposedPayload: request.payload,
+            proposedPayload: activeRequest.payload,
             currentResource:
-              request.targetEvent || request.targetService || null,
+              activeRequest.targetEvent || activeRequest.targetService || null,
           }
         : {
-            target: request.targetEvent || request.targetService || null,
+            target:
+              activeRequest.targetEvent || activeRequest.targetService || null,
             requestInfo: {
-              id: request.id,
-              type: request.type,
-              action: request.action,
+              id: activeRequest.id,
+              type: activeRequest.type,
+              action: activeRequest.action,
             },
           };
 
@@ -100,13 +133,13 @@ export function RequestDetailDialog({
               variant="secondary"
               className="font-medium text-[11px] h-5 px-1.5"
             >
-              {request.type}
+              {activeRequest.type}
             </Badge>
             <Badge
               variant="outline"
               className="font-medium text-[11px] h-5 px-1.5"
             >
-              {request.action}
+              {activeRequest.action}
             </Badge>
           </div>
           <DialogTitle className="text-lg font-semibold tracking-tight text-foreground">
@@ -122,18 +155,22 @@ export function RequestDetailDialog({
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <div>
                   <h3 className="text-xs font-semibold text-foreground uppercase tracking-wider">
-                    {request.action === "Create"
+                    {activeRequest.action === "Create"
                       ? "Resource Details"
-                      : request.action === "Update Existing"
+                      : activeRequest.action === "Update Existing"
                         ? "Proposed Changes"
                         : "Resource to Delete"}
                   </h3>
                   <p className="text-xs text-muted-foreground mt-0.5">
-                    {request.action === "Create"
-                      ? `Review details for the new ${request.type.toLowerCase()} submission.`
-                      : request.action === "Update Existing"
+                    {activeRequest.action === "Create"
+                      ? `Review details for the new ${activeRequest.type.toLowerCase()} submission.`
+                      : activeRequest.action === "Update Existing"
                         ? "Review differences between current resource and proposed changes."
-                        : `This live ${request.type.toLowerCase()} has been requested for removal.`}
+                        : activeRequest.status === "Approved"
+                          ? `This ${activeRequest.type.toLowerCase()} was removed upon approval.`
+                          : activeRequest.status === "Rejected"
+                            ? `This request to remove the ${activeRequest.type.toLowerCase()} was rejected.`
+                            : `This live ${activeRequest.type.toLowerCase()} has been requested for removal.`}
                   </p>
                 </div>
 
@@ -157,7 +194,7 @@ export function RequestDetailDialog({
 
               {/* GUI Summary View */}
               <TabsContent value="summary" className="mt-0">
-                <RequestDiffViewer request={request} />
+                <RequestDiffViewer request={activeRequest} />
               </TabsContent>
 
               {/* JSON Payload View */}
@@ -187,34 +224,39 @@ export function RequestDetailDialog({
               <div>
                 <Badge
                   variant={
-                    request.status === "Approved"
+                    activeRequest.status === "Approved"
                       ? "default"
-                      : request.status === "Rejected"
+                      : activeRequest.status === "Rejected"
                         ? "destructive"
                         : "secondary"
                   }
                   className="gap-1 font-medium text-xs"
                 >
-                  {request.status === "Pending" && <Clock className="size-3" />}
-                  {request.status === "Approved" && (
+                  {activeRequest.status === "Pending" && (
+                    <Clock className="size-3" />
+                  )}
+                  {activeRequest.status === "Approved" && (
                     <Check className="size-3" />
                   )}
-                  {request.status === "Rejected" && <X className="size-3" />}
-                  {request.status}
+                  {activeRequest.status === "Rejected" && (
+                    <X className="size-3" />
+                  )}
+                  {activeRequest.status}
                 </Badge>
               </div>
 
-              {request.status === "Rejected" && request.rejectionReason && (
-                <div className="rounded-md border border-destructive/20 bg-destructive/10 p-2.5 mt-2 space-y-1">
-                  <div className="flex items-center gap-1.5 text-xs font-semibold text-destructive">
-                    <AlertCircle className="size-3.5" />
-                    Rejection Reason
+              {activeRequest.status === "Rejected" &&
+                activeRequest.rejectionReason && (
+                  <div className="rounded-md border border-destructive/20 bg-destructive/10 p-2.5 mt-2 space-y-1">
+                    <div className="flex items-center gap-1.5 text-xs font-semibold text-destructive">
+                      <AlertCircle className="size-3.5" />
+                      Rejection Reason
+                    </div>
+                    <p className="text-xs text-foreground leading-relaxed">
+                      {activeRequest.rejectionReason}
+                    </p>
                   </div>
-                  <p className="text-xs text-foreground leading-relaxed">
-                    {request.rejectionReason}
-                  </p>
-                </div>
-              )}
+                )}
             </div>
 
             <Separator />
@@ -293,7 +335,7 @@ export function RequestDetailDialog({
                 size="sm"
                 onClick={() => {
                   onOpenChange(false);
-                  onReject(request);
+                  onReject(activeRequest);
                 }}
                 className="text-destructive hover:bg-destructive/10 border-destructive/30"
               >
@@ -306,7 +348,7 @@ export function RequestDetailDialog({
                 size="sm"
                 onClick={() => {
                   onOpenChange(false);
-                  onApprove(request);
+                  onApprove(activeRequest);
                 }}
               >
                 Approve Request

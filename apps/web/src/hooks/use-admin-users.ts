@@ -72,6 +72,7 @@ export function useAdminUsers() {
         description: "User details updated successfully.",
       });
       queryClient.invalidateQueries({ queryKey: ["admin-users-list"] });
+      queryClient.invalidateQueries({ queryKey: ["auth-user"] });
     },
     onError: (err) => {
       toast.add({
@@ -94,6 +95,7 @@ export function useAdminUsers() {
         description: "User deleted successfully.",
       });
       queryClient.invalidateQueries({ queryKey: ["admin-users-list"] });
+      queryClient.invalidateQueries({ queryKey: ["auth-user"] });
     },
     onError: (err) => {
       toast.add({
@@ -122,6 +124,7 @@ export function useAdminUsers() {
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-users-list"] });
+      queryClient.invalidateQueries({ queryKey: ["auth-user"] });
     },
     onSuccess: (_, ids) => {
       toast.add({

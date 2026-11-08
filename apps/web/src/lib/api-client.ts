@@ -1,5 +1,11 @@
 const TOKEN_KEY = "niddle_auth_token";
 
+let onUnauthorizedHandler: (() => void) | null = null;
+
+export function setOnUnauthorized(handler: (() => void) | null): void {
+  onUnauthorizedHandler = handler;
+}
+
 export function getToken(): string | null {
   return localStorage.getItem(TOKEN_KEY);
 }
@@ -147,6 +153,7 @@ export async function apiClient<T>(
     if (response.status === 401) {
       if (token && getToken() === token) {
         removeToken();
+        onUnauthorizedHandler?.();
       }
     }
 

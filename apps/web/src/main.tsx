@@ -4,6 +4,7 @@ import { createRoot } from "react-dom/client";
 
 import "./index.css";
 import { ThemeProvider } from "@/components/theme-provider.tsx";
+import { setOnUnauthorized } from "@/lib/api-client";
 import App from "./App.tsx";
 import { Toaster } from "./components/ui/toast.tsx";
 
@@ -14,6 +15,10 @@ const queryClient = new QueryClient({
       retry: false,
     },
   },
+});
+
+setOnUnauthorized(() => {
+  queryClient.setQueryData(["auth-user"], null);
 });
 
 // biome-ignore lint/style/noNonNullAssertion: root element is guaranteed in index.html
