@@ -187,7 +187,7 @@ export default class RequestSeeder implements Seeder {
         type: RequestType.SERVICE,
         status: RequestStatus.PENDING,
         targetAssociation: targetAssoc,
-        targetService: null,
+        targetService,
         requestedBy: getRequesterForAssociation(targetAssoc),
         createdAt: daysAgo(2),
         updatedAt: daysAgo(2),

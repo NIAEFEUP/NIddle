@@ -83,6 +83,8 @@ export function useAdminFaculties() {
       });
       queryClient.invalidateQueries({ queryKey: ["admin-faculties-list"] });
       queryClient.invalidateQueries({ queryKey: ["admin-faculties-all"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-courses-list"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-courses-all"] });
     },
     onError: (err) => {
       toast.add({
@@ -106,6 +108,8 @@ export function useAdminFaculties() {
       });
       queryClient.invalidateQueries({ queryKey: ["admin-faculties-list"] });
       queryClient.invalidateQueries({ queryKey: ["admin-faculties-all"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-courses-list"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-courses-all"] });
     },
     onError: (err) => {
       toast.add({
@@ -135,6 +139,8 @@ export function useAdminFaculties() {
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-faculties-list"] });
       queryClient.invalidateQueries({ queryKey: ["admin-faculties-all"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-courses-list"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-courses-all"] });
     },
     onSuccess: (_, ids) => {
       toast.add({

@@ -63,7 +63,8 @@ export function useAuth() {
       }),
     onSuccess: async (data) => {
       setToken(data.access_token);
-      await queryClient.invalidateQueries({ queryKey: ["auth-user"] });
+      queryClient.resetQueries({ queryKey: ["auth-user"] });
+      await refetch();
     },
   });
 

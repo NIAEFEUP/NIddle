@@ -151,7 +151,13 @@ export async function apiClient<T>(
 
   if (!response.ok) {
     if (response.status === 401) {
-      if (token && getToken() === token) {
+      const authHeader = headers.get("Authorization");
+      const isStoredToken =
+        Boolean(token) &&
+        getToken() === token &&
+        (!authHeader || authHeader === `Bearer ${token}`);
+
+      if (isStoredToken) {
         removeToken();
         onUnauthorizedHandler?.();
       }
