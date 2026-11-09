@@ -35,6 +35,20 @@ export class Event {
   description?: string;
 
   /**
+   * The location of the event.
+   * @example Auditório B001, FEUP
+   */
+  @Column({ nullable: true })
+  location?: string;
+
+  /**
+   * A thumbnail of the event.
+   * @example /api_images/events/sinf_2025.jpg
+   */
+  @Column({ nullable: true })
+  image?: string;
+
+  /**
    * The year when the event occurs.
    * @example 2025
    */
