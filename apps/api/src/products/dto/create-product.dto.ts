@@ -27,14 +27,6 @@ export class CreateProductDto {
   description: string;
 
   /**
-   * The URL-friendly identifier of the product.
-   * @example 'timetable-selector'
-   */
-  @IsString()
-  @IsOptional()
-  slug?: string;
-
-  /**
    * A short tagline for the product.
    * @example 'Planeia o teu semestre perfeito.'
    */
@@ -51,7 +43,7 @@ export class CreateProductDto {
   targetAudience?: string;
 
   /**
-   * Links related to the product, such as its repository, website or app store pages.
+   * Links related to the product, such as its social pages or the technologies it uses.
    */
   @IsArray()
   @ValidateNested({ each: true })
@@ -91,13 +83,4 @@ export class CreateProductDto {
   @IsString({ each: true })
   @IsOptional()
   gallery?: string[];
-
-  /**
-   * The technologies used to build the product.
-   */
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => ProductLinkDto)
-  @IsOptional()
-  technologies?: ProductLinkDto[];
 }

@@ -1,6 +1,7 @@
 import "reflect-metadata";
 import { plainToInstance } from "class-transformer";
 import { validate } from "class-validator";
+import { ProductLinkTag } from "./product-link.dto";
 import { UpdateProductDto } from "./update-product.dto";
 
 describe("UpdateProductDto", () => {
@@ -23,13 +24,9 @@ describe("UpdateProductDto", () => {
   });
 
   it.each([
-    "links",
-    "technologies",
-  ])("still validates the items in %s", async (field) => {
-    expect(
-      await errorProperties({
-        [field]: [{ label: "GitHub", url: "not a url" }],
-      }),
-    ).toContain(field);
+    ["url", { label: "GitHub", url: "not a url", tag: ProductLinkTag.SOCIAL }],
+    ["tag", { label: "GitHub", url: "https://github.com/niaefeup" }],
+  ])("still validates the %s of each link", async (_field, item) => {
+    expect(await errorProperties({ links: [item] })).toContain("links");
   });
 });

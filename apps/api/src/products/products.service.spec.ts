@@ -3,6 +3,7 @@ import { getRepositoryToken } from "@nestjs/typeorm";
 import { Association } from "@/associations/entities/association.entity";
 import { CreateProductDto } from "./dto/create-product.dto";
 import { ProductFilterDto } from "./dto/product-filter.dto";
+import { ProductLinkTag } from "./dto/product-link.dto";
 import { UpdateProductDto } from "./dto/update-product.dto";
 import { Product } from "./entities/product.entity";
 import { ProductsService } from "./products.service";
@@ -25,8 +26,18 @@ describe("ProductsService", () => {
     title: "TimeTable Selector",
     description: "A platform to plan semester timetables",
     isArchived: false,
-    links: [{ label: "GitHub", url: "https://github.com/niaefeup/tts-fe" }],
-    technologies: [{ label: "React", url: "https://react.dev" }],
+    links: [
+      {
+        label: "GitHub",
+        url: "https://github.com/niaefeup/tts-fe",
+        tag: ProductLinkTag.SOCIAL,
+      },
+      {
+        label: "React",
+        url: "https://react.dev",
+        tag: ProductLinkTag.TECHNOLOGY,
+      },
+    ],
     createdBy: mockAssociation,
   };
 
@@ -195,7 +206,13 @@ describe("ProductsService", () => {
     const createProductDto: CreateProductDto = {
       title: "TimeTable Selector",
       description: "A platform to plan semester timetables",
-      links: [{ label: "GitHub", url: "https://github.com/niaefeup/tts-fe" }],
+      links: [
+        {
+          label: "GitHub",
+          url: "https://github.com/niaefeup/tts-fe",
+          tag: ProductLinkTag.SOCIAL,
+        },
+      ],
     };
 
     it("should create a product owned by the active association", async () => {

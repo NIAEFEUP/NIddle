@@ -26,13 +26,6 @@ export class Product {
   description: string;
 
   /**
-   * The URL-friendly identifier of the product.
-   * @example 'timetable-selector'
-   */
-  @Column({ nullable: true })
-  slug?: string;
-
-  /**
    * A short tagline for the product.
    * @example 'Planeia o teu semestre perfeito.'
    */
@@ -47,7 +40,7 @@ export class Product {
   targetAudience?: string;
 
   /**
-   * Links related to the product, such as its repository, website or app store pages.
+   * Links related to the product, such as its social pages or the technologies it uses.
    */
   @Column({ type: "simple-json", nullable: true })
   links?: ProductLinkDto[];
@@ -79,13 +72,6 @@ export class Product {
    */
   @Column({ type: "simple-json", nullable: true })
   gallery?: string[];
-
-  /**
-   * The technologies used to build the product.
-   */
-  // Uses ProductLinkDto because technologies and links have the same fields.
-  @Column({ type: "simple-json", nullable: true })
-  technologies?: ProductLinkDto[];
 
   @ManyToOne(
     () => Association,

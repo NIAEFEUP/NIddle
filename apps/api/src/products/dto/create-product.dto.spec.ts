@@ -2,6 +2,7 @@ import "reflect-metadata";
 import { plainToInstance } from "class-transformer";
 import { validate } from "class-validator";
 import { CreateProductDto } from "./create-product.dto";
+import { ProductLinkTag } from "./product-link.dto";
 
 describe("CreateProductDto", () => {
   const required = {
@@ -33,16 +34,20 @@ describe("CreateProductDto", () => {
     });
   });
 
-  describe.each(["links", "technologies"])("%s", (field) => {
-    const validItem = { label: "React", url: "https://react.dev" };
+  describe("links", () => {
+    const validItem = {
+      label: "React",
+      url: "https://react.dev",
+      tag: ProductLinkTag.TECHNOLOGY,
+    };
 
     it("accepts an empty list", async () => {
-      expect(await errorProperties({ ...required, [field]: [] })).toEqual([]);
+      expect(await errorProperties({ ...required, links: [] })).toEqual([]);
     });
 
     it("accepts an item without iconPath", async () => {
       expect(
-        await errorProperties({ ...required, [field]: [validItem] }),
+        await errorProperties({ ...required, links: [validItem] }),
       ).toEqual([]);
     });
 
@@ -50,30 +55,46 @@ describe("CreateProductDto", () => {
       expect(
         await errorProperties({
           ...required,
-          [field]: [
+          links: [
             { ...validItem, iconPath: "/api_images/technologies/react.png" },
           ],
         }),
       ).toEqual([]);
     });
 
+    it.each(
+      Object.values(ProductLinkTag),
+    )("accepts an item tagged %s", async (tag) => {
+      expect(
+        await errorProperties({ ...required, links: [{ ...validItem, tag }] }),
+      ).toEqual([]);
+    });
+
     it.each([
       ["a malformed url", { ...validItem, url: "not a url" }],
       ["a javascript: url", { ...validItem, url: "javascript:alert(1)" }],
-      ["a missing url", { label: "React" }],
-      ["a missing label", { url: validItem.url }],
+      [
+        "a missing url",
+        { label: validItem.label, tag: ProductLinkTag.TECHNOLOGY },
+      ],
+      [
+        "a missing label",
+        { url: validItem.url, tag: ProductLinkTag.TECHNOLOGY },
+      ],
       ["an empty label", { ...validItem, label: "" }],
       ["a non-string iconPath", { ...validItem, iconPath: 1 }],
+      ["a missing tag", { label: validItem.label, url: validItem.url }],
+      ["an unknown tag", { ...validItem, tag: "Banana" }],
     ])("rejects an item with %s", async (_case, item) => {
-      expect(await errorProperties({ ...required, [field]: [item] })).toContain(
-        field,
+      expect(await errorProperties({ ...required, links: [item] })).toContain(
+        "links",
       );
     });
 
     it("rejects a string instead of a list", async () => {
       expect(
-        await errorProperties({ ...required, [field]: "https://react.dev" }),
-      ).toContain(field);
+        await errorProperties({ ...required, links: "https://react.dev" }),
+      ).toContain("links");
     });
   });
 
@@ -82,7 +103,6 @@ describe("CreateProductDto", () => {
       expect(
         await errorProperties({
           ...required,
-          slug: "timetable-selector",
           slogan: "Planeia o teu semestre perfeito.",
           targetAudience: "Comunidade Académica da Universidade do Porto",
           image: "/api_images/projects/tts_logo.png",

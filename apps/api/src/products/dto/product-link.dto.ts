@@ -1,4 +1,15 @@
-import { IsNotEmpty, IsOptional, IsString, IsUrl } from "class-validator";
+import {
+  IsEnum,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  IsUrl,
+} from "class-validator";
+
+export enum ProductLinkTag {
+  SOCIAL = "Social",
+  TECHNOLOGY = "Technology",
+}
 
 export class ProductLinkDto {
   /**
@@ -15,6 +26,13 @@ export class ProductLinkDto {
    */
   @IsUrl()
   url: string;
+
+  /**
+   * The kind of link.
+   * @example 'Social'
+   */
+  @IsEnum(ProductLinkTag)
+  tag: ProductLinkTag;
 
   /**
    * The icon shown next to the link.
