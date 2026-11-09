@@ -147,6 +147,27 @@ describe("EventsController", () => {
         "1",
       );
     });
+    it("should pass image and location to the service", async () => {
+      const createEventDto: CreateEventDto = {
+        name: "Workshop Python",
+        year: 2025,
+        image: "/api_images/events/workshop_1.png",
+        location: "Sala B107, FEUP",
+      };
+      const createdEvent = { ...mockEvent, ...createEventDto };
+      mockEventsService.create.mockResolvedValue(createdEvent);
+
+      const result = await controller.create(createEventDto, {
+        activeAssociationId: "1",
+      });
+
+      expect(result.image).toBe("/api_images/events/workshop_1.png");
+      expect(result.location).toBe("Sala B107, FEUP");
+      expect(mockEventsService.create).toHaveBeenCalledWith(
+        createEventDto,
+        "1",
+      );
+    });
   });
 
   describe("update", () => {
@@ -164,6 +185,19 @@ describe("EventsController", () => {
         "1",
         updateEventDto,
       );
+    });
+
+    it("should update only the location", async () => {
+      const updateEventDto: UpdateEventDto = { location: "Auditório B001" };
+      const updatedEvent = { ...mockEvent, ...updateEventDto };
+      mockEventsService.update.mockResolvedValue(updatedEvent);
+
+      const result = await controller.update("1", updateEventDto);
+
+      expect(result.location).toBe("Auditório B001");
+      expect(mockEventsService.update).toHaveBeenCalledWith("1", {
+        location: "Auditório B001",
+      });
     });
 
     it("should throw NotFoundException if event not found", async () => {

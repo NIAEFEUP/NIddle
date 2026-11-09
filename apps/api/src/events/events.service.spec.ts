@@ -378,6 +378,42 @@ describe("EventsService", () => {
       expect(result.courses).toEqual([mockCourse]);
       expect(mockEventRepository.save).toHaveBeenCalled();
     });
+    it("should create an event with image and location", async () => {
+      const createEventDto: CreateEventDto = {
+        name: "SINF - Semana de Informática",
+        year: 2025,
+        image: "/api_images/events/sinf_2025.jpg",
+        location: "FEUP",
+      };
+      mockEventRepository.create.mockImplementation((data) => ({ ...data }));
+      mockEventRepository.save.mockImplementation(async (e) => e);
+
+      const result = await service.create(createEventDto, "1");
+
+      expect(mockEventRepository.create).toHaveBeenCalledWith({
+        name: "SINF - Semana de Informática",
+        year: 2025,
+        image: "/api_images/events/sinf_2025.jpg",
+        location: "FEUP",
+      });
+      expect(result.image).toBe("/api_images/events/sinf_2025.jpg");
+      expect(result.location).toBe("FEUP");
+    });
+
+    it("should create an event without image and location", async () => {
+      const createEventDto: CreateEventDto = { name: "FEUP Week", year: 2025 };
+      mockEventRepository.create.mockImplementation((data) => ({ ...data }));
+      mockEventRepository.save.mockImplementation(async (e) => e);
+
+      const result = await service.create(createEventDto, "1");
+
+      expect(mockEventRepository.create).toHaveBeenCalledWith({
+        name: "FEUP Week",
+        year: 2025,
+      });
+      expect(result.image).toBeUndefined();
+      expect(result.location).toBeUndefined();
+    });
   });
 
   describe("update", () => {
@@ -393,6 +429,29 @@ describe("EventsService", () => {
 
       expect(result.name).toEqual("New Event Name");
       expect(mockEventRepository.save).toHaveBeenCalled();
+    });
+
+    it("should update only the location", async () => {
+      const updateEventDto: UpdateEventDto = { location: "Auditório B001" };
+      const existing = {
+        ...mockEvent,
+        image: "/api_images/events/sinf_2025.jpg",
+        location: "FEUP",
+      };
+      mockEventRepository.findOneOrFail.mockResolvedValue(existing);
+      mockEventRepository.merge.mockImplementation((target, data) =>
+        Object.assign(target, data),
+      );
+      mockEventRepository.save.mockImplementation(async (e) => e);
+
+      const result = await service.update("1", updateEventDto);
+
+      expect(mockEventRepository.merge).toHaveBeenCalledWith(existing, {
+        location: "Auditório B001",
+      });
+      expect(result.location).toBe("Auditório B001");
+      expect(result.image).toBe("/api_images/events/sinf_2025.jpg");
+      expect(result.name).toBe(mockEvent.name);
     });
 
     it("should update faculty if provided", async () => {

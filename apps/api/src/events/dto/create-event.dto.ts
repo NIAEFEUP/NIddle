@@ -26,6 +26,22 @@ export class CreateEventDto {
   description?: string;
 
   /**
+   * The location of the event.
+   * @example Auditório B001, FEUP
+   */
+  @IsString()
+  @IsOptional()
+  location?: string;
+
+  /**
+   * A thumbnail of the event.
+   * @example /api_images/events/sinf_2025.jpg
+   */
+  @IsString()
+  @IsOptional()
+  image?: string;
+
+  /**
    * The year when the event occurs.
    * @example 2025
    */

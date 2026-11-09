@@ -9,6 +9,8 @@ const eventTemplates = [
     startDate: "2025-09-22T09:00:00Z",
     endDate: null,
     year: null,
+    image: null,
+    location: null,
   },
   {
     name: "Start of classes, others",
@@ -16,6 +18,8 @@ const eventTemplates = [
     startDate: "2025-09-15T09:00:00Z",
     endDate: null,
     year: null,
+    image: null,
+    location: null,
   },
   {
     name: "FEUP Project Week (1st year/Bachelor)",
@@ -24,6 +28,8 @@ const eventTemplates = [
     startDate: "2025-09-15T09:00:00Z",
     endDate: "2025-09-19T18:00:00Z",
     year: null,
+    image: null,
+    location: null,
   },
   {
     name: "New Masters Celebration",
@@ -31,6 +37,8 @@ const eventTemplates = [
     startDate: "2025-11-22T17:00:00Z",
     endDate: null,
     year: null,
+    image: null,
+    location: null,
   },
   {
     name: "FEUP Day",
@@ -38,6 +46,8 @@ const eventTemplates = [
     startDate: null,
     endDate: null,
     year: null,
+    image: null,
+    location: null,
   },
   {
     name: "FEUP and Staff Mobil. Week",
@@ -45,6 +55,8 @@ const eventTemplates = [
     startDate: "2025-10-27T09:00:00Z",
     endDate: "2025-10-31T18:00:00Z",
     year: null,
+    image: null,
+    location: null,
   },
   {
     name: "Christmas Holidays",
@@ -52,6 +64,8 @@ const eventTemplates = [
     startDate: "2025-12-22T00:00:00Z",
     endDate: "2026-01-02T23:59:59Z",
     year: null,
+    image: null,
+    location: null,
   },
   {
     name: "End of classes 1st Year/Bachelor",
@@ -59,6 +73,8 @@ const eventTemplates = [
     startDate: "2026-01-09T18:00:00Z",
     endDate: null,
     year: null,
+    image: null,
+    location: null,
   },
   {
     name: "End of classes, others",
@@ -66,6 +82,8 @@ const eventTemplates = [
     startDate: "2025-12-19T18:00:00Z",
     endDate: null,
     year: null,
+    image: null,
+    location: null,
   },
   {
     name: "Exams, 1st Year/Bachelor",
@@ -73,6 +91,8 @@ const eventTemplates = [
     startDate: "2026-01-12T09:00:00Z",
     endDate: "2026-02-06T18:00:00Z",
     year: null,
+    image: null,
+    location: null,
   },
   {
     name: "Exams, others",
@@ -80,6 +100,8 @@ const eventTemplates = [
     startDate: "2026-01-05T09:00:00Z",
     endDate: "2026-02-06T18:00:00Z",
     year: null,
+    image: null,
+    location: null,
   },
   {
     name: "Publication marks",
@@ -87,6 +109,8 @@ const eventTemplates = [
     startDate: "2026-02-20T10:00:00Z",
     endDate: null,
     year: null,
+    image: null,
+    location: null,
   },
   {
     name: "Special examination period, completion of cycle of studies, 1st call",
@@ -94,6 +118,8 @@ const eventTemplates = [
     startDate: "2026-03-02T09:00:00Z",
     endDate: "2026-03-13T18:00:00Z",
     year: null,
+    image: null,
+    location: null,
   },
   {
     name: "Publication marks, special exam. completion of cycle of studies, 1st call",
@@ -102,6 +128,8 @@ const eventTemplates = [
     startDate: "2026-03-20T10:00:00Z",
     endDate: null,
     year: null,
+    image: null,
+    location: null,
   },
   {
     name: "Special examination period, legally applicable status, 1st semester",
@@ -110,6 +138,8 @@ const eventTemplates = [
     startDate: null,
     endDate: "2026-04-30T23:59:59Z",
     year: null,
+    image: null,
+    location: null,
   },
   {
     name: "Publication marks, special exam. legally applicable status, 1st semester",
@@ -118,6 +148,8 @@ const eventTemplates = [
     startDate: "2026-05-13T10:00:00Z",
     endDate: null,
     year: null,
+    image: null,
+    location: null,
   },
   {
     name: "Start of classes",
@@ -125,6 +157,8 @@ const eventTemplates = [
     startDate: "2026-02-18T09:00:00Z",
     endDate: null,
     year: null,
+    image: null,
+    location: null,
   },
   {
     name: "Carnival Holidays",
@@ -132,6 +166,8 @@ const eventTemplates = [
     startDate: "2026-02-16T00:00:00Z",
     endDate: "2026-02-17T23:59:59Z",
     year: null,
+    image: null,
+    location: null,
   },
   {
     name: "U.Porto Day",
@@ -139,6 +175,8 @@ const eventTemplates = [
     startDate: null,
     endDate: null,
     year: null,
+    image: null,
+    location: null,
   },
   {
     name: "Easter Holidays",
@@ -146,6 +184,8 @@ const eventTemplates = [
     startDate: "2026-03-30T00:00:00Z",
     endDate: "2026-04-06T23:59:59Z",
     year: null,
+    image: null,
+    location: null,
   },
   {
     name: "Academic and Staff mobil. week",
@@ -153,6 +193,8 @@ const eventTemplates = [
     startDate: "2026-05-04T09:00:00Z",
     endDate: "2026-05-08T18:00:00Z",
     year: null,
+    image: null,
+    location: null,
   },
   {
     name: "End of classes",
@@ -160,6 +202,8 @@ const eventTemplates = [
     startDate: "2026-06-05T18:00:00Z",
     endDate: null,
     year: null,
+    image: null,
+    location: null,
   },
   {
     name: "Exams",
@@ -167,6 +211,8 @@ const eventTemplates = [
     startDate: "2026-06-08T09:00:00Z",
     endDate: "2026-07-14T18:00:00Z",
     year: null,
+    image: null,
+    location: null,
   },
   {
     name: "Publication marks",
@@ -174,6 +220,8 @@ const eventTemplates = [
     startDate: "2026-07-21T10:00:00Z",
     endDate: null,
     year: null,
+    image: null,
+    location: null,
   },
   {
     name: "Special examination period, completion of cycle of studies, 2nd call",
@@ -181,6 +229,8 @@ const eventTemplates = [
     startDate: "2026-09-01T09:00:00Z",
     endDate: "2026-09-11T18:00:00Z",
     year: null,
+    image: null,
+    location: null,
   },
   {
     name: "Publication marks, special exam. completion of cycle of studies, 2nd semester call",
@@ -189,6 +239,8 @@ const eventTemplates = [
     startDate: "2026-09-18T10:00:00Z",
     endDate: null,
     year: null,
+    image: null,
+    location: null,
   },
   {
     name: "Special examination period, legally applicable status, 2nd semester",
@@ -197,6 +249,8 @@ const eventTemplates = [
     startDate: null,
     endDate: "2026-11-27T23:59:59Z",
     year: null,
+    image: null,
+    location: null,
   },
   {
     name: "Publication of marks, special exam. legally applicable status, 2nd",
@@ -205,6 +259,46 @@ const eventTemplates = [
     startDate: "2026-12-11T10:00:00Z",
     endDate: null,
     year: null,
+    image: null,
+    location: null,
+  },
+  {
+    name: "Jantar de Curso",
+    description:
+      "Momento de convívio entre estudantes do curso. Bebida à descrição, buffet e boas vibes.",
+    startDate: "2025-11-14T20:00:00Z",
+    endDate: null,
+    year: null,
+    image: "/api_images/events/jantar_de_curso_1.png",
+    location: "Porto",
+  },
+  {
+    name: "SINF - Semana de Informática",
+    description:
+      "Semana de palestras, workshops e contacto com empresas da área da informática.",
+    startDate: "2025-10-20T09:00:00Z",
+    endDate: "2025-10-24T18:00:00Z",
+    year: null,
+    image: "/api_images/events/sinf_2025.jpg",
+    location: "FEUP",
+  },
+  {
+    name: "Workshop Python",
+    description: "Workshop introdutório de Python organizado pelo NIAEFEUP.",
+    startDate: "2025-10-08T18:00:00Z",
+    endDate: "2025-10-08T20:00:00Z",
+    year: null,
+    image: "/api_images/events/workshop_1.png",
+    location: "Sala B107, FEUP",
+  },
+  {
+    name: "Rally Tascas",
+    description: "Percurso pelas tascas do Porto em equipas.",
+    startDate: "2026-03-12T19:00:00Z",
+    endDate: null,
+    year: null,
+    image: "/api_images/events/rally_tascas.jpg",
+    location: "Porto",
   },
 ];
 
@@ -216,6 +310,8 @@ export default setSeederFactory(Event, () => {
   event.description = template.description;
   event.startDate = template.startDate ? new Date(template.startDate) : null;
   event.endDate = template.endDate ? new Date(template.endDate) : null;
+  event.image = template.image ?? undefined;
+  event.location = template.location ?? undefined;
 
   return event;
 });
