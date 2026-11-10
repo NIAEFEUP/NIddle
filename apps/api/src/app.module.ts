@@ -2,6 +2,7 @@ import { ClassSerializerInterceptor, Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
 import { APP_FILTER, APP_INTERCEPTOR } from "@nestjs/core";
 import { SentryGlobalFilter, SentryModule } from "@sentry/nestjs/setup";
+import { ProductsModule } from "@/products/products.module";
 import { AppController } from "./app.controller";
 import { AssociationsModule } from "./associations/associations.module";
 import { AuthModule } from "./auth/auth.module";
@@ -30,6 +31,7 @@ import { UsersModule } from "./users/users.module";
     EventsModule,
     CoursesModule,
     RequestsModule,
+    ProductsModule,
   ],
   controllers: [AppController],
   providers: [

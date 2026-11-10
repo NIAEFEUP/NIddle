@@ -7,6 +7,7 @@ import {
   PrimaryGeneratedColumn,
 } from "typeorm";
 import { Event } from "@/events/entities/event.entity";
+import { Product } from "@/products/entities/product.entity";
 import { Request } from "@/requests/entities/request.entity";
 import { Service } from "@/services/entity/service.entity";
 import { User } from "@/users/entities/user.entity";
@@ -68,4 +69,10 @@ export class Association {
     (request) => request.targetAssociation,
   )
   requests: Request[];
+
+  @OneToMany(
+    () => Product,
+    (product) => product.createdBy,
+  )
+  products: Product[];
 }

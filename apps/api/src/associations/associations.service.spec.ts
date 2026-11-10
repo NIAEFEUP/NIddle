@@ -28,6 +28,7 @@ describe("AssociationsService", () => {
     events: [],
     services: [],
     requests: [],
+    products: [],
   };
 
   const mockAssociationRepository = {

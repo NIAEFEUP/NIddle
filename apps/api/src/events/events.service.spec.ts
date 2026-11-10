@@ -20,6 +20,7 @@ describe("EventsService", () => {
     events: [],
     services: [],
     requests: [],
+    products: [],
   };
 
   const mockFaculty: Faculty = {
