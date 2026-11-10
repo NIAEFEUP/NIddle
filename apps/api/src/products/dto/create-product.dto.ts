@@ -5,6 +5,7 @@ import {
   IsNotEmpty,
   IsOptional,
   IsString,
+  ValidateIf,
   ValidateNested,
 } from "class-validator";
 import { ProductLinkDto } from "./product-link.dto";
@@ -72,7 +73,7 @@ export class CreateProductDto {
    * @example false
    */
   @IsBoolean()
-  @IsOptional()
+  @ValidateIf((_, value) => value !== undefined)
   isArchived?: boolean;
 
   /**

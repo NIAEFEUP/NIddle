@@ -124,5 +124,11 @@ describe("CreateProductDto", () => {
         await errorProperties({ ...required, isArchived: "yes" }),
       ).toContain("isArchived");
     });
+
+    it("rejects a null isArchived", async () => {
+      expect(
+        await errorProperties({ ...required, isArchived: null }),
+      ).toContain("isArchived");
+    });
   });
 });

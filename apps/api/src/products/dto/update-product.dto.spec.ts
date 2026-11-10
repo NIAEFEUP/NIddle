@@ -24,6 +24,18 @@ describe("UpdateProductDto", () => {
   });
 
   it.each([
+    "title",
+    "description",
+    "isArchived",
+  ])("rejects a null %s", async (field) => {
+    expect(await errorProperties({ [field]: null })).toContain(field);
+  });
+
+  it("still accepts a null for nullable fields", async () => {
+    expect(await errorProperties({ slogan: null })).toEqual([]);
+  });
+
+  it.each([
     ["url", { label: "GitHub", url: "not a url", tag: ProductLinkTag.SOCIAL }],
     ["tag", { label: "GitHub", url: "https://github.com/niaefeup" }],
   ])("still validates the %s of each link", async (_field, item) => {
